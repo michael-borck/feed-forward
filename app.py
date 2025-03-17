@@ -40,9 +40,7 @@ def get():
 @rt('/landing')
 def get():
     """Landing page for FeedForward"""
-    return Titled(
-        "FeedForward: Elevate Your Learning",
-        Div(
+    return Div(
             # Header with navigation bar - matching login/register pages
             Header(
                 Div(
@@ -51,10 +49,10 @@ def get():
                         H1("FeedForward", cls="text-2xl font-bold"),
                         cls="flex items-center"
                     ),
-                    # Right side - Login/Register buttons
+                    # Right side - Sign in/Sign up buttons (standardizing terminology)
                     Nav(
-                        A("Login", href="/login", cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-gray-700"),
-                        A("Sign Up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-lg mx-2 hover:bg-blue-600"),
+                        A("Sign in", href="/login", cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-gray-700"),
+                        A("Sign up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-lg mx-2 hover:bg-blue-600"),
                         cls="flex items-center"
                     ),
                     cls="container mx-auto flex justify-between items-center"
@@ -76,7 +74,7 @@ def get():
                         ),
                         Div(
                             A(
-                                "Get Started", 
+                                "Sign up", 
                                 href="/register", 
                                 cls="bg-blue-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-600 transition-colors mr-4"
                             ),
@@ -89,7 +87,7 @@ def get():
                         ),
                         cls="max-w-2xl mx-auto text-center"
                     ),
-                    cls="bg-white p-8 rounded-lg shadow-md"
+                    cls="bg-gray-50 p-8 rounded-lg shadow-md"
                 ),
                 cls="container mx-auto px-4 py-16 flex justify-center bg-gray-100"
             ),
@@ -117,7 +115,7 @@ def get():
                                     "Upload assignments easily with our intuitive interface.",
                                     cls="text-gray-600"
                                 ),
-                                cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                                cls="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             ),
                             # Feature 2
                             Div(
@@ -133,7 +131,7 @@ def get():
                                     "Get detailed, constructive feedback based on your specific assignment criteria.",
                                     cls="text-gray-600"
                                 ),
-                                cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                                cls="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             ),
                             # Feature 3
                             Div(
@@ -149,11 +147,11 @@ def get():
                                     "Track your progress and refine your work through multiple drafts.",
                                     cls="text-gray-600"
                                 ),
-                                cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                                cls="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             ),
                             cls="grid md:grid-cols-3 gap-8"
                         ),
-                        cls="bg-white p-8 rounded-lg shadow-md"
+                        cls="bg-gray-50 p-8 rounded-lg shadow-md"
                     ),
                     cls="container mx-auto px-4 py-16"
                 ),
@@ -178,7 +176,6 @@ def get():
             
             cls="min-h-screen flex flex-col"
         )
-    )
 
 # --- Start the Server ---
 if __name__ == "__main__":
