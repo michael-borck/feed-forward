@@ -41,3 +41,7 @@ docs/reference/
 docs/html-mockups/
 docs/svg-mockups/
 docs/llms-ctx.txt
+
+# Session keys and local configuration
+.sesskey
+.env
