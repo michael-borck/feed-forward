@@ -124,10 +124,20 @@ def post(name: str, email: str, password: str, confirm_password: str):
         users.insert(new_user)
         
         # Send verification email
-        if send_verification_email(email, token):
+        success, message = send_verification_email(email, token)
+        if success:
             return "Registration successful. Please check your email to verify your account."
         else:
-            return "Registration successful but failed to send verification email. Please contact support."
+            # For security, don't expose the exact error to the user
+            print(f"EMAIL ERROR DETAILS: {message}")
+            # Provide a way to verify manually for development purposes
+            verify_link = f"{APP_DOMAIN}/verify?token={token}"
+            return Div(
+                P("Registration successful but there was an issue sending the verification email.", cls="text-red-500 mb-2"),
+                P("For development purposes, you can verify your account using this link:", cls="mb-2"),
+                A(verify_link, href=verify_link, cls="text-blue-500 underline break-all", target="_blank"),
+                cls="text-center"
+            )
 
 # --- Email Verification Route ---
 @rt('/verify')
@@ -382,14 +392,21 @@ def post(email: str):
         users.update(user)
         
         # Send password reset email
-        if send_password_reset_email(email, reset_token):
+        success, message = send_password_reset_email(email, reset_token)
+        if success:
             return Div(
                 P("Password reset link sent. Please check your email.", cls="text-green-500"),
                 cls="text-center"
             )
         else:
+            # For security, don't expose the exact error to the user
+            print(f"EMAIL ERROR DETAILS: {message}")
+            # Provide a way to reset password manually for development purposes
+            reset_link = f"{APP_DOMAIN}/reset-password?token={reset_token}"
             return Div(
-                P("Failed to send reset link. Please try again later.", cls="text-red-500"),
+                P("Failed to send reset link.", cls="text-red-500 mb-2"),
+                P("For development purposes, you can reset your password using this link:", cls="mb-2"),
+                A(reset_link, href=reset_link, cls="text-blue-500 underline break-all", target="_blank"),
                 cls="text-center"
             )
     except NotFoundError:

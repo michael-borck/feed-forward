@@ -16,7 +16,7 @@ SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "yourpassword")
 SMTP_FROM     = os.environ.get("SMTP_FROM", "noreply@example.com")
 APP_DOMAIN    = os.environ.get("APP_DOMAIN", "http://localhost:5001")
 
-def send_verification_email(user_email: str, token: str) -> bool:
+def send_verification_email(user_email: str, token: str) -> tuple[bool, str]:
     """
     Send an email verification link to the user
     
@@ -25,9 +25,17 @@ def send_verification_email(user_email: str, token: str) -> bool:
         token: The verification token
         
     Returns:
-        bool: True if the email was sent successfully, False otherwise
+        tuple: (success, message)
+            - success: True if the email was sent successfully, False otherwise
+            - message: Success message or error details
     """
+    error_msg = ""
     try:
+        # Print debugging information
+        print(f"Sending verification email to {user_email}")
+        print(f"SMTP Settings: Server={SMTP_SERVER}, Port={SMTP_PORT}, User={SMTP_USER}")
+        print(f"From: {SMTP_FROM}, Domain: {APP_DOMAIN}")
+        
         msg = EmailMessage()
         verify_link = f"{APP_DOMAIN}/verify?token={token}"
         msg.set_content(f"Please click the following link to verify your email:\n{verify_link}")
@@ -35,22 +43,56 @@ def send_verification_email(user_email: str, token: str) -> bool:
         msg["From"] = SMTP_FROM
         msg["To"] = user_email
 
+        # For debugging purposes
+        print(f"Email content prepared with verification link: {verify_link}")
+
         # Use SMTP_SSL for port 465, regular SMTP with STARTTLS for other ports
         if SMTP_PORT == 465:
+            print("Using SMTP_SSL connection")
             with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+                print("SMTP_SSL connection established")
                 server.login(SMTP_USER, SMTP_PASSWORD)
+                print("Login successful")
+                
+                # Set debug level to see SMTP conversation
+                server.set_debuglevel(1)
+                
                 server.send_message(msg)
+                print("Message sent")
         else:
+            print("Using SMTP with STARTTLS")
             with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+                print("SMTP connection established")
                 server.starttls()
+                print("STARTTLS successful")
                 server.login(SMTP_USER, SMTP_PASSWORD)
+                print("Login successful")
+                
+                # Set debug level to see SMTP conversation
+                server.set_debuglevel(1)
+                
                 server.send_message(msg)
-        return True
+                print("Message sent")
+        
+        return True, "Verification email sent successfully"
+    except ConnectionRefusedError:
+        error_msg = "Connection refused. Please check if the SMTP server is reachable."
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
+    except smtplib.SMTPAuthenticationError:
+        error_msg = "Authentication failed. Please check SMTP username and password."
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
+    except smtplib.SMTPException as e:
+        error_msg = f"SMTP error: {str(e)}"
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
     except Exception as e:
-        print(f"Failed to send verification email: {str(e)}")
-        return False
+        error_msg = f"Failed to send verification email: {str(e)}"
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
 
-def send_password_reset_email(user_email: str, token: str) -> bool:
+def send_password_reset_email(user_email: str, token: str) -> tuple[bool, str]:
     """
     Send a password reset link to the user
     
@@ -59,9 +101,16 @@ def send_password_reset_email(user_email: str, token: str) -> bool:
         token: The reset token
         
     Returns:
-        bool: True if the email was sent successfully, False otherwise
+        tuple: (success, message)
+            - success: True if the email was sent successfully, False otherwise
+            - message: Success message or error details
     """
+    error_msg = ""
     try:
+        # Print debugging information
+        print(f"Sending password reset email to {user_email}")
+        print(f"SMTP Settings: Server={SMTP_SERVER}, Port={SMTP_PORT}, User={SMTP_USER}")
+        
         msg = EmailMessage()
         reset_link = f"{APP_DOMAIN}/reset-password?token={token}"
         msg.set_content(f"Please click the following link to reset your password:\n{reset_link}\n\nThis link will expire in 24 hours.")
@@ -69,22 +118,48 @@ def send_password_reset_email(user_email: str, token: str) -> bool:
         msg["From"] = SMTP_FROM
         msg["To"] = user_email
 
+        # For debugging purposes
+        print(f"Email content prepared with reset link: {reset_link}")
+
         # Use SMTP_SSL for port 465, regular SMTP with STARTTLS for other ports
         if SMTP_PORT == 465:
+            print("Using SMTP_SSL connection")
             with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+                print("SMTP_SSL connection established")
                 server.login(SMTP_USER, SMTP_PASSWORD)
+                print("Login successful")
                 server.send_message(msg)
+                print("Message sent")
         else:
+            print("Using SMTP with STARTTLS")
             with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+                print("SMTP connection established")
                 server.starttls()
+                print("STARTTLS successful")
                 server.login(SMTP_USER, SMTP_PASSWORD)
+                print("Login successful")
                 server.send_message(msg)
-        return True
+                print("Message sent")
+        
+        return True, "Password reset email sent successfully"
+    except ConnectionRefusedError:
+        error_msg = "Connection refused. Please check if the SMTP server is reachable."
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
+    except smtplib.SMTPAuthenticationError:
+        error_msg = "Authentication failed. Please check SMTP username and password."
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
+    except smtplib.SMTPException as e:
+        error_msg = f"SMTP error: {str(e)}"
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
     except Exception as e:
-        print(f"Failed to send password reset email: {str(e)}")
-        return False
+        error_msg = f"Failed to send password reset email: {str(e)}"
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
 
-def send_student_invitation_email(student_email: str, instructor_name: str, course_name: str, token: str) -> bool:
+def send_student_invitation_email(student_email: str, instructor_name: str, course_name: str, token: str) -> tuple[bool, str]:
     """
     Send an invitation email to a student to join a course
     
@@ -95,9 +170,16 @@ def send_student_invitation_email(student_email: str, instructor_name: str, cour
         token: The invitation token
         
     Returns:
-        bool: True if the email was sent successfully, False otherwise
+        tuple: (success, message)
+            - success: True if the email was sent successfully, False otherwise
+            - message: Success message or error details
     """
+    error_msg = ""
     try:
+        # Print debugging information
+        print(f"Sending invitation email to {student_email}")
+        print(f"SMTP Settings: Server={SMTP_SERVER}, Port={SMTP_PORT}, User={SMTP_USER}")
+        
         msg = EmailMessage()
         invitation_link = f"{APP_DOMAIN}/student/join?token={token}"
         msg.set_content(
@@ -109,20 +191,46 @@ def send_student_invitation_email(student_email: str, instructor_name: str, cour
         msg["From"] = SMTP_FROM
         msg["To"] = student_email
 
+        # For debugging purposes
+        print(f"Email content prepared with invitation link: {invitation_link}")
+
         # Use SMTP_SSL for port 465, regular SMTP with STARTTLS for other ports
         if SMTP_PORT == 465:
+            print("Using SMTP_SSL connection")
             with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+                print("SMTP_SSL connection established")
                 server.login(SMTP_USER, SMTP_PASSWORD)
+                print("Login successful")
                 server.send_message(msg)
+                print("Message sent")
         else:
+            print("Using SMTP with STARTTLS")
             with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+                print("SMTP connection established")
                 server.starttls()
+                print("STARTTLS successful")
                 server.login(SMTP_USER, SMTP_PASSWORD)
+                print("Login successful")
                 server.send_message(msg)
-        return True
+                print("Message sent")
+        
+        return True, "Student invitation email sent successfully"
+    except ConnectionRefusedError:
+        error_msg = "Connection refused. Please check if the SMTP server is reachable."
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
+    except smtplib.SMTPAuthenticationError:
+        error_msg = "Authentication failed. Please check SMTP username and password."
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
+    except smtplib.SMTPException as e:
+        error_msg = f"SMTP error: {str(e)}"
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
     except Exception as e:
-        print(f"Failed to send student invitation email: {str(e)}")
-        return False
+        error_msg = f"Failed to send student invitation email: {str(e)}"
+        print(f"EMAIL ERROR: {error_msg}")
+        return False, error_msg
 
 def generate_verification_token(email: str) -> str:
     """
