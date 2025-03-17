@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 from dotenv import load_dotenv
 from starlette.responses import Response, RedirectResponse
 from starlette.exceptions import HTTPException
-from fasthtml.common import serve, Titled, Container, Div, H1, P, A, Span, Hr, Button
+from fasthtml.common import serve, Titled, Container, Div, H1, H2, H3, P, A, Span, Hr, Button
 from fasthtml.common import Input, Label, Form, Header, Footer, Nav, Script, Style, HttpHeader
 
 # Import app instance
