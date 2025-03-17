@@ -120,12 +120,11 @@ def get():
             Div(
                 Div(
                     H1(
-                        "Transformative Learning through AI-Powered Feedback", 
+                        "FeedForward: Elevate Your Learning", 
                         cls="text-4xl font-bold text-gray-800 mb-6"
                     ),
                     P(
-                        "FeedForward revolutionizes academic writing by providing intelligent, "
-                        "constructive feedback that helps students improve their work iteratively.",
+                        "Transforming feedback into a path to success.",
                         cls="text-xl text-gray-600 mb-8"
                     ),
                     Div(
