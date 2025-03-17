@@ -15,96 +15,67 @@ from app import app, rt
 from fasthtml.common import Container, Div, H1, H2, H3, P, A, Span, Hr, Button
 from fasthtml.common import Input, Label, Form, Header, Footer, Nav, Script, Style, HttpHeader
 
+# Import UI components
+from app.utils.ui import page_header, page_footer, page_container
+
 # --- Registration Routes ---
 @rt('/register')
 def get():
-    return Container(
-        # Header with navigation bar
-        Header(
-            Div(
-                # Left side - Logo and name
-                Div(
-                    H1("FeedForward", cls="text-2xl font-bold"),
-                    cls="flex items-center"
-                ),
-                # Right side - Login/Register buttons
-                Nav(
-                    A("Login", href="/login", cls="bg-blue-500 text-white px-4 py-2 rounded-full mx-2 hover:bg-blue-600"),
-                    cls="flex items-center"
-                ),
-                cls="container mx-auto flex justify-between items-center"
-            ),
-            cls="bg-gray-800 text-white p-4"
-        ),
-        
-        # Registration form
+    # Create the registration form content
+    registration_content = Div(
         Div(
+            H1("Create Your Account", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
             Div(
-                H1("Create Your Account", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
-                Div(
-                    Form(
-                        Div(
-                            Label("Name", for_="name", cls="block text-gray-700 mb-1"),
-                            Input(id="name", type="text", placeholder="Your full name", required=True, 
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Div(
-                            Label("Email", for_="email", cls="block text-gray-700 mb-1"),
-                            P("Must be a Curtin email address (curtin.edu.au)", 
-                              cls="text-sm text-gray-500 mb-1"),
-                            Input(id="email", type="email", placeholder="Your email address", required=True, 
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Div(
-                            Label("Password", for_="password", cls="block text-gray-700 mb-1"),
-                            P("At least 8 characters with uppercase, lowercase, number, and special character", 
-                              cls="text-sm text-gray-500 mb-1"),
-                            Input(id="password", type="password", placeholder="Create a password", required=True,
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Div(
-                            Label("Confirm Password", for_="confirm_password", cls="block text-gray-700 mb-1"),
-                            Input(id="confirm_password", type="password", placeholder="Confirm your password", required=True,
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-6"
-                        ),
-                        Div(
-                            Button("Register", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Span(id="error", cls="text-red-500 block text-center"),
-                        hx_post="/register",
-                        hx_target="#error",
-                        cls="w-full"
+                Form(
+                    Div(
+                        Label("Name", for_="name", cls="block text-gray-700 mb-1"),
+                        Input(id="name", type="text", placeholder="Your full name", required=True, 
+                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-4"
                     ),
-                    Hr(cls="my-6"),
-                    P("Already have an account? ", A("Login here", href="/login", cls="text-blue-500 hover:underline"), 
-                      cls="text-center text-gray-600"),
-                    cls="w-full max-w-md"
+                    Div(
+                        Label("Email", for_="email", cls="block text-gray-700 mb-1"),
+                        P("Must be a Curtin email address (curtin.edu.au)", 
+                          cls="text-sm text-gray-500 mb-1"),
+                        Input(id="email", type="email", placeholder="Your email address", required=True, 
+                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-4"
+                    ),
+                    Div(
+                        Label("Password", for_="password", cls="block text-gray-700 mb-1"),
+                        P("At least 8 characters with uppercase, lowercase, number, and special character", 
+                          cls="text-sm text-gray-500 mb-1"),
+                        Input(id="password", type="password", placeholder="Create a password", required=True,
+                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-4"
+                    ),
+                    Div(
+                        Label("Confirm Password", for_="confirm_password", cls="block text-gray-700 mb-1"),
+                        Input(id="confirm_password", type="password", placeholder="Confirm your password", required=True,
+                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-6"
+                    ),
+                    Div(
+                        Button("Sign up", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-4"
+                    ),
+                    Span(id="error", cls="text-red-500 block text-center"),
+                    hx_post="/register",
+                    hx_target="#error",
+                    cls="w-full"
                 ),
-                cls="bg-white p-8 rounded-lg shadow-md"
+                Hr(cls="my-6"),
+                P("Already have an account? ", A("Sign in here", href="/login", cls="text-blue-500 hover:underline"), 
+                  cls="text-center text-gray-600"),
+                cls="w-full max-w-md"
             ),
-            cls="flex justify-center items-center py-16 px-4 bg-gray-100"
+            cls="bg-gray-50 p-8 rounded-lg shadow-md"
         ),
-        
-        # Footer
-        Footer(
-            Div(
-                P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
-                Div(
-                    A("Terms", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    A("Privacy", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    A("Contact", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    cls="flex"
-                ),
-                cls="container mx-auto flex justify-between items-center"
-            ),
-            cls="bg-gray-100 border-t border-gray-200 py-6"
-        )
+        cls="flex justify-center items-center py-16 px-4"
     )
+    
+    # Return the complete page
+    return page_container("Sign up - FeedForward", registration_content)
 
 @rt('/register')
 def post(name: str, email: str, password: str, confirm_password: str):
@@ -244,81 +215,49 @@ def get(token: str):
 # --- Login Routes ---
 @rt('/login')
 def get():
-    return Container(
-        # Header with navigation bar
-        Header(
-            Div(
-                # Left side - Logo and name
-                Div(
-                    H1("FeedForward", cls="text-2xl font-bold"),
-                    cls="flex items-center"
-                ),
-                # Right side - Login/Register buttons
-                Nav(
-                    A("Sign Up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-full mx-2 hover:bg-blue-600"),
-                    cls="flex items-center"
-                ),
-                cls="container mx-auto flex justify-between items-center"
-            ),
-            cls="bg-gray-800 text-white p-4"
-        ),
-        
-        # Login form
+    # Create the login form content
+    login_content = Div(
         Div(
+            H1("Sign in to Your Account", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
             Div(
-                H1("Login to Your Account", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
-                Div(
-                    Form(
-                        Div(
-                            Label("Email", for_="email", cls="block text-gray-700 mb-1"),
-                            Input(id="email", type="email", placeholder="Your email address", required=True, 
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Div(
-                            Label("Password", for_="password", cls="block text-gray-700 mb-1"),
-                            Input(id="password", type="password", placeholder="Your password", required=True,
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Div(
-                            A("Forgot password?", href="/forgot-password", cls="text-blue-500 hover:underline text-sm"),
-                            cls="mb-6 text-right"
-                        ),
-                        Div(
-                            Button("Login", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Span(id="error", cls="text-red-500 block text-center"),
-                        hx_post="/login",
-                        hx_target="#error",
-                        cls="w-full"
+                Form(
+                    Div(
+                        Label("Email", for_="email", cls="block text-gray-700 mb-1"),
+                        Input(id="email", type="email", placeholder="Your email address", required=True, 
+                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-4"
                     ),
-                    Hr(cls="my-6"),
-                    P("Don't have an account? ", A("Register here", href="/register", cls="text-blue-500 hover:underline"), 
-                      cls="text-center text-gray-600"),
-                    cls="w-full max-w-md"
+                    Div(
+                        Label("Password", for_="password", cls="block text-gray-700 mb-1"),
+                        Input(id="password", type="password", placeholder="Your password", required=True,
+                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-4"
+                    ),
+                    Div(
+                        A("Forgot password?", href="/forgot-password", cls="text-blue-500 hover:underline text-sm"),
+                        cls="mb-6 text-right"
+                    ),
+                    Div(
+                        Button("Sign in", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        cls="mb-4"
+                    ),
+                    Span(id="error", cls="text-red-500 block text-center"),
+                    hx_post="/login",
+                    hx_target="#error",
+                    cls="w-full"
                 ),
-                cls="bg-white p-8 rounded-lg shadow-md"
+                Hr(cls="my-6"),
+                P("Don't have an account? ", A("Sign up here", href="/register", cls="text-blue-500 hover:underline"), 
+                  cls="text-center text-gray-600"),
+                cls="w-full max-w-md"
             ),
-            cls="flex justify-center items-center py-16 px-4 bg-gray-100"
+            cls="bg-gray-50 p-8 rounded-lg shadow-md"
         ),
-        
-        # Footer
-        Footer(
-            Div(
-                P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
-                Div(
-                    A("Terms", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    A("Privacy", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    A("Contact", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    cls="flex"
-                ),
-                cls="container mx-auto flex justify-between items-center"
-            ),
-            cls="bg-gray-100 border-t border-gray-200 py-6"
-        )
+        cls="flex justify-center items-center py-16 px-4"
     )
+    
+    # Return the complete page
+    return page_container("Sign in - FeedForward", login_content)
 
 @rt('/login')
 def post(session, email: str, password: str):

@@ -31,6 +31,9 @@ APP_DOMAIN = os.environ.get("APP_DOMAIN", "http://localhost:5001")
 # Import authentication decorators
 from app import basic_auth, role_required, instructor_required, student_required, admin_required
 
+# Import UI components
+from app.utils.ui import page_header, page_footer, page_container
+
 # --- Landing Page ---
 @rt('/')
 def get():
@@ -40,25 +43,8 @@ def get():
 @rt('/landing')
 def get():
     """Landing page for FeedForward"""
-    return Div(
-            # Header with navigation bar - matching login/register pages
-            Header(
-                Div(
-                    # Left side - Logo and name
-                    Div(
-                        H1("FeedForward", cls="text-2xl font-bold"),
-                        cls="flex items-center"
-                    ),
-                    # Right side - Sign in/Sign up buttons (standardizing terminology)
-                    Nav(
-                        A("Sign in", href="/login", cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-gray-700"),
-                        A("Sign up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-lg mx-2 hover:bg-blue-600"),
-                        cls="flex items-center"
-                    ),
-                    cls="container mx-auto flex justify-between items-center"
-                ),
-                cls="bg-gray-800 text-white p-4"
-            ),
+    # Create the main content for the landing page
+    landing_content = Div(
             
             # Hero Section
             Div(
@@ -158,24 +144,21 @@ def get():
                 id="features",
                 cls="bg-gray-100"
             ),
-            
-            # Footer - matching login/register pages
-            Footer(
-                Div(
-                    P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
-                    Div(
-                        A("Terms", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                        A("Privacy", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                        A("Contact", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                        cls="flex"
-                    ),
-                    cls="container mx-auto flex justify-between items-center"
-                ),
-                cls="bg-gray-100 border-t border-gray-200 py-6"
+    )
+    
+    # Return the complete page with header and footer
+    return Titled(
+        "FeedForward: Elevate Your Learning",
+        Div(
+            page_header(show_auth_buttons=True),
+            Div(
+                landing_content,
+                cls="flex-grow"
             ),
-            
+            page_footer(),
             cls="min-h-screen flex flex-col"
         )
+    )
 
 # --- Start the Server ---
 if __name__ == "__main__":
