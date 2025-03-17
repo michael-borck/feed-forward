@@ -1,0 +1,7 @@
+python-fasthtml
+passlib
+litellm>=1.12.0
+python-dotenv
+bcrypt
+email-validator
+python-multipart

@@ -1,0 +1,43 @@
+# Virtual Environment
+venv/
+*.venv
+.env
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# SQLite database files
+*.db
+*.sqlite3
+*.sqlite
+
+# Data directory
+data/
+
+# Alembic versions
+alembic/versions/*
+!alembic/versions/.gitkeep
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Project specific reference materials
+docs/reference/
+docs/html-mockups/
+docs/svg-mockups/
+docs/llms-ctx.txt
