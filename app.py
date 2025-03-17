@@ -41,116 +41,119 @@ def get():
 def get():
     """Landing page for FeedForward"""
     return Titled(
-        "FeedForward - Intelligent Learning Feedback",
+        "FeedForward: Elevate Your Learning",
         Div(
-            # Navigation with Sign In and Sign Up
-            Div(
+            # Header with navigation bar - matching login/register pages
+            Header(
                 Div(
-                    A("FeedForward", href="/", cls="text-2xl font-bold text-blue-600"),
-                    cls="flex items-center"
-                ),
-                Div(
-                    A(
-                        "Sign In", 
-                        href="/login", 
-                        cls="mr-4 text-blue-600 hover:text-blue-800 transition-colors"
+                    # Left side - Logo and name
+                    Div(
+                        H1("FeedForward", cls="text-2xl font-bold"),
+                        cls="flex items-center"
                     ),
-                    A(
-                        "Sign Up", 
-                        href="/register", 
-                        cls="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors"
+                    # Right side - Login/Register buttons
+                    Nav(
+                        A("Login", href="/login", cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-gray-700"),
+                        A("Sign Up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-lg mx-2 hover:bg-blue-600"),
+                        cls="flex items-center"
                     ),
-                    cls="flex items-center"
+                    cls="container mx-auto flex justify-between items-center"
                 ),
-                cls="container mx-auto flex justify-between items-center p-4"
+                cls="bg-gray-800 text-white p-4"
             ),
             
             # Hero Section
             Div(
                 Div(
-                    H1(
-                        "FeedForward: Elevate Your Learning", 
-                        cls="text-4xl font-bold text-gray-800 mb-6"
-                    ),
-                    P(
-                        "Transforming feedback into a path to success.",
-                        cls="text-xl text-gray-600 mb-8"
-                    ),
                     Div(
-                        A(
-                            "Get Started", 
-                            href="/register", 
-                            cls="bg-blue-500 text-white px-6 py-3 rounded-full text-lg hover:bg-blue-600 transition-colors mr-4"
+                        H1(
+                            "FeedForward: Elevate Your Learning", 
+                            cls="text-4xl font-bold text-gray-800 mb-6"
                         ),
-                        A(
-                            "Learn More", 
-                            href="#features", 
-                            cls="text-blue-500 hover:text-blue-700 text-lg transition-colors"
+                        P(
+                            "Transforming feedback into a path to success.",
+                            cls="text-xl text-gray-600 mb-8"
                         ),
-                        cls="flex items-center"
+                        Div(
+                            A(
+                                "Get Started", 
+                                href="/register", 
+                                cls="bg-blue-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-600 transition-colors mr-4"
+                            ),
+                            A(
+                                "Learn More", 
+                                href="#features", 
+                                cls="text-blue-500 hover:text-blue-700 text-lg transition-colors"
+                            ),
+                            cls="flex items-center justify-center"
+                        ),
+                        cls="max-w-2xl mx-auto text-center"
                     ),
-                    cls="max-w-2xl mx-auto text-center"
+                    cls="bg-white p-8 rounded-lg shadow-md"
                 ),
-                cls="container mx-auto px-4 py-16 text-center"
+                cls="container mx-auto px-4 py-16 flex justify-center bg-gray-100"
             ),
             
             # Features Section
             Div(
                 Div(
-                    H2(
-                        "How FeedForward Works", 
-                        cls="text-3xl font-bold text-center text-gray-800 mb-12"
-                    ),
                     Div(
-                        # Feature 1
-                        Div(
-                            Div(
-                                "1",
-                                cls="bg-blue-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold mb-4"
-                            ),
-                            H3(
-                                "Submit Your Work", 
-                                cls="text-xl font-semibold text-gray-800 mb-2"
-                            ),
-                            P(
-                                "Upload assignments easily with our intuitive interface.",
-                                cls="text-gray-600"
-                            ),
-                            cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                        H2(
+                            "How FeedForward Works", 
+                            cls="text-3xl font-bold text-center text-gray-800 mb-12"
                         ),
-                        # Feature 2
                         Div(
+                            # Feature 1
                             Div(
-                                "2",
-                                cls="bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold mb-4"
+                                Div(
+                                    "1",
+                                    cls="bg-blue-500 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold mb-4"
+                                ),
+                                H3(
+                                    "Submit Your Work", 
+                                    cls="text-xl font-semibold text-gray-800 mb-2"
+                                ),
+                                P(
+                                    "Upload assignments easily with our intuitive interface.",
+                                    cls="text-gray-600"
+                                ),
+                                cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             ),
-                            H3(
-                                "Receive Smart Feedback", 
-                                cls="text-xl font-semibold text-gray-800 mb-2"
-                            ),
-                            P(
-                                "Get detailed, constructive feedback based on your specific assignment criteria.",
-                                cls="text-gray-600"
-                            ),
-                            cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                        ),
-                        # Feature 3
-                        Div(
+                            # Feature 2
                             Div(
-                                "3",
-                                cls="bg-purple-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold mb-4"
+                                Div(
+                                    "2",
+                                    cls="bg-green-500 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold mb-4"
+                                ),
+                                H3(
+                                    "Receive Smart Feedback", 
+                                    cls="text-xl font-semibold text-gray-800 mb-2"
+                                ),
+                                P(
+                                    "Get detailed, constructive feedback based on your specific assignment criteria.",
+                                    cls="text-gray-600"
+                                ),
+                                cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             ),
-                            H3(
-                                "Iterative Improvement", 
-                                cls="text-xl font-semibold text-gray-800 mb-2"
+                            # Feature 3
+                            Div(
+                                Div(
+                                    "3",
+                                    cls="bg-purple-500 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold mb-4"
+                                ),
+                                H3(
+                                    "Iterative Improvement", 
+                                    cls="text-xl font-semibold text-gray-800 mb-2"
+                                ),
+                                P(
+                                    "Track your progress and refine your work through multiple drafts.",
+                                    cls="text-gray-600"
+                                ),
+                                cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             ),
-                            P(
-                                "Track your progress and refine your work through multiple drafts.",
-                                cls="text-gray-600"
-                            ),
-                            cls="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                            cls="grid md:grid-cols-3 gap-8"
                         ),
-                        cls="grid md:grid-cols-3 gap-8"
+                        cls="bg-white p-8 rounded-lg shadow-md"
                     ),
                     cls="container mx-auto px-4 py-16"
                 ),
@@ -158,19 +161,19 @@ def get():
                 cls="bg-gray-100"
             ),
             
-            # Footer
-            Div(
+            # Footer - matching login/register pages
+            Footer(
                 Div(
+                    P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
                     Div(
-                        P(
-                            "© 2025 FeedForward. All rights reserved.", 
-                            cls="text-gray-500"
-                        ),
-                        cls="text-center"
+                        A("Terms", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
+                        A("Privacy", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
+                        A("Contact", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
+                        cls="flex"
                     ),
-                    cls="container mx-auto py-8"
+                    cls="container mx-auto flex justify-between items-center"
                 ),
-                cls="bg-gray-100"
+                cls="bg-gray-100 border-t border-gray-200 py-6"
             ),
             
             cls="min-h-screen flex flex-col"
