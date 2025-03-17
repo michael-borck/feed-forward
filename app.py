@@ -9,6 +9,10 @@ from fasthtml.common import Input, Label, Form, Header, Footer, Nav, Script, Sty
 # Import app instance
 from app import app, rt
 
+# Register all routes
+from app.routes import register_routes
+register_routes()
+
 # Import app models
 from app.models.user import User, Role, db, users
 from app.models.course import Course, Enrollment
@@ -177,9 +181,6 @@ def get():
 if __name__ == "__main__":
     # Create data directory if it doesn't exist
     os.makedirs("data", exist_ok=True)
-    
-    # Import route modules
-    from app.routes import auth, student, instructor, admin
     
     # Start the server
     serve()

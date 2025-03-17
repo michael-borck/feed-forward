@@ -10,8 +10,10 @@ from app.utils.email import send_verification_email, send_password_reset_email, 
 from app.utils.auth import get_password_hash, verify_password, is_institutional_email, is_strong_password
 from app.utils.auth import is_reset_token_valid, generate_token_expiry
 
-# Get the route table from the app
+# Get the route table and FastHTML components from the app
 from app import app, rt
+from fasthtml.common import Container, Div, H1, H2, H3, P, A, Span, Hr, Button
+from fasthtml.common import Input, Label, Form, Header, Footer, Nav, Script, Style, HttpHeader
 
 # --- Registration Routes ---
 @rt('/register')
