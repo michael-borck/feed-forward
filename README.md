@@ -15,8 +15,8 @@ FeedForward is an AI-powered platform for providing formative feedback on studen
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/feedforward-gemini.git
-cd feedforward-gemini
+git clone https://github.com/BARG-Curtin-University/feedforward.git
+cd feedforward
 ```
 
 2. Create a virtual environment:
