@@ -24,9 +24,15 @@ FeedForward requires a database system to store user information, assignments, s
    - Preference for technologies compatible with the Python stack
    - Need for simplicity in deployment and maintenance
 
+4. **Alternatives Considered**:
+   - **PocketBase**: An open-source backend with built-in user management and SQLite storage
+   - **PostgreSQL**: A full-featured client-server database
+   - **MongoDB**: A document-oriented NoSQL database
+   - **Firebase/Firestore**: Cloud-based NoSQL database with authentication services
+
 ## Decision
 
-We have chosen SQLite as the primary database for FeedForward based on the following considerations:
+We have chosen SQLite with FastLite as the primary database for FeedForward based on the following considerations:
 
 1. **Appropriate for Low Concurrency**: SQLite can handle the expected load of ~100 concurrent requests effectively, as it's designed for low to medium concurrency applications.
 
@@ -39,6 +45,22 @@ We have chosen SQLite as the primary database for FeedForward based on the follo
 5. **Zero Configuration**: SQLite requires minimal setup and maintenance, making it ideal for deployments where dedicated database administration is not available.
 
 6. **Proven in Similar Contexts**: SQLite has demonstrated reliability in embedded and local applications with similar usage patterns.
+
+7. **Direct Control Over Schema**: Using SQLite directly with FastLite gives us complete control over the database schema, authentication flow, and data manipulation.
+
+### Why Not PocketBase?
+
+PocketBase was a strong alternative we considered as it provides:
+- SQLite as its underlying database
+- Built-in authentication and user management
+- Admin UI out of the box
+
+However, we chose direct SQLite with FastLite instead for these reasons:
+- **Technology Stack Unity**: We preferred to maintain a pure Python stack rather than introducing a Go-based service
+- **Custom Authentication Needs**: Our specific workflow for instructors and students required custom authentication logic
+- **Schema Flexibility**: We needed fine-grained control over database schema for handling specialized feedback data models
+- **Learning Curve**: Using our existing SQLite expertise was more efficient than learning PocketBase's conventions
+- **Integration Simplicity**: Direct database access simplified integration with LLM APIs and feedback generation
 
 ## Consequences
 
