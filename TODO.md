@@ -2,7 +2,7 @@
 
 ## ADR Candidates
 - [ ] Feedback Generation Strategy - How multiple AI models are run and results aggregated
-- [ ] Database Choice - Using SQLite vs other options for data persistence
+- [x] Database Choice - Using SQLite vs other options for data persistence (ADR-004)
 - [ ] API Design - RESTful vs GraphQL or other approaches for potential future API needs
 - [ ] UI Framework Selection - Current HTML/CSS/HTMX approach vs component libraries
 - [ ] Deployment Strategy - How the application is packaged and deployed
