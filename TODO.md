@@ -1,5 +1,13 @@
 # FeedForward Development Roadmap
 
+## ADR Candidates
+- [ ] Feedback Generation Strategy - How multiple AI models are run and results aggregated
+- [ ] Database Choice - Using SQLite vs other options for data persistence
+- [ ] API Design - RESTful vs GraphQL or other approaches for potential future API needs
+- [ ] UI Framework Selection - Current HTML/CSS/HTMX approach vs component libraries
+- [ ] Deployment Strategy - How the application is packaged and deployed
+- [ ] Privacy & Security Model - How student data and API keys are protected
+
 ## Core Infrastructure
 - [x] Initialize git repository
 - [x] Set up project structure
