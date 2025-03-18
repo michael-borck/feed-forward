@@ -13,7 +13,9 @@ if ai_models not in db.t:
         provider=str,
         model_id=str,
         api_config=str,  # JSON string containing API configuration
-        active=bool
+        active=bool,
+        owner_type=str,  # 'system' or 'instructor'
+        owner_id=str     # For instructor models, stores the instructor's email
     ), pk='id')
 AIModel = ai_models.dataclass()
 
