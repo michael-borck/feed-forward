@@ -4,9 +4,10 @@ Authentication routes (login, register, verify, password reset, etc.)
 from fasthtml.common import *
 from starlette.responses import RedirectResponse
 from datetime import datetime
+from fastlite import NotFoundError
 
 from app.models.user import User, Role, users
-from app.utils.email import send_verification_email, send_password_reset_email, generate_verification_token
+from app.utils.email import send_verification_email, send_password_reset_email, generate_verification_token, APP_DOMAIN
 from app.utils.auth import get_password_hash, verify_password, is_institutional_email, is_strong_password
 from app.utils.auth import is_reset_token_valid, generate_token_expiry
 
@@ -24,39 +25,45 @@ def get():
     # Create the registration form content
     registration_content = Div(
         Div(
-            H1("Create Your Account", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
+            # Brand logo on registration form
+            Div(
+                Span("Feed", cls="text-indigo-600 font-bold"),
+                Span("Forward", cls="text-teal-500 font-bold"),
+                cls="text-3xl mb-4 text-center"
+            ),
+            H1("Create Your Account", cls="text-2xl font-bold text-indigo-900 mb-6 text-center"),
             Div(
                 Form(
                     Div(
-                        Label("Name", for_="name", cls="block text-gray-700 mb-1"),
+                        Label("Name", for_="name", cls="block text-indigo-900 font-medium mb-1"),
                         Input(id="name", type="text", placeholder="Your full name", required=True, 
-                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         cls="mb-4"
                     ),
                     Div(
-                        Label("Email", for_="email", cls="block text-gray-700 mb-1"),
+                        Label("Email", for_="email", cls="block text-indigo-900 font-medium mb-1"),
                         P("Must be a Curtin email address (curtin.edu.au)", 
                           cls="text-sm text-gray-500 mb-1"),
                         Input(id="email", type="email", placeholder="Your email address", required=True, 
-                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         cls="mb-4"
                     ),
                     Div(
-                        Label("Password", for_="password", cls="block text-gray-700 mb-1"),
+                        Label("Password", for_="password", cls="block text-indigo-900 font-medium mb-1"),
                         P("At least 8 characters with uppercase, lowercase, number, and special character", 
                           cls="text-sm text-gray-500 mb-1"),
                         Input(id="password", type="password", placeholder="Create a password", required=True,
-                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         cls="mb-4"
                     ),
                     Div(
-                        Label("Confirm Password", for_="confirm_password", cls="block text-gray-700 mb-1"),
+                        Label("Confirm Password", for_="confirm_password", cls="block text-indigo-900 font-medium mb-1"),
                         Input(id="confirm_password", type="password", placeholder="Confirm your password", required=True,
-                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         cls="mb-6"
                     ),
                     Div(
-                        Button("Sign up", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        Button("Sign up", type="submit", cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm"),
                         cls="mb-4"
                     ),
                     Span(id="error", cls="text-red-500 block text-center"),
@@ -64,14 +71,14 @@ def get():
                     hx_target="#error",
                     cls="w-full"
                 ),
-                Hr(cls="my-6"),
-                P("Already have an account? ", A("Sign in here", href="/login", cls="text-blue-500 hover:underline"), 
+                Hr(cls="my-6 border-gray-200"),
+                P("Already have an account? ", A("Sign in here", href="/login", cls="text-indigo-600 hover:underline font-medium"), 
                   cls="text-center text-gray-600"),
                 cls="w-full max-w-md"
             ),
-            cls="bg-gray-50 p-8 rounded-lg shadow-md"
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
         ),
-        cls="flex justify-center items-center py-16 px-4"
+        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50"
     )
     
     # Return the complete page
@@ -142,85 +149,86 @@ def post(name: str, email: str, password: str, confirm_password: str):
 # --- Email Verification Route ---
 @rt('/verify')
 def get(token: str):
-    # Create reusable header component
-    header = Header(
-        Div(
-            # Left side - Logo and name
-            Div(
-                H1("FeedForward", cls="text-2xl font-bold"),
-                cls="flex items-center"
-            ),
-            # Right side - Login/Register buttons
-            Nav(
-                A("Login", href="/login", cls="text-white px-4 py-2 rounded-full mx-2 hover:bg-gray-700"),
-                A("Sign Up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-full mx-2 hover:bg-blue-600"),
-                cls="flex items-center"
-            ),
-            cls="container mx-auto flex justify-between items-center"
-        ),
-        cls="bg-gray-800 text-white p-4"
-    )
+    # Import UI components
+    from app.utils.ui import page_header, page_footer
     
-    # Create reusable footer component
-    footer = Footer(
-        Div(
-            P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
-            Div(
-                A("Terms", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                A("Privacy", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                A("Contact", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                cls="flex"
-            ),
-            cls="container mx-auto flex justify-between items-center"
-        ),
-        cls="bg-gray-100 border-t border-gray-200 py-6"
-    )
+    # Debug print
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug(f"Verifying token: {token}")
     
     # Look for a user with the matching token
     for user in users():
+        logging.debug(f"Checking user: {user.email}, token: {user.verification_token}")
         if user.verification_token == token:
             user.verified = True
             # Clear the token after successful verification
             user.verification_token = ""
             users.update(user)
             
-            # Success message
-            return Container(
-                header,
+            # Success message content
+            verify_success_content = Div(
                 Div(
                     Div(
+                        # Success icon
                         Div(
                             Span("✅", cls="text-5xl block mb-4"),
-                            H1("Email Verified Successfully!", cls="text-2xl font-bold text-gray-800 mb-4"),
-                            P("Your email has been verified. You can now log in to your account.", cls="text-gray-600 mb-6"),
-                            A("Login to Your Account", href="/login", cls="inline-block bg-blue-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-600"),
                             cls="text-center"
                         ),
-                        cls="bg-white p-8 rounded-lg shadow-md max-w-md w-full"
+                        # Brand logo
+                        Div(
+                            Span("Feed", cls="text-indigo-600 font-bold"),
+                            Span("Forward", cls="text-teal-500 font-bold"),
+                            cls="text-3xl mb-4 text-center"
+                        ),
+                        H1("Email Verified Successfully!", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+                        P("Your email has been verified. You can now log in to your account.", cls="text-gray-600 mb-6 text-center"),
+                        Div(
+                            A("Login to Your Account", href="/login", 
+                              cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                            cls="text-center"
+                        ),
+                        cls="text-center"
                     ),
-                    cls="flex justify-center items-center py-16 px-4 bg-gray-100"
+                    cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full"
                 ),
-                footer
+                cls="flex justify-center items-center py-16 px-4"
             )
             
-    # Error message for invalid token
-    return Container(
-        header,
+            # Return the complete page
+            return page_container("Email Verified - FeedForward", verify_success_content)
+            
+    # Error message content for invalid token
+    verify_error_content = Div(
         Div(
             Div(
+                # Error icon
                 Div(
                     Span("❌", cls="text-5xl block mb-4"),
-                    H1("Verification Failed", cls="text-2xl font-bold text-gray-800 mb-4"),
-                    P("The verification link is invalid or has expired.", cls="text-gray-600 mb-6"),
-                    A("Return to Home", href="/", cls="inline-block bg-blue-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-600"),
                     cls="text-center"
                 ),
-                cls="bg-white p-8 rounded-lg shadow-md max-w-md w-full"
+                # Brand logo
+                Div(
+                    Span("Feed", cls="text-indigo-600 font-bold"),
+                    Span("Forward", cls="text-teal-500 font-bold"),
+                    cls="text-3xl mb-4 text-center"
+                ),
+                H1("Verification Failed", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+                P("The verification link is invalid or has expired.", cls="text-gray-600 mb-6 text-center"),
+                Div(
+                    A("Return to Home", href="/", 
+                      cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                    cls="text-center"
+                ),
+                cls="text-center"
             ),
-            cls="flex justify-center items-center py-16 px-4 bg-gray-100"
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full"
         ),
-        footer
+        cls="flex justify-center items-center py-16 px-4"
     )
+    
+    # Return the complete page
+    return page_container("Verification Failed - FeedForward", verify_error_content)
 
 # --- Login Routes ---
 @rt('/login')
@@ -228,27 +236,33 @@ def get():
     # Create the login form content
     login_content = Div(
         Div(
-            H1("Sign in to Your Account", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
+            # Brand logo on login form
+            Div(
+                Span("Feed", cls="text-indigo-600 font-bold"),
+                Span("Forward", cls="text-teal-500 font-bold"),
+                cls="text-3xl mb-4 text-center"
+            ),
+            H1("Sign in to Your Account", cls="text-2xl font-bold text-indigo-900 mb-6 text-center"),
             Div(
                 Form(
                     Div(
-                        Label("Email", for_="email", cls="block text-gray-700 mb-1"),
+                        Label("Email", for_="email", cls="block text-indigo-900 font-medium mb-1"),
                         Input(id="email", type="email", placeholder="Your email address", required=True, 
-                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         cls="mb-4"
                     ),
                     Div(
-                        Label("Password", for_="password", cls="block text-gray-700 mb-1"),
+                        Label("Password", for_="password", cls="block text-indigo-900 font-medium mb-1"),
                         Input(id="password", type="password", placeholder="Your password", required=True,
-                              cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         cls="mb-4"
                     ),
                     Div(
-                        A("Forgot password?", href="/forgot-password", cls="text-blue-500 hover:underline text-sm"),
+                        A("Forgot password?", href="/forgot-password", cls="text-indigo-600 hover:underline text-sm font-medium"),
                         cls="mb-6 text-right"
                     ),
                     Div(
-                        Button("Sign in", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
+                        Button("Sign in", type="submit", cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm"),
                         cls="mb-4"
                     ),
                     Span(id="error", cls="text-red-500 block text-center"),
@@ -256,14 +270,14 @@ def get():
                     hx_target="#error",
                     cls="w-full"
                 ),
-                Hr(cls="my-6"),
-                P("Don't have an account? ", A("Sign up here", href="/register", cls="text-blue-500 hover:underline"), 
+                Hr(cls="my-6 border-gray-200"),
+                P("Don't have an account? ", A("Sign up here", href="/register", cls="text-indigo-600 hover:underline font-medium"), 
                   cls="text-center text-gray-600"),
                 cls="w-full max-w-md"
             ),
-            cls="bg-gray-50 p-8 rounded-lg shadow-md"
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
         ),
-        cls="flex justify-center items-center py-16 px-4"
+        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50"
     )
     
     # Return the complete page
@@ -309,74 +323,47 @@ def post(session):
 # --- Forgot Password Routes ---
 @rt('/forgot-password')
 def get():
-    return Container(
-        # Header with navigation bar
-        Header(
-            Div(
-                # Left side - Logo and name
-                Div(
-                    H1("FeedForward", cls="text-2xl font-bold"),
-                    cls="flex items-center"
-                ),
-                # Right side - Login/Register buttons
-                Nav(
-                    A("Login", href="/login", cls="text-white px-4 py-2 rounded-full mx-2 hover:bg-gray-700"),
-                    A("Sign Up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-full mx-2 hover:bg-blue-600"),
-                    cls="flex items-center"
-                ),
-                cls="container mx-auto flex justify-between items-center"
-            ),
-            cls="bg-gray-800 text-white p-4"
-        ),
-        
-        # Forgot password form
+    # Create the forgot password content
+    forgot_password_content = Div(
         Div(
+            # Brand logo 
             Div(
-                H1("Reset Your Password", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
-                P("Enter your email address and we'll send you a link to reset your password.", 
-                  cls="text-gray-600 mb-6 text-center"),
-                Div(
-                    Form(
-                        Div(
-                            Label("Email", for_="email", cls="block text-gray-700 mb-1"),
-                            Input(id="email", type="email", placeholder="Your email address", required=True, 
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-6"
-                        ),
-                        Div(
-                            Button("Send Reset Link", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Span(id="message", cls="text-center block"),
-                        hx_post="/forgot-password",
-                        hx_target="#message",
-                        cls="w-full"
+                Span("Feed", cls="text-indigo-600 font-bold"),
+                Span("Forward", cls="text-teal-500 font-bold"),
+                cls="text-3xl mb-4 text-center"
+            ),
+            H1("Reset Your Password", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+            P("Enter your email address and we'll send you a link to reset your password.", 
+              cls="text-gray-600 mb-6 text-center"),
+            Div(
+                Form(
+                    Div(
+                        Label("Email", for_="email", cls="block text-indigo-900 font-medium mb-1"),
+                        Input(id="email", type="email", placeholder="Your email address", required=True, 
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="mb-6"
                     ),
-                    Hr(cls="my-6"),
-                    P("Remember your password? ", A("Login here", href="/login", cls="text-blue-500 hover:underline"), 
-                      cls="text-center text-gray-600"),
-                    cls="w-full max-w-md"
+                    Div(
+                        Button("Send Reset Link", type="submit", cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm"),
+                        cls="mb-4"
+                    ),
+                    Span(id="message", cls="text-center block"),
+                    hx_post="/forgot-password",
+                    hx_target="#message",
+                    cls="w-full"
                 ),
-                cls="bg-white p-8 rounded-lg shadow-md"
+                Hr(cls="my-6 border-gray-200"),
+                P("Remember your password? ", A("Login here", href="/login", cls="text-indigo-600 hover:underline font-medium"), 
+                  cls="text-center text-gray-600"),
+                cls="w-full max-w-md"
             ),
-            cls="flex justify-center items-center py-16 px-4 bg-gray-100"
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
         ),
-        
-        # Footer
-        Footer(
-            Div(
-                P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
-                Div(
-                    A("Terms", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    A("Privacy", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    A("Contact", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                    cls="flex"
-                ),
-                cls="container mx-auto flex justify-between items-center"
-            ),
-            cls="bg-gray-100 border-t border-gray-200 py-6"
-        )
+        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50"
     )
+    
+    # Return the complete page
+    return page_container("Reset Password - FeedForward", forgot_password_content)
 
 @rt('/forgot-password')
 def post(email: str):
@@ -419,39 +406,8 @@ def post(email: str):
 # --- Reset Password Routes ---
 @rt('/reset-password')
 def get(token: str):
-    # Create reusable header component
-    header = Header(
-        Div(
-            # Left side - Logo and name
-            Div(
-                H1("FeedForward", cls="text-2xl font-bold"),
-                cls="flex items-center"
-            ),
-            # Right side - Login/Register buttons
-            Nav(
-                A("Login", href="/login", cls="text-white px-4 py-2 rounded-full mx-2 hover:bg-gray-700"),
-                A("Sign Up", href="/register", cls="bg-blue-500 text-white px-4 py-2 rounded-full mx-2 hover:bg-blue-600"),
-                cls="flex items-center"
-            ),
-            cls="container mx-auto flex justify-between items-center"
-        ),
-        cls="bg-gray-800 text-white p-4"
-    )
-    
-    # Create reusable footer component
-    footer = Footer(
-        Div(
-            P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
-            Div(
-                A("Terms", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                A("Privacy", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                A("Contact", href="#", cls="text-gray-500 hover:text-gray-700 mx-2"),
-                cls="flex"
-            ),
-            cls="container mx-auto flex justify-between items-center"
-        ),
-        cls="bg-gray-100 border-t border-gray-200 py-6"
-    )
+    # Import UI components
+    from app.utils.ui import page_header, page_footer
     
     # Validate token
     valid_token = False
@@ -464,65 +420,84 @@ def get(token: str):
             break
     
     if not valid_token:
-        return Container(
-            header,
+        # Error message content for invalid token
+        invalid_token_content = Div(
             Div(
                 Div(
+                    # Error icon
                     Div(
                         Span("❌", cls="text-5xl block mb-4"),
-                        H1("Invalid or Expired Link", cls="text-2xl font-bold text-gray-800 mb-4"),
-                        P("The password reset link is invalid or has expired.", cls="text-gray-600 mb-6"),
-                        A("Request New Link", href="/forgot-password", cls="inline-block bg-blue-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-600"),
                         cls="text-center"
                     ),
-                    cls="bg-white p-8 rounded-lg shadow-md max-w-md w-full"
+                    # Brand logo
+                    Div(
+                        Span("Feed", cls="text-indigo-600 font-bold"),
+                        Span("Forward", cls="text-teal-500 font-bold"),
+                        cls="text-3xl mb-4 text-center"
+                    ),
+                    H1("Invalid or Expired Link", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+                    P("The password reset link is invalid or has expired.", cls="text-gray-600 mb-6 text-center"),
+                    Div(
+                        A("Request New Link", href="/forgot-password", 
+                          cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                        cls="text-center"
+                    ),
+                    cls="text-center"
                 ),
-                cls="flex justify-center items-center py-16 px-4 bg-gray-100"
+                cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full"
             ),
-            footer
+            cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50"
         )
+        
+        # Return the complete page
+        return page_container("Invalid Reset Link - FeedForward", invalid_token_content)
     
     # Valid token, show password reset form
-    return Container(
-        header,
+    reset_password_content = Div(
         Div(
+            # Brand logo
             Div(
-                H1("Set New Password", cls="text-2xl font-bold text-gray-800 mb-6 text-center"),
-                Div(
-                    Form(
-                        Input(type="hidden", id="token", value=token),
-                        Input(type="hidden", id="email", value=user_email),
-                        Div(
-                            Label("New Password", for_="password", cls="block text-gray-700 mb-1"),
-                            P("At least 8 characters with uppercase, lowercase, number, and special character", 
-                              cls="text-sm text-gray-500 mb-1"),
-                            Input(id="password", type="password", placeholder="New password", required=True,
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Div(
-                            Label("Confirm Password", for_="confirm_password", cls="block text-gray-700 mb-1"),
-                            Input(id="confirm_password", type="password", placeholder="Confirm new password", required=True,
-                                  cls="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-6"
-                        ),
-                        Div(
-                            Button("Reset Password", type="submit", cls="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"),
-                            cls="mb-4"
-                        ),
-                        Span(id="error", cls="text-red-500 block text-center"),
-                        hx_post="/reset-password",
-                        hx_target="#error",
-                        cls="w-full"
-                    ),
-                    cls="w-full max-w-md"
-                ),
-                cls="bg-white p-8 rounded-lg shadow-md"
+                Span("Feed", cls="text-indigo-600 font-bold"),
+                Span("Forward", cls="text-teal-500 font-bold"),
+                cls="text-3xl mb-4 text-center"
             ),
-            cls="flex justify-center items-center py-16 px-4 bg-gray-100"
+            H1("Set New Password", cls="text-2xl font-bold text-indigo-900 mb-6 text-center"),
+            Div(
+                Form(
+                    Input(type="hidden", id="token", value=token),
+                    Input(type="hidden", id="email", value=user_email),
+                    Div(
+                        Label("New Password", for_="password", cls="block text-indigo-900 font-medium mb-1"),
+                        P("At least 8 characters with uppercase, lowercase, number, and special character", 
+                          cls="text-sm text-gray-500 mb-1"),
+                        Input(id="password", type="password", placeholder="New password", required=True,
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="mb-4"
+                    ),
+                    Div(
+                        Label("Confirm Password", for_="confirm_password", cls="block text-indigo-900 font-medium mb-1"),
+                        Input(id="confirm_password", type="password", placeholder="Confirm new password", required=True,
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="mb-6"
+                    ),
+                    Div(
+                        Button("Reset Password", type="submit", cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm"),
+                        cls="mb-4"
+                    ),
+                    Span(id="error", cls="text-red-500 block text-center"),
+                    hx_post="/reset-password",
+                    hx_target="#error",
+                    cls="w-full"
+                ),
+                cls="w-full max-w-md"
+            ),
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
         ),
-        footer
+        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50"
     )
+    
+    # Return the complete page
+    return page_container("Reset Password - FeedForward", reset_password_content)
 
 @rt('/reset-password')
 def post(token: str, email: str, password: str, confirm_password: str):

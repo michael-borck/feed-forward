@@ -5,3 +5,4 @@ python-dotenv
 bcrypt==3.2.0
 email-validator
 python-multipart
+requests>=2.28.0

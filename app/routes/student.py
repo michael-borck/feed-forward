@@ -18,61 +18,115 @@ def get(session):
     # Get current user
     user = users[session['auth']]
     
-    return Container(
-        # Header with navigation bar
-        Header(
-            Div(
-                # Left side - Logo and name
-                Div(
-                    H1("FeedForward", cls="text-2xl font-bold"),
-                    cls="flex items-center"
-                ),
-                # Right side - User info and logout
-                Nav(
-                    Span(user.email, cls="mr-4"),
-                    Button("Logout", hx_post="/logout", cls="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"),
-                    cls="flex items-center"
-                ),
-                cls="container mx-auto flex justify-between items-center"
-            ),
-            cls="bg-gray-800 text-white p-4"
-        ),
-        
-        # Dashboard content
+    # Import UI components
+    from app.utils.ui import dashboard_layout, card, action_button, status_badge, feedback_card
+    
+    # Sidebar content
+    sidebar_content = Div(
+        # User welcome card
         Div(
-            H1("Student Dashboard", cls="text-3xl font-bold mb-8"),
-            P("Welcome, " + user.name, cls="text-lg mb-6"),
-            
-            # Placeholder for course list
+            H3("Welcome, " + user.name, cls="text-xl font-semibold text-indigo-900 mb-2"),
+            P("Student Account", cls="text-gray-600 mb-4"),
             Div(
-                H2("Your Courses", cls="text-2xl font-bold mb-4"),
-                P("You are not enrolled in any courses yet.", cls="text-gray-500 italic"),
-                cls="mb-8"
+                # Active assignments summary
+                Div(
+                    Div(
+                        "0", 
+                        cls="text-indigo-700 font-bold"
+                    ),
+                    P("Active Assignments", cls="text-gray-600"),
+                    cls="flex items-center space-x-2 mb-2"
+                ),
+                # Recent feedback summary
+                Div(
+                    Div(
+                        "0", 
+                        cls="text-indigo-700 font-bold"
+                    ),
+                    P("Recent Feedback", cls="text-gray-600"),
+                    cls="flex items-center space-x-2"
+                ),
+                cls="space-y-2"
             ),
-            
-            # Placeholder for upcoming assignments
-            Div(
-                H2("Upcoming Assignments", cls="text-2xl font-bold mb-4"),
-                P("No upcoming assignments.", cls="text-gray-500 italic"),
-                cls="mb-8"
-            ),
-            
-            # Placeholder for recent feedback
-            Div(
-                H2("Recent Feedback", cls="text-2xl font-bold mb-4"),
-                P("No recent feedback.", cls="text-gray-500 italic"),
-                cls="mb-8"
-            ),
-            
-            cls="container mx-auto px-4 py-8"
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
         ),
         
-        # Footer
-        Footer(
+        # Active assignments section
+        Div(
+            H3("Active Assignments", cls="font-semibold text-indigo-900 mb-4"),
+            P("You have no active assignments.", cls="text-gray-500 italic text-sm"),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    # Main content
+    main_content = Div(
+        # Progress summary
+        Div(
             Div(
-                P("© 2025 FeedForward. All rights reserved.", cls="text-gray-500"),
-                cls="container mx-auto text-center"
-            ),
-            cls="bg-gray-100 border-t border-gray-200 py-6"
+                # Courses card
+                card(
+                    Div(
+                        H3("0", cls="text-4xl font-bold text-indigo-700 mb-2"),
+                        P("Enrolled Courses", cls="text-gray-600"),
+                        cls="text-center p-4"
+                    ),
+                    padding=0
+                ),
+                # Completed assignments card
+                card(
+                    Div(
+                        H3("0", cls="text-4xl font-bold text-teal-700 mb-2"),
+                        P("Completed Assignments", cls="text-gray-600"),
+                        cls="text-center p-4"
+                    ),
+                    padding=0
+                ),
+                # Overall progress card
+                card(
+                    Div(
+                        H3("N/A", cls="text-4xl font-bold text-indigo-700 mb-2"),
+                        P("Overall Progress", cls="text-gray-600"),
+                        cls="text-center p-4"
+                    ),
+                    padding=0
+                ),
+                cls="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+            )
+        ),
+        
+        # Courses section
+        Div(
+            H2("Your Courses", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            P("You are not enrolled in any courses yet.", 
+              cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center"),
+            cls="mb-8"
+        ),
+        
+        # Upcoming assignments section
+        Div(
+            H2("Upcoming Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            P("No upcoming assignments.", 
+              cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center"),
+            cls="mb-8"
+        ),
+        
+        # Recent feedback section
+        Div(
+            H2("Recent Feedback", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            P("No recent feedback.", 
+              cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center"),
+            cls="mb-8"
+        )
+    )
+    
+    # Use the dashboard layout with our components
+    return Titled(
+        "Student Dashboard | FeedForward",
+        dashboard_layout(
+            "Student Dashboard", 
+            sidebar_content, 
+            main_content, 
+            user_role=Role.STUDENT
         )
     )
