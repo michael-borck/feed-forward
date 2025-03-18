@@ -14,7 +14,10 @@ if assignments not in db.t:
         description=str,
         due_date=str,
         max_drafts=int,
-        created_by=str  # Instructor's email
+        created_by=str,  # Instructor's email
+        status=str,      # 'draft', 'active', 'closed', 'archived', 'deleted'
+        created_at=str,  # ISO format timestamp
+        updated_at=str   # ISO format timestamp
     ), pk='id')
 Assignment = assignments.dataclass()
 

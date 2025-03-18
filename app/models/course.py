@@ -13,7 +13,10 @@ if courses not in db.t:
         title=str,
         term=str,
         department=str,
-        instructor_email=str
+        instructor_email=str,
+        status=str,  # 'active', 'closed', 'archived', 'deleted'
+        created_at=str,  # ISO format timestamp
+        updated_at=str   # ISO format timestamp
     ), pk='id')
 Course = courses.dataclass()
 

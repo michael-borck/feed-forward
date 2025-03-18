@@ -26,7 +26,9 @@ if users not in db.t:
         approved=bool,
         department=str,
         reset_token=str,
-        reset_token_expiry=str
+        reset_token_expiry=str,
+        status=str,  # 'active', 'inactive', 'archived', 'deleted'
+        last_active=str  # ISO format timestamp of last login/activity
     ), pk='email')
 
 # Create user dataclass
