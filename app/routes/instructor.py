@@ -54,7 +54,12 @@ def get(session):
     if instructor_courses:
         # Show courses if the instructor has any
         courses_content = Div(
-            H2("Your Courses", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            Div(
+                H2("Your Courses", cls="text-2xl font-bold text-indigo-900"),
+                A("View All Courses", href="/instructor/courses", 
+                  cls="text-indigo-600 hover:text-indigo-800 text-sm font-medium"),
+                cls="flex justify-between items-center mb-6"
+            ),
             Div(
                 *[
                     Div(
@@ -118,6 +123,22 @@ def get(session):
                     cls="h-full flex flex-col justify-between"
                 )
             ),
+            # Manage Courses card
+            card(
+                Div(
+                    Div(
+                        Span("📚", cls="text-4xl"),
+                        P("View and manage all your courses", cls="mt-2 text-gray-600"),
+                        cls="text-center py-4"
+                    ),
+                    Div(
+                        A("Manage Courses", href="/instructor/courses", 
+                          cls="bg-amber-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-amber-700 transition-colors shadow-sm w-full text-center block"),
+                        cls="mt-4"
+                    ),
+                    cls="h-full flex flex-col justify-between"
+                )
+            ),
             # Invite Students card
             card(
                 Div(
@@ -151,7 +172,7 @@ def get(session):
                 )
             ),
             # TODO: Add more action cards as features are developed
-            cls="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+            cls="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
         ),
         cls="mt-10"
     )
