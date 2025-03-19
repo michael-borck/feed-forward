@@ -7,6 +7,7 @@ from datetime import datetime
 from fastlite import NotFoundError
 import string
 import random
+import urllib.parse
 
 from app.models.user import User, Role, users
 from app.models.course import Course, Enrollment, courses, enrollments
@@ -426,11 +427,11 @@ def get(session):
                     Td(
                         Div(
                             Button("Resend", 
-                               hx_post=f"/instructor/resend-invitation?email={student['email']}&course_id={course.id}",
+                               hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(student['email'])}&course_id={course.id}",
                                hx_target=f"#status-{course.id}-{idx}",
                                cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2") if not student["verified"] else "",
                             Button("Remove", 
-                               hx_post=f"/instructor/remove-student?email={student['email']}&course_id={course.id}",
+                               hx_post=f"/instructor/remove-student?email={urllib.parse.quote(student['email'])}&course_id={course.id}",
                                hx_target="#message-area",
                                hx_confirm=f"Are you sure you want to remove student {student['email']} from this course?",
                                cls="text-xs px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"),
@@ -589,11 +590,11 @@ def get(session, course_id: int):
                 Td(
                     Div(
                         Button("Resend", 
-                          hx_post=f"/instructor/resend-invitation?email={student['email']}&course_id={course_id}",
+                          hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(student['email'])}&course_id={course_id}",
                           hx_target=f"#status-{idx}",
                           cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2") if not student["verified"] else "",
                         Button("Remove", 
-                          hx_post=f"/instructor/remove-student?email={student['email']}&course_id={course_id}",
+                          hx_post=f"/instructor/remove-student?email={urllib.parse.quote(student['email'])}&course_id={course_id}",
                           hx_target="#message-area",
                           hx_confirm=f"Are you sure you want to remove student {student['email']} from this course?",
                           cls="text-xs px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"),
@@ -685,6 +686,9 @@ def post(session, email: str, course_id: int):
     # Get current user
     user = users[session['auth']]
     
+    # URL-decode the email to handle special characters like +
+    email = urllib.parse.unquote(email)
+    
     # Get the course
     course = None
     for c in courses():
@@ -750,6 +754,9 @@ def post(session, email: str, course_id: int):
 def post(session, email: str, course_id: int):
     # Get current user
     user = users[session['auth']]
+    
+    # URL-decode the email to handle special characters like +
+    email = urllib.parse.unquote(email)
     
     # Get the course
     course = None
