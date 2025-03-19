@@ -7,20 +7,25 @@
 - [x] UI Framework Selection - Current HTML/CSS/HTMX approach vs component libraries (ADR-005)
 - [ ] Deployment Strategy - How the application is packaged and deployed
 - [ ] Privacy & Security Model - How student data and API keys are protected
+- [x] Data Lifecycle Management - How data is preserved with soft deletion (ADR-002)
+- [x] Authentication Strategy - Email verification and role-based access (ADR-003)
+- [x] AI Model Ownership - Configuring and running models (ADR-001)
 
 ## Core Infrastructure
 - [x] Initialize git repository
 - [x] Set up project structure
 - [x] Create README.md and documentation
-- [ ] Implement core database models
-- [ ] Setup proper app initialization
+- [x] Implement core database models
+- [x] Setup proper app initialization
 
 ## Authentication System
-- [ ] Refine existing authentication
-- [ ] Add domain-based role assignment (curtin.edu.au, student.curtin.edu.au)
-- [ ] Implement "forgot password" functionality
-- [ ] Add instructor approval workflow
-- [ ] Create student invitation system
+- [x] Refine existing authentication
+- [x] Add domain-based role assignment via domain whitelist
+- [x] Implement "forgot password" functionality
+- [x] Add instructor approval workflow
+- [x] Create student invitation system
+- [x] Add admin interface for student enrollment management
+- [x] Add instructor removal functionality for admins
 
 ## Database Schema
 - [ ] Define model for AI models configuration
@@ -32,8 +37,9 @@
 - [ ] Implement relationships between models
 
 ## Instructor Features
-- [ ] Course management
-- [ ] Student roster management
+- [x] Course management (create, edit, list)
+- [x] Course status management (active, closed, archived)
+- [x] Student roster management
 - [ ] Assignment creation with rubrics
 - [ ] Feedback configuration
 - [ ] Student progress monitoring
