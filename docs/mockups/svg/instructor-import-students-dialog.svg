@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Darkened Background -->
+  <rect width="800" height="600" fill="#2c3e50" opacity="0.5"/>
+  
+  <!-- Modal Dialog -->
+  <rect x="200" y="120" width="400" height="360" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  
+  <!-- Dialog Header -->
+  <rect x="200" y="120" width="400" height="60" rx="5" fill="#2ecc71"/>
+  <text x="230" y="160" font-family="Arial" font-size="20" fill="#ffffff" font-weight="bold">Import Students</text>
+  <text x="570" y="160" font-family="Arial" font-size="20" fill="#ffffff" font-weight="bold">×</text>
+  
+  <!-- Course Selection -->
+  <text x="230" y="210" font-family="Arial" font-size="14" fill="#2c3e50">Course</text>
+  <rect x="230" y="220" width="340" height="40" rx="3" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="245" y="245" font-family="Arial" font-size="14" fill="#34495e">ENG301: Critical Perspectives ▼</text>
+  
+  <!-- File Upload Area -->
+  <rect x="230" y="280" width="340" height="120" rx="5" fill="#f8f9fa" stroke="#e1e8ed" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Upload Icon -->
+  <circle cx="400" cy="320" r="25" fill="#ecf0f1"/>
+  <text x="400" y="328" font-family="Arial" font-size="24" fill="#7f8c8d" text-anchor="middle">↑</text>
+  
+  <!-- Upload Text -->
+  <text x="400" y="360" font-family="Arial" font-size="16" fill="#7f8c8d" text-anchor="middle">Drop CSV/TSV file here or click to browse</text>
+  <text x="400" y="380" font-family="Arial" font-size="12" fill="#95a5a6" text-anchor="middle">Expected columns: Name, Email, Student ID</text>
+  
+  <!-- Template Link -->
+  <text x="400" y="410" font-family="Arial" font-size="12" fill="#3498db" text-anchor="middle">Download template file</text>
+  
+  <!-- Action Buttons -->
+  <rect x="470" y="440" width="100" height="40" rx="5" fill="#2ecc71"/>
+  <text x="520" y="465" font-family="Arial" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">Import</text>
+  
+  <rect x="360" y="440" width="100" height="40" rx="5" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="410" y="465" font-family="Arial" font-size="14" fill="#7f8c8d" text-anchor="middle">Cancel</text>
+  
+  <!-- Notes Section -->
+  <rect x="230" y="490" width="340" height="60" rx="3" fill="#f0f9ff" stroke="#bde0fe" stroke-width="1"/>
+  <text x="250" y="515" font-family="Arial" font-size="12" fill="#3498db" font-weight="bold">Note:</text>
+  <text x="250" y="535" font-family="Arial" font-size="12" fill="#3498db">Existing students with matching emails will be updated.</text>
+</svg>

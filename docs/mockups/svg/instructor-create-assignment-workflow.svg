@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 800 600"
+   version="1.1"
+   id="svg98"
+   sodipodi:docname="instructor-create-assignment-workflow.svg"
+   inkscape:export-filename="instructor-create-assignment-workflow.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs102" />
+  <sodipodi:namedview
+     id="namedview100"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.4616667"
+     inkscape:cx="400.57013"
+     inkscape:cy="300.68415"
+     inkscape:window-width="1390"
+     inkscape:window-height="1027"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg98" />
+  <!-- Background -->
+  <rect
+     width="800"
+     height="600"
+     fill="#f5f7fa"
+     id="rect2" />
+  <!-- Header -->
+  <rect
+     width="800"
+     height="60"
+     fill="#2c3e50"
+     id="rect4" />
+  <text
+     x="30"
+     y="38"
+     font-family="Arial"
+     font-size="24"
+     fill="#ffffff"
+     font-weight="bold"
+     id="text6">FeedForward</text>
+  <text
+     x="180"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text8">Instructor Portal</text>
+  <!-- Navigation -->
+  <rect
+     x="400"
+     y="18"
+     width="370"
+     height="30"
+     rx="15"
+     fill="#34495e"
+     id="rect10" />
+  <text
+     x="430"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     font-weight="bold"
+     id="text12">Courses</text>
+  <rect
+     x="425"
+     y="15"
+     width="80"
+     height="35"
+     rx="17"
+     fill="#3498db"
+     opacity="0.3"
+     id="rect14" />
+  <text
+     x="520"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text16">Assignments</text>
+  <text
+     x="610"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text18">Analytics</text>
+  <text
+     x="690"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text20">Settings</text>
+  <!-- Page Title -->
+  <text
+     x="50"
+     y="100"
+     font-family="Arial"
+     font-size="20"
+     fill="#2c3e50"
+     font-weight="bold"
+     id="text22">Create Assignment</text>
+  <text
+     x="50"
+     y="125"
+     font-family="Arial"
+     font-size="14"
+     fill="#7f8c8d"
+     id="text24">Course: ENG301 - Critical Perspectives</text>
+  <!-- Progress Indicators -->
+  <line
+     x1="50"
+     y1="150"
+     x2="750"
+     y2="150"
+     stroke="#e1e8ed"
+     stroke-width="4"
+     id="line26" />
+  <!-- Step 1 -->
+  <circle
+     cx="150"
+     cy="150"
+     r="15"
+     fill="#3498db"
+     id="circle28" />
+  <text
+     x="150"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text30">1</text>
+  <text
+     x="150"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#2c3e50"
+     text-anchor="middle"
+     id="text32">Assignment Details</text>
+  <!-- Step 2 -->
+  <circle
+     cx="300"
+     cy="150"
+     r="15"
+     fill="#bdc3c7"
+     id="circle34" />
+  <text
+     x="300"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text36">2</text>
+  <text
+     x="300"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#7f8c8d"
+     text-anchor="middle"
+     id="text38">Assignment Specifications</text>
+  <!-- Step 3 -->
+  <circle
+     cx="450"
+     cy="150"
+     r="15"
+     fill="#bdc3c7"
+     id="circle40" />
+  <text
+     x="450"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text42">3</text>
+  <text
+     x="450"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#7f8c8d"
+     text-anchor="middle"
+     id="text44">Rubric Creation</text>
+  <!-- Step 4 -->
+  <circle
+     cx="600"
+     cy="150"
+     r="15"
+     fill="#bdc3c7"
+     id="circle46" />
+  <text
+     x="600"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text48">4</text>
+  <text
+     x="600"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#7f8c8d"
+     text-anchor="middle"
+     id="text50">Feedback Settings</text>
+  <!-- Step 5 -->
+  <circle
+     cx="750"
+     cy="150"
+     r="15"
+     fill="#bdc3c7"
+     id="circle52" />
+  <text
+     x="750"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text54">5</text>
+  <text
+     x="750"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#7f8c8d"
+     text-anchor="middle"
+     id="text56">Review  Publish</text>
+  <!-- Form Container -->
+  <rect
+     x="50"
+     y="200"
+     width="700"
+     height="350"
+     rx="5"
+     fill="#ffffff"
+     stroke="#e1e8ed"
+     stroke-width="1"
+     id="rect58" />
+  <!-- Form Title -->
+  <text
+     x="80"
+     y="240"
+     font-family="Arial"
+     font-size="18"
+     fill="#2c3e50"
+     font-weight="bold"
+     id="text60">Assignment Details</text>
+  <!-- Form Fields -->
+  <text
+     x="80"
+     y="280"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text62">Assignment Title</text>
+  <rect
+     x="80"
+     y="290"
+     width="640"
+     height="40"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="1"
+     id="rect64" />
+  <text
+     x="100"
+     y="315"
+     font-family="Arial"
+     font-size="14"
+     fill="#34495e"
+     id="text66">Research Essay</text>
+  <text
+     x="80"
+     y="350"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text68">Assignment Description</text>
+  <rect
+     x="80"
+     y="360"
+     width="640"
+     height="80"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="1"
+     id="rect70" />
+  <text
+     x="100"
+     y="385"
+     font-family="Arial"
+     font-size="14"
+     fill="#34495e"
+     id="text72">Students will write a 2000-word research essay analyzing a critical</text>
+  <text
+     x="100"
+     y="410"
+     font-family="Arial"
+     font-size="14"
+     fill="#34495e"
+     id="text74">perspective in modern literature of their choosing...</text>
+  <!-- Due Date -->
+  <text
+     x="80"
+     y="460"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text76">Due Date</text>
+  <rect
+     x="80"
+     y="470"
+     width="300"
+     height="40"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="1"
+     id="rect78" />
+  <text
+     x="100"
+     y="495"
+     font-family="Arial"
+     font-size="14"
+     fill="#34495e"
+     id="text80">April 15, 2025</text>
+  <!-- Max Drafts -->
+  <text
+     x="420"
+     y="460"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text82">Maximum Number of Drafts</text>
+  <rect
+     x="420"
+     y="470"
+     width="300"
+     height="40"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="1"
+     id="rect84" />
+  <text
+     x="440"
+     y="495"
+     font-family="Arial"
+     font-size="14"
+     fill="#34495e"
+     id="text86">3</text>
+  <!-- Bottom Navigation -->
+  <rect
+     x="50"
+     y="560"
+     width="700"
+     height="30"
+     fill="#f5f7fa"
+     id="rect88" />
+  <rect
+     x="600"
+     y="560"
+     width="150"
+     height="40"
+     rx="5"
+     fill="#3498db"
+     id="rect90" />
+  <text
+     x="675"
+     y="585"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     font-weight="bold"
+     id="text92">Next: Specifications</text>
+  <rect
+     x="440"
+     y="560"
+     width="150"
+     height="40"
+     rx="5"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="1"
+     id="rect94" />
+  <text
+     x="515"
+     y="585"
+     font-family="Arial"
+     font-size="14"
+     fill="#7f8c8d"
+     text-anchor="middle"
+     id="text96">Save as Draft</text>
+</svg>

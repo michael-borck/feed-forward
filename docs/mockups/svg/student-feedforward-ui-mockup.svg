@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5f7fa"/>
+  
+  <!-- Header -->
+  <rect width="800" height="60" fill="#2c3e50"/>
+  <text x="30" y="38" font-family="Arial" font-size="24" fill="#ffffff" font-weight="bold">FeedForward</text>
+  
+  <!-- Navigation -->
+  <rect x="250" y="18" width="450" height="30" rx="15" fill="#34495e"/>
+  <text x="270" y="38" font-family="Arial" font-size="14" fill="#ffffff">Dashboard</text>
+  <text x="370" y="38" font-family="Arial" font-size="14" fill="#ffffff">My Submissions</text>
+  <text x="490" y="38" font-family="Arial" font-size="14" fill="#ffffff">Feedback History</text>
+  <text x="620" y="38" font-family="Arial" font-size="14" fill="#ffffff">Help</text>
+  
+  <!-- Main Content Area -->
+  <rect x="30" y="80" width="740" height="500" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  
+  <!-- Sidebar -->
+  <rect x="30" y="80" width="200" height="500" fill="#f8f9fa" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="45" y="110" font-family="Arial" font-size="16" fill="#2c3e50" font-weight="bold">Active Assignments</text>
+  
+  <!-- Assignment List -->
+  <rect x="40" y="125" width="180" height="60" rx="3" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="50" y="145" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Research Essay</text>
+  <text x="50" y="165" font-family="Arial" font-size="12" fill="#7f8c8d">Due: April 15, 2025</text>
+  <rect x="155" y="140" width="55" height="20" rx="10" fill="#3498db"/>
+  <text x="165" y="155" font-family="Arial" font-size="11" fill="#ffffff">Draft 2</text>
+  
+  <rect x="40" y="195" width="180" height="60" rx="3" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="50" y="215" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Literature Review</text>
+  <text x="50" y="235" font-family="Arial" font-size="12" fill="#7f8c8d">Due: May 2, 2025</text>
+  <rect x="155" y="210" width="55" height="20" rx="10" fill="#e74c3c"/>
+  <text x="165" y="225" font-family="Arial" font-size="11" fill="#ffffff">Draft 1</text>
+  
+  <rect x="40" y="265" width="180" height="60" rx="3" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="50" y="285" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Code Assignment</text>
+  <text x="50" y="305" font-family="Arial" font-size="12" fill="#7f8c8d">Due: April 28, 2025</text>
+  <rect x="155" y="280" width="55" height="20" rx="10" fill="#2ecc71"/>
+  <text x="162" y="295" font-family="Arial" font-size="11" fill="#ffffff">Draft 3</text>
+  
+  <!-- Main Content -->
+  <text x="260" y="110" font-family="Arial" font-size="20" fill="#2c3e50" font-weight="bold">Research Essay - Draft 2 Feedback</text>
+  
+  <!-- Draft Selection -->
+  <rect x="260" y="130" width="100" height="30" rx="3" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="280" y="150" font-family="Arial" font-size="14" fill="#2c3e50">Draft 1</text>
+  <rect x="365" y="130" width="100" height="30" rx="3" fill="#3498db" stroke="#2980b9" stroke-width="1"/>
+  <text x="385" y="150" font-family="Arial" font-size="14" fill="#ffffff">Draft 2</text>
+  
+  <!-- Score Overview -->
+  <rect x="260" y="170" width="490" height="80" rx="3" fill="#f8f9fa" stroke="#e1e8ed" stroke-width="1"/>
+  
+  <!-- Score Visualization -->
+  <circle cx="310" cy="210" r="30" fill="#ffffff" stroke="#3498db" stroke-width="3"/>
+  <text x="300" y="215" font-family="Arial" font-size="16" fill="#2c3e50" font-weight="bold">75%</text>
+  <text x="285" y="235" font-family="Arial" font-size="12" fill="#7f8c8d">Overall</text>
+  
+  <!-- Progress Indicator -->
+  <rect x="360" y="195" width="360" height="20" rx="10" fill="#ecf0f1"/>
+  <rect x="360" y="195" width="200" height="20" rx="10" fill="#3498db"/>
+  <text x="360" y="185" font-family="Arial" font-size="12" fill="#7f8c8d">Progress from Draft 1 (58%) to Draft 2 (75%)</text>
+  
+  <!-- Rubric Categories -->
+  <text x="360" y="230" font-family="Arial" font-size="14" fill="#2c3e50">Structure +29% • Content +15% • References +8%</text>
+  
+  <!-- Feedback Section -->
+  <text x="260" y="280" font-family="Arial" font-size="16" fill="#2c3e50" font-weight="bold">Feedback Summary</text>
+  
+  <!-- Feedback Cards -->
+  <rect x="260" y="295" width="490" height="80" rx="3" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <rect x="260" y="295" width="5" height="80" rx="0" fill="#2ecc71"/>
+  <text x="275" y="315" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Strengths</text>
+  <text x="275" y="340" font-family="Arial" font-size="13" fill="#34495e" font-style="italic">"Your thesis statement is clear and effectively outlines the scope of your argument."</text>
+  <text x="275" y="365" font-family="Arial" font-size="13" fill="#34495e" font-style="italic">"Good use of evidence from primary sources to support key points."</text>
+  
+  <rect x="260" y="385" width="490" height="80" rx="3" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <rect x="260" y="385" width="5" height="80" rx="0" fill="#e74c3c"/>
+  <text x="275" y="405" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Areas for Improvement</text>
+  <text x="275" y="430" font-family="Arial" font-size="13" fill="#34495e" font-style="italic">"Consider strengthening paragraph transitions to improve flow between ideas."</text>
+  <text x="275" y="455" font-family="Arial" font-size="13" fill="#34495e" font-style="italic">"Some claims in the third section would benefit from additional scholarly support."</text>
+  
+  <!-- Document View Button -->
+  <rect x="260" y="485" width="200" height="40" rx="5" fill="#3498db"/>
+  <text x="310" y="510" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">View Annotated Draft</text>
+  
+  <!-- Submit Next Draft Button -->
+  <rect x="470" y="485" width="280" height="40" rx="5" fill="#2ecc71"/>
+  <text x="540" y="510" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">Submit Next Draft</text>
+</svg>

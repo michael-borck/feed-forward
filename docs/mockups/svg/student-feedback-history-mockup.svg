@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5f7fa"/>
+  
+  <!-- Header -->
+  <rect width="800" height="60" fill="#2c3e50"/>
+  <text x="30" y="38" font-family="Arial" font-size="24" fill="#ffffff" font-weight="bold">FeedForward</text>
+  
+  <!-- Navigation -->
+  <rect x="250" y="18" width="450" height="30" rx="15" fill="#34495e"/>
+  <text x="270" y="38" font-family="Arial" font-size="14" fill="#ffffff">Dashboard</text>
+  <text x="370" y="38" font-family="Arial" font-size="14" fill="#ffffff">My Submissions</text>
+  <text x="490" y="38" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">Feedback History</text>
+  <rect x="485" y="15" width="125" height="35" rx="17" fill="#3498db" opacity="0.3"/>
+  <text x="620" y="38" font-family="Arial" font-size="14" fill="#ffffff">Help</text>
+  
+  <!-- Main Content Area -->
+  <rect x="30" y="80" width="740" height="500" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  
+  <!-- Page Title -->
+  <text x="50" y="110" font-family="Arial" font-size="20" fill="#2c3e50" font-weight="bold">Feedback History</text>
+  
+  <!-- Filter Controls -->
+  <rect x="50" y="125" width="720" height="50" rx="5" fill="#f8f9fa" stroke="#e1e8ed" stroke-width="1"/>
+  
+  <!-- Time Range -->
+  <text x="70" y="155" font-family="Arial" font-size="14" fill="#7f8c8d">Time Range:</text>
+  <rect x="160" y="135" width="150" height="30" rx="3" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="175" y="155" font-family="Arial" font-size="13" fill="#2c3e50">Spring 2025 ▼</text>
+  
+  <!-- Skills Filter -->
+  <text x="330" y="155" font-family="Arial" font-size="14" fill="#7f8c8d">Skills:</text>
+  <rect x="380" y="135" width="150" height="30" rx="3" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="395" y="155" font-family="Arial" font-size="13" fill="#2c3e50">All Skills ▼</text>
+  
+  <!-- Download Report -->
+  <rect x="650" y="135" width="120" height="30" rx="3" fill="#3498db"/>
+  <text x="675" y="155" font-family="Arial" font-size="13" fill="#ffffff">Export PDF</text>
+  
+  <!-- Overall Progress Chart -->
+  <rect x="50" y="190" width="350" height="180" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="70" y="215" font-family="Arial" font-size="16" fill="#2c3e50" font-weight="bold">Overall Progress</text>
+  
+  <!-- Line Chart -->
+  <line x1="70" y1="330" x2="330" y2="330" stroke="#ecf0f1" stroke-width="1"/>
+  <line x1="70" y1="240" x2="70" y2="330" stroke="#ecf0f1" stroke-width="1"/>
+  
+  <!-- Chart Grid -->
+  <line x1="70" y1="260" x2="330" y2="260" stroke="#ecf0f1" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="70" y1="290" x2="330" y2="290" stroke="#ecf0f1" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="130" y1="240" x2="130" y2="330" stroke="#ecf0f1" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="190" y1="240" x2="190" y2="330" stroke="#ecf0f1" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="250" y1="240" x2="250" y2="330" stroke="#ecf0f1" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="310" y1="240" x2="310" y2="330" stroke="#ecf0f1" stroke-width="1" stroke-dasharray="2,2"/>
+  
+  <!-- X-Axis Labels -->
+  <text x="70" y="345" font-family="Arial" font-size="10" fill="#7f8c8d">Jan</text>
+  <text x="130" y="345" font-family="Arial" font-size="10" fill="#7f8c8d">Feb</text>
+  <text x="190" y="345" font-family="Arial" font-size="10" fill="#7f8c8d">Mar</text>
+  <text x="250" y="345" font-family="Arial" font-size="10" fill="#7f8c8d">Apr</text>
+  <text x="310" y="345" font-family="Arial" font-size="10" fill="#7f8c8d">May</text>
+  
+  <!-- Y-Axis Labels -->
+  <text x="55" y="330" font-family="Arial" font-size="10" fill="#7f8c8d">50%</text>
+  <text x="55" y="290" font-family="Arial" font-size="10" fill="#7f8c8d">75%</text>
+  <text x="55" y="260" font-family="Arial" font-size="10" fill="#7f8c8d">85%</text>
+  <text x="55" y="240" font-family="Arial" font-size="10" fill="#7f8c8d">95%</text>
+  
+  <!-- Progress Line -->
+  <polyline points="70,310 130,300 190,280 250,250 310,230" fill="none" stroke="#3498db" stroke-width="3"/>
+  
+  <!-- Data Points -->
+  <circle cx="70" cy="310" r="4" fill="#3498db"/>
+  <circle cx="130" cy="300" r="4" fill="#3498db"/>
+  <circle cx="190" cy="280" r="4" fill="#3498db"/>
+  <circle cx="250" cy="250" r="4" fill="#3498db"/>
+  <circle cx="310" cy="230" r="4" fill="#3498db"/>
+  
+  <!-- Skill Breakdown Chart -->
+  <rect x="420" y="190" width="350" height="180" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="440" y="215" font-family="Arial" font-size="16" fill="#2c3e50" font-weight="bold">Skill Breakdown</text>
+  
+  <!-- Bar Chart -->
+  <rect x="460" y="240" width="250" height="15" rx="2" fill="#ecf0f1"/>
+  <rect x="460" y="240" width="200" r="2" height="15" fill="#3498db"/>
+  <text x="440" y="252" font-family="Arial" font-size="12" fill="#2c3e50">Structure</text>
+  <text x="720" y="252" font-family="Arial" font-size="12" fill="#2c3e50">80%</text>
+  
+  <rect x="460" y="265" width="250" height="15" rx="2" fill="#ecf0f1"/>
+  <rect x="460" y="265" width="225" height="15" rx="2" fill="#9b59b6"/>
+  <text x="440" y="277" font-family="Arial" font-size="12" fill="#2c3e50">Content</text>
+  <text x="720" y="277" font-family="Arial" font-size="12" fill="#2c3e50">90%</text>
+  
+  <rect x="460" y="290" width="250" height="15" rx="2" fill="#ecf0f1"/>
+  <rect x="460" y="290" width="175" height="15" rx="2" fill="#e74c3c"/>
+  <text x="440" y="302" font-family="Arial" font-size="12" fill="#2c3e50">Citations</text>
+  <text x="720" y="302" font-family="Arial" font-size="12" fill="#2c3e50">70%</text>
+  
+  <rect x="460" y="315" width="250" height="15" rx="2" fill="#ecf0f1"/>
+  <rect x="460" y="315" width="188" height="15" rx="2" fill="#f1c40f"/>
+  <text x="440" y="327" font-family="Arial" font-size="12" fill="#2c3e50">Analysis</text>
+  <text x="720" y="327" font-family="Arial" font-size="12" fill="#2c3e50">75%</text>
+  
+  <!-- Recurring Feedback -->
+  <rect x="50" y="385" width="720" height="180" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="70" y="410" font-family="Arial" font-size="16" fill="#2c3e50" font-weight="bold">Recurring Feedback Patterns</text>
+  
+  <!-- Strengths Section -->
+  <text x="70" y="435" font-family="Arial" font-size="14" fill="#27ae60" font-weight="bold">Common Strengths</text>
+  
+  <!-- Strength Items -->
+  <circle cx="85" cy="455" r="4" fill="#2ecc71"/>
+  <text x="95" y="458" font-family="Arial" font-size="13" fill="#2c3e50">"Strong thesis statements that clearly outline the scope of your arguments" (6 assignments)</text>
+  
+  <circle cx="85" cy="480" r="4" fill="#2ecc71"/>
+  <text x="95" y="483" font-family="Arial" font-size="13" fill="#2c3e50">"Effective use of evidence from primary sources" (5 assignments)</text>
+  
+  <circle cx="85" cy="505" r="4" fill="#2ecc71"/>
+  <text x="95" y="508" font-family="Arial" font-size="13" fill="#2c3e50">"Well-structured introductions that engage the reader" (4 assignments)</text>
+  
+  <!-- Areas for Improvement Section -->
+  <text x="400" y="435" font-family="Arial" font-size="14" fill="#c0392b" font-weight="bold">Common Areas for Improvement</text>
+  
+  <!-- Improvement Items -->
+  <circle cx="415" cy="455" r="4" fill="#e74c3c"/>
+  <text x="425" y="458" font-family="Arial" font-size="13" fill="#2c3e50">"Strengthen paragraph transitions to improve flow" (7 assignments)</text>
+  
+  <circle cx="415" cy="480" r="4" fill="#e74c3c"/>
+  <text x="425" y="483" font-family="Arial" font-size="13" fill="#2c3e50">"Provide additional scholarly support for key claims" (5 assignments)</text>
+  
+  <circle cx="415" cy="505" r="4" fill="#e74c3c"/>
+  <text x="425" y="508" font-family="Arial" font-size="13" fill="#2c3e50">"Improve citation formatting consistency" (4 assignments)</text>
+  
+  <!-- Most Improved -->
+  <rect x="70" y="525" width="680" height="30" rx="3" fill="#e8f8f5"/>
+  <text x="90" y="545" font-family="Arial" font-size="13" fill="#16a085" font-weight="bold">Most Improved Skill: Analysis (+18% this semester)</text>
+</svg>

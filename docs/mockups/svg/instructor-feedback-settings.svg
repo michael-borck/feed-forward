@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 800 600"
+   version="1.1"
+   id="svg134"
+   sodipodi:docname="instructor-feedback-settings.svg"
+   inkscape:export-filename="instructor-feedback-settings.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs138" />
+  <sodipodi:namedview
+     id="namedview136"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.4616667"
+     inkscape:cx="400.57013"
+     inkscape:cy="300.68415"
+     inkscape:window-width="1390"
+     inkscape:window-height="1027"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg134" />
+  <!-- Background -->
+  <rect
+     width="800"
+     height="600"
+     fill="#f5f7fa"
+     id="rect2" />
+  <!-- Header -->
+  <rect
+     width="800"
+     height="60"
+     fill="#2c3e50"
+     id="rect4" />
+  <text
+     x="30"
+     y="38"
+     font-family="Arial"
+     font-size="24"
+     fill="#ffffff"
+     font-weight="bold"
+     id="text6">FeedForward</text>
+  <text
+     x="180"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text8">Instructor Portal</text>
+  <!-- Navigation -->
+  <rect
+     x="400"
+     y="18"
+     width="370"
+     height="30"
+     rx="15"
+     fill="#34495e"
+     id="rect10" />
+  <text
+     x="430"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     font-weight="bold"
+     id="text12">Courses</text>
+  <rect
+     x="425"
+     y="15"
+     width="80"
+     height="35"
+     rx="17"
+     fill="#3498db"
+     opacity="0.3"
+     id="rect14" />
+  <text
+     x="520"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text16">Assignments</text>
+  <text
+     x="610"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text18">Analytics</text>
+  <text
+     x="690"
+     y="38"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     id="text20">Settings</text>
+  <!-- Page Title -->
+  <text
+     x="50"
+     y="100"
+     font-family="Arial"
+     font-size="20"
+     fill="#2c3e50"
+     font-weight="bold"
+     id="text22">Create Assignment</text>
+  <text
+     x="50"
+     y="125"
+     font-family="Arial"
+     font-size="14"
+     fill="#7f8c8d"
+     id="text24">Course: ENG301 - Critical Perspectives</text>
+  <!-- Progress Indicators -->
+  <line
+     x1="50"
+     y1="150"
+     x2="750"
+     y2="150"
+     stroke="#e1e8ed"
+     stroke-width="4"
+     id="line26" />
+  <!-- Step 1 -->
+  <circle
+     cx="150"
+     cy="150"
+     r="15"
+     fill="#2ecc71"
+     id="circle28" />
+  <text
+     x="150"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text30">✓</text>
+  <text
+     x="150"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#2c3e50"
+     text-anchor="middle"
+     id="text32">Assignment Details</text>
+  <!-- Step 2 -->
+  <circle
+     cx="300"
+     cy="150"
+     r="15"
+     fill="#2ecc71"
+     id="circle34" />
+  <text
+     x="300"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text36">✓</text>
+  <text
+     x="300"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#2c3e50"
+     text-anchor="middle"
+     id="text38">Assignment Specifications</text>
+  <!-- Step 3 -->
+  <circle
+     cx="450"
+     cy="150"
+     r="15"
+     fill="#2ecc71"
+     id="circle40" />
+  <text
+     x="450"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text42">✓</text>
+  <text
+     x="450"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#2c3e50"
+     text-anchor="middle"
+     id="text44">Rubric Creation</text>
+  <!-- Step 4 -->
+  <circle
+     cx="600"
+     cy="150"
+     r="15"
+     fill="#3498db"
+     id="circle46" />
+  <text
+     x="600"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text48">4</text>
+  <text
+     x="600"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#2c3e50"
+     text-anchor="middle"
+     id="text50">Feedback Settings</text>
+  <!-- Step 5 -->
+  <circle
+     cx="750"
+     cy="150"
+     r="15"
+     fill="#bdc3c7"
+     id="circle52" />
+  <text
+     x="750"
+     y="155"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     id="text54">5</text>
+  <text
+     x="750"
+     y="180"
+     font-family="Arial"
+     font-size="12"
+     fill="#7f8c8d"
+     text-anchor="middle"
+     id="text56">Review  Publish</text>
+  <!-- Settings Container -->
+  <rect
+     x="50"
+     y="200"
+     width="700"
+     height="350"
+     rx="5"
+     fill="#ffffff"
+     stroke="#e1e8ed"
+     stroke-width="1"
+     id="rect58" />
+  <!-- Form Title -->
+  <text
+     x="80"
+     y="230"
+     font-family="Arial"
+     font-size="18"
+     fill="#2c3e50"
+     font-weight="bold"
+     id="text60">Feedback Settings</text>
+  <text
+     x="80"
+     y="250"
+     font-family="Arial"
+     font-size="14"
+     fill="#7f8c8d"
+     id="text62">Configure the AI models and feedback parameters</text>
+  <!-- AI Models Section -->
+  <text
+     x="80"
+     y="285"
+     font-family="Arial"
+     font-size="16"
+     fill="#2c3e50"
+     font-weight="bold"
+     id="text64">AI Models</text>
+  <text
+     x="80"
+     y="305"
+     font-family="Arial"
+     font-size="14"
+     fill="#7f8c8d"
+     id="text66">Select which AI models to use for generating feedback</text>
+  <!-- Model Checkboxes -->
+  <rect
+     x="80"
+     y="320"
+     width="20"
+     height="20"
+     rx="3"
+     fill="#ffffff"
+     stroke="#3498db"
+     stroke-width="2"
+     id="rect68" />
+  <rect
+     x="83"
+     y="323"
+     width="14"
+     height="14"
+     rx="2"
+     fill="#3498db"
+     id="rect70" />
+  <text
+     x="110"
+     y="335"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text72">ChatGPT (OpenAI)</text>
+  <rect
+     x="250"
+     y="320"
+     width="20"
+     height="20"
+     rx="3"
+     fill="#ffffff"
+     stroke="#3498db"
+     stroke-width="2"
+     id="rect74" />
+  <rect
+     x="253"
+     y="323"
+     width="14"
+     height="14"
+     rx="2"
+     fill="#3498db"
+     id="rect76" />
+  <text
+     x="280"
+     y="335"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text78">Claude (Anthropic)</text>
+  <rect
+     x="450"
+     y="320"
+     width="20"
+     height="20"
+     rx="3"
+     fill="#ffffff"
+     stroke="#3498db"
+     stroke-width="2"
+     id="rect80" />
+  <rect
+     x="453"
+     y="323"
+     width="14"
+     height="14"
+     rx="2"
+     fill="#3498db"
+     id="rect82" />
+  <text
+     x="480"
+     y="335"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text84">Llama 3 (Meta)</text>
+  <rect
+     x="80"
+     y="350"
+     width="20"
+     height="20"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="2"
+     id="rect86" />
+  <text
+     x="110"
+     y="365"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text88">Mistral AI</text>
+  <rect
+     x="250"
+     y="350"
+     width="20"
+     height="20"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="2"
+     id="rect90" />
+  <text
+     x="280"
+     y="365"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text92">Falcon</text>
+  <rect
+     x="450"
+     y="350"
+     width="20"
+     height="20"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="2"
+     id="rect94" />
+  <text
+     x="480"
+     y="365"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text96">GPT-J</text>
+  <!-- Feedback Style -->
+  <text
+     x="80"
+     y="400"
+     font-family="Arial"
+     font-size="16"
+     fill="#2c3e50"
+     font-weight="bold"
+     id="text98">Feedback Style</text>
+  <!-- Feedback Style Options -->
+  <rect
+     x="80"
+     y="415"
+     width="640"
+     height="80"
+     rx="5"
+     fill="#f8f9fa"
+     stroke="#e1e8ed"
+     stroke-width="1"
+     id="rect100" />
+  <!-- Radio Buttons -->
+  <circle
+     cx="100"
+     cy="435"
+     r="10"
+     fill="#ffffff"
+     stroke="#3498db"
+     stroke-width="2"
+     id="circle102" />
+  <circle
+     cx="100"
+     cy="435"
+     r="5"
+     fill="#3498db"
+     id="circle104" />
+  <text
+     x="120"
+     y="440"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text106">Balanced (Default) - Equal focus on strengths and areas for improvement</text>
+  <circle
+     cx="100"
+     cy="465"
+     r="10"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="2"
+     id="circle108" />
+  <text
+     x="120"
+     y="470"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text110">Encouraging - Emphasizes strengths while gently suggesting improvements</text>
+  <circle
+     cx="100"
+     cy="495"
+     r="10"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="2"
+     id="circle112" />
+  <text
+     x="120"
+     y="500"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     id="text114">Detailed - In-depth analysis with specific, actionable improvements</text>
+  <!-- Review Threshold -->
+  <text
+     x="80"
+     y="525"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     font-weight="bold"
+     id="text116">Instructor Review Threshold</text>
+  <text
+     x="300"
+     y="525"
+     font-family="Arial"
+     font-size="14"
+     fill="#7f8c8d"
+     id="text118">Flag submissions for review when score is below:</text>
+  <rect
+     x="615"
+     y="510"
+     width="60"
+     height="25"
+     rx="3"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="1"
+     id="rect120" />
+  <text
+     x="635"
+     y="527"
+     font-family="Arial"
+     font-size="14"
+     fill="#2c3e50"
+     text-anchor="middle"
+     id="text122">60%</text>
+  <!-- Bottom Navigation -->
+  <rect
+     x="50"
+     y="560"
+     width="700"
+     height="30"
+     fill="#f5f7fa"
+     id="rect124" />
+  <rect
+     x="600"
+     y="560"
+     width="150"
+     height="40"
+     rx="5"
+     fill="#3498db"
+     id="rect126" />
+  <text
+     x="675"
+     y="585"
+     font-family="Arial"
+     font-size="14"
+     fill="#ffffff"
+     text-anchor="middle"
+     font-weight="bold"
+     id="text128">Next: Review</text>
+  <rect
+     x="440"
+     y="560"
+     width="150"
+     height="40"
+     rx="5"
+     fill="#ffffff"
+     stroke="#bdc3c7"
+     stroke-width="1"
+     id="rect130" />
+  <text
+     x="515"
+     y="585"
+     font-family="Arial"
+     font-size="14"
+     fill="#7f8c8d"
+     text-anchor="middle"
+     id="text132">Previous</text>
+</svg>

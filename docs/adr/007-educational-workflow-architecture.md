@@ -4,7 +4,7 @@
 
 Evolving (This is a living document that will be updated as implementation progresses)
 
-![Educational Workflow Architecture Diagram](/docs/svg-mockups/educational-workflow-diagram.svg)
+![Educational Workflow Architecture Diagram](/docs/images/educational-workflow-diagram.svg)
 
 ## Context
 

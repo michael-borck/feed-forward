@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5f7fa"/>
+  
+  <!-- Header -->
+  <rect width="800" height="60" fill="#2c3e50"/>
+  <text x="30" y="38" font-family="Arial" font-size="24" fill="#ffffff" font-weight="bold">FeedForward</text>
+  <text x="180" y="38" font-family="Arial" font-size="14" fill="#ffffff">Instructor Portal</text>
+  
+  <!-- Navigation -->
+  <rect x="400" y="18" width="370" height="30" rx="15" fill="#34495e"/>
+  <text x="430" y="38" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">Courses</text>
+  <rect x="425" y="15" width="80" height="35" rx="17" fill="#3498db" opacity="0.3"/>
+  <text x="520" y="38" font-family="Arial" font-size="14" fill="#ffffff">Assignments</text>
+  <text x="610" y="38" font-family="Arial" font-size="14" fill="#ffffff">Analytics</text>
+  <text x="690" y="38" font-family="Arial" font-size="14" fill="#ffffff">Settings</text>
+  
+  <!-- Left Sidebar -->
+  <rect x="30" y="80" width="220" height="500" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  
+  <!-- Page Title -->
+  <text x="50" y="110" font-family="Arial" font-size="18" fill="#2c3e50" font-weight="bold">My Courses</text>
+  <rect x="50" y="120" width="180" height="1" fill="#e1e8ed"/>
+  
+  <!-- Add Course Button -->
+  <rect x="50" y="135" width="180" height="40" rx="5" fill="#3498db"/>
+  <text x="100" y="160" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">+ Add Course</text>
+  
+  <!-- Import Class Button -->
+  <rect x="50" y="185" width="180" height="40" rx="5" fill="#2ecc71"/>
+  <text x="95" y="210" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">⬆ Import Class</text>
+  
+  <!-- Course List -->
+  <text x="50" y="245" font-family="Arial" font-size="14" fill="#7f8c8d">Active Courses</text>
+  
+  <!-- Course Items -->
+  <rect x="50" y="255" width="180" height="60" rx="3" fill="#ecf0f1"/>
+  <text x="65" y="275" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">ENG301</text>
+  <text x="65" y="295" font-family="Arial" font-size="12" fill="#7f8c8d">Critical Perspectives</text>
+  <text x="180" y="285" font-family="Arial" font-size="12" fill="#e74c3c" font-weight="bold">35</text>
+  
+  <rect x="50" y="325" width="180" height="60" rx="3" fill="#ffffff"/>
+  <text x="65" y="345" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">CS312</text>
+  <text x="65" y="365" font-family="Arial" font-size="12" fill="#7f8c8d">Data Structures</text>
+  <text x="180" y="355" font-family="Arial" font-size="12" fill="#e74c3c" font-weight="bold">42</text>
+  
+  <rect x="50" y="395" width="180" height="60" rx="3" fill="#ffffff"/>
+  <text x="65" y="415" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">RES405</text>
+  <text x="65" y="435" font-family="Arial" font-size="12" fill="#7f8c8d">Research Methods</text>
+  <text x="180" y="425" font-family="Arial" font-size="12" fill="#e74c3c" font-weight="bold">28</text>
+  
+  <!-- Main Content Area -->
+  <rect x="270" y="80" width="500" height="500" rx="5" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  
+  <!-- Course Title -->
+  <text x="290" y="110" font-family="Arial" font-size="20" fill="#2c3e50" font-weight="bold">ENG301: Critical Perspectives</text>
+  <text x="290" y="130" font-family="Arial" font-size="14" fill="#7f8c8d">Spring 2025 • 35 Students</text>
+  
+  <!-- Tabs -->
+  <rect x="290" y="145" width="480" height="40" rx="5" fill="#ecf0f1"/>
+  <rect x="410" y="145" width="120" height="40" rx="5" fill="#3498db"/>
+  <text x="320" y="170" font-family="Arial" font-size="14" fill="#7f8c8d">Assignments</text>
+  <text x="450" y="170" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">Students</text>
+  <text x="540" y="170" font-family="Arial" font-size="14" fill="#7f8c8d">Feedback Stats</text>
+  <text x="640" y="170" font-family="Arial" font-size="14" fill="#7f8c8d">Settings</text>
+  
+  <!-- Student Management Controls -->
+  <rect x="290" y="200" width="180" height="40" rx="5" fill="#3498db"/>
+  <text x="330" y="225" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">+ Add Student</text>
+  
+  <rect x="480" y="200" width="180" height="40" rx="5" fill="#2ecc71"/>
+  <text x="510" y="225" font-family="Arial" font-size="14" fill="#ffffff" font-weight="bold">⬆ Import Students</text>
+  
+  <!-- Search Box -->
+  <rect x="290" y="250" width="480" height="40" rx="5" fill="#f8f9fa" stroke="#e1e8ed" stroke-width="1"/>
+  <text x="310" y="275" font-family="Arial" font-size="14" fill="#95a5a6">Search students...</text>
+  
+  <!-- Student List Header -->
+  <rect x="290" y="300" width="480" height="40" rx="3" fill="#ecf0f1"/>
+  <text x="310" y="325" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Student</text>
+  <text x="500" y="325" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">ID</text>
+  <text x="580" y="325" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Activity</text>
+  <text x="680" y="325" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Actions</text>
+  
+  <!-- Student Row 1 -->
+  <rect x="290" y="340" width="480" height="60" rx="0" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <circle cx="315" cy="370" r="12" fill="#3498db"/>
+  <text x="315" y="375" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">JD</text>
+  <text x="340" y="365" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Jane Doe</text>
+  <text x="340" y="385" font-family="Arial" font-size="12" fill="#7f8c8d">jane.doe@university.edu</text>
+  <text x="500" y="375" font-family="Arial" font-size="14" fill="#2c3e50">12345678</text>
+  
+  <!-- Activity Stats -->
+  <rect x="580" y="360" width="80" height="20" rx="10" fill="#2ecc71" opacity="0.2"/>
+  <text x="620" y="375" font-family="Arial" font-size="12" fill="#27ae60" text-anchor="middle" font-weight="bold">Active</text>
+  
+  <!-- Actions -->
+  <rect x="680" y="360" width="70" height="20" rx="3" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="715" y="375" font-family="Arial" font-size="12" fill="#7f8c8d" text-anchor="middle">View</text>
+  
+  <!-- Student Row 2 -->
+  <rect x="290" y="400" width="480" height="60" rx="0" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <circle cx="315" cy="430" r="12" fill="#9b59b6"/>
+  <text x="315" y="435" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">JS</text>
+  <text x="340" y="425" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">John Smith</text>
+  <text x="340" y="445" font-family="Arial" font-size="12" fill="#7f8c8d">john.smith@university.edu</text>
+  <text x="500" y="435" font-family="Arial" font-size="14" fill="#2c3e50">12345679</text>
+  
+  <!-- Activity Stats -->
+  <rect x="580" y="420" width="80" height="20" rx="10" fill="#f1c40f" opacity="0.2"/>
+  <text x="620" y="435" font-family="Arial" font-size="12" fill="#f39c12" text-anchor="middle" font-weight="bold">Pending</text>
+  
+  <!-- Actions -->
+  <rect x="680" y="420" width="70" height="20" rx="3" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="715" y="435" font-family="Arial" font-size="12" fill="#7f8c8d" text-anchor="middle">View</text>
+  
+  <!-- Student Row 3 -->
+  <rect x="290" y="460" width="480" height="60" rx="0" fill="#ffffff" stroke="#e1e8ed" stroke-width="1"/>
+  <circle cx="315" cy="490" r="12" fill="#e74c3c"/>
+  <text x="315" y="495" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">AJ</text>
+  <text x="340" y="485" font-family="Arial" font-size="14" fill="#2c3e50" font-weight="bold">Alice Johnson</text>
+  <text x="340" y="505" font-family="Arial" font-size="12" fill="#7f8c8d">alice.j@university.edu</text>
+  <text x="500" y="495" font-family="Arial" font-size="14" fill="#2c3e50">12345680</text>
+  
+  <!-- Activity Stats -->
+  <rect x="580" y="480" width="80" height="20" rx="10" fill="#2ecc71" opacity="0.2"/>
+  <text x="620" y="495" font-family="Arial" font-size="12" fill="#27ae60" text-anchor="middle" font-weight="bold">Active</text>
+  
+  <!-- Actions -->
+  <rect x="680" y="480" width="70" height="20" rx="3" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="715" y="495" font-family="Arial" font-size="12" fill="#7f8c8d" text-anchor="middle">View</text>
+  
+  <!-- Pagination -->
+  <rect x="290" y="530" width="480" height="40" rx="0" fill="#ffffff"/>
+  <text x="530" y="555" font-family="Arial" font-size="14" fill="#7f8c8d" text-anchor="middle">Page 1 of 12 ></text>
+</svg>

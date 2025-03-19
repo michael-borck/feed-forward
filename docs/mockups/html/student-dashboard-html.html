@@ -1,0 +1,139 @@
+<!-- Student Dashboard -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeedForward - Student Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">FeedForward</h1>
+            <nav class="bg-gray-700 rounded-full px-4 py-2">
+                <a href="#" class="text-white px-3 font-medium">Dashboard</a>
+                <a href="#" class="text-white px-3">My Submissions</a>
+                <a href="#" class="text-white px-3">Feedback History</a>
+                <a href="#" class="text-white px-3">Help</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-4">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4">
+                <div class="bg-white p-4 rounded-md shadow">
+                    <h2 class="text-lg font-bold text-gray-700 mb-4">Active Assignments</h2>
+                    
+                    <!-- Assignment Item 1 -->
+                    <div class="bg-white border border-gray-200 rounded-md p-3 mb-4">
+                        <div class="flex justify-between">
+                            <div>
+                                <h3 class="font-semibold text-gray-700">Research Essay</h3>
+                                <p class="text-sm text-gray-500">Due: April 15, 2025</p>
+                            </div>
+                            <span class="bg-blue-500 text-white text-xs px-3 py-1 rounded-full h-fit">Draft 2</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Assignment Item 2 -->
+                    <div class="bg-white border border-gray-200 rounded-md p-3 mb-4">
+                        <div class="flex justify-between">
+                            <div>
+                                <h3 class="font-semibold text-gray-700">Literature Review</h3>
+                                <p class="text-sm text-gray-500">Due: May 2, 2025</p>
+                            </div>
+                            <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full h-fit">Draft 1</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Assignment Item 3 -->
+                    <div class="bg-white border border-gray-200 rounded-md p-3">
+                        <div class="flex justify-between">
+                            <div>
+                                <h3 class="font-semibold text-gray-700">Code Assignment</h3>
+                                <p class="text-sm text-gray-500">Due: April 28, 2025</p>
+                            </div>
+                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full h-fit">Draft 3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content Area -->
+            <div class="w-full md:w-3/4">
+                <div class="bg-white p-6 rounded-md shadow">
+                    <h2 class="text-xl font-bold text-gray-700 mb-2">Research Essay - Draft 2 Feedback</h2>
+                    
+                    <!-- Draft Selection -->
+                    <div class="flex space-x-4 mb-6">
+                        <button class="px-4 py-2 bg-gray-200 rounded-md">Draft 1</button>
+                        <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Draft 2</button>
+                    </div>
+                    
+                    <!-- Score Overview -->
+                    <div class="bg-gray-50 p-4 rounded-md mb-6">
+                        <div class="flex flex-col md:flex-row items-center">
+                            <!-- Score Circle -->
+                            <div class="flex flex-col items-center mr-8">
+                                <div class="w-16 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center">
+                                    <span class="text-lg font-bold">75%</span>
+                                </div>
+                                <span class="text-sm text-gray-500 mt-1">Overall</span>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-500 mb-1">Progress from Draft 1 (58%) to Draft 2 (75%)</p>
+                                <div class="w-full bg-gray-200 rounded-full h-5">
+                                    <div class="bg-blue-500 h-5 rounded-full" style="width: 55%"></div>
+                                </div>
+                                <p class="text-sm text-gray-700 mt-2">
+                                    Structure +29% • Content +15% • References +8%
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feedback Summary -->
+                    <h3 class="text-lg font-bold text-gray-700 mb-3">Feedback Summary</h3>
+                    
+                    <!-- Strengths Card -->
+                    <div class="border border-gray-200 rounded-md mb-4 overflow-hidden">
+                        <div class="flex">
+                            <div class="w-1 bg-green-500"></div>
+                            <div class="p-4 flex-1">
+                                <h4 class="font-semibold text-gray-700 mb-2">Strengths</h4>
+                                <p class="text-gray-700 italic mb-2">"Your thesis statement is clear and effectively outlines the scope of your argument."</p>
+                                <p class="text-gray-700 italic">"Good use of evidence from primary sources to support key points."</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Areas for Improvement Card -->
+                    <div class="border border-gray-200 rounded-md mb-6 overflow-hidden">
+                        <div class="flex">
+                            <div class="w-1 bg-red-500"></div>
+                            <div class="p-4 flex-1">
+                                <h4 class="font-semibold text-gray-700 mb-2">Areas for Improvement</h4>
+                                <p class="text-gray-700 italic mb-2">"Consider strengthening paragraph transitions to improve flow between ideas."</p>
+                                <p class="text-gray-700 italic">"Some claims in the third section would benefit from additional scholarly support."</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md">View Annotated Draft</button>
+                        <button class="px-6 py-3 bg-green-500 text-white font-semibold rounded-md">Submit Next Draft</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!-- Import Students Dialog -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeedForward - Import Students</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-800 bg-opacity-50 flex items-center justify-center min-h-screen">
+    <!-- Modal Dialog -->
+    <div class="bg-white rounded-md shadow-lg w-full max-w-md">
+        <!-- Dialog Header -->
+        <div class="bg-green-500 p-4 rounded-t-md">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white">Import Students</h2>
+                <button class="text-white text-2xl">&times;</button>
+            </div>
+        </div>
+        
+        <!-- Dialog Content -->
+        <div class="p-6">
+            <!-- Form Fields -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-1">Course</label>
+                    <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>ENG301: Critical Perspectives</option>
+                        <option>CS312: Data Structures</option>
+                        <option>RES405: Research Methods</option>
+                    </select>
+                </div>
+                
+                <!-- File Upload Area -->
+                <div class="mt-6">
+                    <div class="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center">
+                        <div class="bg-gray-100 rounded-full p-3 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                        </div>
+                        <p class="text-gray-700 mb-1 text-center">Drop CSV/TSV file here or click to browse</p>
+                        <p class="text-gray-500 text-sm text-center">Expected columns: Name, Email, Student ID</p>
+                    </div>
+                </div>
+                
+                <!-- Template Link -->
+                <div class="text-center">
+                    <a href="#" class="text-blue-500 text-sm">Download template file</a>
+                </div>
+            </div>
+            
+            <!-- Note Box -->
+            <div class="bg-blue-50 rounded-md p-4 border border-blue-200 mt-6">
+                <p class="text-blue-600 font-bold text-sm mb-1">Note:</p>
+                <p class="text-blue-600 text-sm">Existing students with matching emails will be updated.</p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3 mt-6">
+                <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-500">Cancel</button>
+                <button class="px-4 py-2 bg-green-500 text-white rounded-md">Import</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
