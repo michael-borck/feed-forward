@@ -214,6 +214,179 @@ def get(session):
     )
 
 # --- Course Management ---
+# Helper function to get a course by ID with instructor permission check
+def get_instructor_course(course_id, instructor_email):
+    """
+    Get a course by ID, checking that it belongs to the instructor.
+    Returns (course, error_message) tuple.
+    """
+    # Find the course
+    target_course = None
+    try:
+        for course in courses():
+            if course.id == course_id:
+                target_course = course
+                break
+                
+        if not target_course:
+            return None, "Course not found."
+            
+        # Check if this instructor owns the course
+        if target_course.instructor_email != instructor_email:
+            return None, "You don't have permission to access this course."
+            
+        # Skip deleted courses
+        if hasattr(target_course, 'status') and target_course.status == "deleted":
+            return None, "This course has been deleted."
+            
+        return target_course, None
+    except Exception as e:
+        return None, f"Error accessing course: {str(e)}"
+@rt('/instructor/courses')
+@instructor_required
+def get(session):
+    """Course listing page for instructors"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get all courses taught by this instructor
+    instructor_courses = []
+    for course in courses():
+        if course.instructor_email == user.email:
+            # Skip deleted courses
+            if hasattr(course, 'status') and course.status == "deleted":
+                continue
+                
+            # Get student count for this course
+            student_count = 0
+            for enrollment in enrollments():
+                if enrollment.course_id == course.id:
+                    student_count += 1
+            
+            # Add to list with student count
+            instructor_courses.append((course, student_count))
+    
+    # Sort courses by creation date (newest first)
+    instructor_courses.sort(key=lambda x: x[0].created_at if hasattr(x[0], 'created_at') else "", reverse=True)
+    
+    # Create the main content
+    main_content = Div(
+        # Header with action button
+        Div(
+            H2("Course Management", cls="text-2xl font-bold text-indigo-900"),
+            action_button("Create New Course", color="indigo", href="/instructor/courses/new", icon="+"),
+            cls="flex justify-between items-center mb-6"
+        ),
+        
+        # Course listing or empty state
+        (Div(
+            P(f"You have {len(instructor_courses)} {'course' if len(instructor_courses) == 1 else 'courses'}.", 
+              cls="text-gray-600 mb-6"),
+            
+            # Course table with actions
+            Div(
+                Table(
+                    Thead(
+                        Tr(
+                            Th("Course Title", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Code", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Term", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Status", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Students", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Actions", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100")
+                        ),
+                        cls="bg-indigo-50"
+                    ),
+                    Tbody(
+                        *(Tr(
+                            # Course title
+                            Td(course.title, cls="py-4 px-6"),
+                            # Course code
+                            Td(course.code, cls="py-4 px-6"),
+                            # Term
+                            Td(getattr(course, 'term', 'Current') or 'Current', cls="py-4 px-6"),
+                            # Status badge
+                            Td(
+                                status_badge(
+                                    getattr(course, 'status', 'active').capitalize() or 'Active',
+                                    "green" if getattr(course, 'status', 'active') == 'active' else
+                                    "yellow" if getattr(course, 'status', 'active') == 'closed' else
+                                    "gray"
+                                ),
+                                cls="py-4 px-6"
+                            ),
+                            # Student count
+                            Td(str(student_count), cls="py-4 px-6"),
+                            # Action buttons
+                            Td(
+                                Div(
+                                    A("Students", 
+                                      href=f"/instructor/courses/{course.id}/students",
+                                      cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2"),
+                                    A("Edit", 
+                                      href=f"/instructor/courses/{course.id}/edit",
+                                      cls="text-xs px-3 py-1 bg-amber-600 text-white rounded-md hover:bg-amber-700 mr-2"),
+                                    A("Assignments", 
+                                      href=f"/instructor/courses/{course.id}/assignments",
+                                      cls="text-xs px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700"),
+                                    cls="flex"
+                                ),
+                                cls="py-4 px-6"
+                            )
+                        ) for course, student_count in instructor_courses)
+                    ),
+                    cls="w-full"
+                ),
+                cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100"
+            ),
+            cls=""
+        ) if instructor_courses else
+        Div(
+            P("You don't have any courses yet. Create your first course to get started.", 
+              cls="text-center text-gray-600 mb-6"),
+            Div(
+                A("Create New Course", href="/instructor/courses/new", 
+                  cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                cls="text-center"
+            ),
+            cls="py-8 bg-white rounded-lg shadow-md border border-gray-100 mt-4"
+        ))
+    )
+    
+    # Sidebar content
+    sidebar_content = Div(
+        Div(
+            H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Dashboard", color="gray", href="/instructor/dashboard", icon="←"),
+                action_button("Create Course", color="indigo", href="/instructor/courses/new", icon="+"),
+                action_button("Manage Students", color="teal", href="/instructor/manage-students", icon="👨‍👩‍👧‍👦"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Total Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
+            P(f"Active Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'active')}", 
+              cls="text-green-600 mb-2"),
+            P(f"Closed Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'closed')}", 
+              cls="text-amber-600 mb-2"),
+            P(f"Archived Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'archived')}", 
+              cls="text-gray-600 mb-2"),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    # Use the dashboard layout with our components
+    return dashboard_layout(
+        "Manage Courses | FeedForward", 
+        sidebar_content, 
+        main_content, 
+        user_role=Role.INSTRUCTOR
+    )
+
 @rt('/instructor/courses/new')
 @instructor_required
 def get(session):
@@ -239,6 +412,33 @@ def get(session):
                     Label("Course Code", for_="code", cls="block text-indigo-900 font-medium mb-1"),
                     Input(id="code", name="code", type="text", placeholder="e.g. CS101",
                           required=True, cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="mb-4"
+                ),
+                # Add new fields for term, department, and status
+                Div(
+                    Div(
+                        Label("Term", for_="term", cls="block text-indigo-900 font-medium mb-1"),
+                        Input(id="term", name="term", type="text", placeholder="e.g. Fall 2023",
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="w-1/2 pr-2"
+                    ),
+                    Div(
+                        Label("Department", for_="department", cls="block text-indigo-900 font-medium mb-1"),
+                        Input(id="department", name="department", type="text", placeholder="e.g. Computer Science",
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="w-1/2 pl-2"
+                    ),
+                    cls="flex mb-4"
+                ),
+                Div(
+                    Label("Status", for_="status", cls="block text-indigo-900 font-medium mb-1"),
+                    Select(
+                        Option("Active", value="active", selected=True),
+                        Option("Closed", value="closed"),
+                        Option("Archived", value="archived"),
+                        id="status", name="status",
+                        cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    ),
                     cls="mb-4"
                 ),
                 Div(
@@ -292,7 +492,7 @@ def get(session):
 
 @rt('/instructor/courses/new')
 @instructor_required
-def post(session, title: str, code: str, description: str = ""):
+def post(session, title: str, code: str, term: str = "", department: str = "", status: str = "active", description: str = ""):
     # Get current user
     user = users[session['auth']]
     
@@ -302,8 +502,15 @@ def post(session, title: str, code: str, description: str = ""):
     
     # Check for duplicate course code
     for course in courses():
-        if course.code == code:
-            return "A course with this code already exists. Please use a different code."
+        if course.code == code and course.instructor_email == user.email:
+            # Only check for duplicates from the same instructor
+            # If the course is deleted, allow reuse of code
+            if not hasattr(course, 'status') or course.status != "deleted":
+                return "You already have a course with this code. Please use a different code."
+    
+    # Validate status
+    if status not in ['active', 'closed', 'archived']:
+        status = 'active'  # Default to active if invalid
     
     # Get next course ID
     next_course_id = 1
@@ -314,14 +521,20 @@ def post(session, title: str, code: str, description: str = ""):
     except:
         next_course_id = 1
     
+    # Create timestamp
+    now = datetime.now().isoformat()
+    
     # Create new course
     new_course = Course(
         id=next_course_id,
         title=title,
         code=code,
-        description=description,
+        term=term,
+        department=department,
+        status=status,
         instructor_email=user.email,
-        created_at=datetime.now().isoformat()
+        created_at=now,
+        updated_at=now
     )
     
     # Insert into database
@@ -342,7 +555,202 @@ def post(session, title: str, code: str, description: str = ""):
             Div(
                 A("Return to Dashboard", href="/instructor/dashboard", 
                   cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg mr-4 hover:bg-gray-200"),
+                A("Manage Courses", href="/instructor/courses", 
+                  cls="bg-amber-600 text-white px-4 py-2 rounded-lg mr-4 hover:bg-amber-700"),
                 A("Invite Students", href=f"/instructor/invite-students?course_id={next_course_id}", 
+                  cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+                cls="flex justify-center gap-4"
+            ),
+            cls="text-center"
+        ),
+        cls="bg-green-50 p-6 rounded-lg border border-green-200 mt-4"
+    )
+
+# --- Edit Course Route ---
+@rt('/instructor/courses/{course_id}/edit')
+@instructor_required
+def get(session, course_id: int):
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the course with permission check
+    course, error = get_instructor_course(course_id, user.email)
+    
+    if error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Create the form content
+    form_content = Div(
+        H2(f"Edit Course: {course.title}", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        Div(
+            P("Update your course details below.", 
+              cls="mb-6 text-gray-600"),
+            Form(
+                Div(
+                    Label("Course Title", for_="title", cls="block text-indigo-900 font-medium mb-1"),
+                    Input(id="title", name="title", type="text", placeholder="e.g. Introduction to Computer Science",
+                          value=course.title, required=True, 
+                          cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="mb-4"
+                ),
+                Div(
+                    Label("Course Code", for_="code", cls="block text-indigo-900 font-medium mb-1"),
+                    Input(id="code", name="code", type="text", placeholder="e.g. CS101",
+                          value=course.code, required=True, 
+                          cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="mb-4"
+                ),
+                # Term and department fields
+                Div(
+                    Div(
+                        Label("Term", for_="term", cls="block text-indigo-900 font-medium mb-1"),
+                        Input(id="term", name="term", type="text", placeholder="e.g. Fall 2023",
+                              value=getattr(course, 'term', ''),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="w-1/2 pr-2"
+                    ),
+                    Div(
+                        Label("Department", for_="department", cls="block text-indigo-900 font-medium mb-1"),
+                        Input(id="department", name="department", type="text", placeholder="e.g. Computer Science",
+                              value=getattr(course, 'department', ''),
+                              cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="w-1/2 pl-2"
+                    ),
+                    cls="flex mb-4"
+                ),
+                # Status field
+                Div(
+                    Label("Status", for_="status", cls="block text-indigo-900 font-medium mb-1"),
+                    Select(
+                        Option("Active", value="active", selected=getattr(course, 'status', 'active') == 'active'),
+                        Option("Closed", value="closed", selected=getattr(course, 'status', 'active') == 'closed'),
+                        Option("Archived", value="archived", selected=getattr(course, 'status', 'active') == 'archived'),
+                        id="status", name="status",
+                        cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                Div(
+                    Label("Description", for_="description", cls="block text-indigo-900 font-medium mb-1"),
+                    Textarea(id="description", name="description", placeholder="Provide a brief description of the course",
+                            value=getattr(course, 'description', ''), rows="4", 
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="mb-6"
+                ),
+                Div(
+                    Button("Update Course", type="submit", cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                    cls="mb-4"
+                ),
+                Div(id="result", cls=""),
+                hx_post=f"/instructor/courses/{course_id}/edit",
+                hx_target="#result",
+                cls="w-full"
+            ),
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
+        ),
+        cls=""
+    )
+    
+    # Sidebar content with course actions
+    sidebar_content = Div(
+        Div(
+            H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Back to Courses", color="gray", href="/instructor/courses", icon="←"),
+                action_button("View Students", color="indigo", href=f"/instructor/courses/{course_id}/students", icon="👨‍👩‍👧‍👦"),
+                action_button("Assignments", color="teal", href=f"/instructor/courses/{course_id}/assignments", icon="📝"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Course Status", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Current Status: {getattr(course, 'status', 'active').capitalize()}", 
+              cls="font-medium " + 
+              ("text-green-600" if getattr(course, 'status', 'active') == 'active' else 
+               "text-amber-600" if getattr(course, 'status', 'active') == 'closed' else 
+               "text-gray-600")),
+            P("Active: Students can be invited and can access course materials", cls="text-gray-600 text-sm mt-4 mb-1"),
+            P("Closed: No new enrollments, but existing students can access", cls="text-gray-600 text-sm mb-1"),
+            P("Archived: Hidden from all users but preserves data", cls="text-gray-600 text-sm mb-1"),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    # Use the dashboard layout with our components
+    return dashboard_layout(
+        f"Edit Course: {course.title} | FeedForward", 
+        sidebar_content, 
+        form_content, 
+        user_role=Role.INSTRUCTOR
+    )
+
+@rt('/instructor/courses/{course_id}/edit')
+@instructor_required
+def post(session, course_id: int, title: str, code: str, term: str = "", department: str = "", 
+         status: str = "active", description: str = ""):
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the course with permission check
+    course, error = get_instructor_course(course_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Validate input
+    if not title or not code:
+        return "Course title and code are required."
+    
+    # Check for duplicate course code (but don't count the current course)
+    for c in courses():
+        if c.code == code and c.instructor_email == user.email and c.id != course_id:
+            # Only check for duplicates from the same instructor
+            if not hasattr(c, 'status') or c.status != "deleted":
+                return "You already have another course with this code. Please use a different code."
+    
+    # Validate status
+    if status not in ['active', 'closed', 'archived']:
+        status = 'active'  # Default to active if invalid
+    
+    # Create timestamp
+    now = datetime.now().isoformat()
+    
+    # Update course fields
+    course.title = title
+    course.code = code
+    course.term = term
+    course.department = department
+    course.status = status
+    course.description = description if hasattr(course, 'description') else None
+    course.updated_at = now
+    
+    # Update the course in the database
+    courses.update(course)
+    
+    # Return success message
+    return Div(
+        Div(
+            Div(
+                Span("✅", cls="text-4xl mr-4"),
+                Div(
+                    H3("Course Updated Successfully!", cls="text-xl font-bold text-green-700 mb-1"),
+                    P(f"Your course \"{title}\" has been updated.", cls="text-gray-600"),
+                    cls=""
+                ),
+                cls="flex items-center mb-6"
+            ),
+            Div(
+                A("Back to Courses", href="/instructor/courses", 
+                  cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg mr-4 hover:bg-gray-200"),
+                A("Manage Students", href=f"/instructor/courses/{course_id}/students", 
                   cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
                 cls="flex justify-center gap-4"
             ),
