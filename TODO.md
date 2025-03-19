@@ -10,7 +10,8 @@
 - [x] Data Lifecycle Management - How data is preserved with soft deletion (ADR-002)
 - [x] Authentication Strategy - Email verification and role-based access (ADR-003)
 - [x] AI Model Ownership - Configuring and running models (ADR-001)
-- [x] Educational Workflow Architecture - Component relationships and lifecycles (ADR-006)
+- [x] Educational Workflow Architecture - Component relationships and lifecycles (ADR-007)
+- [x] Student Enrollment Lifecycle - Invitation and enrollment process (ADR-006)
 
 ## Core Infrastructure
 - [x] Initialize git repository
