@@ -73,7 +73,7 @@ def get(session):
                             Div(
                                 A("View Students", href=f"/instructor/courses/{course.id}/students", 
                                   cls="text-indigo-600 hover:text-indigo-800 mr-3 font-medium"),
-                                A("Manage Assignments", href="#", 
+                                A("Manage Assignments", href=f"/instructor/courses/{course.id}/assignments", 
                                   cls="text-teal-600 hover:text-teal-800 font-medium"),
                                 cls="flex"
                             ),
@@ -232,6 +232,870 @@ def get(session):
         sidebar_content, 
         main_content, 
         user_role=Role.INSTRUCTOR
+    )
+
+# --- Assignment Management ---
+# Helper function to get an assignment by ID with instructor permission check
+def get_instructor_assignment(assignment_id, instructor_email):
+    """
+    Get an assignment by ID, checking that it belongs to the instructor.
+    Returns (assignment, error_message) tuple.
+    """
+    # Import assignments model
+    from app.models.assignment import Assignment, assignments
+    
+    # Find the assignment
+    target_assignment = None
+    try:
+        for assignment in assignments():
+            if assignment.id == assignment_id:
+                target_assignment = assignment
+                break
+                
+        if not target_assignment:
+            return None, "Assignment not found."
+            
+        # Check if this instructor owns the assignment
+        if target_assignment.created_by != instructor_email:
+            return None, "You don't have permission to access this assignment."
+            
+        # Skip deleted assignments
+        if hasattr(target_assignment, 'status') and target_assignment.status == "deleted":
+            return None, "This assignment has been deleted."
+            
+        return target_assignment, None
+    except Exception as e:
+        return None, f"Error accessing assignment: {str(e)}"
+@rt('/instructor/courses/{course_id}/assignments')
+@instructor_required
+def get(session, course_id: int):
+    """Shows all assignments for a specific course"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the course with permission check
+    course, error = get_instructor_course(course_id, user.email)
+    
+    if error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Import assignments model
+    from app.models.assignment import Assignment, assignments
+    
+    # Get all assignments for this course
+    course_assignments = []
+    for assignment in assignments():
+        if assignment.course_id == course_id and assignment.created_by == user.email:
+            # Skip deleted assignments
+            if hasattr(assignment, 'status') and assignment.status == "deleted":
+                continue
+            course_assignments.append(assignment)
+    
+    # Sort assignments by creation date (newest first)
+    course_assignments.sort(key=lambda x: x.created_at if hasattr(x, 'created_at') else "", reverse=True)
+    
+    # Create the main content
+    main_content = Div(
+        # Header with action button
+        Div(
+            H2(f"Assignments for {course.title}", cls="text-2xl font-bold text-indigo-900"),
+            action_button("Create New Assignment", color="indigo", href=f"/instructor/courses/{course_id}/assignments/new", icon="+"),
+            cls="flex justify-between items-center mb-6"
+        ),
+        
+        # Assignment listing or empty state
+        (Div(
+            P(f"This course has {len(course_assignments)} {'assignment' if len(course_assignments) == 1 else 'assignments'}.", 
+              cls="text-gray-600 mb-6"),
+            
+            # Assignment table with actions
+            Div(
+                Table(
+                    Thead(
+                        Tr(
+                            Th("Title", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Status", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Due Date", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Drafts", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                            Th("Actions", cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100")
+                        ),
+                        cls="bg-indigo-50"
+                    ),
+                    Tbody(
+                        *(Tr(
+                            # Assignment title
+                            Td(assignment.title, cls="py-4 px-6"),
+                            # Status badge
+                            Td(
+                                status_badge(
+                                    getattr(assignment, 'status', 'draft').capitalize(),
+                                    "gray" if getattr(assignment, 'status', 'draft') == 'draft' else
+                                    "green" if getattr(assignment, 'status', 'draft') == 'active' else
+                                    "yellow" if getattr(assignment, 'status', 'draft') == 'closed' else
+                                    "blue" if getattr(assignment, 'status', 'draft') == 'archived' else
+                                    "red"
+                                ),
+                                cls="py-4 px-6"
+                            ),
+                            # Due date
+                            Td(getattr(assignment, 'due_date', 'Not set') or 'Not set', cls="py-4 px-6"),
+                            # Max drafts allowed
+                            Td(str(getattr(assignment, 'max_drafts', 1) or 1), cls="py-4 px-6"),
+                            # Action buttons
+                            Td(
+                                Div(
+                                    A("Edit", 
+                                      href=f"/instructor/assignments/{assignment.id}/edit",
+                                      cls="text-xs px-3 py-1 bg-amber-600 text-white rounded-md hover:bg-amber-700 mr-2"),
+                                    A("Rubric", 
+                                      href=f"/instructor/assignments/{assignment.id}/rubric",
+                                      cls="text-xs px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700 mr-2"),
+                                    A("Submissions", 
+                                      href=f"/instructor/assignments/{assignment.id}/submissions",
+                                      cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"),
+                                    cls="flex"
+                                ),
+                                cls="py-4 px-6"
+                            )
+                        ) for assignment in course_assignments)
+                    ),
+                    cls="w-full"
+                ),
+                cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100"
+            ),
+            cls=""
+        ) if course_assignments else
+        Div(
+            P("This course doesn't have any assignments yet. Create your first assignment to get started.", 
+              cls="text-center text-gray-600 mb-6"),
+            Div(
+                A("Create New Assignment", href=f"/instructor/courses/{course_id}/assignments/new", 
+                  cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                cls="text-center"
+            ),
+            cls="py-8 bg-white rounded-lg shadow-md border border-gray-100 mt-4"
+        ))
+    )
+    
+    # Sidebar content
+    sidebar_content = Div(
+        Div(
+            H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Back to Courses", color="gray", href="/instructor/courses", icon="←"),
+                action_button("Course Details", color="blue", href=f"/instructor/courses/{course_id}/edit", icon="📝"),
+                action_button("Manage Students", color="teal", href=f"/instructor/courses/{course_id}/students", icon="👨‍👩‍👧‍👦"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Assignment Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Create Assignment", color="indigo", href=f"/instructor/courses/{course_id}/assignments/new", icon="+"),
+                cls="space-y-3"
+            ),
+            P("Assignment Statuses:", cls="text-sm text-gray-600 font-medium mt-4 mb-2"),
+            P("Draft: Only visible to you", cls="text-xs text-gray-600 mb-1"),
+            P("Active: Available to students", cls="text-xs text-gray-600 mb-1"),
+            P("Closed: No new submissions", cls="text-xs text-gray-600 mb-1"),
+            P("Archived: Hidden from students", cls="text-xs text-gray-600 mb-1"),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    # Return the complete page
+    return dashboard_layout(
+        f"Assignments for {course.title} | FeedForward", 
+        sidebar_content, 
+        main_content, 
+        user_role=Role.INSTRUCTOR
+    )
+
+@rt('/instructor/courses/{course_id}/assignments/new')
+@instructor_required
+def get(session, course_id: int):
+    """Form to create a new assignment"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the course with permission check
+    course, error = get_instructor_course(course_id, user.email)
+    
+    if error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Check course status - don't allow new assignments for closed/archived/deleted courses
+    if hasattr(course, 'status') and course.status in ['closed', 'archived', 'deleted']:
+        return Div(
+            H2("Course Not Active", cls="text-2xl font-bold text-amber-700 mb-4"),
+            P(f"This course is currently '{course.status}'. You cannot add new assignments to a {course.status} course.", 
+              cls="text-gray-700 mb-4"),
+            A("Back to Course", href=f"/instructor/courses/{course_id}/assignments", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-amber-50 rounded-xl shadow-md border-2 border-amber-200 text-center"
+        )
+    
+    # Form to create a new assignment
+    form_content = Div(
+        H2(f"Create New Assignment for {course.title}", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        P("Complete the form below to create a new assignment for your students.", cls="text-gray-600 mb-6"),
+        
+        Form(
+            # Title field
+            Div(
+                Label("Assignment Title", for_="title", cls="block text-indigo-900 font-medium mb-1"),
+                Input(id="title", name="title", type="text", placeholder="e.g. Midterm Essay",
+                      required=True, cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                cls="mb-4"
+            ),
+            
+            # Description field
+            Div(
+                Label("Assignment Description", for_="description", cls="block text-indigo-900 font-medium mb-1"),
+                Textarea(id="description", name="description", placeholder="Provide detailed instructions for the assignment",
+                         rows="6", cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                cls="mb-4"
+            ),
+            
+            # Due date and max drafts
+            Div(
+                Div(
+                    Label("Due Date (Optional)", for_="due_date", cls="block text-indigo-900 font-medium mb-1"),
+                    Input(id="due_date", name="due_date", type="date", 
+                          cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="w-1/2 pr-2"
+                ),
+                Div(
+                    Label("Maximum Drafts", for_="max_drafts", cls="block text-indigo-900 font-medium mb-1"),
+                    Input(id="max_drafts", name="max_drafts", type="number", min="1", value="3",
+                          cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="w-1/2 pl-2"
+                ),
+                cls="flex mb-4"
+            ),
+            
+            # Status selection
+            Div(
+                Label("Assignment Status", for_="status", cls="block text-indigo-900 font-medium mb-1"),
+                Select(
+                    Option("Draft - Only visible to you", value="draft", selected=True),
+                    Option("Active - Available to students", value="active"),
+                    id="status", name="status",
+                    cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                ),
+                cls="mb-6"
+            ),
+            
+            # Submit button
+            Div(
+                Button("Create Assignment", type="submit", 
+                       cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                cls="mb-4"
+            ),
+            
+            # Result placeholder
+            Div(id="result"),
+            
+            # Form submission details
+            hx_post=f"/instructor/courses/{course_id}/assignments/new",
+            hx_target="#result",
+            
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
+        ),
+        cls=""
+    )
+    
+    # Sidebar content
+    sidebar_content = Div(
+        Div(
+            H3("Assignment Creation", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Back to Assignments", color="gray", href=f"/instructor/courses/{course_id}/assignments", icon="←"),
+                action_button("Course Details", color="blue", href=f"/instructor/courses/{course_id}/edit", icon="📝"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Assignment Tips", cls="font-semibold text-indigo-900 mb-4"),
+            P("• Provide clear expectations and grading criteria", cls="text-gray-600 mb-2 text-sm"),
+            P("• Set draft limits based on your feedback capacity", cls="text-gray-600 mb-2 text-sm"),
+            P("• Leave in 'Draft' mode until ready for students", cls="text-gray-600 mb-2 text-sm"),
+            P("• Create a detailed rubric after assignment creation", cls="text-gray-600 text-sm"),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    # Return the complete page
+    return dashboard_layout(
+        f"Create Assignment | {course.title} | FeedForward", 
+        sidebar_content, 
+        form_content, 
+        user_role=Role.INSTRUCTOR
+    )
+
+@rt('/instructor/courses/{course_id}/assignments/new')
+@instructor_required
+def post(session, course_id: int, title: str, description: str, due_date: str = "", 
+        max_drafts: int = 3, status: str = "draft"):
+    """Handle new assignment creation"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Validate required fields
+    if not title:
+        return "Assignment title is required."
+    
+    # Get the course with permission check
+    course, error = get_instructor_course(course_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Check course status - don't allow new assignments for closed/archived/deleted courses
+    if hasattr(course, 'status') and course.status in ['closed', 'archived', 'deleted']:
+        return f"Cannot add new assignments to a {course.status} course."
+    
+    # Import assignments model
+    from app.models.assignment import Assignment, assignments
+    
+    # Validate max_drafts
+    try:
+        max_drafts = int(max_drafts)
+        if max_drafts < 1:
+            max_drafts = 1
+    except:
+        max_drafts = 3  # Default to 3 if invalid
+    
+    # Validate status
+    if status not in ['draft', 'active', 'closed', 'archived']:
+        status = 'draft'  # Default to draft if invalid
+    
+    # Get next assignment ID
+    next_assignment_id = 1
+    try:
+        assignment_ids = [a.id for a in assignments()]
+        if assignment_ids:
+            next_assignment_id = max(assignment_ids) + 1
+    except:
+        next_assignment_id = 1
+    
+    # Create timestamp
+    from datetime import datetime
+    now = datetime.now().isoformat()
+    
+    # Create new assignment
+    new_assignment = Assignment(
+        id=next_assignment_id,
+        course_id=course_id,
+        title=title,
+        description=description,
+        due_date=due_date,
+        max_drafts=max_drafts,
+        created_by=user.email,
+        status=status,
+        created_at=now,
+        updated_at=now
+    )
+    
+    # Insert into database
+    assignments.insert(new_assignment)
+    
+    # Return success message
+    return Div(
+        Div(
+            Div(
+                Span("✅", cls="text-4xl mr-4"),
+                Div(
+                    H3("Assignment Created Successfully!", cls="text-xl font-bold text-green-700 mb-1"),
+                    P(f"Your assignment \"{title}\" has been created.", cls="text-gray-600"),
+                    cls=""
+                ),
+                cls="flex items-center mb-6"
+            ),
+            Div(
+                A("Back to Assignments", href=f"/instructor/courses/{course_id}/assignments", 
+                  cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg mr-4 hover:bg-gray-200"),
+                A("Create Rubric", href=f"/instructor/assignments/{next_assignment_id}/rubric", 
+                  cls="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 mr-4"),
+                A("View Assignment", href=f"/instructor/assignments/{next_assignment_id}", 
+                  cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+                cls="flex justify-center gap-4"
+            ),
+            cls="text-center"
+        ),
+        cls="bg-green-50 p-6 rounded-lg border border-green-200 mt-4"
+    )
+
+@rt('/instructor/assignments/{assignment_id}')
+@instructor_required
+def get(session, assignment_id: int):
+    """View individual assignment details"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Get the course this assignment belongs to
+    course, course_error = get_instructor_course(assignment.course_id, user.email)
+    
+    if course_error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(course_error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Get submissions for this assignment if any
+    from app.models.feedback import Draft, drafts
+    
+    # Check if there are any drafts/submissions
+    submission_count = 0
+    for draft in drafts():
+        if draft.assignment_id == assignment_id:
+            submission_count += 1
+    
+    # Create main content with assignment details
+    main_content = Div(
+        # Top banner showing status
+        Div(
+            Div(
+                Span(
+                    getattr(assignment, 'status', 'draft').capitalize(),
+                    cls="text-xl font-semibold " + 
+                    ("text-gray-700" if getattr(assignment, 'status', 'draft') == 'draft' else
+                     "text-green-700" if getattr(assignment, 'status', 'draft') == 'active' else
+                     "text-amber-700" if getattr(assignment, 'status', 'draft') == 'closed' else
+                     "text-blue-700")
+                ),
+                P("Assignment Status", cls="text-gray-600"),
+                cls="py-2 px-6"
+            ),
+            Div(
+                Span(getattr(assignment, 'due_date', 'Not set') or 'Not set', 
+                     cls="text-xl font-semibold text-indigo-700"),
+                P("Due Date", cls="text-gray-600"),
+                cls="py-2 px-6 border-l border-gray-200"
+            ),
+            Div(
+                Span(str(getattr(assignment, 'max_drafts', 1) or 1) + " drafts", 
+                     cls="text-xl font-semibold text-indigo-700"),
+                P("Maximum Drafts", cls="text-gray-600"),
+                cls="py-2 px-6 border-l border-gray-200"
+            ),
+            Div(
+                Span(f"{submission_count} submissions", 
+                     cls="text-xl font-semibold text-indigo-700"),
+                P("Student Submissions", cls="text-gray-600"),
+                cls="py-2 px-6 border-l border-gray-200"
+            ),
+            cls="flex justify-between mb-6 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        # Assignment details
+        Div(
+            H2(assignment.title, cls="text-2xl font-bold text-indigo-900 mb-4"),
+            
+            # Description
+            Div(
+                H3("Assignment Description", cls="text-lg font-semibold text-indigo-800 mb-3"),
+                Div(
+                    P(assignment.description.replace('\n', '<br>') if assignment.description else "No description provided.", 
+                      cls="text-gray-700 whitespace-pre-line"),
+                    cls="py-4"
+                ),
+                cls="mb-6 bg-white rounded-xl shadow-md border border-gray-100 p-4"
+            ),
+            
+            # Actions
+            Div(
+                H3("Assignment Actions", cls="text-lg font-semibold text-indigo-800 mb-3"),
+                Div(
+                    A("Edit Assignment", href=f"/instructor/assignments/{assignment_id}/edit", 
+                      cls="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 mr-4"),
+                    A("Manage Rubric", href=f"/instructor/assignments/{assignment_id}/rubric", 
+                      cls="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 mr-4"),
+                    A("View Submissions", href=f"/instructor/assignments/{assignment_id}/submissions", 
+                      cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+                    cls="flex"
+                ),
+                cls="mb-6 bg-white rounded-xl shadow-md border border-gray-100 p-4"
+            ),
+            
+            # Status change
+            Div(
+                H3("Change Assignment Status", cls="text-lg font-semibold text-indigo-800 mb-3"),
+                Form(
+                    P("Changing the assignment status affects student access and submission ability.", 
+                      cls="text-gray-600 mb-3"),
+                    Div(
+                        Select(
+                            Option("Draft - Only visible to you", value="draft", 
+                                  selected=getattr(assignment, 'status', 'draft') == 'draft'),
+                            Option("Active - Available to students", value="active",
+                                  selected=getattr(assignment, 'status', 'draft') == 'active'),
+                            Option("Closed - No new submissions", value="closed",
+                                  selected=getattr(assignment, 'status', 'draft') == 'closed'),
+                            Option("Archived - Hidden from students", value="archived",
+                                  selected=getattr(assignment, 'status', 'draft') == 'archived'),
+                            name="status",
+                            cls="p-3 border border-gray-300 rounded-lg mr-3"
+                        ),
+                        Button("Update Status", type="submit",
+                              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+                        cls="flex items-center"
+                    ),
+                    Div(id="status-result", cls="mt-3"),
+                    hx_post=f"/instructor/assignments/{assignment_id}/status",
+                    hx_target="#status-result",
+                    cls=""
+                ),
+                cls="bg-white rounded-xl shadow-md border border-gray-100 p-4"
+            ),
+            
+            cls=""
+        ),
+        cls=""
+    )
+    
+    # Sidebar content
+    sidebar_content = Div(
+        Div(
+            H3("Assignment Navigation", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Back to Course", color="gray", 
+                              href=f"/instructor/courses/{assignment.course_id}/assignments", icon="←"),
+                action_button("Edit Assignment", color="amber", 
+                              href=f"/instructor/assignments/{assignment_id}/edit", icon="✏️"),
+                action_button("Manage Rubric", color="teal", 
+                              href=f"/instructor/assignments/{assignment_id}/rubric", icon="📊"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Course Details", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Course: {course.title}", cls="text-gray-700 font-medium mb-2"),
+            P(f"Code: {course.code}", cls="text-gray-600 mb-2"),
+            P(f"Status: {getattr(course, 'status', 'active').capitalize()}", cls="text-gray-600 mb-2"),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Student Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Submissions: {submission_count}", cls="text-gray-700 font-medium mb-2"),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    # Return the complete page
+    return dashboard_layout(
+        f"{assignment.title} | {course.title} | FeedForward", 
+        sidebar_content, 
+        main_content, 
+        user_role=Role.INSTRUCTOR
+    )
+
+@rt('/instructor/assignments/{assignment_id}/status')
+@instructor_required
+def post(session, assignment_id: int, status: str):
+    """Update assignment status"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Validate status
+    if status not in ['draft', 'active', 'closed', 'archived', 'deleted']:
+        return "Invalid status. Please select a valid status."
+    
+    # Check course status - don't allow active assignments for closed/archived/deleted courses
+    course, course_error = get_instructor_course(assignment.course_id, user.email)
+    
+    if course_error:
+        return f"Error: {course_error}"
+    
+    if status == 'active' and hasattr(course, 'status') and course.status in ['closed', 'archived', 'deleted']:
+        return f"Cannot set assignment to 'active' when the course is '{course.status}'."
+    
+    # Update timestamp
+    from datetime import datetime
+    now = datetime.now().isoformat()
+    
+    # Update assignment status
+    from app.models.assignment import Assignment, assignments
+    
+    old_status = assignment.status if hasattr(assignment, 'status') else 'draft'
+    assignment.status = status
+    assignment.updated_at = now
+    
+    # Save to database
+    assignments.update(assignment)
+    
+    # Return success message with auto-refresh
+    return Div(
+        P(f"Assignment status updated from '{old_status}' to '{status}'.", cls="text-green-600"),
+        Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        cls="bg-green-50 p-3 rounded-lg"
+    )
+
+@rt('/instructor/assignments/{assignment_id}/edit')
+@instructor_required
+def get(session, assignment_id: int):
+    """Form to edit an existing assignment"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Get the course
+    course, course_error = get_instructor_course(assignment.course_id, user.email)
+    
+    if course_error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(course_error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Form to edit the assignment
+    form_content = Div(
+        H2(f"Edit Assignment", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        P(f"Update the details for your assignment in {course.title}.", cls="text-gray-600 mb-6"),
+        
+        Form(
+            # Title field
+            Div(
+                Label("Assignment Title", for_="title", cls="block text-indigo-900 font-medium mb-1"),
+                Input(id="title", name="title", type="text", value=assignment.title,
+                      required=True, cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                cls="mb-4"
+            ),
+            
+            # Description field
+            Div(
+                Label("Assignment Description", for_="description", cls="block text-indigo-900 font-medium mb-1"),
+                Textarea(id="description", name="description", rows="6", 
+                         value=getattr(assignment, 'description', ''),
+                         cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                cls="mb-4"
+            ),
+            
+            # Due date and max drafts
+            Div(
+                Div(
+                    Label("Due Date (Optional)", for_="due_date", cls="block text-indigo-900 font-medium mb-1"),
+                    Input(id="due_date", name="due_date", type="date", 
+                          value=getattr(assignment, 'due_date', ''),
+                          cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="w-1/2 pr-2"
+                ),
+                Div(
+                    Label("Maximum Drafts", for_="max_drafts", cls="block text-indigo-900 font-medium mb-1"),
+                    Input(id="max_drafts", name="max_drafts", type="number", min="1",
+                          value=getattr(assignment, 'max_drafts', 3) or 3,
+                          cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                    cls="w-1/2 pl-2"
+                ),
+                cls="flex mb-4"
+            ),
+            
+            # Status selection
+            Div(
+                Label("Assignment Status", for_="status", cls="block text-indigo-900 font-medium mb-1"),
+                Select(
+                    Option("Draft - Only visible to you", value="draft", 
+                          selected=getattr(assignment, 'status', 'draft') == 'draft'),
+                    Option("Active - Available to students", value="active",
+                          selected=getattr(assignment, 'status', 'draft') == 'active'),
+                    Option("Closed - No new submissions", value="closed",
+                          selected=getattr(assignment, 'status', 'draft') == 'closed'),
+                    Option("Archived - Hidden from students", value="archived",
+                          selected=getattr(assignment, 'status', 'draft') == 'archived'),
+                    id="status", name="status",
+                    cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                ),
+                cls="mb-6"
+            ),
+            
+            # Submit button
+            Div(
+                Button("Update Assignment", type="submit", 
+                       cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                cls="mb-4"
+            ),
+            
+            # Result placeholder
+            Div(id="result"),
+            
+            # Form submission details
+            hx_post=f"/instructor/assignments/{assignment_id}/edit",
+            hx_target="#result",
+            
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
+        ),
+        cls=""
+    )
+    
+    # Sidebar content
+    sidebar_content = Div(
+        Div(
+            H3("Assignment Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Back to Assignment", color="gray", 
+                              href=f"/instructor/assignments/{assignment_id}", icon="←"),
+                action_button("Course Assignments", color="indigo", 
+                              href=f"/instructor/courses/{assignment.course_id}/assignments", icon="📚"),
+                action_button("Manage Rubric", color="teal", 
+                              href=f"/instructor/assignments/{assignment_id}/rubric", icon="📊"),
+                action_button("View Submissions", color="amber", 
+                              href=f"/instructor/assignments/{assignment_id}/submissions", icon="📝"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Editing Tips", cls="font-semibold text-indigo-900 mb-4"),
+            P("• Clear instructions help students understand expectations", cls="text-gray-600 mb-2 text-sm"),
+            P("• Set realistic draft limits for meaningful feedback", cls="text-gray-600 mb-2 text-sm"),
+            P("• Consider creating a rubric for structured feedback", cls="text-gray-600 text-sm"),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    # Return the complete page
+    return dashboard_layout(
+        f"Edit Assignment | {course.title} | FeedForward", 
+        sidebar_content, 
+        form_content, 
+        user_role=Role.INSTRUCTOR
+    )
+
+@rt('/instructor/assignments/{assignment_id}/edit')
+@instructor_required
+def post(session, assignment_id: int, title: str, description: str, due_date: str = "", 
+        max_drafts: int = 3, status: str = "draft"):
+    """Handle assignment update"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Validate required fields
+    if not title:
+        return "Assignment title is required."
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Get the course
+    course, course_error = get_instructor_course(assignment.course_id, user.email)
+    
+    if course_error:
+        return f"Error: {course_error}"
+    
+    # Validate max_drafts
+    try:
+        max_drafts = int(max_drafts)
+        if max_drafts < 1:
+            max_drafts = 1
+    except:
+        max_drafts = 3  # Default to 3 if invalid
+    
+    # Validate status
+    if status not in ['draft', 'active', 'closed', 'archived', 'deleted']:
+        status = 'draft'  # Default to draft if invalid
+    
+    # Check course status - don't allow active assignments for closed/archived/deleted courses
+    if status == 'active' and hasattr(course, 'status') and course.status in ['closed', 'archived', 'deleted']:
+        return f"Cannot set assignment to 'active' when the course is '{course.status}'."
+    
+    # Update timestamp
+    from datetime import datetime
+    now = datetime.now().isoformat()
+    
+    # Update assignment fields
+    assignment.title = title
+    assignment.description = description
+    assignment.due_date = due_date
+    assignment.max_drafts = max_drafts
+    assignment.status = status
+    assignment.updated_at = now
+    
+    # Save to database
+    from app.models.assignment import assignments
+    assignments.update(assignment)
+    
+    # Return success message
+    return Div(
+        Div(
+            Div(
+                Span("✅", cls="text-4xl mr-4"),
+                Div(
+                    H3("Assignment Updated Successfully!", cls="text-xl font-bold text-green-700 mb-1"),
+                    P(f"Your assignment \"{title}\" has been updated.", cls="text-gray-600"),
+                    cls=""
+                ),
+                cls="flex items-center mb-6"
+            ),
+            Div(
+                A("Back to Assignment", href=f"/instructor/assignments/{assignment_id}", 
+                  cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg mr-4 hover:bg-gray-200"),
+                A("Manage Rubric", href=f"/instructor/assignments/{assignment_id}/rubric", 
+                  cls="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 mr-4"),
+                A("View Submissions", href=f"/instructor/assignments/{assignment_id}/submissions", 
+                  cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+                cls="flex justify-center gap-4"
+            ),
+            cls="text-center"
+        ),
+        cls="bg-green-50 p-6 rounded-lg border border-green-200 mt-4"
     )
 
 # --- Course Management ---
