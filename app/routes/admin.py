@@ -189,9 +189,8 @@ def get(session):
         Div(
             H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
             Div(
-                A("← Dashboard", href="/admin/dashboard", 
-                  cls="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"),
-                cls="mb-2"
+                action_button("Dashboard", color="gray", href="/admin/dashboard", icon="←"),
+                cls="space-y-3"
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
         ),
@@ -266,8 +265,7 @@ def get(session):
         
         # Back button
         Div(
-            A("← Back to Dashboard", href="/admin/dashboard", 
-              cls="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"),
+            action_button("Back to Dashboard", color="gray", href="/admin/dashboard", icon="←"),
             cls="mt-4"
         )
     )
@@ -295,9 +293,10 @@ def post(session, email: str):
         instructor.approved = True
         users.update(instructor)
         
-        # Return success message
+        # Return success message with auto-refresh
         return Div(
             P("Approved successfully", cls="text-green-500"),
+            Script("setTimeout(function() { window.location.reload(); }, 1000);"),
             cls="py-2 px-4"
         )
     except:
@@ -315,9 +314,10 @@ def post(session, email: str):
         # Get the instructor and delete
         users.delete(email)
         
-        # Return success message
+        # Return success message with auto-refresh
         return Div(
             P("Rejected and removed", cls="text-green-500"),
+            Script("setTimeout(function() { window.location.reload(); }, 1000);"),
             cls="py-2 px-4"
         )
     except:
@@ -340,7 +340,7 @@ def get(session):
     # Get all instructors who aren't deleted
     instructor_list = []
     for u in users():
-        if u.role == Role.INSTRUCTOR and (not hasattr(u, 'status') or u.status != "deleted"):
+        if u.role == Role.INSTRUCTOR and (not hasattr(u, 'status') or u.status \!= "deleted"):
             instructor_list.append(u)
     
     # Create instructor management content
@@ -468,7 +468,7 @@ def post(session, email: str):
         instructor = users[email]
         
         # Check if this is actually an instructor
-        if instructor.role != Role.INSTRUCTOR:
+        if instructor.role \!= Role.INSTRUCTOR:
             return Div(
                 P("This user is not an instructor.", cls="text-red-600"),
                 cls="bg-red-50 p-4 rounded-lg"
@@ -530,9 +530,8 @@ def get(session):
         Div(
             H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
             Div(
-                A("← Dashboard", href="/admin/dashboard", 
-                  cls="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"),
-                cls="mb-2"
+                action_button("Dashboard", color="gray", href="/admin/dashboard", icon="←"),
+                cls="space-y-3"
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
         ),
@@ -649,8 +648,7 @@ def get(session):
         
         # Back button
         Div(
-            A("← Back to Dashboard", href="/admin/dashboard", 
-              cls="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"),
+            action_button("Back to Dashboard", color="gray", href="/admin/dashboard", icon="←"),
             cls="mt-4"
         )
     )
