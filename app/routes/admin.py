@@ -340,7 +340,7 @@ def get(session):
     # Get all instructors who aren't deleted
     instructor_list = []
     for u in users():
-        if u.role == Role.INSTRUCTOR and (not hasattr(u, 'status') or u.status \!= "deleted"):
+        if u.role == Role.INSTRUCTOR and (not hasattr(u, 'status') or u.status != "deleted"):
             instructor_list.append(u)
     
     # Create instructor management content
