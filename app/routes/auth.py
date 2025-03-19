@@ -42,9 +42,9 @@ def get():
                     ),
                     Div(
                         Label("Email", for_="email", cls="block text-indigo-900 font-medium mb-1"),
-                        P("Must be a Curtin email address (curtin.edu.au)", 
+                        P("For instructors only. Some email domains are auto-approved, others require administrator approval.", 
                           cls="text-sm text-gray-500 mb-1"),
-                        Input(id="email", type="email", placeholder="Your email address", required=True, 
+                        Input(id="email", type="email", placeholder="Your institutional email address", required=True, 
                               cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         cls="mb-4"
                     ),
@@ -96,10 +96,10 @@ def post(name: str, email: str, password: str, confirm_password: str):
     if not is_strong_password(password):
         return "Password must be at least 8 characters with uppercase, lowercase, number, and special character"
     
-    # Check if email is institutional
-    is_valid, role = is_institutional_email(email)
+    # Check if email is institutional and get auto-approval status
+    is_valid, role, auto_approve = is_institutional_email(email)
     if not is_valid:
-        return "Please use a valid Curtin email address (curtin.edu.au)"
+        return "Invalid email. Please contact the administrator if you require instructor access."
     
     # Only instructors can register directly for now (students invited by instructors)
     if role != Role.INSTRUCTOR:
@@ -107,8 +107,52 @@ def post(name: str, email: str, password: str, confirm_password: str):
     
     try:
         # Check if user already exists
-        users[email]
-        return "User already exists"
+        existing_user = users[email]
+        
+        # If user exists but is soft-deleted, we can reactivate
+        if hasattr(existing_user, 'status') and existing_user.status == "deleted":
+            # Generate verification token
+            token = generate_verification_token(email)
+            
+            # Update user data
+            existing_user.name = name
+            existing_user.password = get_password_hash(password)
+            existing_user.verified = False
+            existing_user.verification_token = token
+            existing_user.approved = auto_approve if role == Role.INSTRUCTOR else True
+            existing_user.department = ""
+            existing_user.reset_token = ""
+            existing_user.reset_token_expiry = ""
+            existing_user.status = "active"
+            existing_user.last_active = datetime.now().isoformat()
+            
+            # Update in database
+            users.update(existing_user)
+            
+            # Send verification email
+            success, message = send_verification_email(email, token)
+            
+            # Redirect to confirmation page
+            if success:
+                message = (
+                    "Your account has been reactivated! Please check your email to verify your account." +
+                    ("" if auto_approve else " After verification, your account will require administrator approval.")
+                )
+                return HttpHeader('HX-Redirect', f'/register/confirmation?message={message}&email={email}')
+            else:
+                # For security, don't expose the exact error to the user
+                print(f"EMAIL ERROR DETAILS: {message}")
+                # Provide a way to verify manually for development purposes
+                verify_link = f"{APP_DOMAIN}/verify?token={token}"
+                return Div(
+                    P("Account reactivated but there was an issue sending the verification email.", cls="text-red-500 mb-2"),
+                    P("For development purposes, you can verify your account using this link:", cls="mb-2"),
+                    A(verify_link, href=verify_link, cls="text-blue-500 underline break-all", target="_blank"),
+                    P("Note: " + ("" if auto_approve else "After verification, your account will require administrator approval."), cls="mt-2 text-gray-600"),
+                    cls="text-center"
+                )
+        else:
+            return "User already exists"
     except NotFoundError:
         # Generate verification token
         token = generate_verification_token(email)
@@ -121,10 +165,12 @@ def post(name: str, email: str, password: str, confirm_password: str):
             role=role,
             verified=False,
             verification_token=token,
-            approved=False if role == Role.INSTRUCTOR else True,  # Instructors need approval
+            approved=auto_approve if role == Role.INSTRUCTOR else True,  # Auto-approve based on domain
             department="",
             reset_token="",
-            reset_token_expiry=""
+            reset_token_expiry="",
+            status="active",
+            last_active=datetime.now().isoformat()
         )
         
         # Insert into database
@@ -132,8 +178,14 @@ def post(name: str, email: str, password: str, confirm_password: str):
         
         # Send verification email
         success, message = send_verification_email(email, token)
+        
+        # Redirect to a confirmation page instead of showing a message in-place
         if success:
-            return "Registration successful. Please check your email to verify your account."
+            message = (
+                "Registration successful! Please check your email to verify your account." +
+                ("" if auto_approve else " After verification, your account will require administrator approval.")
+            )
+            return HttpHeader('HX-Redirect', f'/register/confirmation?message={message}&email={email}')
         else:
             # For security, don't expose the exact error to the user
             print(f"EMAIL ERROR DETAILS: {message}")
@@ -143,8 +195,54 @@ def post(name: str, email: str, password: str, confirm_password: str):
                 P("Registration successful but there was an issue sending the verification email.", cls="text-red-500 mb-2"),
                 P("For development purposes, you can verify your account using this link:", cls="mb-2"),
                 A(verify_link, href=verify_link, cls="text-blue-500 underline break-all", target="_blank"),
+                P("Note: " + ("" if auto_approve else "After verification, your account will require administrator approval."), cls="mt-2 text-gray-600"),
                 cls="text-center"
             )
+
+# --- Registration Confirmation Route ---
+@rt('/register/confirmation')
+def get(message: str, email: str):
+    confirmation_content = Div(
+        Div(
+            Div(
+                # Success icon
+                Div(
+                    Span("✅", cls="text-5xl block mb-4"),
+                    cls="text-center"
+                ),
+                # Brand logo
+                Div(
+                    Span("Feed", cls="text-indigo-600 font-bold"),
+                    Span("Forward", cls="text-teal-500 font-bold"),
+                    cls="text-3xl mb-4 text-center"
+                ),
+                H2("Registration Complete!", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+                Div(
+                    P(message, cls="text-gray-600 mb-3"),
+                    P(f"We've sent a verification email to: ", cls="text-gray-600"),
+                    P(email, cls="font-semibold text-indigo-600 mb-6"),
+                    cls="text-center"
+                ),
+                Div(
+                    P("Please check your inbox and click the verification link.", cls="text-gray-600 mb-6"),
+                    cls="text-center"
+                ),
+                Div(
+                    A("Return to Login", href="/login", 
+                      cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-4"),
+                    A("Return to Home", href="/", 
+                      cls="inline-block bg-gray-100 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"),
+                    cls="flex justify-center flex-wrap gap-4"
+                ),
+                cls="text-center"
+            ),
+            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full"
+        ),
+        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50"
+    )
+    
+    # Return the complete page
+    return page_container("Registration Complete - FeedForward", confirmation_content)
 
 # --- Email Verification Route ---
 @rt('/verify')
@@ -182,7 +280,10 @@ def get(token: str):
                             cls="text-3xl mb-4 text-center"
                         ),
                         H1("Email Verified Successfully!", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
-                        P("Your email has been verified. You can now log in to your account.", cls="text-gray-600 mb-6 text-center"),
+                        P("Your email has been verified." + 
+                          (" You can now log in to your account." if user.approved else 
+                           " Your account requires administrator approval before you can log in."), 
+                          cls="text-gray-600 mb-6 text-center"),
                         Div(
                             A("Login to Your Account", href="/login", 
                               cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
@@ -290,15 +391,30 @@ def post(session, email: str, password: str):
     except NotFoundError:
         return "Email or password are incorrect"
     
+    # First check password - always verify password first before other checks
+    if not verify_password(password, user.password):
+        return "Email or password are incorrect"
+    
+    # Then check verification status
     if not user.verified:
-        return "Please verify your email before logging in."
+        # Re-send verification token if they try to login but aren't verified
+        token = generate_verification_token(email)
+        user.verification_token = token
+        users.update(user)
+        
+        # Send new verification email
+        send_verification_email(email, token)
+        
+        # Return error with option to resend
+        return Div(
+            P("Your email is not verified yet. Please check your inbox or spam folder.", cls="text-red-500 mb-2"),
+            P("We've sent a new verification email to your address.", cls="text-gray-600"),
+            cls="text-center"
+        )
     
     # For instructors, check if they're approved
     if user.role == Role.INSTRUCTOR and not user.approved:
         return "Your account is pending approval. Please contact the administrator."
-    
-    if not verify_password(password, user.password):
-        return "Email or password are incorrect"
 
     # Store user info in session
     session['auth'] = user.email
