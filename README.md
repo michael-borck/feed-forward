@@ -10,6 +10,7 @@ FeedForward is an AI-powered platform for providing formative feedback on studen
 - Student draft submissions with iterative feedback
 - Progress tracking across multiple drafts
 - Domain-based authentication for institutions
+- Privacy-focused design: student submissions are not permanently stored
 
 ## Installation
 
@@ -50,6 +51,15 @@ python app/init_db.py
 6. Run the application:
 ```bash
 python app.py
+```
+
+7. Optional: Set up the draft cleanup task to run periodically:
+```bash
+# Run manually
+python tools/cleanup_drafts.py
+
+# Or set up as a cron job (example for daily at 2 AM)
+# 0 2 * * * cd /path/to/feedforward && python tools/cleanup_drafts.py >> logs/cleanup.log 2>&1
 ```
 
 ## Development

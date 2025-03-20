@@ -144,16 +144,25 @@ Each level of the hierarchy allows for configuration that affects how child comp
 - Student enrollment management
 - UI for course listing, creation, and editing
 
-### Assignment Management (Not Started)
-- Will include creation, editing, and management of assignments
-- Will implement status flow for assignments
-- Will allow configuration of feedback parameters
+### Assignment Management (Completed)
+- Creation, editing, and management of assignments
+- Status flow implementation (draft, active, closed, archived, deleted)
+- Rubric creation and management
+- Assignment configuration and templating
 
-### Submission & Feedback (Not Started)
-- Will implement student submission interface
-- Will handle draft management
-- Will connect to AI services for feedback generation
-- Will provide feedback review and approval workflow
+### Student Experience (Completed)
+- Student dashboard with course and assignment overview
+- Course view with assignment listing
+- Assignment view with detailed information
+- Draft submission interface with version control
+- Feedback viewing interface
+- UI for navigating student workflow
+
+### Submission & Feedback Processing (Partial)
+- Draft submission and management implemented
+- Draft status tracking (submitted, processing, feedback_ready)
+- UI for viewing feedback when available
+- AI integration for feedback generation (pending)
 
 ## Consequences
 

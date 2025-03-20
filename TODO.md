@@ -6,7 +6,7 @@
 - [ ] API Design - RESTful vs GraphQL or other approaches for potential future API needs
 - [x] UI Framework Selection - Current HTML/CSS/HTMX approach vs component libraries (ADR-005)
 - [ ] Deployment Strategy - How the application is packaged and deployed
-- [ ] Privacy & Security Model - How student data and API keys are protected
+- [x] Privacy & Security Model - Student submission privacy (ADR-008)
 - [x] Data Lifecycle Management - How data is preserved with soft deletion (ADR-002)
 - [x] Authentication Strategy - Email verification and role-based access (ADR-003)
 - [x] AI Model Ownership - Configuring and running models (ADR-001)
@@ -32,7 +32,7 @@
 ## Database Schema
 - [ ] Define model for AI models configuration
 - [ ] Define model for runs
-- [ ] Define model for assignments
+- [x] Define model for assignments
 - [ ] Define model for drafts
 - [ ] Define model for feedback
 - [ ] Define model for aggregated feedback
@@ -42,15 +42,21 @@
 - [x] Course management (create, edit, list)
 - [x] Course status management (active, closed, archived)
 - [x] Student roster management
-- [ ] Assignment creation with rubrics
+  - [x] CSV/TSV upload for student email invitations (MVP)
+  - [ ] Enhanced email invitation: validation, batch processing, and support for additional file formats
+- [x] Assignment creation with rubrics
+  - [x] Rubric templates (essay, research paper, presentation)
+  - [x] Weight-based rubric categories
+  - [x] Assignment status management
 - [ ] Feedback configuration
 - [ ] Student progress monitoring
 - [ ] Feedback approval workflow
 
 ## Student Features
-- [ ] Dashboard with pending assignments
-- [ ] Draft submission interface
-- [ ] Feedback viewing interface
+- [x] Dashboard with pending assignments
+- [x] Course view with assignment listing
+- [x] Draft submission interface
+- [x] Feedback viewing interface
 - [ ] Progress tracking across drafts
 - [ ] Draft comparison view
 

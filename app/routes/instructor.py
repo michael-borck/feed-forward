@@ -32,7 +32,7 @@ def generate_invitation_token(length=40):
 # --- Instructor Dashboard ---
 @rt('/instructor/dashboard')
 @instructor_required
-def get(session):
+def get(session, request):
     # Get components directly from top-level imports
     
     # Get current user
@@ -232,7 +232,8 @@ def get(session):
         "Instructor Dashboard | FeedForward", 
         sidebar_content, 
         main_content, 
-        user_role=Role.INSTRUCTOR
+        user_role=Role.INSTRUCTOR,
+        current_path=request.url.path
     )
 
 # --- Assignment Management ---
@@ -1772,7 +1773,7 @@ def get_instructor_course(course_id, instructor_email):
         return None, f"Error accessing course: {str(e)}"
 @rt('/instructor/courses')
 @instructor_required
-def get(session):
+def get(session, request):
     """Course listing page for instructors"""
     # Get current user
     user = users[session['auth']]
@@ -1912,7 +1913,8 @@ def get(session):
         "Manage Courses | FeedForward", 
         sidebar_content, 
         main_content, 
-        user_role=Role.INSTRUCTOR
+        user_role=Role.INSTRUCTOR,
+        current_path=request.url.path
     )
 
 @rt('/instructor/courses/new')
@@ -2289,7 +2291,7 @@ def post(session, course_id: int, title: str, code: str, term: str = "", departm
 
 @rt('/instructor/manage-students')
 @instructor_required
-def get(session):
+def get(session, request):
     # Get components directly from top-level imports
     
     # Get current user
@@ -2459,7 +2461,8 @@ def get(session):
         "Manage Students | FeedForward", 
         sidebar_content, 
         main_content, 
-        user_role=Role.INSTRUCTOR
+        user_role=Role.INSTRUCTOR,
+        current_path=request.url.path
     )
 
 @rt('/instructor/courses/{course_id}/students')
@@ -2771,7 +2774,7 @@ def post(session, email: str, course_id: int):
 
 @rt('/instructor/invite-students')
 @instructor_required
-def get(session, course_id: int = None):
+def get(session, request, course_id: int = None):
     """Shows the form to invite students to a course"""
     # Get current user
     user = users[session['auth']]
@@ -2956,7 +2959,8 @@ def get(session, course_id: int = None):
         "Invite Students", 
         sidebar_content, 
         form_content, 
-        user_role=Role.INSTRUCTOR
+        user_role=Role.INSTRUCTOR,
+        current_path=request.url.path
     )
 
 @rt('/instructor/invite-students')
