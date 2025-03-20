@@ -71,9 +71,9 @@ def page_footer():
                 # Legal
                 Div(
                     H3("Legal", cls="font-semibold text-indigo-800 mb-3"),
-                    A("Terms", href="#", cls="block text-gray-600 hover:text-indigo-600 mb-2"),
-                    A("Privacy", href="#", cls="block text-gray-600 hover:text-indigo-600 mb-2"),
-                    A("Contact", href="#", cls="block text-gray-600 hover:text-indigo-600"),
+                    A("Terms", href="/terms", cls="block text-gray-600 hover:text-indigo-600 mb-2"),
+                    A("Privacy", href="/privacy", cls="block text-gray-600 hover:text-indigo-600 mb-2"),
+                    A("Contact", href="/contact", cls="block text-gray-600 hover:text-indigo-600"),
                 ),
                 cls="md:w-1/3 flex gap-12"
             ),
@@ -108,12 +108,13 @@ def page_container(title, content):
         )
     )
 
-def dashboard_header(user_role):
+def dashboard_header(user_role, current_path=None):
     """
     Return a dashboard header with role-specific navigation
     
     Args:
         user_role: Role of the current user (student, instructor, admin)
+        current_path: Current request path to determine active link
     """
     # Portal name based on role
     portal_name = ""
@@ -129,31 +130,46 @@ def dashboard_header(user_role):
     if user_role == Role.STUDENT:
         portal_name = "Student Portal"
         nav_links = [
-            ("Dashboard", "#", True),
-            ("My Submissions", "#", False),
-            ("Feedback History", "#", False),
+            ("Dashboard", "/student/dashboard", False),
+            ("My Submissions", "/student/assignments", False),
+            ("Feedback History", "/student/feedback", False),
             ("Help", "#", False)
         ]
     elif user_role == Role.INSTRUCTOR:
         portal_name = "Instructor Portal"
         nav_links = [
-            ("Courses", "#", True),
-            ("Assignments", "#", False),
-            ("Analytics", "#", False),
-            ("Settings", "#", False)
+            ("Dashboard", "/instructor/dashboard", False),
+            ("Courses", "/instructor/courses", False),
+            ("Students", "/instructor/manage-students", False),
+            ("Invite", "/instructor/invite-students", False)
         ]
     elif user_role == Role.ADMIN:
         portal_name = "Admin Portal"
         nav_links = [
-            ("Users", "#", True),
+            ("Users", "#", False),
             ("Courses", "#", False),
             ("Settings", "#", False),
             ("System", "#", False)
         ]
     
-    # Build navigation links
+    # Build navigation links with active state based on current path
     nav_items = []
-    for label, href, is_active in nav_links:
+    for label, href, _ in nav_links:
+        # Mark as active if href matches current path
+        is_active = False
+        if current_path:
+            if href == current_path:
+                is_active = True
+            # Special case for dashboard vs courses (we want the proper one highlighted)
+            if label == "Courses" and current_path.startswith("/instructor/courses"):
+                is_active = True
+            if label == "Dashboard" and current_path == "/instructor/dashboard":
+                is_active = True
+            if label == "Students" and current_path == "/instructor/manage-students":
+                is_active = True
+            if label == "Invite" and current_path == "/instructor/invite-students":
+                is_active = True
+        
         cls = "text-white px-4 py-2 mx-1 transition-colors hover:text-indigo-200"
         if is_active:
             cls = "text-white bg-indigo-700 px-4 py-2 rounded-lg mx-1 font-medium shadow-sm"
@@ -214,7 +230,7 @@ def dashboard_header(user_role):
         cls="bg-indigo-900 text-white py-4 shadow-md"
     )
 
-def dashboard_layout(title, sidebar, main_content, user_role=Role.STUDENT, user=None):
+def dashboard_layout(title, sidebar, main_content, user_role=Role.STUDENT, user=None, current_path=None):
     """
     Create a dashboard layout with header, sidebar, main content, and footer
     
@@ -224,11 +240,12 @@ def dashboard_layout(title, sidebar, main_content, user_role=Role.STUDENT, user=
         main_content: Main content area component
         user_role: Role of the current user
         user: Optional user object (if available)
+        current_path: Current request path to determine active navigation links
     """
     return Titled(
         title,
         Div(
-            dashboard_header(user_role),
+            dashboard_header(user_role, current_path),
             Div(
                 Div(
                     Div(
@@ -406,7 +423,7 @@ def feedback_card(title, content, color="teal"):
         cls="border border-gray-200 rounded-xl mb-4 overflow-hidden bg-white shadow-md hover:shadow-lg transition-shadow"
     )
 
-def action_button(text, color="indigo", href="#", icon=None, size="medium"):
+def action_button(text, color="indigo", href="#", icon=None, size="medium", disabled=False):
     """
     Create an action button
     
@@ -416,6 +433,7 @@ def action_button(text, color="indigo", href="#", icon=None, size="medium"):
         href: Button link
         icon: Optional icon (e.g., +, ↑, ✓)
         size: Button size (small, medium, large)
+        disabled: Whether the button is disabled
     """
     color_map = {
         "blue": "indigo",
@@ -441,11 +459,18 @@ def action_button(text, color="indigo", href="#", icon=None, size="medium"):
         button_content.append(Span(icon, cls="mr-2"))
     button_content.append(text)
     
-    return A(
-        *button_content,
-        href=href,
-        cls=f"bg-{mapped_color}-600 text-white {padding} rounded-lg inline-flex items-center justify-center hover:bg-{mapped_color}-700 transition-all shadow-sm hover:shadow font-medium"
-    )
+    # Add disabled styling if needed
+    if disabled:
+        return Span(
+            *button_content,
+            cls=f"bg-gray-300 text-gray-500 cursor-not-allowed {padding} rounded-lg inline-flex items-center justify-center shadow-sm font-medium"
+        )
+    else:
+        return A(
+            *button_content,
+            href=href,
+            cls=f"bg-{mapped_color}-600 text-white {padding} rounded-lg inline-flex items-center justify-center hover:bg-{mapped_color}-700 transition-all shadow-sm hover:shadow font-medium"
+        )
 
 def modal_dialog(title, content, footer=None):
     """

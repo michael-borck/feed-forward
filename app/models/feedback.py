@@ -27,9 +27,13 @@ if drafts not in db.t:
         assignment_id=int,
         student_email=str,
         version=int,
-        content=str,
+        content=str,  # Temporarily stores content until feedback is generated
+        content_preserved=bool,  # Flag to indicate if content should be preserved (defaults to False)
         submission_date=str,
-        status=str  # 'submitted', 'processing', 'feedback_ready'
+        word_count=int,  # Store word count for statistics
+        status=str,  # 'submitted', 'processing', 'feedback_ready', 'archived'
+        content_removed_date=str,  # When the content was removed
+        hidden_by_student=bool  # For "soft delete" functionality - hide from student view
     ), pk='id')
 Draft = drafts.dataclass()
 
