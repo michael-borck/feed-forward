@@ -8,6 +8,7 @@ from fastlite import NotFoundError
 import string
 import random
 import urllib.parse
+import re
 
 from app.models.user import User, Role, users
 from app.models.course import Course, Enrollment, courses, enrollments
@@ -1097,6 +1098,648 @@ def post(session, assignment_id: int, title: str, description: str, due_date: st
         ),
         cls="bg-green-50 p-6 rounded-lg border border-green-200 mt-4"
     )
+    
+# --- Rubric Management ---
+@rt('/instructor/assignments/{assignment_id}/rubric')
+@instructor_required
+def get(session, assignment_id: int):
+    """View and manage rubric for an assignment"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Get the course this assignment belongs to
+    course, course_error = get_instructor_course(assignment.course_id, user.email)
+    
+    if course_error:
+        return Div(
+            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            P(course_error, cls="text-gray-700 mb-4"),
+            A("Back to Courses", href="/instructor/courses", 
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+            cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center"
+        )
+    
+    # Import rubric models
+    from app.models.assignment import Rubric, RubricCategory, rubrics, rubric_categories
+    
+    # Check if rubric exists for this assignment
+    rubric = None
+    for r in rubrics():
+        if r.assignment_id == assignment_id:
+            rubric = r
+            break
+    
+    # Get rubric categories if rubric exists
+    categories = []
+    if rubric:
+        for category in rubric_categories():
+            if category.rubric_id == rubric.id:
+                categories.append(category)
+        
+        # Sort categories by ID for consistent display
+        categories.sort(key=lambda x: x.id)
+    
+    # Prepare form for creating/editing rubric
+    if rubric:
+        # Rubric exists - show edit form
+        form_content = Div(
+            H2(f"Manage Rubric for: {assignment.title}", cls="text-2xl font-bold text-indigo-900 mb-4"),
+            P("Edit the rubric categories and their weights. The weights should sum to 100%.", 
+              cls="text-gray-600 mb-6"),
+            
+            # Existing categories display and edit form
+            Div(
+                # Header section with assignment info
+                Div(
+                    P(f"Assignment: {assignment.title}", cls="text-gray-600"),
+                    P(f"Status: {getattr(assignment, 'status', 'draft').capitalize()}", cls="text-gray-600"),
+                    cls="mb-4"
+                ),
+                
+                # Current categories
+                H3("Current Rubric Categories", cls="text-xl font-semibold text-indigo-800 mb-3"),
+                
+                # Category display and edit section
+                (Div(
+                    Div(
+                        Table(
+                            Thead(
+                                Tr(
+                                    Th("Category Name", cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                                    Th("Description", cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                                    Th("Weight (%)", cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100"),
+                                    Th("Actions", cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100")
+                                ),
+                                cls="bg-indigo-50"
+                            ),
+                            Tbody(
+                                *[Tr(
+                                    Td(category.name, cls="py-3 px-4 border-b border-gray-100"),
+                                    Td(
+                                        Div(
+                                            P(category.description, cls="text-gray-700 max-w-md"),
+                                            cls="max-h-24 overflow-y-auto"
+                                        ),
+                                        cls="py-3 px-4 border-b border-gray-100"
+                                    ),
+                                    Td(f"{category.weight}%", cls="py-3 px-4 border-b border-gray-100"),
+                                    Td(
+                                        Div(
+                                            Button("Edit", 
+                                                  hx_get=f"/instructor/assignments/{assignment_id}/rubric/categories/{category.id}/edit",
+                                                  hx_target="#category-edit-form",
+                                                  cls="text-xs px-3 py-1 bg-amber-600 text-white rounded-md hover:bg-amber-700 mr-2"),
+                                            Button("Delete", 
+                                                  hx_post=f"/instructor/assignments/{assignment_id}/rubric/categories/{category.id}/delete",
+                                                  hx_confirm=f"Are you sure you want to delete the category '{category.name}'?",
+                                                  hx_target="#rubric-result",
+                                                  cls="text-xs px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"),
+                                            cls="flex"
+                                        ),
+                                        cls="py-3 px-4 border-b border-gray-100"
+                                    ),
+                                    # Add unique id to each row for potential HTMX interactions
+                                    id=f"category-row-{category.id}",
+                                    cls="hover:bg-gray-50"
+                                ) for category in categories]
+                            ),
+                            cls="w-full"
+                        ),
+                        cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6"
+                    ) if categories else
+                    P("No rubric categories have been created yet. Use the form below to add categories to your rubric.", 
+                      cls="bg-amber-50 p-4 rounded-lg border border-amber-200 text-amber-800 mb-6")
+                )),
+                
+                # Add new category section
+                Div(
+                    H3("Add New Category", cls="text-xl font-semibold text-indigo-800 mb-3"),
+                    Div(id="category-edit-form", cls="mb-4"),
+                    Form(
+                        Input(type="hidden", name="category_id", value=""),
+                        Div(
+                            Label("Category Name", for_="name", cls="block text-indigo-900 font-medium mb-1"),
+                            Input(id="name", name="name", type="text", placeholder="e.g. Content", 
+                                  required=True, cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                            cls="mb-4"
+                        ),
+                        Div(
+                            Label("Description", for_="description", cls="block text-indigo-900 font-medium mb-1"),
+                            Textarea(id="description", name="description", rows="3", placeholder="Describe what this category evaluates...",
+                                    cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                            cls="mb-4"
+                        ),
+                        Div(
+                            Label("Weight (%)", for_="weight", cls="block text-indigo-900 font-medium mb-1"),
+                            Input(id="weight", name="weight", type="number", min="1", max="100", step="0.1", placeholder="e.g. 25",
+                                  required=True, cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                            cls="mb-4"
+                        ),
+                        Div(
+                            Button("Add Category", type="submit", 
+                                  cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                            cls="mb-4"
+                        ),
+                        hx_post=f"/instructor/assignments/{assignment_id}/rubric/categories/add",
+                        hx_target="#rubric-result",
+                        cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6"
+                    ),
+                ),
+                
+                # Result placeholder for form submissions
+                Div(id="rubric-result", cls="mb-6"),
+                
+                # Action buttons
+                Div(
+                    A("Back to Assignment", href=f"/instructor/assignments/{assignment_id}", 
+                      cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 mr-4"),
+                    cls="flex"
+                ),
+                
+                cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
+            ),
+            cls=""
+        )
+    else:
+        # No rubric exists - show creation form
+        form_content = Div(
+            H2(f"Create Rubric for: {assignment.title}", cls="text-2xl font-bold text-indigo-900 mb-4"),
+            P("A rubric helps provide structured feedback for students. Create a rubric by defining categories and their weights.", 
+              cls="text-gray-600 mb-6"),
+            
+            # Rubric creation form
+            Div(
+                # Header section with assignment info
+                Div(
+                    P(f"Assignment: {assignment.title}", cls="text-gray-600"),
+                    P(f"Status: {getattr(assignment, 'status', 'draft').capitalize()}", cls="text-gray-600"),
+                    cls="mb-6"
+                ),
+                
+                # Initialize rubric form
+                Form(
+                    H3("Initialize Rubric", cls="text-xl font-semibold text-indigo-800 mb-3"),
+                    P("Create a rubric for this assignment to define evaluation criteria.", cls="text-gray-600 mb-4"),
+                    
+                    Div(
+                        Button("Create Rubric", type="submit", 
+                              cls="bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm"),
+                        cls="mb-4"
+                    ),
+                    
+                    Div(id="create-rubric-result", cls="mt-4"),
+                    
+                    hx_post=f"/instructor/assignments/{assignment_id}/rubric/create",
+                    hx_target="#create-rubric-result",
+                    
+                    cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6"
+                ),
+                
+                # Action buttons
+                Div(
+                    A("Back to Assignment", href=f"/instructor/assignments/{assignment_id}", 
+                      cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 mr-4"),
+                    cls="flex"
+                ),
+                
+                cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
+            ),
+            cls=""
+        )
+    
+    # Sidebar content
+    sidebar_content = Div(
+        Div(
+            H3("Rubric Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                action_button("Back to Assignment", color="gray", 
+                              href=f"/instructor/assignments/{assignment_id}", icon="←"),
+                action_button("Assignment List", color="indigo", 
+                              href=f"/instructor/courses/{assignment.course_id}/assignments", icon="📚"),
+                action_button("Edit Assignment", color="amber", 
+                              href=f"/instructor/assignments/{assignment_id}/edit", icon="✏️"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Rubric Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P("• Create 3-5 categories for a balanced rubric", cls="text-gray-600 mb-2 text-sm"),
+            P("• Ensure weights add up to 100%", cls="text-gray-600 mb-2 text-sm"),
+            P("• Use clear descriptions that guide students", cls="text-gray-600 mb-2 text-sm"),
+            P("• Consider including examples in descriptions", cls="text-gray-600 text-sm"),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        Div(
+            H3("Template Library", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Div(
+                Button("Essay Rubric Template", 
+                      hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/essay",
+                      hx_target="#rubric-result",
+                      cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mb-2 w-full text-left"),
+                Button("Research Paper Template", 
+                      hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/research",
+                      hx_target="#rubric-result",
+                      cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mb-2 w-full text-left"),
+                Button("Presentation Template", 
+                      hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/presentation",
+                      hx_target="#rubric-result",
+                      cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 w-full text-left"),
+                cls="space-y-2"
+            ),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        cls="space-y-6"
+    )
+    
+    # Return complete page
+    return dashboard_layout(
+        f"Rubric for {assignment.title} | {course.title} | FeedForward", 
+        sidebar_content, 
+        form_content, 
+        user_role=Role.INSTRUCTOR
+    )
+
+@rt('/instructor/assignments/{assignment_id}/rubric/create')
+@instructor_required
+def post(session, assignment_id: int):
+    """Create a new rubric for an assignment"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Import rubric models
+    from app.models.assignment import Rubric, rubrics
+    
+    # Check if rubric already exists
+    for rubric in rubrics():
+        if rubric.assignment_id == assignment_id:
+            return Div(
+                P("A rubric already exists for this assignment.", cls="text-amber-600"),
+                cls="bg-amber-50 p-4 rounded-lg"
+            )
+    
+    # Get next rubric ID
+    next_rubric_id = 1
+    try:
+        rubric_ids = [r.id for r in rubrics()]
+        if rubric_ids:
+            next_rubric_id = max(rubric_ids) + 1
+    except Exception as e:
+        print(f"Error getting next rubric ID: {e}")
+        next_rubric_id = 1
+    
+    # Create new rubric
+    new_rubric = Rubric(
+        id=next_rubric_id,
+        assignment_id=assignment_id
+    )
+    
+    # Insert into database
+    rubrics.insert(new_rubric)
+    
+    # Return success message with page refresh
+    return Div(
+        P("Rubric created successfully! You can now add categories.", cls="text-green-600 font-medium"),
+        Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        cls="bg-green-50 p-4 rounded-lg"
+    )
+
+@rt('/instructor/assignments/{assignment_id}/rubric/categories/add')
+@instructor_required
+def post(session, assignment_id: int, name: str, description: str = "", weight: float = 0, category_id: int = None):
+    """Add a new category to a rubric or update an existing one"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Import rubric models
+    from app.models.assignment import Rubric, RubricCategory, rubrics, rubric_categories
+    
+    # Find the rubric for this assignment
+    rubric = None
+    for r in rubrics():
+        if r.assignment_id == assignment_id:
+            rubric = r
+            break
+    
+    if not rubric:
+        return Div(
+            P("Error: No rubric found for this assignment. Please create a rubric first.", cls="text-red-600"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+    
+    # Validate inputs
+    if not name:
+        return Div(
+            P("Error: Category name is required.", cls="text-red-600"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+    
+    try:
+        weight = float(weight)
+        if weight <= 0 or weight > 100:
+            return Div(
+                P("Error: Weight must be between 0 and 100.", cls="text-red-600"),
+                cls="bg-red-50 p-4 rounded-lg"
+            )
+    except:
+        return Div(
+            P("Error: Invalid weight value.", cls="text-red-600"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+    
+    # Check if we're updating existing category or adding new one
+    if category_id:
+        # Updating existing category
+        for category in rubric_categories():
+            if category.id == category_id and category.rubric_id == rubric.id:
+                # Update category
+                category.name = name
+                category.description = description
+                category.weight = weight
+                rubric_categories.update(category)
+                
+                return Div(
+                    P(f"Category '{name}' updated successfully!", cls="text-green-600"),
+                    Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+                    cls="bg-green-50 p-4 rounded-lg"
+                )
+        
+        return Div(
+            P("Error: Category not found or doesn't belong to this rubric.", cls="text-red-600"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+    
+    # Adding new category
+    # Get next category ID
+    next_category_id = 1
+    try:
+        category_ids = [c.id for c in rubric_categories()]
+        if category_ids:
+            next_category_id = max(category_ids) + 1
+    except Exception as e:
+        print(f"Error getting next category ID: {e}")
+        next_category_id = 1
+    
+    # Create new category
+    new_category = RubricCategory(
+        id=next_category_id,
+        rubric_id=rubric.id,
+        name=name,
+        description=description,
+        weight=weight
+    )
+    
+    # Insert into database
+    rubric_categories.insert(new_category)
+    
+    # Return success message with form reset
+    return Div(
+        P(f"Category '{name}' added successfully!", cls="text-green-600"),
+        Script("""
+            document.getElementById('name').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('weight').value = '';
+            document.getElementById('category_id').value = '';
+            setTimeout(function() { window.location.reload(); }, 1000);
+        """),
+        cls="bg-green-50 p-4 rounded-lg"
+    )
+
+@rt('/instructor/assignments/{assignment_id}/rubric/categories/{category_id}/edit')
+@instructor_required
+def get(session, assignment_id: int, category_id: int):
+    """Get the form for editing a rubric category"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Import rubric models
+    from app.models.assignment import RubricCategory, rubric_categories
+    
+    # Find the category
+    category = None
+    for c in rubric_categories():
+        if c.id == category_id:
+            category = c
+            break
+    
+    if not category:
+        return "Category not found."
+    
+    # Return edit form
+    return Form(
+        H3("Edit Category", cls="text-xl font-semibold text-indigo-800 mb-3"),
+        Input(type="hidden", name="category_id", value=str(category.id)),
+        Div(
+            Label("Category Name", for_="name", cls="block text-indigo-900 font-medium mb-1"),
+            Input(id="name", name="name", type="text", value=category.name,
+                  required=True, cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+            cls="mb-4"
+        ),
+        Div(
+            Label("Description", for_="description", cls="block text-indigo-900 font-medium mb-1"),
+            Textarea(id="description", name="description", rows="3", value=category.description,
+                    cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+            cls="mb-4"
+        ),
+        Div(
+            Label("Weight (%)", for_="weight", cls="block text-indigo-900 font-medium mb-1"),
+            Input(id="weight", name="weight", type="number", min="1", max="100", step="0.1", value=str(category.weight),
+                  required=True, cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+            cls="mb-4"
+        ),
+        Div(
+            Button("Update Category", type="submit", 
+                  cls="bg-amber-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-amber-700 transition-colors shadow-sm"),
+            Button("Cancel", 
+                  hx_get=f"/instructor/assignments/{assignment_id}/rubric/categories/cancel",
+                  hx_target="#category-edit-form",
+                  cls="bg-gray-100 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors shadow-sm ml-3"),
+            cls="mb-4"
+        ),
+        hx_post=f"/instructor/assignments/{assignment_id}/rubric/categories/add",
+        hx_target="#rubric-result",
+        cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6"
+    )
+
+@rt('/instructor/assignments/{assignment_id}/rubric/categories/cancel')
+@instructor_required
+def get(session, assignment_id: int):
+    """Cancel category editing"""
+    return ""
+
+@rt('/instructor/assignments/{assignment_id}/rubric/categories/{category_id}/delete')
+@instructor_required
+def post(session, assignment_id: int, category_id: int):
+    """Delete a rubric category"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Import rubric models
+    from app.models.assignment import RubricCategory, rubric_categories
+    
+    # Find the category
+    category_name = "Unknown"
+    for c in rubric_categories():
+        if c.id == category_id:
+            category_name = c.name
+            # Delete the category
+            rubric_categories.delete(c.id)
+            break
+    
+    # Return success message with page refresh
+    return Div(
+        P(f"Category '{category_name}' deleted successfully.", cls="text-green-600"),
+        Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        cls="bg-green-50 p-4 rounded-lg"
+    )
+
+@rt('/instructor/assignments/{assignment_id}/rubric/template/{template_type}')
+@instructor_required
+def get(session, assignment_id: int, template_type: str):
+    """Apply a rubric template"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return f"Error: {error}"
+    
+    # Import rubric models
+    from app.models.assignment import Rubric, RubricCategory, rubrics, rubric_categories
+    
+    # Find the rubric for this assignment
+    rubric = None
+    for r in rubrics():
+        if r.assignment_id == assignment_id:
+            rubric = r
+            break
+    
+    if not rubric:
+        return Div(
+            P("Error: No rubric found for this assignment. Please create a rubric first.", cls="text-red-600"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+    
+    # Check if rubric already has categories
+    existing_categories = []
+    for c in rubric_categories():
+        if c.rubric_id == rubric.id:
+            existing_categories.append(c)
+    
+    if existing_categories:
+        return Div(
+            P("This rubric already has categories. Templates can only be applied to empty rubrics.", cls="text-amber-600"),
+            cls="bg-amber-50 p-4 rounded-lg"
+        )
+    
+    # Define template categories based on type
+    template_categories = []
+    if template_type == "essay":
+        template_categories = [
+            {"name": "Content", "description": "The essay addresses the assigned topic thoroughly and presents a clear thesis statement. Arguments are well-developed with relevant evidence and examples.", "weight": 30},
+            {"name": "Organization", "description": "The essay follows a logical structure with clear introduction, body paragraphs, and conclusion. Ideas flow smoothly with effective transitions.", "weight": 25},
+            {"name": "Analysis", "description": "The essay demonstrates critical thinking and insightful analysis. Arguments are thoughtful and demonstrate understanding of the topic's complexity.", "weight": 20},
+            {"name": "Style & Language", "description": "Writing is clear, concise, and appropriate for academic context. Grammar, punctuation, and spelling are correct. Vocabulary is varied and precise.", "weight": 15},
+            {"name": "Citations & References", "description": "Sources are properly cited using the required citation style. References are relevant, credible, and integrated effectively.", "weight": 10}
+        ]
+    elif template_type == "research":
+        template_categories = [
+            {"name": "Research Question", "description": "Clear, focused research question or hypothesis. Demonstrates significance and originality within the field.", "weight": 15},
+            {"name": "Literature Review", "description": "Comprehensive review of relevant literature. Synthesizes prior research and identifies gaps.", "weight": 20},
+            {"name": "Methodology", "description": "Research design and methods are appropriate, clearly described, and aligned with research questions.", "weight": 20},
+            {"name": "Data Analysis & Results", "description": "Data is accurately analyzed using appropriate methods. Results are presented clearly with relevant tables/figures.", "weight": 25},
+            {"name": "Discussion & Conclusion", "description": "Interpretation of results is insightful and connected to the literature. Limitations are acknowledged and future research directions suggested.", "weight": 15},
+            {"name": "Citations & Format", "description": "Follows required citation style and formatting guidelines. References are accurate and complete.", "weight": 5}
+        ]
+    elif template_type == "presentation":
+        template_categories = [
+            {"name": "Content", "description": "Presentation covers topic thoroughly with accurate, relevant information. Key points are supported with evidence.", "weight": 30},
+            {"name": "Organization", "description": "Clear structure with logical flow. Includes effective introduction, well-organized body, and strong conclusion.", "weight": 20},
+            {"name": "Visual Elements", "description": "Slides are clear, readable, and visually appealing. Graphics enhance understanding without overwhelming.", "weight": 15},
+            {"name": "Delivery", "description": "Speaker demonstrates confidence, maintains good pace, and uses appropriate voice projection. Engages audience and maintains eye contact.", "weight": 25},
+            {"name": "Q&A Handling", "description": "Responds to questions clearly and accurately. Demonstrates depth of knowledge on the topic.", "weight": 10}
+        ]
+    else:
+        return Div(
+            P(f"Unknown template type: {template_type}", cls="text-red-600"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+    
+    # Get next category ID
+    next_category_id = 1
+    try:
+        category_ids = [c.id for c in rubric_categories()]
+        if category_ids:
+            next_category_id = max(category_ids) + 1
+    except Exception as e:
+        print(f"Error getting next category ID: {e}")
+        next_category_id = 1
+    
+    # Add template categories to rubric
+    for template in template_categories:
+        new_category = RubricCategory(
+            id=next_category_id,
+            rubric_id=rubric.id,
+            name=template["name"],
+            description=template["description"],
+            weight=template["weight"]
+        )
+        rubric_categories.insert(new_category)
+        next_category_id += 1
+    
+    # Return success message with page refresh
+    template_names = {
+        "essay": "Essay",
+        "research": "Research Paper",
+        "presentation": "Presentation"
+    }
+    
+    return Div(
+        P(f"{template_names.get(template_type, template_type.title())} template applied successfully!", cls="text-green-600"),
+        Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        cls="bg-green-50 p-4 rounded-lg"
+    )
 
 # --- Course Management ---
 # Helper function to get a course by ID with instructor permission check
@@ -2129,21 +2772,15 @@ def post(session, email: str, course_id: int):
 @rt('/instructor/invite-students')
 @instructor_required
 def get(session, course_id: int = None):
+    """Shows the form to invite students to a course"""
     # Get current user
     user = users[session['auth']]
-    
-    # Get components directly from top-level imports
     
     # Get instructor's courses
     instructor_courses = []
     for course in courses():
         if course.instructor_email == user.email:
             instructor_courses.append(course)
-    
-    # Debug print
-    print(f"Found {len(instructor_courses)} courses for instructor {user.email}")
-    for c in instructor_courses:
-        print(f"  Course: {c.id} - {c.title} ({c.code})")
     
     # Create invitation form
     form_content = Div(
@@ -2152,49 +2789,139 @@ def get(session, course_id: int = None):
             P("Invite students to join your course. Students will receive an email with instructions to create their account.", 
               cls="mb-6 text-gray-600"),
             
-            # Show a message if there are no courses
-            (Form(
-                Div(
-                    Label("Course", for_="course_id", cls="block text-indigo-900 font-medium mb-1"),
-                    Select(
-                        Option(f"Select a course", value="", selected=True if not course_id else False, disabled=True),
-                        *[Option(f"{c.title} ({c.code})", value=str(c.id), selected=(c.id == course_id if course_id else False)) for c in instructor_courses],
-                        id="course_id",
-                        name="course_id",
-                        cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            # Main content with courses check
+            (Div(
+                Form(
+                    # Course selection
+                    Div(
+                        Label("Course", for_="course_id", cls="block text-indigo-900 font-medium mb-1"),
+                        Select(
+                            Option(f"Select a course", value="", selected=True if not course_id else False, disabled=True),
+                            *[Option(f"{c.title} ({c.code})", value=str(c.id), selected=(c.id == course_id if course_id else False)) for c in instructor_courses],
+                            id="course_id",
+                            name="course_id",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        ),
+                        cls="mb-4"
                     ),
-                    cls="mb-4"
-                ),
-                Div(
-                    Label("Student Emails", for_="student_emails", cls="block text-indigo-900 font-medium mb-1"),
-                    P("Enter one email address per line", cls="text-sm text-gray-500 mb-1"),
-                    Textarea(
-                        id="student_emails",
-                        name="student_emails",
-                        rows="5",
-                        placeholder="student1@example.com\nstudent2@example.com",
-                        cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    
+                    # Student emails textarea
+                    Div(
+                        Label("Student Emails", for_="student_emails", cls="block text-indigo-900 font-medium mb-1"),
+                        P("Enter one email address per line", cls="text-sm text-gray-500 mb-1"),
+                        Textarea(
+                            id="student_emails",
+                            name="student_emails",
+                            rows="6",
+                            placeholder="student1@example.com\nstudent2@example.com\nstudent3@example.com",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        ),
+                        cls="mb-4"
                     ),
-                    cls="mb-6"
-                ),
-                Div(
-                    Button("Send Invitations", type="submit", cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
-                    cls="mb-4"
-                ),
-                Div(id="form-result", cls="mt-3 w-full"),
-                hx_post="/instructor/invite-students",
-                hx_target="#form-result",
-                hx_swap="innerHTML",
-                cls="w-full"
-            ) if instructor_courses else 
+                    
+                    # Submit button
+                    Div(
+                        Button("Send Invitations", type="submit", 
+                              cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                        cls="mb-5"
+                    ),
+                    
+                    # Simple file upload section
+                    Div(
+                        Hr(cls="my-4 border-gray-300"),
+                        P("Or upload a file with email addresses:", cls="block text-indigo-900 font-medium mb-2"),
+                        P("File should have one email per line or be a CSV with an email column", cls="text-sm text-gray-500 mb-3"),
+                        
+                        # File input
+                        Div(
+                            Label("Select File", for_="email_file", cls="block text-indigo-900 font-medium mb-1"),
+                            Input(id="email_file", type="file", accept=".csv,.tsv,.txt", 
+                                  cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                            cls="mb-3"
+                        ),
+                        
+                        # Button to load file
+                        Button("Load Emails from File", id="load-emails", type="button",
+                              cls="bg-teal-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm"),
+                        
+                        # Simple JavaScript to read file and add to textarea
+                        Script("""
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const fileInput = document.getElementById('email_file');
+                                const loadButton = document.getElementById('load-emails');
+                                const textarea = document.getElementById('student_emails');
+                                
+                                loadButton.addEventListener('click', function() {
+                                    if (!fileInput.files || fileInput.files.length === 0) {
+                                        alert('Please select a file first');
+                                        return;
+                                    }
+                                    
+                                    const file = fileInput.files[0];
+                                    const reader = new FileReader();
+                                    
+                                    reader.onload = function(e) {
+                                        const content = e.target.result;
+                                        const lines = content.split(/\\r?\\n/);
+                                        const emails = [];
+                                        
+                                        // Very simple email extraction
+                                        const emailPattern = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/g;
+                                        
+                                        // Look for emails in each line
+                                        lines.forEach(line => {
+                                            const matches = line.match(emailPattern);
+                                            if (matches) {
+                                                emails.push(...matches);
+                                            }
+                                        });
+                                        
+                                        if (emails.length === 0) {
+                                            alert('No email addresses found in the file');
+                                            return;
+                                        }
+                                        
+                                        // Add to textarea
+                                        const uniqueEmails = [...new Set(emails)];
+                                        if (textarea.value.trim()) {
+                                            textarea.value += '\\n' + uniqueEmails.join('\\n');
+                                        } else {
+                                            textarea.value = uniqueEmails.join('\\n');
+                                        }
+                                        
+                                        alert(`Added ${uniqueEmails.length} email addresses from the file`);
+                                    };
+                                    
+                                    reader.onerror = function() {
+                                        alert('Error reading file');
+                                    };
+                                    
+                                    reader.readAsText(file);
+                                });
+                            });
+                        """),
+                        cls="mb-6"
+                    ),
+                    
+                    # Result placeholder
+                    Div(id="invite-result", cls="mt-4"),
+                    
+                    # Form submission details 
+                    id="invite-form",
+                    method="post",
+                    action="/instructor/invite-students",
+                    cls="bg-white p-6 rounded-lg border border-gray-200"
+                )
+            )) if instructor_courses else 
+            # No courses message
             Div(
                 P("You don't have any courses yet.", cls="text-red-500 mb-4"),
                 P("Please create a course first before inviting students.", cls="text-gray-600 mb-4"),
                 A("Create a New Course", href="/instructor/courses/new", 
                   cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
-                cls="text-center py-8"
-            )),
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100"
+                cls="text-center py-8 bg-white rounded-lg border border-gray-200"
+            ),
+            cls="w-full"
         ),
         cls=""
     )
@@ -2205,6 +2932,7 @@ def get(session, course_id: int = None):
             H3("Instructor Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
             Div(
                 action_button("Back to Dashboard", color="gray", href="/instructor/dashboard", icon="←"),
+                action_button("Manage Students", color="teal", href="/instructor/manage-students", icon="👨‍👩‍👧‍👦"),
                 action_button("Create Course", color="indigo", href="/instructor/courses/new", icon="+"),
                 cls="space-y-3"
             ),
@@ -2215,7 +2943,10 @@ def get(session, course_id: int = None):
             H3("Tips", cls="font-semibold text-indigo-900 mb-4"),
             P("• Students will receive an email with instructions to join", cls="text-gray-600 mb-2 text-sm"),
             P("• They can set up their account after clicking the email link", cls="text-gray-600 mb-2 text-sm"),
-            P("• Upload a CSV file to invite many students at once", cls="text-gray-600 text-sm"),
+            P("• You can upload emails in different formats:", cls="text-gray-600 mb-1 text-sm"),
+            P("  - Simple text file with one email per line", cls="text-gray-600 mb-1 text-sm ml-2"),
+            P("  - CSV/TSV with headers (we'll find the email column)", cls="text-gray-600 mb-1 text-sm ml-2"),
+            P("  - Any format where we can detect email addresses", cls="text-gray-600 text-sm ml-2"),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
         )
     )
@@ -2230,12 +2961,24 @@ def get(session, course_id: int = None):
 
 @rt('/instructor/invite-students')
 @instructor_required
-def post(session, course_id: int, student_emails: str, refresh_form: bool = False):
-    """
-    Handle the student invitation form submission.
-    Returns a clear confirmation message after invitations are sent.
-    """
-    # Get current user and course
+def post(session, course_id: str = None, student_emails: str = None):
+    """Handle the student invitation form submission"""
+    # Debug info
+    print(f"Invite students - POST received")
+    print(f"Invite students - course_id: {course_id}, student_emails: {student_emails}")
+    
+    # Convert course_id to integer if provided
+    if course_id:
+        try:
+            course_id = int(course_id)
+        except (ValueError, TypeError):
+            return Div(
+                P("Invalid course ID. Please select a valid course.",
+                  cls="text-red-600 font-medium"),
+                cls="p-4 bg-red-50 rounded-lg"
+            )
+    
+    # Get current user 
     user = users[session['auth']]
     
     # Get the course
@@ -2459,158 +3202,76 @@ def post(session, course_id: int, student_emails: str, refresh_form: bool = Fals
         )
     )
     
-    # Redirect to a dedicated confirmation page instead of returning the HTML directly
-    # Store the information in the session for retrieval by the confirmation route
-    session['invitation_results'] = {
-        'sent_emails': sent_emails,
-        'already_enrolled_emails': already_enrolled_emails, 
-        'error_emails': error_emails,
-        'course_id': course_id,
-        'course_title': course.title
-    }
-    
-    # Redirect to the dedicated confirmation page
-    return HttpHeader('HX-Redirect', '/instructor/invite-students/confirmation')
-    
-# --- Invitation Confirmation Route ---
-@rt('/instructor/invite-students/confirmation')
-@instructor_required
-def get(session):
-    """Display invitation results in a dedicated page"""
-    # Get components directly from top-level imports
-    
-    # Get the invitation results from the session
-    results = session.get('invitation_results', {})
-    if not results:
-        # If there are no results, redirect to the invitation page
-        return RedirectResponse('/instructor/invite-students', status_code=303)
-    
-    sent_emails = results.get('sent_emails', [])
-    already_enrolled_emails = results.get('already_enrolled_emails', [])
-    error_emails = results.get('error_emails', [])
-    course_id = results.get('course_id')
-    course_title = results.get('course_title', 'Unknown Course')
-    
-    # Generate summary message
-    message_parts = []
-    if sent_emails:
-        message_parts.append(f"{len(sent_emails)} student{'' if len(sent_emails)==1 else 's'} invited successfully")
-    if already_enrolled_emails:
-        message_parts.append(f"{len(already_enrolled_emails)} already enrolled")
-    if error_emails:
-        message_parts.append(f"{len(error_emails)} invitation{'' if len(error_emails)==1 else 's'} failed")
-    
-    summary = ", ".join(message_parts)
-    
-    # Build complete page with confirmation message
+    # Create a full confirmation page
     confirmation_content = Div(
-        # Success Banner
+        H2("Invitation Results", cls="text-2xl font-bold text-green-700 mb-4"),
         Div(
             Div(
-                Span("✅", cls="text-5xl mr-5"),
+                Span("✅", cls="text-4xl mr-4"),
                 Div(
-                    H2("Student Invitations Sent!", cls="text-2xl font-bold text-green-700 mb-2"),
-                    P(summary, cls="text-xl text-gray-700"),
+                    H3("Invitations Sent Successfully!", cls="text-xl font-bold text-green-700 mb-2"),
+                    P(f"Invited {len(sent_emails)} students to {course.title}", cls="text-gray-700"),
                     cls=""
                 ),
-                cls="flex items-center"
+                cls="flex items-center mb-6"
             ),
-            cls="bg-green-50 p-8 rounded-xl shadow-md border-2 border-green-500 mb-6 text-center"
-        ),
-        
-        # Detailed Results
-        Div(
-            H3("Invitation Results", cls="text-xl font-bold text-indigo-900 mb-4"),
+            
             # Successfully sent
             (Div(
+                H4("Invitations Sent", cls="text-lg font-bold text-green-700 mb-2"),
                 Div(
-                    Span("✅", cls="text-2xl mr-3"),
-                    Div(
-                        H4("Invitations Sent", cls="text-lg font-bold text-green-700"),
-                        P(f"{len(sent_emails)} student{'' if len(sent_emails)==1 else 's'} invited successfully", 
-                          cls="text-gray-700"),
-                        cls=""
-                    ),
-                    cls="flex items-start mb-3"
-                ),
-                Div(
-                    *[P(email, cls="mb-1") for email in sent_emails[:8]],
-                    P(f"... and {len(sent_emails) - 8} more" if len(sent_emails) > 8 else "", 
+                    *[P(email, cls="mb-1") for email in sent_emails[:10]],
+                    P(f"...and {len(sent_emails) - 10} more" if len(sent_emails) > 10 else "",
                       cls="text-gray-500 italic mt-1"),
-                    cls="ml-10 text-sm"
-                ) if sent_emails else "",
-                cls="mb-5"
+                    cls="ml-4 mb-4"
+                )
             ) if sent_emails else ""),
             
             # Already enrolled
             (Div(
+                H4("Already Enrolled", cls="text-lg font-bold text-amber-700 mb-2"),
+                P(f"{len(already_enrolled_emails)} student(s) were already enrolled in this course", cls="mb-2"),
                 Div(
-                    Span("ℹ️", cls="text-2xl mr-3"),
-                    Div(
-                        H4("Already Enrolled", cls="text-lg font-bold text-amber-700"),
-                        P(f"{len(already_enrolled_emails)} student{'' if len(already_enrolled_emails)==1 else 's'} already in this course", 
-                          cls="text-gray-700"),
-                        cls=""
-                    ),
-                    cls="flex items-start mb-3"
-                ),
-                Div(
-                    *[P(email, cls="mb-1") for email in already_enrolled_emails[:8]],
-                    P(f"... and {len(already_enrolled_emails) - 8} more" if len(already_enrolled_emails) > 8 else "", 
+                    *[P(email, cls="mb-1") for email in already_enrolled_emails[:5]],
+                    P(f"...and {len(already_enrolled_emails) - 5} more" if len(already_enrolled_emails) > 5 else "",
                       cls="text-gray-500 italic mt-1"),
-                    cls="ml-10 text-sm"
+                    cls="ml-4 mb-4"
                 ) if already_enrolled_emails and len(already_enrolled_emails) <= 15 else "",
-                cls="mb-5"
+                cls="mb-4"
             ) if already_enrolled_emails else ""),
             
             # Errors
             (Div(
-                Div(
-                    Span("❌", cls="text-2xl mr-3"),
-                    Div(
-                        H4("Failed Invitations", cls="text-lg font-bold text-red-700"),
-                        P(f"{len(error_emails)} invitation{'' if len(error_emails)==1 else 's'} failed to send", 
-                          cls="text-gray-700"),
-                        cls=""
-                    ),
-                    cls="flex items-start mb-3"
-                ),
+                H4("Failed Invitations", cls="text-lg font-bold text-red-700 mb-2"),
+                P(f"{len(error_emails)} invitation(s) failed to send", cls="mb-2"),
                 Div(
                     *[P(error, cls="mb-1") for error in error_emails],
-                    cls="ml-10 text-sm"
+                    cls="ml-4 mb-4"
                 ) if error_emails else "",
-                (P("Note: Check your SMTP settings in the .env file.", 
-                  cls="text-xs text-gray-500 mt-2 ml-12")) if error_emails else "",
-                cls="mb-5"
+                cls="mb-4"
             ) if error_emails else ""),
             
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 mb-6"
-        ),
-        
-        # Action buttons
-        Div(
+            # Action buttons
             Div(
-                A("Return to Dashboard", href="/instructor/dashboard", 
-                  cls="bg-gray-100 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-200 mr-4 font-medium"),
+                A("Back to Dashboard", href="/instructor/dashboard", 
+                  cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 mr-3"),
                 A("Invite More Students", href=f"/instructor/invite-students?course_id={course_id}", 
-                  cls="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 mr-4 font-medium"),
-                A("View All Students", href="/instructor/manage-students", 
-                  cls="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 font-medium"),
-                cls="flex justify-center flex-wrap gap-4"
+                  cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
+                cls="mt-4"
             ),
-            cls="text-center"
+            
+            cls="bg-white p-6 rounded-xl shadow-md border border-gray-100"
         ),
-        
-        cls="max-w-4xl mx-auto px-4"
+        cls="mt-4"
     )
     
-    # Sidebar content
+    # Sidebar content for the confirmation page
     sidebar_content = Div(
         Div(
             H3("Invitation Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
             Div(
                 action_button("Back to Dashboard", color="gray", href="/instructor/dashboard", icon="←"),
-                action_button("Invite More Students", color="indigo", href=f"/instructor/invite-students?course_id={course_id}", icon="+"),
+                action_button("Invite More Students", color="indigo", href=f"/instructor/invite-students?course_id={course_id}", icon="✉️"),
                 action_button("Manage Students", color="teal", href="/instructor/manage-students", icon="👨‍👩‍👧‍👦"),
                 cls="space-y-3"
             ),
@@ -2618,10 +3279,17 @@ def get(session):
         )
     )
     
-    # Return a complete page with the confirmation
+    # Return a complete dashboard layout for the confirmation
     return dashboard_layout(
         "Invitation Results | FeedForward",
         sidebar_content,
         confirmation_content,
         user_role=Role.INSTRUCTOR
     )
+    
+# --- CSV Import Routes ---
+# This route has been removed since we're now using a simpler approach without special templates
+
+# This route has been replaced by client-side JavaScript processing
+
+# Confirmation is now directly handled in the POST route
