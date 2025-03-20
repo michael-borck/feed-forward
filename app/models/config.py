@@ -14,6 +14,18 @@ if system_config not in db.t:
     ), pk='key')
 SystemConfig = system_config.dataclass()
 
+# Define domain whitelist table if it doesn't exist
+domain_whitelist = db.t.domain_whitelist
+if domain_whitelist not in db.t:
+    domain_whitelist.create(dict(
+        id=int,
+        domain=str,
+        auto_approve_instructor=bool,
+        created_at=str,
+        updated_at=str
+    ), pk='id')
+DomainWhitelist = domain_whitelist.dataclass()
+
 # Define aggregation methods table if it doesn't exist
 aggregation_methods = db.t.aggregation_methods
 if aggregation_methods not in db.t:

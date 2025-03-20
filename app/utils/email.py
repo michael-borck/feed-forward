@@ -238,8 +238,18 @@ The FeedForward Team
 """
     
     # Log debugging information
+    print(f"INVITING: Email to {student_email} for course '{course_name}' from {instructor_name}")
+    print(f"INVITATION LINK: {invitation_link}")
     logger.info(f"Sending invitation email to {student_email}")
     logger.debug(f"Invitation link: {invitation_link}")
+    
+    # For development, we'll simulate email sending and return success
+    # In a development environment, we want to bypass actual email sending
+    # but still provide the links for testing
+    if APP_DOMAIN.startswith(("http://localhost", "http://127.0.0.1", "https://localhost")):
+        print(f"DEV MODE: Simulating email to {student_email}")
+        print(f"DEV MODE: Click this link to join: {invitation_link}")
+        return True, "Email simulated in development mode"
     
     # We always use SMTP
     return send_with_smtp(student_email, subject, content)

@@ -468,7 +468,7 @@ def post(session, email: str):
         instructor = users[email]
         
         # Check if this is actually an instructor
-        if instructor.role \!= Role.INSTRUCTOR:
+        if instructor.role != Role.INSTRUCTOR:
             return Div(
                 P("This user is not an instructor.", cls="text-red-600"),
                 cls="bg-red-50 p-4 rounded-lg"

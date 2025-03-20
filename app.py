@@ -74,14 +74,14 @@ def get():
                             A(
                                 "Sign up", 
                                 href="/register", 
-                                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg mr-4"
+                                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg mr-4 cursor-pointer relative z-20"
                             ),
                             A(
                                 "Learn More", 
                                 href="#features", 
-                                cls="bg-white text-indigo-600 border border-indigo-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-50 transition-colors"
+                                cls="bg-white text-indigo-600 border border-indigo-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-50 transition-colors cursor-pointer relative z-20"
                             ),
-                            cls="flex items-center justify-center"
+                            cls="flex items-center justify-center relative z-20"
                         ),
                         cls="max-w-2xl mx-auto text-center"
                     ),
@@ -90,9 +90,9 @@ def get():
                         Div(cls="absolute top-20 right-20 w-20 h-20 rounded-full bg-indigo-200 opacity-50"),
                         Div(cls="absolute bottom-10 left-20 w-32 h-32 rounded-full bg-teal-200 opacity-50"),
                         Div(cls="absolute top-40 left-40 w-16 h-16 rounded-full bg-indigo-300 opacity-30"),
-                        cls="absolute inset-0 overflow-hidden"
+                        cls="absolute inset-0 overflow-hidden pointer-events-none"
                     ),
-                    cls="bg-gradient-to-br from-gray-50 to-indigo-50 p-16 rounded-xl shadow-lg relative z-10"
+                    cls="bg-gradient-to-br from-gray-50 to-indigo-50 p-16 rounded-xl shadow-lg relative"
                 ),
                 cls="container mx-auto px-4 py-20 flex justify-center"
             ),
@@ -221,6 +221,30 @@ def get():
             ),
     )
     
+    # Add smooth scrolling JavaScript
+    scroll_script = Script("""
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find anchor links that point to IDs on this page
+        const anchorLinks = document.querySelectorAll('a[href^="#"]');
+        
+        anchorLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    });
+    """)
+    
     # Return the complete page with header and footer
     return Titled(
         "FeedForward: Elevate Your Learning",
@@ -231,6 +255,7 @@ def get():
                 cls="flex-grow"
             ),
             page_footer(),
+            scroll_script,
             cls="min-h-screen flex flex-col"
         )
     )
@@ -239,6 +264,9 @@ def get():
 if __name__ == "__main__":
     # Create data directory if it doesn't exist
     os.makedirs("data", exist_ok=True)
+    
+    # Create temporary upload directory if it doesn't exist
+    os.makedirs("data/uploads", exist_ok=True)
     
     # Start the server
     serve()

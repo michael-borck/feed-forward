@@ -56,7 +56,7 @@ def is_strong_password(password: str) -> bool:
         return False
     return True
 
-def is_institutional_email(email: str) -> tuple[bool, str]:
+def is_institutional_email(email: str) -> tuple[bool, str, bool]:
     """
     Check if an email is from an approved institutional domain
     
@@ -64,23 +64,40 @@ def is_institutional_email(email: str) -> tuple[bool, str]:
         email: The email address to check
         
     Returns:
-        tuple: (is_valid, role)
+        tuple: (is_valid, role, auto_approve)
             - is_valid: True if the email is from an approved domain
             - role: The role based on the domain (student, instructor)
+            - auto_approve: True if instructors with this domain are auto-approved
     """
+    from app.models.config import domain_whitelist
+    
     # Get domain from email
     domain = email.split('@')[-1].lower()
     
-    # Define allowed domains and their roles
-    instructor_domains = ['curtin.edu.au']
+    # Check for student domains (these are hardcoded for now)
     student_domains = ['student.curtin.edu.au', 'postgraduate.curtin.edu.au']
+    if domain in student_domains:
+        return True, "student", False
     
-    if domain in instructor_domains:
-        return True, "instructor"
-    elif domain in student_domains:
-        return True, "student"
+    # Check domain whitelist for instructor domains
+    whitelisted_domains = list(domain_whitelist())
+    
+    # If no domains in whitelist yet, use fallback domains
+    if not whitelisted_domains:
+        instructor_domains = ['curtin.edu.au', 'ecu.edu.au']
+        if domain in instructor_domains:
+            return True, "instructor", True
     else:
-        return False, ""
+        # Check against database domains
+        for whitelisted in whitelisted_domains:
+            if domain == whitelisted.domain:
+                return True, "instructor", whitelisted.auto_approve_instructor
+            # Check for subdomains
+            if domain.endswith('.' + whitelisted.domain):
+                return True, "instructor", whitelisted.auto_approve_instructor
+    
+    # If not in any list, allow as instructor but requires approval
+    return True, "instructor", False
 
 def is_reset_token_valid(token_expiry: str) -> bool:
     """

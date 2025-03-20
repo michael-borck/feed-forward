@@ -7,8 +7,8 @@ from datetime import datetime
 
 from app.models.user import User, Role, users
 from app.models.config import (
-    SystemConfig, AggregationMethod, FeedbackStyle, MarkDisplayOption, 
-    system_config, aggregation_methods, feedback_styles, mark_display_options
+    SystemConfig, AggregationMethod, FeedbackStyle, MarkDisplayOption, DomainWhitelist,
+    system_config, aggregation_methods, feedback_styles, mark_display_options, domain_whitelist
 )
 from app.models.feedback import AIModel, ai_models
 from app.utils.auth import get_password_hash
@@ -48,9 +48,7 @@ def init_db():
     config_items = [
         ("default_max_drafts", "3", "Default maximum number of drafts allowed per assignment"),
         ("default_num_runs", "3", "Default number of AI model runs per submission"),
-        ("instructor_approval_required", "true", "Whether instructors need approval from admin"),
-        ("student_domain", "student.curtin.edu.au,postgraduate.curtin.edu.au", "Allowed email domains for students"),
-        ("instructor_domain", "curtin.edu.au", "Allowed email domains for instructors")
+        ("instructor_approval_required", "true", "Whether instructors need approval from admin")
     ]
     
     for key, value, description in config_items:
@@ -208,6 +206,37 @@ def init_db():
             print(f"Created mark display option: {name}")
         except Exception as e:
             print(f"Error creating mark display option {name}: {str(e)}")
+    
+    # Initialize domain whitelist
+    domains = [
+        (1, "curtin.edu.au", True),
+        (2, "ecu.edu.au", True),
+        (3, "uwa.edu.au", True),
+        (4, "murdoch.edu.au", True),
+        (5, "notre-dame.edu.au", False)
+    ]
+    
+    now = datetime.now().isoformat()
+    for id, domain, auto_approve in domains:
+        try:
+            # Check if domain exists
+            existing_domains = [d for d in domain_whitelist() if d.domain == domain]
+            if existing_domains:
+                print(f"Domain {domain} already exists in whitelist")
+                continue
+                
+            # Create domain entry
+            domain_entry = DomainWhitelist(
+                id=id,
+                domain=domain,
+                auto_approve_instructor=auto_approve,
+                created_at=now,
+                updated_at=now
+            )
+            domain_whitelist.insert(domain_entry)
+            print(f"Added domain to whitelist: {domain} (auto-approve: {auto_approve})")
+        except Exception as e:
+            print(f"Error adding domain {domain} to whitelist: {str(e)}")
     
     print("Database initialization complete!")
 
