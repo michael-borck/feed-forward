@@ -61,13 +61,46 @@ if mark_display_options not in db.t:
     ), pk='id')
 MarkDisplayOption = mark_display_options.dataclass()
 
+# Define AI models table if it doesn't exist
+ai_models = db.t.ai_models
+if ai_models not in db.t:
+    ai_models.create(dict(
+        id=int,
+        name=str,
+        provider=str,  # OpenAI, Anthropic, Ollama, HuggingFace, etc.
+        model_id=str,   # gpt-4, claude-3, llama-3, etc.
+        model_version=str,
+        description=str,
+        api_config=str,  # JSON string with API configuration
+        owner_type=str,  # 'system' or 'instructor'
+        owner_id=int,    # ID of the instructor if owner_type is 'instructor'
+        capabilities=str,  # JSON array of capabilities: ['text', 'vision', 'code', 'audio']
+        max_context=int,   # Maximum context length
+        active=bool,
+        created_at=str,
+        updated_at=str
+    ), pk='id')
+AIModel = ai_models.dataclass()
+
+# Define model capabilities table for easier querying
+model_capabilities = db.t.model_capabilities
+if model_capabilities not in db.t:
+    model_capabilities.create(dict(
+        id=int,
+        model_id=int,
+        capability=str,  # 'text', 'vision', 'code', 'audio'
+        is_primary=bool  # Is this the primary use case for this model
+    ), pk='id')
+ModelCapability = model_capabilities.dataclass()
+
 # Define assignment settings table if it doesn't exist
 assignment_settings = db.t.assignment_settings
 if assignment_settings not in db.t:
     assignment_settings.create(dict(
         id=int,
         assignment_id=int,
-        ai_model_id=int,
+        primary_ai_model_id=int,  # Model used for aggregation
+        feedback_level=str,       # 'overall', 'criterion', 'both'
         num_runs=int,
         aggregation_method_id=int,
         feedback_style_id=int,
@@ -75,3 +108,14 @@ if assignment_settings not in db.t:
         mark_display_option_id=int
     ), pk='id')
 AssignmentSettings = assignment_settings.dataclass()
+
+# Define assignment model runs table if it doesn't exist
+assignment_model_runs = db.t.assignment_model_runs
+if assignment_model_runs not in db.t:
+    assignment_model_runs.create(dict(
+        id=int,
+        assignment_setting_id=int,
+        ai_model_id=int,
+        num_runs=int
+    ), pk='id')
+AssignmentModelRun = assignment_model_runs.dataclass()

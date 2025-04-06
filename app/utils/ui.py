@@ -6,6 +6,7 @@ that are shared across multiple pages in the application.
 """
 from fasthtml.common import *
 from app.models.user import Role
+import starlette.responses
 
 def page_header(show_auth_buttons=True):
     """
@@ -32,7 +33,7 @@ def page_header(show_auth_buttons=True):
             # Left side - Logo and name
             A(
                 brand_logo,
-                href="/",
+                href="/landing",
                 cls="flex items-center hover:opacity-90 transition-opacity"
             ),
             # Right side - optional buttons
@@ -133,6 +134,7 @@ def dashboard_header(user_role, current_path=None):
             ("Dashboard", "/student/dashboard", False),
             ("My Submissions", "/student/assignments", False),
             ("Feedback History", "/student/feedback", False),
+            ("Profile", "/profile", False),
             ("Help", "#", False)
         ]
     elif user_role == Role.INSTRUCTOR:
@@ -141,7 +143,8 @@ def dashboard_header(user_role, current_path=None):
             ("Dashboard", "/instructor/dashboard", False),
             ("Courses", "/instructor/courses", False),
             ("Students", "/instructor/manage-students", False),
-            ("Invite", "/instructor/invite-students", False)
+            ("Invite", "/instructor/invite-students", False),
+            ("Profile", "/profile", False)
         ]
     elif user_role == Role.ADMIN:
         portal_name = "Admin Portal"
@@ -149,7 +152,8 @@ def dashboard_header(user_role, current_path=None):
             ("Users", "#", False),
             ("Courses", "#", False),
             ("Settings", "#", False),
-            ("System", "#", False)
+            ("System", "#", False),
+            ("Profile", "/profile", False)
         ]
     
     # Build navigation links with active state based on current path
@@ -176,14 +180,38 @@ def dashboard_header(user_role, current_path=None):
         nav_items.append(A(label, href=href, cls=cls))
     
     # User profile/avatar with logout button
-    # Get first letter of email as avatar
-    user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
+    # Try to get user email initial rather than role initial
+    user_initial = "U"  # Default fallback
+    
+    # For dashboard, we usually have a session, so try to get the actual user
+    try:
+        from app.models.user import users
+        import inspect
+        
+        # Check if we're in a function with a session parameter to get the user
+        frame = inspect.currentframe()
+        args, _, _, values = inspect.getargvalues(frame)
+        
+        if 'session' in args and values['session'] and 'auth' in values['session']:
+            user_email = users[values['session']['auth']].email
+            user_initial = user_email[0].upper() if user_email else "U"
+        else:
+            # Fallback to role first letter if we can't get email
+            user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
+    except:
+        # If anything goes wrong, fallback to role first letter
+        user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
     
     user_menu = Div(
         Div(
-            Div(
-                user_initial,  # First letter as fallback
-                cls="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-semibold"
+            A(
+                Div(
+                    user_initial,  # First letter as fallback
+                    cls="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-semibold"
+                ),
+                href="/profile",
+                title="Profile",
+                cls="hover:opacity-80 transition-opacity"
             ),
             Div(
                 Button(
@@ -203,7 +231,7 @@ def dashboard_header(user_role, current_path=None):
             Div(
                 A(
                     brand_logo,
-                    href="/",
+                    href="/landing",
                     cls="flex items-center hover:opacity-90 transition-opacity mr-4"
                 ),
                 Span(portal_name, cls="text-gray-300 text-sm md:text-base tracking-wide") if portal_name else "",
@@ -524,4 +552,123 @@ def sidebar_navigation(items, active_index=0):
     return Div(
         *nav_items,
         cls="bg-white p-4 rounded-xl shadow-md border border-gray-100"
+    )
+
+def dynamic_header(session=None):
+    """
+    Return a dynamic header based on user authentication status
+    
+    Args:
+        session: Current session object to check auth status
+    """
+    # Branded logo/wordmark for header
+    brand_logo = Div(
+        Span("Feed", cls="text-indigo-300 font-bold"),
+        Span("Forward", cls="text-teal-300 font-bold"),
+        cls="flex items-center text-2xl"
+    )
+    
+    # Right nav content based on auth status
+    nav_buttons = ""
+    
+    # Check if user is authenticated
+    if session and "auth" in session:
+        try:
+            from app.models.user import users, Role
+            user = users[session['auth']]
+            
+            # Determine dashboard link based on role
+            dashboard_link = "/"
+            if user.role == Role.ADMIN:
+                dashboard_link = "/admin/dashboard"
+            elif user.role == Role.INSTRUCTOR:
+                dashboard_link = "/instructor/dashboard"
+            elif user.role == Role.STUDENT:
+                dashboard_link = "/student/dashboard"
+            
+            # User avatar with first letter
+            user_initial = user.email[0].upper() if user.email else "U"
+            
+            # Create authenticated nav
+            nav_buttons = Nav(
+                A("Dashboard", href=dashboard_link, cls="text-white px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors mr-2"),
+                A(
+                    Div(
+                        Div(
+                            user_initial,  
+                            cls="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-semibold"
+                        ),
+                        cls="mx-2"
+                    ),
+                    href="/profile",
+                    title="Profile",
+                    cls="hover:opacity-80 transition-opacity"
+                ),
+                A("Sign Out", href="/logout", cls="text-white px-4 py-2 hover:text-teal-200 transition-colors"),
+                cls="flex items-center"
+            )
+        except Exception:
+            # Fallback to default buttons if there's an error
+            nav_buttons = Nav(
+                A("Sign in", href="/login", cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors"),
+                A("Sign up", href="/register", cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all"),
+                cls="flex items-center"
+            )
+    else:
+        # Default buttons for unauthenticated users
+        nav_buttons = Nav(
+            A("Sign in", href="/login", cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors"),
+            A("Sign up", href="/register", cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all"),
+            cls="flex items-center"
+        )
+    
+    return Header(
+        Div(
+            # Left side - Logo and name
+            A(
+                brand_logo,
+                href="/landing",  # Always go to landing page, not dashboard
+                cls="flex items-center hover:opacity-90 transition-opacity"
+            ),
+            # Right side - conditional buttons
+            nav_buttons,
+            cls="container mx-auto flex justify-between items-center px-4"
+        ),
+        cls="bg-indigo-900 text-white py-4 shadow-md"
+    )
+
+def error_card(title, message, error_code="", error_type="Error"):
+    """
+    Create a branded error card (to be used in error pages)
+    
+    Args:
+        title: Error title 
+        message: Error message/description
+        error_code: Optional error code (e.g., 404, 403)
+        error_type: Optional error type (e.g., "Not Found", "Forbidden")
+    """
+    return Div(
+        # Error code and type
+        Div(
+            Span(error_code, cls="text-6xl font-bold text-indigo-300"),
+            Span(error_type, cls="text-xl text-gray-500 ml-4"),
+            cls="flex items-center justify-center mb-6"
+        ),
+        # Error title
+        H1(title, cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+        # Error message
+        P(message, cls="text-gray-600 mb-8 text-center"),
+        # Action buttons
+        Div(
+            A("Dashboard", 
+              href="/", # This will redirect to proper dashboard based on role in landing page
+              cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mr-4"
+            ),
+            A("Sign Out", 
+              href="/logout", 
+              cls="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-600 hover:bg-indigo-50 transition-colors"
+            ),
+            cls="flex justify-center"
+        ),
+        cls="p-10 bg-white rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto"
     )

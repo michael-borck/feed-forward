@@ -12,6 +12,8 @@
 - [x] AI Model Ownership - Configuring and running models (ADR-001)
 - [x] Educational Workflow Architecture - Component relationships and lifecycles (ADR-007)
 - [x] Student Enrollment Lifecycle - Invitation and enrollment process (ADR-006)
+- [x] API Key Management - Secure storage and access of provider credentials (009)
+- [x] Model Instance Configuration - Flexible model selection and parameter tuning (010)
 
 ## Core Infrastructure
 - [x] Initialize git repository
@@ -19,6 +21,7 @@
 - [x] Create README.md and documentation
 - [x] Implement core database models
 - [x] Setup proper app initialization
+- [x] Implement encryption for sensitive data
 
 ## Authentication System
 - [x] Refine existing authentication
@@ -28,9 +31,10 @@
 - [x] Create student invitation system
 - [x] Add admin interface for student enrollment management
 - [x] Add instructor removal functionality for admins
+- [ ] Add terms of service/privacy policy acceptance during account verification
 
 ## Database Schema
-- [ ] Define model for AI models configuration
+- [x] Define model for AI models configuration
 - [ ] Define model for runs
 - [x] Define model for assignments
 - [ ] Define model for drafts
@@ -56,21 +60,37 @@
 - [x] Dashboard with pending assignments
 - [x] Course view with assignment listing
 - [x] Draft submission interface
+- [ ] Draft submission file upload support (docx, pdf, txt)
 - [x] Feedback viewing interface
 - [ ] Progress tracking across drafts
 - [ ] Draft comparison view
 
 ## AI Integration
+- [x] Admin interface for LLM provider configuration
+- [ ] Instructor interface for LLM selection and configuration
 - [ ] Implement API client for LLM services
+- [ ] LiteLLM integration for multiple providers support
 - [ ] Create prompt template system
 - [ ] Build multi-run feedback aggregation
 - [ ] Implement feedback extraction and normalization
 
 ## UI/UX
-- [ ] Implement base templates
-- [ ] Create responsive design with Tailwind
-- [ ] Implement HTMX interactions
+- [x] Implement base templates
+- [x] Create responsive design with Tailwind
+- [x] Implement HTMX interactions
 - [ ] Design feedback display components
+- [x] Branded error pages (404, 403) with user-friendly messages
+- [x] Dynamic header with role-based navigation
+- [ ] User profile page with account settings
+- [ ] Form validation improvements with better error messages
+- [ ] Rich text editor for assignment submissions
+- [ ] Notifications system for important events
+- [ ] Dashboard analytics and visualizations
+- [ ] Accessibility improvements (WCAG compliance) 
+- [ ] Mobile responsiveness optimizations
+- [ ] File upload with progress indicators and previews
+- [ ] Search functionality across assignments and feedback
+- [ ] Theme switching with dark mode option
 
 ## Testing
 - [ ] Unit tests for core components

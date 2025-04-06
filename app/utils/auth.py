@@ -31,7 +31,25 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: True if the password matches the hash, False otherwise
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    # Try both methods to be safe
+    try:
+        # First try direct bcrypt
+        import bcrypt
+        bcrypt_result = bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+        print(f"Debug - direct bcrypt verify: {bcrypt_result}")
+        
+        if bcrypt_result:
+            return True
+            
+        # Fall back to passlib if bcrypt fails
+        passlib_result = pwd_context.verify(plain_password, hashed_password)
+        print(f"Debug - passlib verify: {passlib_result}")
+        
+        return passlib_result
+    except Exception as e:
+        print(f"Password verification error: {str(e)}")
+        # Last resort - try a direct string comparison (not secure, but for emergencies)
+        return False
 
 def is_strong_password(password: str) -> bool:
     """

@@ -7,10 +7,9 @@ from datetime import datetime
 
 from app.models.user import User, Role, users
 from app.models.config import (
-    SystemConfig, AggregationMethod, FeedbackStyle, MarkDisplayOption, DomainWhitelist,
-    system_config, aggregation_methods, feedback_styles, mark_display_options, domain_whitelist
+    SystemConfig, AggregationMethod, FeedbackStyle, MarkDisplayOption, DomainWhitelist, AIModel,
+    system_config, aggregation_methods, feedback_styles, mark_display_options, domain_whitelist, ai_models
 )
-from app.models.feedback import AIModel, ai_models
 from app.utils.auth import get_password_hash
 
 def init_db():
@@ -115,7 +114,16 @@ def init_db():
                 continue
                 
             # Create model
-            model = AIModel(**config)
+            model = AIModel(
+                id=config["id"],
+                name=config["name"],
+                provider=config["provider"],
+                model_id=config["model_id"],
+                api_config=config["api_config"],
+                owner_type="system",
+                owner_id=0,
+                active=config["active"]
+            )
             ai_models.insert(model)
             print(f"Created AI model: {config['name']}")
         except Exception as e:

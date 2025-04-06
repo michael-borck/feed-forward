@@ -32,7 +32,7 @@ APP_DOMAIN = os.environ.get("APP_DOMAIN", "http://localhost:5001")
 from app import basic_auth, role_required, instructor_required, student_required, admin_required
 
 # Import UI components
-from app.utils.ui import page_header, page_footer, page_container
+from app.utils.ui import page_header, page_footer, page_container, dynamic_header
 
 # --- Brand Colors ---
 # Primary: Navy/indigo
@@ -40,15 +40,34 @@ from app.utils.ui import page_header, page_footer, page_container
 # Accent: Teal
 # Gray shades for neutrals
 
-# --- Landing Page ---
+# --- Root Route with Smart Redirection ---
 @rt('/')
-def get():
-    """Root route redirects to landing page"""
+def get(session=None):
+    """Smart root route that redirects based on authentication status"""
+    # Check for authenticated user
+    if session and "auth" in session:
+        try:
+            # Import here to avoid circular imports
+            from app.models.user import users, Role
+            user = users[session['auth']]
+            
+            # Redirect to appropriate dashboard based on role
+            if user.role == Role.ADMIN:
+                return RedirectResponse('/admin/dashboard', status_code=303)
+            elif user.role == Role.INSTRUCTOR:
+                return RedirectResponse('/instructor/dashboard', status_code=303)
+            elif user.role == Role.STUDENT:
+                return RedirectResponse('/student/dashboard', status_code=303)
+        except Exception:
+            # If there's an error, fall back to landing page
+            pass
+    
+    # Default to landing page for unauthenticated users
     return RedirectResponse('/landing', status_code=303)
 
 @rt('/landing')
-def get():
-    """Landing page for FeedForward"""
+def get(session=None):
+    """Landing page for FeedForward with dynamic header based on auth status"""
     # Create the main content for the landing page
     landing_content = Div(
             
@@ -245,11 +264,11 @@ def get():
     });
     """)
     
-    # Return the complete page with header and footer
+    # Return the complete page with dynamic header based on auth status
     return Titled(
         "FeedForward: Elevate Your Learning",
         Div(
-            page_header(show_auth_buttons=True),
+            dynamic_header(session), # Dynamic header based on auth status
             Div(
                 landing_content,
                 cls="flex-grow"
@@ -262,7 +281,7 @@ def get():
 
 # --- Legal Pages ---
 @rt('/privacy')
-def get():
+def get(session=None):
     """Privacy Policy page"""
     # Create a simplified privacy policy page instead of parsing markdown
     privacy_content = Div(
@@ -337,11 +356,11 @@ def get():
         cls="container mx-auto px-4 py-8 bg-gray-50"
     )
     
-    # Return the complete page with header and footer
+    # Return the complete page with dynamic header based on auth status
     return Titled(
         "Privacy Policy | FeedForward",
         Div(
-            page_header(show_auth_buttons=True),
+            dynamic_header(session),
             privacy_page_content,
             page_footer(),
             cls="min-h-screen flex flex-col"
@@ -349,7 +368,7 @@ def get():
     )
 
 @rt('/terms')
-def get():
+def get(session=None):
     """Terms of Service page"""
     terms_content = Div(
         H1("FeedForward Terms of Service", cls="text-3xl font-bold text-indigo-900 mb-6"),
@@ -446,11 +465,11 @@ def get():
         cls="container mx-auto px-4 py-8 bg-gray-50"
     )
     
-    # Return the complete page with header and footer
+    # Return the complete page with dynamic header based on auth status
     return Titled(
         "Terms of Service | FeedForward",
         Div(
-            page_header(show_auth_buttons=True),
+            dynamic_header(session),
             terms_page_content,
             page_footer(),
             cls="min-h-screen flex flex-col"
@@ -458,7 +477,7 @@ def get():
     )
 
 @rt('/contact')
-def get():
+def get(session=None):
     """Contact page with developer information"""
     contact_content = Div(
         H1("Contact Us", cls="text-3xl font-bold text-indigo-900 mb-6"),
@@ -496,14 +515,716 @@ def get():
         cls="container mx-auto px-4 py-8 bg-gray-50"
     )
     
-    # Return the complete page with header and footer
+    # Return the complete page with dynamic header based on auth status
     return Titled(
         "Contact Us | FeedForward",
         Div(
-            page_header(show_auth_buttons=True),
+            dynamic_header(session),
             contact_page_content,
             page_footer(),
             cls="min-h-screen flex flex-col"
+        )
+    )
+
+# --- Error Pages ---
+@rt('/error/404')
+def get(session=None, message: str = None):
+    """Custom 404 error page"""
+    error_message = message or "The page you are looking for doesn't exist or has been moved."
+    
+    # Create error card content
+    error_content = Div(
+        Div(
+            Div(
+                Div(
+                    # Error code and type
+                    Div(
+                        Span("404", cls="text-6xl font-bold text-indigo-300"),
+                        Span("Not Found", cls="text-xl text-gray-500 ml-4"),
+                        cls="flex items-center justify-center mb-6"
+                    ),
+                    # Error title
+                    H1("Page Not Found", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+                    # Error message
+                    P(error_message, cls="text-gray-600 mb-8 text-center"),
+                    # Action buttons
+                    Div(
+                        A("Dashboard", 
+                          href="/", # This will redirect to proper dashboard based on role in landing page
+                          cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mr-4"
+                        ),
+                        A("Sign Out", 
+                          href="/logout", 
+                          cls="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-600 hover:bg-indigo-50 transition-colors"
+                        ),
+                        cls="flex justify-center"
+                    ),
+                    cls="p-10 bg-white rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto"
+                ),
+                cls="container mx-auto px-4 py-16"
+            ),
+            cls="flex-grow bg-gradient-to-b from-gray-50 to-indigo-50 flex items-center"
+        )
+    )
+    
+    return Titled(
+        "404 Page Not Found | FeedForward",
+        Div(
+            dynamic_header(session),
+            error_content,
+            page_footer(),
+            cls="min-h-screen flex flex-col"
+        )
+    )
+
+@rt('/error/403')
+def get(session=None, message: str = None):
+    """Custom 403 error page"""
+    error_message = message or "You don't have permission to access this page."
+    
+    # Create error card content
+    error_content = Div(
+        Div(
+            Div(
+                Div(
+                    # Error code and type
+                    Div(
+                        Span("403", cls="text-6xl font-bold text-indigo-300"),
+                        Span("Forbidden", cls="text-xl text-gray-500 ml-4"),
+                        cls="flex items-center justify-center mb-6"
+                    ),
+                    # Error title
+                    H1("Access Denied", cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+                    # Error message
+                    P(error_message, cls="text-gray-600 mb-8 text-center"),
+                    # Action buttons
+                    Div(
+                        A("Dashboard", 
+                          href="/", # This will redirect to proper dashboard based on role in landing page
+                          cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mr-4"
+                        ),
+                        A("Sign Out", 
+                          href="/logout", 
+                          cls="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-600 hover:bg-indigo-50 transition-colors"
+                        ),
+                        cls="flex justify-center"
+                    ),
+                    cls="p-10 bg-white rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto"
+                ),
+                cls="container mx-auto px-4 py-16"
+            ),
+            cls="flex-grow bg-gradient-to-b from-gray-50 to-indigo-50 flex items-center"
+        )
+    )
+    
+    return Titled(
+        "403 Access Denied | FeedForward",
+        Div(
+            dynamic_header(session),
+            error_content,
+            page_footer(),
+            cls="min-h-screen flex flex-col"
+        )
+    )
+
+# --- Catchall for 404 errors ---
+@rt('/{path:path}')
+def get(path: str, session=None):
+    """Catch-all route for 404 errors"""
+    # Check if the path exists in the routing table
+    # If not, redirect to the 404 error page
+    return RedirectResponse('/error/404', status_code=303)
+
+# --- User Profile ---
+@rt('/profile')
+@basic_auth
+def get(session: dict):
+    """User profile page for viewing and editing account settings"""
+    from app.models.user import users
+    
+    # Get current user
+    user = users[session['auth']]
+    
+    # Create profile content with user information
+    profile_content = Div(
+        Div(
+            # Profile header with user avatar
+            Div(
+                Div(
+                    # User avatar with initial
+                    Div(
+                        user.email[0].upper() if user.email else "U",
+                        cls="w-24 h-24 rounded-full bg-indigo-600 text-white flex items-center justify-center text-4xl font-bold"
+                    ),
+                    # User name and role
+                    Div(
+                        H1(user.name or user.email, cls="text-2xl font-bold text-indigo-900 mb-1"),
+                        Div(
+                            Div(
+                                user.role.capitalize(),
+                                cls="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
+                            ),
+                            cls="flex items-center"
+                        ),
+                        cls="mt-4"
+                    ),
+                    cls="flex flex-col items-center text-center mb-8"
+                ),
+                cls="mb-8"
+            ),
+            
+            # Profile forms
+            Div(
+                # Personal information form
+                Div(
+                    H2("Personal Information", cls="text-xl font-bold text-indigo-900 mb-4 pb-2 border-b border-gray-200"),
+                    
+                    Form(
+                        # Hidden input for form identification
+                        Input(type="hidden", name="form_type", value="personal_info"),
+                        
+                        # Display email (readonly)
+                        Div(
+                            Label("Email Address", for_="email", cls="block text-sm font-medium text-gray-700 mb-1"),
+                            Input(
+                                type="email", 
+                                id="email", 
+                                name="email", 
+                                value=user.email, 
+                                readonly=True, 
+                                cls="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 focus:outline-none"
+                            ),
+                            P("Email addresses cannot be changed.", cls="text-sm text-gray-500 mt-1"),
+                            cls="mb-4"
+                        ),
+                        
+                        # Edit name
+                        Div(
+                            Label("Full Name", for_="name", cls="block text-sm font-medium text-gray-700 mb-1"),
+                            Input(
+                                type="text", 
+                                id="name", 
+                                name="name", 
+                                value=user.name or "", 
+                                placeholder="Enter your full name", 
+                                cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            ),
+                            cls="mb-4"
+                        ),
+                        
+                        # Edit department
+                        Div(
+                            Label("Department", for_="department", cls="block text-sm font-medium text-gray-700 mb-1"),
+                            Input(
+                                type="text", 
+                                id="department", 
+                                name="department", 
+                                value=user.department or "", 
+                                placeholder="Enter your department", 
+                                cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            ),
+                            cls="mb-4"
+                        ),
+                        
+                        # Submit button
+                        Div(
+                            Button(
+                                "Update Personal Information", 
+                                type="submit", 
+                                cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                            ),
+                            cls="mt-6"
+                        ),
+                        
+                        hx_post="/api/update-profile",
+                        hx_swap="outerHTML",
+                        cls="bg-white p-6 rounded-xl shadow-md mb-8"
+                    ),
+                    
+                    # Password change form
+                    Div(
+                        H2("Change Password", cls="text-xl font-bold text-indigo-900 mb-4 pb-2 border-b border-gray-200"),
+                        
+                        Form(
+                            # Hidden input for form identification
+                            Input(type="hidden", name="form_type", value="change_password"),
+                            
+                            # Current password
+                            Div(
+                                Label("Current Password", for_="current_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                                Input(
+                                    type="password", 
+                                    id="current_password", 
+                                    name="current_password", 
+                                    placeholder="Enter your current password", 
+                                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                ),
+                                cls="mb-4"
+                            ),
+                            
+                            # New password
+                            Div(
+                                Label("New Password", for_="new_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                                Input(
+                                    type="password", 
+                                    id="new_password", 
+                                    name="new_password", 
+                                    placeholder="Enter your new password", 
+                                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                ),
+                                P("Password must be at least 8 characters and include a mix of letters, numbers, and symbols.", 
+                                  cls="text-sm text-gray-500 mt-1"),
+                                cls="mb-4"
+                            ),
+                            
+                            # Confirm new password
+                            Div(
+                                Label("Confirm New Password", for_="confirm_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                                Input(
+                                    type="password", 
+                                    id="confirm_password", 
+                                    name="confirm_password", 
+                                    placeholder="Confirm your new password", 
+                                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                ),
+                                cls="mb-4"
+                            ),
+                            
+                            # Submit button
+                            Div(
+                                Button(
+                                    "Change Password", 
+                                    type="submit", 
+                                    cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                                ),
+                                cls="mt-6"
+                            ),
+                            
+                            hx_post="/api/change-password",
+                            hx_swap="outerHTML",
+                            cls="bg-white p-6 rounded-xl shadow-md"
+                        ),
+                    ),
+                    
+                    # Account preferences form for future expansion
+                    Div(
+                        H2("Account Preferences", cls="text-xl font-bold text-indigo-900 mb-4 pb-2 border-b border-gray-200"),
+                        
+                        Div(
+                            P("Account preferences coming soon.", cls="text-gray-600"),
+                            cls="p-6"
+                        ),
+                        
+                        cls="bg-white rounded-xl shadow-md mt-8"
+                    ),
+                    
+                    cls="w-full max-w-2xl mx-auto"
+                ),
+            ),
+            
+            cls="container mx-auto px-4 py-8"
+        ),
+        cls="bg-gray-50"
+    )
+    
+    # Create the complete profile page with dynamic header
+    return Titled(
+        "User Profile | FeedForward",
+        Div(
+            dynamic_header(session),
+            Div(
+                profile_content,
+                cls="flex-grow"
+            ),
+            page_footer(),
+            cls="min-h-screen flex flex-col"
+        )
+    )
+
+# --- API Routes for Profile Updates ---
+@rt('/api/update-profile', 'POST')
+@basic_auth
+def post(session: dict, form_type: str, name: str = None, department: str = None):
+    """Handle profile update form submission"""
+    from app.models.user import users
+    
+    if form_type != "personal_info":
+        return "Invalid form type"
+    
+    # Get current user
+    user = users[session['auth']]
+    
+    # Update user information
+    user.name = name if name else user.name
+    user.department = department if department else user.department
+    users[user.email] = user
+    
+    # Return success message
+    return Div(
+        Div(
+            Div(
+                "Profile updated successfully!",
+                cls="bg-green-100 text-green-700 p-3 rounded-lg mb-4"
+            ),
+            # Re-render the form
+            Form(
+                # Hidden input for form identification
+                Input(type="hidden", name="form_type", value="personal_info"),
+                
+                # Display email (readonly)
+                Div(
+                    Label("Email Address", for_="email", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="email", 
+                        id="email", 
+                        name="email", 
+                        value=user.email, 
+                        readonly=True, 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 focus:outline-none"
+                    ),
+                    P("Email addresses cannot be changed.", cls="text-sm text-gray-500 mt-1"),
+                    cls="mb-4"
+                ),
+                
+                # Edit name
+                Div(
+                    Label("Full Name", for_="name", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="text", 
+                        id="name", 
+                        name="name", 
+                        value=user.name or "", 
+                        placeholder="Enter your full name", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # Edit department
+                Div(
+                    Label("Department", for_="department", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="text", 
+                        id="department", 
+                        name="department", 
+                        value=user.department or "", 
+                        placeholder="Enter your department", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # Submit button
+                Div(
+                    Button(
+                        "Update Personal Information", 
+                        type="submit", 
+                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                    ),
+                    cls="mt-6"
+                ),
+                
+                hx_post="/api/update-profile",
+                hx_swap="outerHTML",
+                cls="bg-white p-6 rounded-xl shadow-md mb-8"
+            ),
+        )
+    )
+
+@rt('/api/change-password', 'POST')
+@basic_auth
+def post(session: dict, form_type: str, current_password: str = None, new_password: str = None, confirm_password: str = None):
+    """Handle password change form submission"""
+    from app.models.user import users
+    from app.utils.auth import verify_password, get_password_hash
+    
+    if form_type != "change_password":
+        return "Invalid form type"
+    
+    # Get current user
+    user = users[session['auth']]
+    
+    # Validate current password
+    if not verify_password(current_password, user.password):
+        return Div(
+            Div(
+                "Current password is incorrect.",
+                cls="bg-red-100 text-red-700 p-3 rounded-lg mb-4"
+            ),
+            # Re-render the form
+            Form(
+                # Hidden input for form identification
+                Input(type="hidden", name="form_type", value="change_password"),
+                
+                # Current password
+                Div(
+                    Label("Current Password", for_="current_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="current_password", 
+                        name="current_password", 
+                        placeholder="Enter your current password", 
+                        cls="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    ),
+                    P("Current password is incorrect.", cls="text-sm text-red-500 mt-1"),
+                    cls="mb-4"
+                ),
+                
+                # New password
+                Div(
+                    Label("New Password", for_="new_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="new_password", 
+                        name="new_password", 
+                        placeholder="Enter your new password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    P("Password must be at least 8 characters and include a mix of letters, numbers, and symbols.", 
+                      cls="text-sm text-gray-500 mt-1"),
+                    cls="mb-4"
+                ),
+                
+                # Confirm new password
+                Div(
+                    Label("Confirm New Password", for_="confirm_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="confirm_password", 
+                        name="confirm_password", 
+                        placeholder="Confirm your new password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # Submit button
+                Div(
+                    Button(
+                        "Change Password", 
+                        type="submit", 
+                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                    ),
+                    cls="mt-6"
+                ),
+                
+                hx_post="/api/change-password",
+                hx_swap="outerHTML",
+                cls="bg-white p-6 rounded-xl shadow-md"
+            ),
+        )
+    
+    # Validate new password
+    if not new_password or len(new_password) < 8:
+        return Div(
+            Div(
+                "New password must be at least 8 characters.",
+                cls="bg-red-100 text-red-700 p-3 rounded-lg mb-4"
+            ),
+            # Re-render the form with error message
+            Form(
+                # Form content with validation error for new password
+                # (Similar to above form but with error highlighting for the new password field)
+                Input(type="hidden", name="form_type", value="change_password"),
+                
+                # Current password
+                Div(
+                    Label("Current Password", for_="current_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="current_password", 
+                        name="current_password", 
+                        placeholder="Enter your current password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # New password (with error)
+                Div(
+                    Label("New Password", for_="new_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="new_password", 
+                        name="new_password", 
+                        placeholder="Enter your new password", 
+                        cls="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    ),
+                    P("Password must be at least 8 characters and include a mix of letters, numbers, and symbols.", 
+                      cls="text-sm text-red-500 mt-1"),
+                    cls="mb-4"
+                ),
+                
+                # Confirm new password
+                Div(
+                    Label("Confirm New Password", for_="confirm_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="confirm_password", 
+                        name="confirm_password", 
+                        placeholder="Confirm your new password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # Submit button
+                Div(
+                    Button(
+                        "Change Password", 
+                        type="submit", 
+                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                    ),
+                    cls="mt-6"
+                ),
+                
+                hx_post="/api/change-password",
+                hx_swap="outerHTML",
+                cls="bg-white p-6 rounded-xl shadow-md"
+            ),
+        )
+    
+    # Check if passwords match
+    if new_password != confirm_password:
+        return Div(
+            Div(
+                "Passwords do not match.",
+                cls="bg-red-100 text-red-700 p-3 rounded-lg mb-4"
+            ),
+            # Re-render the form with error message
+            Form(
+                # Form content with validation error for confirmation field
+                Input(type="hidden", name="form_type", value="change_password"),
+                
+                # Current password
+                Div(
+                    Label("Current Password", for_="current_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="current_password", 
+                        name="current_password", 
+                        placeholder="Enter your current password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # New password
+                Div(
+                    Label("New Password", for_="new_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="new_password", 
+                        name="new_password", 
+                        placeholder="Enter your new password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    P("Password must be at least 8 characters and include a mix of letters, numbers, and symbols.", 
+                      cls="text-sm text-gray-500 mt-1"),
+                    cls="mb-4"
+                ),
+                
+                # Confirm new password (with error)
+                Div(
+                    Label("Confirm New Password", for_="confirm_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="confirm_password", 
+                        name="confirm_password", 
+                        placeholder="Confirm your new password", 
+                        cls="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    ),
+                    P("Passwords do not match.", cls="text-sm text-red-500 mt-1"),
+                    cls="mb-4"
+                ),
+                
+                # Submit button
+                Div(
+                    Button(
+                        "Change Password", 
+                        type="submit", 
+                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                    ),
+                    cls="mt-6"
+                ),
+                
+                hx_post="/api/change-password",
+                hx_swap="outerHTML",
+                cls="bg-white p-6 rounded-xl shadow-md"
+            ),
+        )
+    
+    # Update password
+    user.password = get_password_hash(new_password)
+    users[user.email] = user
+    
+    # Return success message
+    return Div(
+        Div(
+            Div(
+                "Password changed successfully!",
+                cls="bg-green-100 text-green-700 p-3 rounded-lg mb-4"
+            ),
+            # Re-render the form
+            Form(
+                # Hidden input for form identification
+                Input(type="hidden", name="form_type", value="change_password"),
+                
+                # Current password
+                Div(
+                    Label("Current Password", for_="current_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="current_password", 
+                        name="current_password", 
+                        placeholder="Enter your current password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # New password
+                Div(
+                    Label("New Password", for_="new_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="new_password", 
+                        name="new_password", 
+                        placeholder="Enter your new password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    P("Password must be at least 8 characters and include a mix of letters, numbers, and symbols.", 
+                      cls="text-sm text-gray-500 mt-1"),
+                    cls="mb-4"
+                ),
+                
+                # Confirm new password
+                Div(
+                    Label("Confirm New Password", for_="confirm_password", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="password", 
+                        id="confirm_password", 
+                        name="confirm_password", 
+                        placeholder="Confirm your new password", 
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # Submit button
+                Div(
+                    Button(
+                        "Change Password", 
+                        type="submit", 
+                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                    ),
+                    cls="mt-6"
+                ),
+                
+                hx_post="/api/change-password",
+                hx_swap="outerHTML",
+                cls="bg-white p-6 rounded-xl shadow-md"
+            ),
         )
     )
 

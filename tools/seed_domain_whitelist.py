@@ -14,7 +14,7 @@ from app.models.config import domain_whitelist
 def seed_domain_whitelist():
     """Seed the domain whitelist table with initial values"""
     # Check if there are existing records
-    existing = list(domain_whitelist.select())
+    existing = list(domain_whitelist())
     if existing:
         print(f"Domain whitelist already contains {len(existing)} entries.")
         print("Current domains:")
