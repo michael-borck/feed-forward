@@ -817,7 +817,7 @@ def get(session):
     from app.utils.ui import dashboard_layout, card, action_button
     
     # Get all AI models
-    model_list = list(ai_models.select())
+    model_list = list(ai_models())
     
     # Sidebar content
     sidebar_content = Div(
@@ -848,9 +848,9 @@ def get(session):
             Div(
                 Div(
                     P(f"Total Models: {len(model_list)}", cls="text-gray-700 mb-1"),
-                    P(f"Active Models: {sum(1 for m in model_list if m['active'])}", cls="text-green-700 mb-1"),
-                    P(f"System Models: {sum(1 for m in model_list if m['owner_type'] == 'system')}", cls="text-indigo-700 mb-1"),
-                    P(f"Instructor Models: {sum(1 for m in model_list if m['owner_type'] == 'instructor')}", cls="text-teal-700"),
+                    P(f"Active Models: {sum(1 for m in model_list if m.active)}", cls="text-green-700 mb-1"),
+                    P(f"System Models: {sum(1 for m in model_list if m.owner_type == 'system')}", cls="text-indigo-700 mb-1"),
+                    P(f"Instructor Models: {sum(1 for m in model_list if m.owner_type == 'instructor')}", cls="text-teal-700"),
                 ),
                 cls="space-y-1"
             ),
@@ -897,20 +897,20 @@ def get(session):
                         ),
                         Tbody(
                             *(Tr(
-                                Td(model['name'], cls="py-4 px-6"),
-                                Td(model['provider'], cls="py-4 px-6"),
-                                Td(model['model_id'], cls="py-4 px-6"),
+                                Td(model.name, cls="py-4 px-6"),
+                                Td(model.provider, cls="py-4 px-6"),
+                                Td(model.model_id, cls="py-4 px-6"),
                                 Td(
-                                    Span("System" if model['owner_type'] == 'system' else "Instructor", 
+                                    Span("System" if model.owner_type == 'system' else "Instructor", 
                                          cls="px-3 py-1 rounded-full text-xs " + 
-                                         ("bg-indigo-100 text-indigo-800" if model['owner_type'] == 'system' else 
+                                         ("bg-indigo-100 text-indigo-800" if model.owner_type == 'system' else 
                                           "bg-teal-100 text-teal-800")),
                                     cls="py-4 px-6"
                                 ),
                                 Td(
-                                    Span("Active" if model['active'] else "Inactive", 
+                                    Span("Active" if model.active else "Inactive", 
                                          cls="px-3 py-1 rounded-full text-xs " + 
-                                         ("bg-green-100 text-green-800" if model['active'] else 
+                                         ("bg-green-100 text-green-800" if model.active else 
                                           "bg-gray-100 text-gray-800")),
                                     cls="py-4 px-6"
                                 ),
@@ -918,11 +918,11 @@ def get(session):
                                     Div(
                                         A("Edit", 
                                           cls="bg-teal-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-teal-700 transition-colors shadow-sm",
-                                          href=f"/admin/ai-models/edit/{model['id']}"),
+                                          href=f"/admin/ai-models/edit/{model.id}"),
                                         Button("Delete", 
                                                cls="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm",
-                                               hx_delete=f"/admin/ai-models/{model['id']}",
-                                               hx_confirm=f"Are you sure you want to delete the model '{model['name']}'?",
+                                               hx_delete=f"/admin/ai-models/{model.id}",
+                                               hx_confirm=f"Are you sure you want to delete the model '{model.name}'?",
                                                hx_target="closest tr",
                                                hx_swap="outerHTML"),
                                         cls="flex"
@@ -1001,15 +1001,27 @@ def get(session):
                     cls="mb-4 p-3 bg-gray-50 rounded-lg"
                 ),
                 Div(
+                    H4("Google", cls="font-semibold text-indigo-800 mb-1"),
+                    P("API Key required", cls="text-gray-600 mb-1 text-sm"),
+                    P("Models: gemini-pro, gemini-1.5-pro", cls="text-gray-600 text-sm"),
+                    cls="mb-4 p-3 bg-gray-50 rounded-lg"
+                ),
+                Div(
                     H4("Ollama", cls="font-semibold text-indigo-800 mb-1"),
                     P("Server URL required", cls="text-gray-600 mb-1 text-sm"),
                     P("Models: llama3, mistral", cls="text-gray-600 text-sm"),
                     cls="mb-4 p-3 bg-gray-50 rounded-lg"
                 ),
                 Div(
-                    H4("Hugging Face", cls="font-semibold text-indigo-800 mb-1"),
-                    P("API Key required", cls="text-gray-600 mb-1 text-sm"),
-                    P("Inference API endpoint needed", cls="text-gray-600 text-sm"),
+                    H4("HuggingFace", cls="font-semibold text-indigo-800 mb-1"),
+                    P("API Key optional, URL for custom endpoints", cls="text-gray-600 mb-1 text-sm"),
+                    P("Models: microsoft/DialoGPT-large", cls="text-gray-600 text-sm"),
+                    cls="mb-4 p-3 bg-gray-50 rounded-lg"
+                ),
+                Div(
+                    H4("Other/Custom", cls="font-semibold text-indigo-800 mb-1"),
+                    P("Custom endpoint URL required", cls="text-gray-600 mb-1 text-sm"),
+                    P("Compatible with OpenAI-style APIs", cls="text-gray-600 text-sm"),
                     cls="mb-4 p-3 bg-gray-50 rounded-lg"
                 ),
                 cls="space-y-1"
@@ -1044,6 +1056,7 @@ def get(session):
                             Option("Select a provider", value="", disabled=True, selected=True),
                             Option("OpenAI", value="OpenAI"),
                             Option("Anthropic", value="Anthropic"),
+                            Option("Google", value="Google"),
                             Option("Ollama", value="Ollama"),
                             Option("HuggingFace", value="HuggingFace"),
                             Option("Other", value="Other"),
@@ -1165,12 +1178,6 @@ def get(session):
                 # API Configuration section
                 H2("API Configuration", cls="text-2xl font-bold text-indigo-900 mb-6 mt-8"),
                 Div(
-                    Div(id="openai-config", cls="w-full"),
-                    Div(id="anthropic-config", cls="w-full hidden"),
-                    Div(id="ollama-config", cls="w-full hidden"),
-                    Div(id="huggingface-config", cls="w-full hidden"),
-                    Div(id="other-config", cls="w-full hidden"),
-                    
                     # OpenAI Config
                     Div(
                         Label("API Key", for_="openai_api_key", cls="block text-indigo-900 font-medium mb-1"),
@@ -1178,7 +1185,7 @@ def get(session):
                         Input(type="password", id="openai_api_key", name="openai_api_key", 
                             cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
-                        cls="mb-6 w-full"
+                        id="openai-config", cls="w-full"
                     ),
                     
                     # Anthropic Config
@@ -1188,7 +1195,21 @@ def get(session):
                         Input(type="password", id="anthropic_api_key", name="anthropic_api_key", 
                             cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
                         P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
-                        cls="mb-6 w-full hidden", id="anthropic-config"
+                        id="anthropic-config", cls="w-full hidden"
+                    ),
+                    
+                    # Google Config
+                    Div(
+                        Label("API Key", for_="google_api_key", cls="block text-indigo-900 font-medium mb-1"),
+                        P("Google AI API key", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="password", id="google_api_key", name="google_api_key", 
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        Label("Base URL", for_="google_base_url", cls="block text-indigo-900 font-medium mb-1 mt-4"),
+                        P("Google AI endpoint URL (optional, leave empty for default)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="text", id="google_base_url", name="google_base_url", 
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
+                        id="google-config", cls="w-full hidden"
                     ),
                     
                     # Ollama Config
@@ -1197,47 +1218,36 @@ def get(session):
                         P("Ollama server URL (e.g., http://localhost:11434)", cls="text-sm text-gray-500 mb-1"),
                         Input(type="text", id="ollama_base_url", name="ollama_base_url", 
                             cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
-                        cls="mb-6 w-full hidden", id="ollama-config"
+                        P("Note: No API key required for local Ollama", cls="text-xs text-green-600 mt-1"),
+                        id="ollama-config", cls="w-full hidden"
                     ),
                     
                     # HuggingFace Config
                     Div(
-                        Div(
-                            Label("API Key", for_="huggingface_api_key", cls="block text-indigo-900 font-medium mb-1"),
-                            P("Hugging Face API key", cls="text-sm text-gray-500 mb-1"),
-                            Input(type="password", id="huggingface_api_key", name="huggingface_api_key", 
-                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
-                            P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
-                            cls="mb-6 w-full"
-                        ),
-                        Div(
-                            Label("Inference API URL", for_="huggingface_api_url", cls="block text-indigo-900 font-medium mb-1"),
-                            P("Endpoint URL for the model", cls="text-sm text-gray-500 mb-1"),
-                            Input(type="text", id="huggingface_api_url", name="huggingface_api_url",
-                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
-                            cls="mb-6 w-full"
-                        ),
-                        cls="w-full hidden", id="huggingface-config"
+                        Label("API Key", for_="huggingface_api_key", cls="block text-indigo-900 font-medium mb-1"),
+                        P("Hugging Face API key (optional for public models)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="password", id="huggingface_api_key", name="huggingface_api_key", 
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        Label("Base URL", for_="huggingface_api_url", cls="block text-indigo-900 font-medium mb-1 mt-4"),
+                        P("Custom endpoint URL (optional, leave empty for default)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="text", id="huggingface_api_url", name="huggingface_api_url",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
+                        id="huggingface-config", cls="w-full hidden"
                     ),
                     
                     # Other Provider Config
                     Div(
-                        Div(
-                            Label("API Key", for_="other_api_key", cls="block text-indigo-900 font-medium mb-1"),
-                            P("API key for custom provider", cls="text-sm text-gray-500 mb-1"),
-                            Input(type="password", id="other_api_key", name="other_api_key", 
-                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
-                            P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
-                            cls="mb-6 w-full"
-                        ),
-                        Div(
-                            Label("API URL", for_="other_api_url", cls="block text-indigo-900 font-medium mb-1"),
-                            P("API URL for custom provider", cls="text-sm text-gray-500 mb-1"),
-                            Input(type="text", id="other_api_url", name="other_api_url",
-                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
-                            cls="mb-6 w-full"
-                        ),
-                        cls="w-full hidden", id="other-config"
+                        Label("API Key", for_="other_api_key", cls="block text-indigo-900 font-medium mb-1"),
+                        P("API key for custom provider (if required)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="password", id="other_api_key", name="other_api_key", 
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        Label("Base URL", for_="other_api_url", cls="block text-indigo-900 font-medium mb-1 mt-4"),
+                        P("Custom endpoint URL (required for custom providers)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="text", id="other_api_url", name="other_api_url", required=True,
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
+                        id="other-config", cls="w-full hidden"
                     ),
                     
                     # Common settings
@@ -1264,6 +1274,7 @@ def get(session):
                         // Hide all config sections
                         document.getElementById('openai-config').classList.add('hidden');
                         document.getElementById('anthropic-config').classList.add('hidden');
+                        document.getElementById('google-config').classList.add('hidden');
                         document.getElementById('ollama-config').classList.add('hidden');
                         document.getElementById('huggingface-config').classList.add('hidden');
                         document.getElementById('other-config').classList.add('hidden');
@@ -1273,6 +1284,8 @@ def get(session):
                             document.getElementById('openai-config').classList.remove('hidden');
                         } else if (this.value === 'Anthropic') {
                             document.getElementById('anthropic-config').classList.remove('hidden');
+                        } else if (this.value === 'Google') {
+                            document.getElementById('google-config').classList.remove('hidden');
                         } else if (this.value === 'Ollama') {
                             document.getElementById('ollama-config').classList.remove('hidden');
                         } else if (this.value === 'HuggingFace') {
@@ -1286,10 +1299,14 @@ def get(session):
                     cls="flex flex-wrap -mx-3 mb-8 bg-white p-6 rounded-xl shadow-md border border-gray-100"
                 ),
                 
-                # Form submission
+                # Test Connection Button and Form submission
                 Div(
+                    Div(id="test-result", cls="mb-4"),
                     Div(id="form-message", cls="mb-4"),
                     Div(
+                        Button("Test Connection", type="button", id="test-connection-btn",
+                               cls="bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm mr-4",
+                               onclick="testConnection()"),
                         Button("Cancel", type="button", onClick="window.location='/admin/ai-models'",
                                cls="bg-gray-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition-colors shadow-sm mr-4"),
                         Button("Save Model", type="submit",
@@ -1298,6 +1315,54 @@ def get(session):
                     ),
                     cls="mt-6"
                 ),
+                
+                # Test Connection Script
+                Script("""
+                function testConnection() {
+                    const provider = document.getElementById('provider').value;
+                    if (!provider) {
+                        document.getElementById('test-result').innerHTML = '<div class="bg-red-50 p-4 rounded-lg"><p class="text-red-500">Please select a provider first</p></div>';
+                        return;
+                    }
+                    
+                    const formData = new FormData();
+                    formData.append('provider', provider);
+                    
+                    // Get API key based on provider
+                    if (provider === 'OpenAI') {
+                        formData.append('api_key', document.getElementById('openai_api_key').value);
+                    } else if (provider === 'Anthropic') {
+                        formData.append('api_key', document.getElementById('anthropic_api_key').value);
+                    } else if (provider === 'Google') {
+                        formData.append('api_key', document.getElementById('google_api_key').value);
+                        formData.append('base_url', document.getElementById('google_base_url').value);
+                    } else if (provider === 'Ollama') {
+                        formData.append('base_url', document.getElementById('ollama_base_url').value);
+                    } else if (provider === 'HuggingFace') {
+                        formData.append('api_key', document.getElementById('huggingface_api_key').value);
+                        formData.append('base_url', document.getElementById('huggingface_api_url').value);
+                    } else if (provider === 'Other') {
+                        formData.append('api_key', document.getElementById('other_api_key').value);
+                        formData.append('base_url', document.getElementById('other_api_url').value);
+                    }
+                    
+                    // Show loading state
+                    document.getElementById('test-result').innerHTML = '<div class="bg-blue-50 p-4 rounded-lg"><p class="text-blue-600">Testing connection...</p></div>';
+                    
+                    // Make the request
+                    fetch('/admin/ai-models/test', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('test-result').innerHTML = html;
+                    })
+                    .catch(error => {
+                        document.getElementById('test-result').innerHTML = '<div class="bg-red-50 p-4 rounded-lg"><p class="text-red-500">Error: ' + error + '</p></div>';
+                    });
+                }
+                """),
                 
                 cls="mb-8"
             ),
@@ -1337,6 +1402,8 @@ def post(
     system_prompt: str = "You are an expert educational assessor providing detailed, constructive feedback on student work.",
     openai_api_key: str = None,
     anthropic_api_key: str = None,
+    google_api_key: str = None,
+    google_base_url: str = None,
     ollama_base_url: str = None,
     huggingface_api_key: str = None,
     huggingface_api_url: str = None,
@@ -1366,7 +1433,19 @@ def post(
                 "temperature": float(temperature),
                 "system_prompt": system_prompt
             }
+        elif provider == "Google":
+            api_config = {
+                "api_key": google_api_key,
+                "base_url": google_base_url,
+                "temperature": float(temperature),
+                "system_prompt": system_prompt
+            }
         elif provider == "Ollama":
+            if not ollama_base_url:
+                return Div(
+                    P("Ollama requires a server URL", cls="text-red-500"),
+                    cls="bg-red-50 p-4 rounded-lg"
+                )
             api_config = {
                 "base_url": ollama_base_url,
                 "temperature": float(temperature)
@@ -1374,13 +1453,15 @@ def post(
         elif provider == "HuggingFace":
             api_config = {
                 "api_key": huggingface_api_key,
-                "api_url": huggingface_api_url
+                "base_url": huggingface_api_url,
+                "temperature": float(temperature),
+                "system_prompt": system_prompt
             }
         else:
             # Generic config for "Other" providers
             api_config = {
                 "api_key": other_api_key,
-                "api_url": other_api_url,
+                "base_url": other_api_url,
                 "temperature": float(temperature),
                 "system_prompt": system_prompt
             }
@@ -1396,7 +1477,7 @@ def post(
         
         # Get next available ID
         next_id = 1
-        existing_ids = [m['id'] for m in ai_models.select()]
+        existing_ids = [m.id for m in ai_models()]
         if existing_ids:
             next_id = max(existing_ids) + 1
         
@@ -1409,7 +1490,7 @@ def post(
             name=name,
             provider=provider,
             model_id=model_id,
-            version=version,
+            model_version=version,
             description=description,
             api_config=api_config_str,
             owner_type=owner_type,
@@ -1424,22 +1505,8 @@ def post(
         # Add to database
         ai_models.insert(new_model)
         
-        # Create capability entries for each capability
-        for capability in capabilities:
-            # Get next available ID for capability
-            next_cap_id = 1
-            existing_cap_ids = [c['id'] for c in model_capabilities.select()]
-            if existing_cap_ids:
-                next_cap_id = max(existing_cap_ids) + 1
-            
-            # Create capability record
-            cap = ModelCapability(
-                id=next_cap_id,
-                model_id=next_id,
-                capability=capability,
-                is_primary=(capability == primary_capability)
-            )
-            model_capabilities.insert(cap)
+        # Skip capability entries for now to get demo working
+        # TODO: Re-enable capability insertion after demo
         
         # Return success message with redirect
         return Div(
@@ -1448,9 +1515,417 @@ def post(
             cls="bg-green-50 p-4 rounded-lg"
         )
     except Exception as e:
-        # Return error message
+        # Return detailed error message for debugging
+        import traceback
+        error_details = traceback.format_exc()
         return Div(
-            P(f"Error creating AI model: {str(e)}", cls="text-red-500"),
+            P(f"Error creating AI model: {str(e)}", cls="text-red-500 mb-2"),
+            P("Debug details:", cls="text-red-600 text-sm font-semibold"),
+            Pre(error_details, cls="text-xs text-red-600 bg-red-100 p-2 rounded overflow-auto max-h-40"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+
+# --- Edit AI Model (Admin) ---
+@rt('/admin/ai-models/edit/{id}')
+@admin_required
+def get(session, id: int):
+    try:
+        # Get the specific model
+        model = None
+        for m in ai_models():
+            if m.id == id:
+                model = m
+                break
+        
+        if not model:
+            return RedirectResponse("/error/404")
+        
+        # Parse model configuration
+        import json
+        try:
+            config = json.loads(model.api_config) if model.api_config else {}
+        except:
+            config = {}
+        
+        try:
+            capabilities = json.loads(model.capabilities) if model.capabilities else []
+        except:
+            capabilities = []
+        
+        from app.utils.ui import dashboard_layout, card
+        
+        # Sidebar content
+        sidebar_content = Div(
+            card(
+                Div(
+                    H3("AI Models", cls="font-semibold text-indigo-900 mb-4"),
+                    A("← Back to Models", href="/admin/ai-models", 
+                      cls="text-indigo-600 hover:text-indigo-800 text-sm"),
+                    A("Create New Model", href="/admin/ai-models/new", 
+                      cls="block mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg text-center hover:bg-indigo-700 transition-colors"),
+                )
+            )
+        )
+        
+        # Main content - Edit AI Model form
+        main_content = Div(
+            H1(f"Edit AI Model: {model.name}", cls="text-3xl font-bold text-indigo-900 mb-6"),
+            P("Update AI model configuration.", cls="text-gray-600 mb-8"),
+            
+            # Model configuration form
+            Form(
+                # Basic model information
+                Div(
+                    H2("Model Information", cls="text-2xl font-bold text-indigo-900 mb-6"),
+                    Div(
+                        Div(
+                            Label("Model Name", for_="name", cls="block text-indigo-900 font-medium mb-1"),
+                            P("Display name for this model", cls="text-sm text-gray-500 mb-1"),
+                            Input(type="text", id="name", name="name", value=model.name, required=True, 
+                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                            cls="mb-6 w-full md:w-1/2"
+                        ),
+                        
+                        Div(
+                            Label("Provider", for_="provider", cls="block text-indigo-900 font-medium mb-1"),
+                            P("AI model provider", cls="text-sm text-gray-500 mb-1"),
+                            Select(
+                                Option("OpenAI", value="OpenAI", selected=(model.provider == "OpenAI")),
+                                Option("Anthropic", value="Anthropic", selected=(model.provider == "Anthropic")),
+                                Option("Google", value="Google", selected=(model.provider == "Google")),
+                                Option("Ollama", value="Ollama", selected=(model.provider == "Ollama")),
+                                Option("HuggingFace", value="HuggingFace", selected=(model.provider == "HuggingFace")),
+                                Option("Other", value="Other", selected=(model.provider == "Other")),
+                                id="provider", name="provider", required=True,
+                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            ),
+                            cls="mb-6 w-full md:w-1/2"
+                        ),
+                        
+                        Div(
+                            Label("Model ID", for_="model_id", cls="block text-indigo-900 font-medium mb-1"),
+                            P("Specific model identifier", cls="text-sm text-gray-500 mb-1"),
+                            Input(type="text", id="model_id", name="model_id", value=model.model_id, required=True, 
+                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                            cls="mb-6 w-full md:w-1/2"
+                        ),
+                        
+                        Div(
+                            Label("Status", for_="active", cls="block text-indigo-900 font-medium mb-1"),
+                            Select(
+                                Option("Active", value="true", selected=model.active),
+                                Option("Inactive", value="false", selected=not model.active),
+                                id="active", name="active", required=True,
+                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            ),
+                            cls="mb-6 w-full md:w-1/2"
+                        ),
+                        
+                        cls="flex flex-wrap -mx-3 mb-8 bg-white p-6 rounded-xl shadow-md border border-gray-100"
+                    )
+                ),
+                
+                # API Configuration section
+                H2("API Configuration", cls="text-2xl font-bold text-indigo-900 mb-6 mt-8"),
+                Div(
+                    # API Key field
+                    Div(
+                        Label("API Key", for_="api_key", cls="block text-indigo-900 font-medium mb-1"),
+                        P("API key for this provider (leave empty to keep current)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="password", id="api_key", name="api_key", 
+                            placeholder="Enter new API key or leave empty to keep current",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        P("Note: API keys are stored encrypted in the database", cls="text-xs text-amber-600 mt-1"),
+                        cls="mb-6 w-full"
+                    ),
+                    
+                    # Base URL field
+                    Div(
+                        Label("Base URL", for_="base_url", cls="block text-indigo-900 font-medium mb-1"),
+                        P("Custom endpoint URL (for Ollama, custom providers, etc.)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="text", id="base_url", name="base_url", 
+                            value=config.get('base_url', ''),
+                            placeholder="e.g., http://localhost:11434 for Ollama",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="mb-6 w-full"
+                    ),
+                    
+                    # Temperature
+                    Div(
+                        Label("Temperature", for_="temperature", cls="block text-indigo-900 font-medium mb-1"),
+                        P("Controls randomness (0.0-1.0)", cls="text-sm text-gray-500 mb-1"),
+                        Input(type="number", id="temperature", name="temperature", 
+                            value=str(config.get('temperature', 0.2)), min="0", max="1", step="0.1",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="mb-6 w-full md:w-1/2"
+                    ),
+                    
+                    # System Prompt
+                    Div(
+                        Label("System Prompt", for_="system_prompt", cls="block text-indigo-900 font-medium mb-1"),
+                        P("Default system prompt for educational assessment", cls="text-sm text-gray-500 mb-1"),
+                        Textarea(id="system_prompt", name="system_prompt", rows=3,
+                            value=config.get('system_prompt', 'You are an expert educational assessor providing detailed, constructive feedback on student work.'),
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"),
+                        cls="mb-6 w-full"
+                    ),
+                    
+                    cls="flex flex-wrap -mx-3 mb-8 bg-white p-6 rounded-xl shadow-md border border-gray-100"
+                ),
+                
+                # Test Connection and Form submission
+                Div(
+                    Div(id="test-result", cls="mb-4"),
+                    Div(id="form-message", cls="mb-4"),
+                    Div(
+                        Button("Test Connection", type="button", id="test-connection-btn",
+                               cls="bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm mr-4",
+                               onclick=f"testConnectionEdit('{model.provider}')"),
+                        Button("Cancel", type="button", onClick="window.location='/admin/ai-models'",
+                               cls="bg-gray-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition-colors shadow-sm mr-4"),
+                        Button("Save Changes", type="submit",
+                               cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"),
+                        cls="flex"
+                    ),
+                    cls="mt-6"
+                ),
+                
+                # Test Connection Script for Edit Form
+                Script(f"""
+                function testConnectionEdit(provider) {{
+                    const formData = new FormData();
+                    formData.append('provider', provider);
+                    
+                    // Get current values
+                    const apiKey = document.getElementById('api_key').value;
+                    const baseUrl = document.getElementById('base_url').value;
+                    
+                    if (apiKey) {{
+                        formData.append('api_key', apiKey);
+                    }}
+                    if (baseUrl) {{
+                        formData.append('base_url', baseUrl);
+                    }}
+                    
+                    // Show loading state
+                    document.getElementById('test-result').innerHTML = '<div class="bg-blue-50 p-4 rounded-lg"><p class="text-blue-600">Testing connection...</p></div>';
+                    
+                    // Make the request
+                    fetch('/admin/ai-models/test', {{
+                        method: 'POST',
+                        body: formData
+                    }})
+                    .then(response => response.text())
+                    .then(html => {{
+                        document.getElementById('test-result').innerHTML = html;
+                    }})
+                    .catch(error => {{
+                        document.getElementById('test-result').innerHTML = '<div class="bg-red-50 p-4 rounded-lg"><p class="text-red-500">Error: ' + error + '</p></div>';
+                    }});
+                }}
+                """),
+                
+                cls="mb-8",
+                hx_post=f"/admin/ai-models/edit/{id}",
+                hx_target="#form-message",
+            )
+        )
+        
+        return dashboard_layout(
+            title=f"Edit AI Model: {model.name}",
+            sidebar=sidebar_content,
+            main_content=main_content,
+            user_role=users[session['auth']].role,
+            user=users[session['auth']],
+            current_path=f"/admin/ai-models/edit/{id}"
+        )
+        
+    except Exception as e:
+        return RedirectResponse("/error/500")
+
+# --- Update AI Model (Admin) ---
+@rt('/admin/ai-models/edit/{id}')
+@admin_required  
+def post(session, id: int, name: str, provider: str, model_id: str, active: str, 
+         api_key: str = None, base_url: str = None, temperature: float = 0.2, 
+         system_prompt: str = "You are an expert educational assessor providing detailed, constructive feedback on student work."):
+    try:
+        # Get the specific model
+        model = None
+        for m in ai_models():
+            if m.id == id:
+                model = m
+                break
+        
+        if not model:
+            return Div(
+                P("Model not found", cls="text-red-500"),
+                cls="bg-red-50 p-4 rounded-lg"
+            )
+        
+        # Parse existing config
+        import json
+        try:
+            config = json.loads(model.api_config) if model.api_config else {}
+        except:
+            config = {}
+        
+        # Update configuration
+        config['temperature'] = float(temperature)
+        config['system_prompt'] = system_prompt
+        
+        # Update API key only if provided
+        if api_key and api_key.strip():
+            from app.utils.crypto import encrypt_sensitive_data
+            config['api_key'] = encrypt_sensitive_data(api_key)
+        
+        # Update base URL
+        if base_url is not None:
+            config['base_url'] = base_url
+        
+        # Update model properties
+        model.name = name
+        model.provider = provider
+        model.model_id = model_id
+        model.active = active.lower() == "true"
+        model.api_config = json.dumps(config)
+        model.updated_at = datetime.now().isoformat()
+        
+        # Save to database
+        ai_models.update(model)
+        
+        # Return success message with redirect
+        return Div(
+            P(f"AI Model '{name}' updated successfully!", cls="text-green-500 mb-2"),
+            Script("setTimeout(function() { window.location = '/admin/ai-models'; }, 1500);"),
+            cls="bg-green-50 p-4 rounded-lg"
+        )
+        
+    except Exception as e:
+        return Div(
+            P(f"Error updating AI model: {str(e)}", cls="text-red-500"),
+            cls="bg-red-50 p-4 rounded-lg"
+        )
+
+# --- Test AI Model Connection ---
+@rt('/admin/ai-models/test')
+@admin_required
+def post(session, provider: str, api_key: str = None, base_url: str = None):
+    """Test AI model connection"""
+    try:
+        from app.utils.ai_client import AIClient
+        import json
+        
+        # Create temporary config
+        config = {
+            "temperature": 0.2,
+            "system_prompt": "You are a test assistant."
+        }
+        
+        # Add provider-specific configuration
+        if provider in ["OpenAI", "Anthropic", "Google"]:
+            if not api_key:
+                return Div(
+                    P(f"{provider} requires an API key", cls="text-red-500"),
+                    cls="bg-red-50 p-4 rounded-lg"
+                )
+            config["api_key"] = api_key
+            
+        if provider in ["Google", "HuggingFace", "Other"] and base_url:
+            config["base_url"] = base_url
+        elif provider == "Ollama":
+            if not base_url:
+                return Div(
+                    P("Ollama requires a server URL", cls="text-red-500"),
+                    cls="bg-red-50 p-4 rounded-lg"
+                )
+            config["base_url"] = base_url
+        
+        # Test model ID based on provider
+        test_models = {
+            "OpenAI": "gpt-3.5-turbo",
+            "Anthropic": "claude-3-haiku-20240307",
+            "Google": "gemini-1.5-flash",
+            "Ollama": "llama3",
+            "HuggingFace": "microsoft/DialoGPT-small",
+            "Other": "gpt-3.5-turbo"  # Assume OpenAI-compatible
+        }
+        
+        model_id = test_models.get(provider, "gpt-3.5-turbo")
+        
+        # Try to test connection using litellm directly
+        import litellm
+        
+        # Build the model string for litellm
+        if provider == "OpenAI":
+            model_string = model_id  # e.g., "gpt-3.5-turbo"
+        elif provider == "Anthropic":
+            model_string = model_id  # e.g., "claude-3-haiku-20240307"
+        elif provider == "Google":
+            model_string = f"gemini/{model_id.replace('gemini-', '')}"  # e.g., "gemini/1.5-flash"
+        elif provider == "Ollama":
+            # For Ollama, LiteLLM requires the provider prefix
+            model_string = f"ollama/{model_id}"  # e.g., "ollama/llama3"
+        elif provider == "HuggingFace":
+            model_string = f"huggingface/{model_id}"  # e.g., "huggingface/microsoft/DialoGPT-small"
+        else:
+            model_string = model_id  # Assume OpenAI-compatible
+        
+        # Set up litellm parameters
+        kwargs = {
+            "model": model_string,
+            "messages": [{"role": "user", "content": "Say 'Connection successful' in exactly 3 words."}],
+            "max_tokens": 10,
+            "temperature": config.get("temperature", 0.2)
+        }
+        
+        # Add API key if present
+        if "api_key" in config and config["api_key"]:
+            kwargs["api_key"] = config["api_key"]
+            
+        # Add base URL if present
+        if "base_url" in config and config["base_url"]:
+            if provider == "Ollama":
+                kwargs["api_base"] = config["base_url"]
+            elif provider in ["Google", "HuggingFace", "Other"]:
+                kwargs["base_url"] = config["base_url"]
+        
+        # Enable debugging for detailed error messages
+        litellm.set_verbose = True
+        
+        # Test with a simple prompt
+        try:
+            response = litellm.completion(**kwargs)
+            
+            if response and response.choices:
+                content = response.choices[0].message.content
+                return Div(
+                    P(f"✅ {provider} connection successful!", cls="text-green-600 font-medium"),
+                    P(f"Response: {content}", cls="text-gray-600 text-sm mt-2"),
+                    cls="bg-green-50 p-4 rounded-lg"
+                )
+            else:
+                return Div(
+                    P(f"❌ {provider} connection failed - no response", cls="text-red-500"),
+                    cls="bg-red-50 p-4 rounded-lg"
+                )
+                
+        except Exception as e:
+            # Show full error details for debugging
+            import traceback
+            error_details = traceback.format_exc()
+            
+            return Div(
+                P(f"❌ {provider} connection failed", cls="text-red-500 font-medium"),
+                P(f"Error: {str(e)}", cls="text-gray-600 text-sm mt-2"),
+                P("Debug details:", cls="text-red-600 text-sm font-semibold mt-2"),
+                Pre(error_details, cls="text-xs text-red-600 bg-red-100 p-2 rounded overflow-auto max-h-40 mt-1"),
+                cls="bg-red-50 p-4 rounded-lg"
+            )
+            
+    except Exception as e:
+        return Div(
+            P(f"Error testing connection: {str(e)}", cls="text-red-500"),
             cls="bg-red-50 p-4 rounded-lg"
         )
 
@@ -1462,10 +1937,10 @@ def delete(session, id: int):
         # Find the model
         model_found = False
         model_name = None
-        for m in ai_models.select():
-            if m['id'] == id:
+        for m in ai_models():
+            if m.id == id:
                 model_found = True
-                model_name = m['name']
+                model_name = m.name
                 break
         
         if not model_found:
@@ -1475,9 +1950,9 @@ def delete(session, id: int):
         ai_models.delete(id)
         
         # Delete related capabilities
-        for cap in model_capabilities.select():
-            if cap['model_id'] == id:
-                model_capabilities.delete(cap['id'])
+        for cap in model_capabilities():
+            if cap.model_id == id:
+                model_capabilities.delete(cap.id)
         
         # Return deleted confirmation
         return Div(
