@@ -22,7 +22,7 @@ from app.models.feedback import CategoryScore, FeedbackItem, AggregatedFeedback
 from app.models.feedback import category_scores, feedback_items, aggregated_feedback
 from app.models.config import SystemConfig, AggregationMethod, FeedbackStyle, MarkDisplayOption
 from app.models.config import system_config, aggregation_methods, feedback_styles, mark_display_options
-from app.models.config import AssignmentSettings, assignment_settings
+from app.models.config import AssignmentSettings, AssignmentModelRun, assignment_settings, assignment_model_runs
 
 # Initialize database connection
 def get_current_time():
@@ -40,7 +40,7 @@ def clear_all_tables():
     tables = [
         users, courses, enrollments, assignments, rubrics, rubric_categories,
         ai_models, drafts, model_runs, category_scores, feedback_items, aggregated_feedback,
-        system_config, aggregation_methods, feedback_styles, mark_display_options, assignment_settings
+        system_config, aggregation_methods, feedback_styles, mark_display_options, assignment_settings, assignment_model_runs
     ]
     
     for table in tables:
@@ -70,7 +70,10 @@ def create_users():
         reset_token="",
         reset_token_expiry="",
         status="active",
-        last_active=get_current_time()
+        last_active=get_current_time(),
+        tos_accepted=True,
+        privacy_accepted=True,
+        acceptance_date=get_current_time()
     )
     users.insert(admin)
     print(f"  Created admin user: {admin.email}")
@@ -95,7 +98,10 @@ def create_users():
             reset_token="",
             reset_token_expiry="",
             status="active",
-            last_active=get_current_time()
+            last_active=get_current_time(),
+            tos_accepted=True,
+            privacy_accepted=True,
+            acceptance_date=get_current_time()
         )
         users.insert(instructor)
         print(f"  Created instructor: {instructor.email}")
@@ -125,7 +131,10 @@ def create_users():
             reset_token="",
             reset_token_expiry="",
             status="active",
-            last_active=get_current_time()
+            last_active=get_current_time(),
+            tos_accepted=True,
+            privacy_accepted=True,
+            acceptance_date=get_current_time()
         )
         users.insert(student)
         print(f"  Created student: {student.email}")
@@ -498,8 +507,8 @@ def create_assignment_settings():
         {
             "id": 1,
             "assignment_id": 1,  # Basic Programming Concepts
-            "ai_model_id": 1,    # GPT-4 (system)
-            "num_runs": 3,
+            "primary_ai_model_id": 1,    # GPT-4 (system)
+            "feedback_level": "both",     # overall, criterion, or both
             "aggregation_method_id": 1,  # Average
             "feedback_style_id": 1,      # Detailed
             "require_review": True,
@@ -508,8 +517,8 @@ def create_assignment_settings():
         {
             "id": 2,
             "assignment_id": 2,  # Functions and Methods
-            "ai_model_id": 2,    # Claude 3 Opus (system)
-            "num_runs": 2,
+            "primary_ai_model_id": 2,    # Claude 3 Opus (system)
+            "feedback_level": "both",
             "aggregation_method_id": 2,  # Weighted Average
             "feedback_style_id": 2,      # Concise
             "require_review": False,
@@ -518,8 +527,8 @@ def create_assignment_settings():
         {
             "id": 3,
             "assignment_id": 3,  # Data Visualization Project
-            "ai_model_id": 3,    # Personal GPT-4 (instructor)
-            "num_runs": 3,
+            "primary_ai_model_id": 3,    # Personal GPT-4 (instructor)
+            "feedback_level": "criterion",
             "aggregation_method_id": 1,  # Average
             "feedback_style_id": 3,      # Constructive
             "require_review": True,
@@ -528,8 +537,8 @@ def create_assignment_settings():
         {
             "id": 4,
             "assignment_id": 4,  # Software Design Patterns
-            "ai_model_id": 4,    # Personal Claude (instructor)
-            "num_runs": 2,
+            "primary_ai_model_id": 4,    # Personal Claude (instructor)
+            "feedback_level": "overall",
             "aggregation_method_id": 2,  # Weighted Average
             "feedback_style_id": 1,      # Detailed
             "require_review": True,
@@ -541,8 +550,8 @@ def create_assignment_settings():
         setting = AssignmentSettings(
             id=data["id"],
             assignment_id=data["assignment_id"],
-            ai_model_id=data["ai_model_id"],
-            num_runs=data["num_runs"],
+            primary_ai_model_id=data["primary_ai_model_id"],
+            feedback_level=data["feedback_level"],
             aggregation_method_id=data["aggregation_method_id"],
             feedback_style_id=data["feedback_style_id"],
             require_review=data["require_review"],
@@ -550,6 +559,17 @@ def create_assignment_settings():
         )
         assignment_settings.insert(setting)
         print(f"  Created settings for assignment ID {data['assignment_id']}")
+        
+        # Create assignment model runs (specifies which models to run and how many times)
+        # For simplicity, use the primary model with 2-3 runs
+        model_run = AssignmentModelRun(
+            id=data["id"],
+            assignment_setting_id=data["id"],
+            ai_model_id=data["primary_ai_model_id"],
+            num_runs=2 if data["id"] % 2 == 0 else 3
+        )
+        assignment_model_runs.insert(model_run)
+        print(f"    Added model run configuration for model ID {data['primary_ai_model_id']}")
 
 def create_sample_drafts():
     """Create sample drafts for assignments"""
@@ -918,6 +938,11 @@ def create_sample_feedback():
         if not setting:
             continue
         
+        # Get model run configurations for this assignment
+        model_run_configs = [mr for mr in assignment_model_runs() if mr.assignment_setting_id == setting.id]
+        if not model_run_configs:
+            continue
+        
         # Get the rubric for this assignment
         rubric = next((r for r in rubrics() if r.assignment_id == assignment_id), None)
         if not rubric:
@@ -926,66 +951,67 @@ def create_sample_feedback():
         # Get rubric categories
         categories = [cat for cat in rubric_categories() if cat.rubric_id == rubric.id]
         
-        # Create model runs for this draft
-        for run_number in range(1, setting.num_runs + 1):
-            # Create model run
-            model_run = ModelRun(
-                id=model_run_id,
-                draft_id=draft.id,
-                model_id=setting.ai_model_id,
-                run_number=run_number,
-                timestamp=get_current_time(),
-                prompt=f"Analyze the following code for assignment {assignment_id}...",
-                raw_response="The detailed response from the LLM goes here...",
-                status="complete"
-            )
-            model_runs.insert(model_run)
-            
-            # Create category scores for each category
-            for category in categories:
-                # Generate a random score between 0.7 and 1.0
-                score = 0.7 + (random.random() * 0.3)
-                confidence = 0.8 + (random.random() * 0.2)  # High confidence
-                
-                category_score = CategoryScore(
-                    id=category_score_id,
-                    model_run_id=model_run_id,
-                    category_id=category.id,
-                    score=score,
-                    confidence=confidence
+        # Create model runs for each configured AI model
+        for model_config in model_run_configs:
+            for run_number in range(1, model_config.num_runs + 1):
+                # Create model run
+                model_run = ModelRun(
+                    id=model_run_id,
+                    draft_id=draft.id,
+                    model_id=model_config.ai_model_id,
+                    run_number=run_number,
+                    timestamp=get_current_time(),
+                    prompt=f"Analyze the following code for assignment {assignment_id}...",
+                    raw_response="The detailed response from the LLM goes here...",
+                    status="complete"
                 )
-                category_scores.insert(category_score)
-                category_score_id += 1
+                model_runs.insert(model_run)
                 
-                # Create feedback items (1 strength, 1 improvement)
-                # Strength feedback
-                feedback_item = FeedbackItem(
-                    id=feedback_item_id,
-                    model_run_id=model_run_id,
-                    category_id=category.id,
-                    type="strength",
-                    content=f"Strong point in {category.name}: The code demonstrates excellent {category.name.lower()}.",
-                    is_strength=True,
-                    is_aggregated=False
-                )
-                feedback_items.insert(feedback_item)
-                feedback_item_id += 1
+                # Create category scores for each category
+                for category in categories:
+                    # Generate a random score between 0.7 and 1.0
+                    score = 0.7 + (random.random() * 0.3)
+                    confidence = 0.8 + (random.random() * 0.2)  # High confidence
+                    
+                    category_score = CategoryScore(
+                        id=category_score_id,
+                        model_run_id=model_run_id,
+                        category_id=category.id,
+                        score=score,
+                        confidence=confidence
+                    )
+                    category_scores.insert(category_score)
+                    category_score_id += 1
+                    
+                    # Create feedback items (1 strength, 1 improvement)
+                    # Strength feedback
+                    feedback_item = FeedbackItem(
+                        id=feedback_item_id,
+                        model_run_id=model_run_id,
+                        category_id=category.id,
+                        type="strength",
+                        content=f"Strong point in {category.name}: The code demonstrates excellent {category.name.lower()}.",
+                        is_strength=True,
+                        is_aggregated=False
+                    )
+                    feedback_items.insert(feedback_item)
+                    feedback_item_id += 1
+                    
+                    # Improvement feedback
+                    feedback_item = FeedbackItem(
+                        id=feedback_item_id,
+                        model_run_id=model_run_id,
+                        category_id=category.id,
+                        type="improvement",
+                        content=f"Area for improvement in {category.name}: Consider enhancing {category.name.lower()} by applying best practices.",
+                        is_strength=False,
+                        is_aggregated=False
+                    )
+                    feedback_items.insert(feedback_item)
+                    feedback_item_id += 1
                 
-                # Improvement feedback
-                feedback_item = FeedbackItem(
-                    id=feedback_item_id,
-                    model_run_id=model_run_id,
-                    category_id=category.id,
-                    type="improvement",
-                    content=f"Area for improvement in {category.name}: Consider enhancing {category.name.lower()} by applying best practices.",
-                    is_strength=False,
-                    is_aggregated=False
-                )
-                feedback_items.insert(feedback_item)
-                feedback_item_id += 1
-            
-            print(f"  Created model run {run_number} for draft ID {draft.id}")
-            model_run_id += 1
+                print(f"  Created model run {run_number} for draft ID {draft.id}")
+                model_run_id += 1
         
         # Create aggregated feedback for each category
         for category in categories:
