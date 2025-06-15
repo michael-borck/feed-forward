@@ -14,7 +14,7 @@
    - [x] Implement prompt template system with rubric integration
    - [x] Create feedback generation service
    - [x] Build aggregation logic for multiple AI runs
-   - [ ] Add feedback generation UI for students
+   - [x] Add feedback generation UI for students
    - [ ] Implement instructor feedback review/approval interface
 
 4. **Testing Infrastructure** (Quality assurance)
@@ -201,6 +201,8 @@
   - Multiple model runs per assignment configuration
   - LiteLLM integration for multi-provider AI support
   - Structured feedback storage (scores, strengths, improvements)
+  - Enhanced aggregation logic supporting Average, Weighted Average, Maximum, and Median methods
+  - Frequency-based feedback deduplication
   - Error handling and retry logic
   - Privacy-aware content cleanup after processing
 - `app/services/background_tasks.py` - Background task management for:
@@ -210,3 +212,8 @@
 - `app/routes/student.py` - Updated to:
   - Trigger feedback generation on submission
   - Added API endpoint for checking feedback status
+  - Created comprehensive feedback viewing UI at `/student/drafts/{draft_id}/feedback`
+  - Updated dashboard to show feedback status with links
+  - Updated assignment view to show draft feedback status
+  - Added auto-refresh functionality for processing feedback
+  - Support for different mark display options (percentage, stars, hidden)

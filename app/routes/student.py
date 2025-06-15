@@ -19,6 +19,9 @@ from app.utils.file_handlers import extract_file_content, validate_file_size
 
 from app import app, rt, student_required
 
+# Import Script for JavaScript functionality
+from fasthtml.common import Script
+
 # --- API Endpoints ---
 @rt('/api/feedback-status/{draft_id}')
 @student_required
@@ -241,9 +244,10 @@ def post(session, token: str, email: str, name: str, password: str, confirm_pass
 # Function to generate assignment sidebar for student dashboard
 def generate_recent_feedback(student_drafts):
     """Generate the recent feedback section for student dashboard"""
-    from fasthtml.common import Div, H2, P
-    from app.utils.ui import feedback_card
+    from fasthtml.common import Div, H2, P, A
+    from app.utils.ui import feedback_card, action_button, status_badge
     from datetime import datetime
+    from app.models.assignment import assignments
     
     # Filter out hidden drafts
     visible_drafts = [draft for draft in student_drafts if not (hasattr(draft, 'hidden_by_student') and draft.hidden_by_student)]
@@ -263,16 +267,59 @@ def generate_recent_feedback(student_drafts):
     # Create feedback cards
     feedback_items = []
     for draft in recent_drafts:
+        # Get assignment title
+        assignment = None
+        try:
+            assignment = assignments[draft.assignment_id]
+        except:
+            pass
+        
+        assignment_title = assignment.title if assignment else f"Assignment {draft.assignment_id}"
+        
+        # Determine card content based on draft status
+        if draft.status == "feedback_ready":
+            card_content = Div(
+                P("✓ Feedback is ready!", cls="text-green-700 font-medium mb-3"),
+                action_button("View Feedback", color="teal", 
+                            href=f"/student/drafts/{draft.id}/feedback", 
+                            size="small"),
+                cls="py-2"
+            )
+            card_color = "green"
+        elif draft.status in ["submitted", "processing"]:
+            card_content = Div(
+                Div(
+                    Div(cls="animate-spin h-5 w-5 border-b-2 border-indigo-600 inline-block mr-2"),
+                    P("Feedback is being generated...", 
+                      cls="text-gray-600 inline"),
+                    cls="mb-3"
+                ),
+                action_button("Check Status", color="indigo", 
+                            href=f"/student/drafts/{draft.id}/feedback", 
+                            size="small"),
+                cls="py-2"
+            )
+            card_color = "yellow"
+        elif draft.status == "error":
+            card_content = Div(
+                P("❌ Error generating feedback", cls="text-red-700 font-medium mb-3"),
+                P("Please contact your instructor.", cls="text-gray-600 text-sm"),
+                cls="py-2"
+            )
+            card_color = "red"
+        else:
+            card_content = Div(
+                P("Feedback pending", cls="text-gray-600"),
+                cls="py-2"
+            )
+            card_color = "gray"
+        
         feedback_items.append(
             Div(
                 feedback_card(
-                    f"Feedback on Assignment {draft.assignment_id} - Draft {draft.version}",
-                    Div(
-                        P("No feedback available yet. Your submission is being processed.", 
-                          cls="text-gray-600 italic"),
-                        cls="py-2"
-                    ),
-                    color="teal"
+                    f"{assignment_title} - Draft {draft.version}",
+                    card_content,
+                    color=card_color
                 )
             )
         )
@@ -938,29 +985,42 @@ def get(session, request, assignment_id: int):
                                 cls="mb-6"
                             ),
                             
-                            # Feedback if available
+                            # Feedback section
                             Div(
                                 H5("Feedback", cls="text-md font-semibold text-gray-700 mb-3"),
-                                (Div(
-                                    *(Div(
-                                        feedback_card(
-                                            next((c.name for c in rubric_cats if c.id == fb.category_id), "General Feedback"),
-                                            Div(
-                                                P(fb.feedback_text, cls="text-gray-700"),
-                                                P(f"Score: {fb.aggregated_score}/100", 
-                                                  cls="text-sm text-gray-500 mt-2 font-medium"),
-                                                cls="py-1"
-                                            ),
-                                            color="green" if fb.aggregated_score >= 80 else
-                                                  "yellow" if fb.aggregated_score >= 60 else
-                                                  "red"
+                                # Show different content based on draft status
+                                (
+                                    # Feedback ready - show link
+                                    Div(
+                                        P("✓ Your feedback is ready!", cls="text-green-700 font-medium mb-3"),
+                                        action_button("View Detailed Feedback", color="teal", 
+                                                    href=f"/student/drafts/{draft.id}/feedback",
+                                                    icon="→"),
+                                        cls="bg-green-50 p-4 rounded-lg border border-green-200"
+                                    ) if draft.status == "feedback_ready" else
+                                    
+                                    # Processing - show status
+                                    Div(
+                                        Div(
+                                            Div(cls="animate-spin h-5 w-5 border-b-2 border-indigo-600 inline-block mr-2"),
+                                            P("Feedback is being generated...", cls="text-gray-700 inline"),
+                                            cls="mb-3"
                                         ),
-                                        cls="mb-4"
-                                    ) for fb in draft_feedback.get(draft.id, []))
-                                )) if draft_feedback.get(draft.id) and draft.status == "feedback_ready" else
-                                Div(
-                                    P("Feedback is not available yet.", 
-                                      cls="text-gray-500 italic text-center p-4 bg-gray-50 rounded-md")
+                                        action_button("Check Status", color="indigo", 
+                                                    href=f"/student/drafts/{draft.id}/feedback",
+                                                    size="small"),
+                                        cls="bg-yellow-50 p-4 rounded-lg border border-yellow-200"
+                                    ) if draft.status in ["submitted", "processing"] else
+                                    
+                                    # Error state
+                                    Div(
+                                        P("❌ Error generating feedback", cls="text-red-700 font-medium mb-2"),
+                                        P("Please contact your instructor for assistance.", cls="text-gray-600 text-sm"),
+                                        cls="bg-red-50 p-4 rounded-lg border border-red-200"
+                                    ) if draft.status == "error" else
+                                    
+                                    # Default - no feedback yet
+                                    P("Feedback not yet generated.", cls="text-gray-500 italic")
                                 ),
                                 cls=""
                             )
@@ -1318,6 +1378,352 @@ async def post(session, assignment_id: int, content: str = "", version: int = 0,
     
     # Redirect to the assignment view with a message about privacy
     return RedirectResponse(f"/student/assignments/{assignment_id}", status_code=303)
+
+# --- Student View Draft Feedback ---
+@rt('/student/drafts/{draft_id}/feedback')
+@student_required
+def get(session, draft_id: int):
+    # Get current user
+    user = users[session['auth']]
+    
+    # Import UI components
+    from app.utils.ui import dashboard_layout, card, action_button, status_badge
+    
+    # Get the draft and verify ownership
+    from app.models.feedback import Draft, drafts, AggregatedFeedback, aggregated_feedback
+    from app.models.assignment import Assignment, assignments, Rubric, rubrics, RubricCategory, rubric_categories
+    from app.models.config import MarkDisplayOption, mark_display_options
+    
+    # Find the draft
+    draft = None
+    try:
+        draft = drafts[draft_id]
+        if draft.student_email != user.email:
+            return Div(
+                P("You don't have permission to view this draft.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+                A("Return to Dashboard", href="/student/dashboard", 
+                  cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+            )
+    except:
+        return Div(
+            P("Draft not found.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            A("Return to Dashboard", href="/student/dashboard", 
+              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    # Get the assignment
+    assignment = assignments[draft.assignment_id]
+    
+    # Get assignment settings to check mark display option
+    from app.models.config import AssignmentSettings, assignment_settings
+    setting = None
+    for s in assignment_settings():
+        if s.assignment_id == assignment.id:
+            setting = s
+            break
+    
+    # Get mark display option
+    mark_display = None
+    if setting:
+        for mdo in mark_display_options():
+            if mdo.id == setting.mark_display_option_id:
+                mark_display = mdo
+                break
+    
+    # Check if scores should be hidden
+    hide_scores = mark_display and mark_display.display_type == "hidden"
+    
+    # Get aggregated feedback for this draft
+    draft_feedback = []
+    for feedback in aggregated_feedback():
+        if feedback.draft_id == draft_id:
+            draft_feedback.append(feedback)
+    
+    # Get rubric categories for context
+    rubric = None
+    for r in rubrics():
+        if r.assignment_id == assignment.id:
+            rubric = r
+            break
+    
+    categories = {}
+    if rubric:
+        for cat in rubric_categories():
+            if cat.rubric_id == rubric.id:
+                categories[cat.id] = cat
+    
+    # Sidebar content
+    sidebar_content = Div(
+        # Assignment info
+        Div(
+            H3(assignment.title, cls="text-xl font-semibold text-indigo-900 mb-2"),
+            P(f"Draft {draft.version} of {assignment.max_drafts}", cls="text-gray-600 mb-1"),
+            P(f"Submitted: {draft.submission_date}", cls="text-gray-600 mb-1"),
+            P(f"Status: {draft.status.replace('_', ' ').title()}", cls="text-gray-600 mb-4"),
+            Div(
+                action_button("Back to Assignment", color="gray", 
+                            href=f"/student/assignments/{assignment.id}", icon="←"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        # Draft statistics
+        Div(
+            H3("Draft Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Word Count: {draft.word_count if hasattr(draft, 'word_count') else 'N/A'}", 
+              cls="text-gray-600 mb-2"),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+    )
+    
+    # Main content - depends on draft status
+    if draft.status == "submitted":
+        # Feedback is being generated
+        main_content = Div(
+            H1(f"Feedback for {assignment.title} - Draft {draft.version}", 
+               cls="text-3xl font-bold text-indigo-900 mb-6"),
+            
+            card(
+                Div(
+                    H2("Your feedback is being generated", cls="text-2xl font-semibold text-indigo-800 mb-4"),
+                    P("Our AI is analyzing your submission. This usually takes a few minutes.", 
+                      cls="text-gray-700 mb-6"),
+                    
+                    # Progress indicator
+                    Div(
+                        Div(
+                            Div(cls="animate-spin h-8 w-8 border-b-2 border-indigo-600"),
+                            cls="flex justify-center mb-4"
+                        ),
+                        P("Processing your submission...", cls="text-center text-gray-600"),
+                        cls="mb-6"
+                    ),
+                    
+                    # Auto-refresh notice
+                    P("This page will automatically refresh when your feedback is ready.", 
+                      cls="text-sm text-gray-500 text-center"),
+                    
+                    # Add JavaScript for auto-refresh
+                    Script("""
+                        // Check feedback status every 5 seconds
+                        setInterval(function() {
+                            fetch('/api/feedback-status/""" + str(draft_id) + """')
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.draft_status === 'feedback_ready' || data.draft_status === 'error') {
+                                        window.location.reload();
+                                    }
+                                });
+                        }, 5000);
+                    """),
+                    cls="text-center"
+                ),
+                bg_color="blue"
+            )
+        )
+    
+    elif draft.status == "processing":
+        # Feedback is being generated (alternate status)
+        main_content = Div(
+            H1(f"Feedback for {assignment.title} - Draft {draft.version}", 
+               cls="text-3xl font-bold text-indigo-900 mb-6"),
+            
+            card(
+                Div(
+                    H2("Processing your submission", cls="text-2xl font-semibold text-yellow-800 mb-4"),
+                    P("Our AI models are currently analyzing your work.", 
+                      cls="text-gray-700 mb-6"),
+                    
+                    # Progress indicator
+                    Div(
+                        Div(
+                            Div(cls="animate-spin h-8 w-8 border-b-2 border-yellow-600"),
+                            cls="flex justify-center mb-4"
+                        ),
+                        P("Generating feedback...", cls="text-center text-gray-600"),
+                        cls="mb-6"
+                    ),
+                    
+                    # Auto-refresh notice
+                    P("This page will automatically refresh when your feedback is ready.", 
+                      cls="text-sm text-gray-500 text-center"),
+                    
+                    # Add JavaScript for auto-refresh
+                    Script("""
+                        // Check feedback status every 5 seconds
+                        setInterval(function() {
+                            fetch('/api/feedback-status/""" + str(draft_id) + """')
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.draft_status === 'feedback_ready' || data.draft_status === 'error') {
+                                        window.location.reload();
+                                    }
+                                });
+                        }, 5000);
+                    """),
+                    cls="text-center"
+                ),
+                bg_color="yellow"
+            )
+        )
+    
+    elif draft.status == "error":
+        # Error generating feedback
+        main_content = Div(
+            H1(f"Feedback for {assignment.title} - Draft {draft.version}", 
+               cls="text-3xl font-bold text-indigo-900 mb-6"),
+            
+            card(
+                Div(
+                    H2("Error generating feedback", cls="text-2xl font-semibold text-red-800 mb-4"),
+                    P("We encountered an error while generating your feedback.", 
+                      cls="text-gray-700 mb-4"),
+                    P("Please contact your instructor for assistance.", 
+                      cls="text-gray-700 mb-6"),
+                    
+                    action_button("Return to Assignment", color="indigo", 
+                                href=f"/student/assignments/{assignment.id}"),
+                    cls="text-center"
+                ),
+                bg_color="red"
+            )
+        )
+    
+    elif draft.status == "feedback_ready" and draft_feedback:
+        # Display the feedback
+        feedback_sections = []
+        
+        # Overall score calculation (if not hidden)
+        if not hide_scores and draft_feedback:
+            total_score = 0
+            total_weight = 0
+            for feedback in draft_feedback:
+                if feedback.category_id in categories:
+                    cat = categories[feedback.category_id]
+                    total_score += feedback.aggregated_score * cat.weight
+                    total_weight += cat.weight
+            
+            if total_weight > 0:
+                overall_score = total_score / total_weight
+                
+                # Display based on mark display option
+                if mark_display and mark_display.display_type == "numeric":
+                    score_display = f"{overall_score:.1f}%"
+                elif mark_display and mark_display.display_type == "icon" and mark_display.icon_type == "star":
+                    # Convert to 5-star rating
+                    stars = int(overall_score / 20)  # 0-100 to 0-5
+                    score_display = "⭐" * stars + "☆" * (5 - stars)
+                else:
+                    score_display = f"{overall_score:.1f}%"
+                
+                feedback_sections.append(
+                    Div(
+                        H2("Overall Score", cls="text-2xl font-semibold text-indigo-800 mb-4"),
+                        P(score_display, cls="text-4xl font-bold text-indigo-600"),
+                        cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6 text-center"
+                    )
+                )
+        
+        # Category-specific feedback
+        for feedback in draft_feedback:
+            if feedback.category_id in categories:
+                cat = categories[feedback.category_id]
+                
+                # Prepare score display
+                if not hide_scores:
+                    if mark_display and mark_display.display_type == "numeric":
+                        cat_score_display = f"{feedback.aggregated_score:.1f}%"
+                    elif mark_display and mark_display.display_type == "icon" and mark_display.icon_type == "star":
+                        stars = int(feedback.aggregated_score / 20)
+                        cat_score_display = "⭐" * stars + "☆" * (5 - stars)
+                    else:
+                        cat_score_display = f"{feedback.aggregated_score:.1f}%"
+                else:
+                    cat_score_display = None
+                
+                feedback_sections.append(
+                    Div(
+                        Div(
+                            H3(cat.name, cls="text-xl font-semibold text-indigo-800 mb-2"),
+                            P(cat.description, cls="text-sm text-gray-600 mb-3"),
+                            cls="mb-4"
+                        ),
+                        
+                        # Score display (if not hidden)
+                        Div(
+                            P(f"Score: {cat_score_display}", cls="text-lg font-medium text-indigo-600 mb-3")
+                        ) if cat_score_display else "",
+                        
+                        # Feedback text
+                        Div(
+                            *[P(line, cls="mb-2") for line in feedback.feedback_text.split('\n') if line.strip()],
+                            cls="text-gray-700 space-y-2"
+                        ),
+                        
+                        cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-4"
+                    )
+                )
+        
+        main_content = Div(
+            H1(f"Feedback for {assignment.title} - Draft {draft.version}", 
+               cls="text-3xl font-bold text-indigo-900 mb-6"),
+            
+            # Success message
+            card(
+                Div(
+                    P("Your feedback is ready! Review the detailed feedback below.", 
+                      cls="text-gray-700"),
+                    cls="text-center"
+                ),
+                bg_color="green"
+            ),
+            
+            # Feedback sections
+            *feedback_sections,
+            
+            # Action buttons
+            Div(
+                action_button("Submit Next Draft", color="teal", 
+                            href=f"/student/assignments/{assignment.id}/submit", 
+                            size="large") if draft.version < assignment.max_drafts else "",
+                action_button("View Assignment", color="indigo", 
+                            href=f"/student/assignments/{assignment.id}"),
+                cls="flex gap-4 mt-8"
+            )
+        )
+    
+    else:
+        # No feedback available
+        main_content = Div(
+            H1(f"Feedback for {assignment.title} - Draft {draft.version}", 
+               cls="text-3xl font-bold text-indigo-900 mb-6"),
+            
+            card(
+                Div(
+                    H2("No feedback available", cls="text-2xl font-semibold text-gray-800 mb-4"),
+                    P("Feedback has not been generated for this draft yet.", 
+                      cls="text-gray-700 mb-6"),
+                    
+                    action_button("Return to Assignment", color="indigo", 
+                                href=f"/student/assignments/{assignment.id}"),
+                    cls="text-center"
+                ),
+                bg_color="gray"
+            )
+        )
+    
+    # Use the dashboard layout
+    return Titled(
+        f"Draft Feedback - {assignment.title} | FeedForward",
+        dashboard_layout(
+            "Draft Feedback", 
+            sidebar_content, 
+            main_content, 
+            user_role=Role.STUDENT,
+            current_path="/student/dashboard"
+        )
+    )
 
 # --- Student Course Assignments ---
 @rt('/student/courses/{course_id}/assignments')
