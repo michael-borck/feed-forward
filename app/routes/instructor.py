@@ -1342,6 +1342,8 @@ def get(session, assignment_id: int):
                       cls="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 mr-4"),
                     A("Manage Rubric", href=f"/instructor/assignments/{assignment_id}/rubric", 
                       cls="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 mr-4"),
+                    A("Review Feedback", href=f"/instructor/assignments/{assignment_id}/feedback", 
+                      cls="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 mr-4"),
                     A("View Submissions", href=f"/instructor/assignments/{assignment_id}/submissions", 
                       cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"),
                     cls="flex"
@@ -1396,6 +1398,8 @@ def get(session, assignment_id: int):
                               href=f"/instructor/assignments/{assignment_id}/edit", icon="✏️"),
                 action_button("Manage Rubric", color="teal", 
                               href=f"/instructor/assignments/{assignment_id}/rubric", icon="📊"),
+                action_button("Review Feedback", color="purple", 
+                              href=f"/instructor/assignments/{assignment_id}/feedback", icon="👁"),
                 cls="space-y-3"
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
@@ -3895,3 +3899,726 @@ def post(session, course_id: str = None, student_emails: str = None):
 # This route has been replaced by client-side JavaScript processing
 
 # Confirmation is now directly handled in the POST route
+
+# --- Instructor Feedback Review Routes ---
+
+@rt('/instructor/assignments/{assignment_id}/feedback')
+@instructor_required
+def get(session, assignment_id: int):
+    """View all student submissions and feedback for an assignment"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    
+    if error:
+        return Div(
+            P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            A("Return to Dashboard", href="/instructor/dashboard", 
+              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    # Get the course
+    course, course_error = get_instructor_course(assignment.course_id, user.email)
+    
+    if course_error:
+        return Div(
+            P(course_error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            A("Return to Dashboard", href="/instructor/dashboard", 
+              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    # Get assignment settings
+    from app.models.config import AssignmentSettings, assignment_settings
+    setting = None
+    for s in assignment_settings():
+        if s.assignment_id == assignment_id:
+            setting = s
+            break
+    
+    # Get all drafts for this assignment
+    from app.models.feedback import Draft, drafts
+    assignment_drafts = []
+    for draft in drafts():
+        if draft.assignment_id == assignment_id:
+            # Get student info
+            student_name = "Unknown Student"
+            try:
+                student = users[draft.student_email]
+                student_name = student.name
+            except:
+                pass
+            
+            assignment_drafts.append({
+                'draft': draft,
+                'student_name': student_name,
+                'student_email': draft.student_email
+            })
+    
+    # Sort by submission date (newest first)
+    assignment_drafts.sort(key=lambda x: x['draft'].submission_date, reverse=True)
+    
+    # Group drafts by status
+    # Check if the aggregated feedback has been approved yet
+    from app.models.feedback import AggregatedFeedback, aggregated_feedback
+    
+    pending_review = []
+    approved = []
+    
+    for d in assignment_drafts:
+        if d['draft'].status == 'feedback_ready':
+            # Check if feedback has been approved
+            is_approved = False
+            if setting and setting.require_review:
+                # Check aggregated feedback for approval status
+                for fb in aggregated_feedback():
+                    if fb.draft_id == d['draft'].id and fb.status == 'approved':
+                        is_approved = True
+                        break
+                
+                if is_approved:
+                    approved.append(d)
+                else:
+                    pending_review.append(d)
+            else:
+                # No review required, all ready feedback is approved
+                approved.append(d)
+    
+    processing = [d for d in assignment_drafts if d['draft'].status in ['submitted', 'processing']]
+    error_drafts = [d for d in assignment_drafts if d['draft'].status == 'error']
+    
+    # Sidebar content
+    sidebar_content = Div(
+        # Assignment info
+        Div(
+            H3(assignment.title, cls="text-xl font-semibold text-indigo-900 mb-2"),
+            P(f"Course: {course.title}", cls="text-gray-600 mb-1"),
+            P(f"Total Submissions: {len(assignment_drafts)}", cls="text-gray-600 mb-4"),
+            Div(
+                action_button("Back to Assignment", color="gray", 
+                            href=f"/instructor/assignments/{assignment_id}", icon="←"),
+                action_button("Assignment Settings", color="indigo", 
+                            href=f"/instructor/assignments/{assignment_id}/settings"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        # Status summary
+        Div(
+            H3("Submission Status", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Pending Review: {len(pending_review)}", 
+              cls="text-yellow-600 font-medium mb-2" if pending_review else "text-gray-600 mb-2"),
+            P(f"Processing: {len(processing)}", cls="text-blue-600 mb-2"),
+            P(f"Approved: {len(approved)}", cls="text-green-600 mb-2"),
+            P(f"Errors: {len(error_drafts)}", 
+              cls="text-red-600 font-medium mb-2" if error_drafts else "text-gray-600 mb-2"),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+    )
+    
+    # Main content
+    main_content = Div(
+        H1(f"Feedback Review - {assignment.title}", 
+           cls="text-3xl font-bold text-indigo-900 mb-6"),
+        
+        # Pending Review Section (if review is required)
+        (Div(
+            H2("Pending Review", cls="text-2xl font-semibold text-yellow-700 mb-4"),
+            (Div(
+                *[Div(
+                    Div(
+                        Div(
+                            H4(f"{d['student_name']} - Draft {d['draft'].version}", 
+                               cls="text-lg font-medium text-indigo-800"),
+                            P(f"Submitted: {d['draft'].submission_date}", 
+                              cls="text-sm text-gray-600"),
+                            cls="flex-1"
+                        ),
+                        Div(
+                            status_badge("Pending Review", "yellow"),
+                            cls="ml-4"
+                        ),
+                        cls="flex items-start justify-between mb-3"
+                    ),
+                    Div(
+                        action_button("Review Feedback", color="teal", 
+                                    href=f"/instructor/drafts/{d['draft'].id}/review",
+                                    icon="👁"),
+                        cls="mt-2"
+                    ),
+                    cls="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3"
+                ) for d in pending_review]
+            ) if pending_review else 
+            P("No submissions pending review.", cls="text-gray-500 italic")),
+            cls="mb-8"
+        ) if setting and setting.require_review else ""),
+        
+        # Processing Section
+        Div(
+            H2("Processing", cls="text-2xl font-semibold text-blue-700 mb-4"),
+            (Div(
+                *[Div(
+                    Div(
+                        Div(
+                            H4(f"{d['student_name']} - Draft {d['draft'].version}", 
+                               cls="text-lg font-medium text-indigo-800"),
+                            P(f"Submitted: {d['draft'].submission_date}", 
+                              cls="text-sm text-gray-600"),
+                            cls="flex-1"
+                        ),
+                        Div(
+                            Div(cls="animate-spin h-5 w-5 border-b-2 border-blue-600"),
+                            cls="ml-4"
+                        ),
+                        cls="flex items-start justify-between"
+                    ),
+                    P("Feedback is being generated...", cls="text-gray-600 text-sm mt-2"),
+                    cls="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3"
+                ) for d in processing]
+            ) if processing else 
+            P("No submissions currently being processed.", cls="text-gray-500 italic")),
+            cls="mb-8"
+        ),
+        
+        # Approved/Released Section
+        Div(
+            H2("Released to Students", cls="text-2xl font-semibold text-green-700 mb-4"),
+            (Div(
+                *[Div(
+                    Div(
+                        Div(
+                            H4(f"{d['student_name']} - Draft {d['draft'].version}", 
+                               cls="text-lg font-medium text-indigo-800"),
+                            P(f"Submitted: {d['draft'].submission_date}", 
+                              cls="text-sm text-gray-600"),
+                            cls="flex-1"
+                        ),
+                        Div(
+                            status_badge("Released", "green"),
+                            cls="ml-4"
+                        ),
+                        cls="flex items-start justify-between mb-3"
+                    ),
+                    Div(
+                        action_button("View Feedback", color="indigo", 
+                                    href=f"/instructor/drafts/{d['draft'].id}/view",
+                                    size="small"),
+                        cls="mt-2"
+                    ),
+                    cls="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3"
+                ) for d in approved]
+            ) if approved else 
+            P("No feedback has been released yet.", cls="text-gray-500 italic")),
+            cls="mb-8"
+        ),
+        
+        # Error Section
+        (Div(
+            H2("Errors", cls="text-2xl font-semibold text-red-700 mb-4"),
+            Div(
+                *[Div(
+                    Div(
+                        Div(
+                            H4(f"{d['student_name']} - Draft {d['draft'].version}", 
+                               cls="text-lg font-medium text-red-800"),
+                            P(f"Submitted: {d['draft'].submission_date}", 
+                              cls="text-sm text-gray-600"),
+                            cls="flex-1"
+                        ),
+                        Div(
+                            status_badge("Error", "red"),
+                            cls="ml-4"
+                        ),
+                        cls="flex items-start justify-between mb-3"
+                    ),
+                    P("Failed to generate feedback", cls="text-red-600 text-sm mt-2"),
+                    Div(
+                        action_button("Retry Generation", color="yellow", 
+                                    href=f"/instructor/drafts/{d['draft'].id}/retry",
+                                    size="small"),
+                        cls="mt-2"
+                    ),
+                    cls="bg-white p-4 rounded-lg shadow-sm border border-red-200 mb-3"
+                ) for d in error_drafts]
+            ),
+            cls="mb-8"
+        ) if error_drafts else ""),
+    )
+    
+    # Use the dashboard layout
+    return Titled(
+        f"Feedback Review - {assignment.title} | FeedForward",
+        dashboard_layout(
+            "Feedback Review", 
+            sidebar_content, 
+            main_content, 
+            user_role=Role.INSTRUCTOR,
+            current_path="/instructor/dashboard"
+        )
+    )
+
+@rt('/instructor/drafts/{draft_id}/review')
+@instructor_required
+def get(session, draft_id: int):
+    """Review and approve/edit feedback for a specific draft"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Import necessary models
+    from app.models.feedback import Draft, drafts, AggregatedFeedback, aggregated_feedback
+    from app.models.assignment import Assignment, assignments, Rubric, rubrics, RubricCategory, rubric_categories
+    
+    # Get the draft
+    try:
+        draft = drafts[draft_id]
+    except:
+        return Div(
+            P("Draft not found.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            A("Return to Dashboard", href="/instructor/dashboard", 
+              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    # Get the assignment and verify instructor owns it
+    assignment, error = get_instructor_assignment(draft.assignment_id, user.email)
+    
+    if error:
+        return Div(
+            P("You don't have permission to review this feedback.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            A("Return to Dashboard", href="/instructor/dashboard", 
+              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    # Get student info
+    student_name = "Unknown Student"
+    try:
+        student = users[draft.student_email]
+        student_name = student.name
+    except:
+        pass
+    
+    # Get aggregated feedback for this draft
+    draft_feedback = []
+    for feedback in aggregated_feedback():
+        if feedback.draft_id == draft_id:
+            draft_feedback.append(feedback)
+    
+    # Get rubric categories for context
+    rubric = None
+    for r in rubrics():
+        if r.assignment_id == assignment.id:
+            rubric = r
+            break
+    
+    categories = {}
+    if rubric:
+        for cat in rubric_categories():
+            if cat.rubric_id == rubric.id:
+                categories[cat.id] = cat
+    
+    # Sidebar content
+    sidebar_content = Div(
+        # Draft info
+        Div(
+            H3("Draft Information", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Student: {student_name}", cls="text-gray-700 mb-2"),
+            P(f"Assignment: {assignment.title}", cls="text-gray-700 mb-2"),
+            P(f"Draft: {draft.version} of {assignment.max_drafts}", cls="text-gray-700 mb-2"),
+            P(f"Submitted: {draft.submission_date}", cls="text-gray-700 mb-2"),
+            P(f"Word Count: {draft.word_count if hasattr(draft, 'word_count') else 'N/A'}", 
+              cls="text-gray-700 mb-4"),
+            Div(
+                action_button("Back to Feedback List", color="gray", 
+                            href=f"/instructor/assignments/{assignment.id}/feedback", icon="←"),
+                cls="space-y-3"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+        
+        # Review actions
+        Div(
+            H3("Review Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            Form(
+                Button("Approve & Release", 
+                       type="submit",
+                       name="action",
+                       value="approve",
+                       cls="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mb-3"),
+                Button("Request Changes", 
+                       type="submit",
+                       name="action",
+                       value="request_changes",
+                       cls="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700"),
+                method="post",
+                action=f"/instructor/drafts/{draft_id}/review"
+            ),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        ),
+    )
+    
+    # Main content - show the draft and feedback for review
+    main_content = Div(
+        H1(f"Review Feedback - {student_name}", 
+           cls="text-3xl font-bold text-indigo-900 mb-6"),
+        
+        # Draft content (if not removed for privacy)
+        Div(
+            H2("Student Submission", cls="text-2xl font-semibold text-indigo-800 mb-4"),
+            (P("Note: Content has been removed for privacy after feedback generation.", 
+               cls="text-amber-600 italic mb-4") 
+             if draft.content == "[Content removed for privacy]" else
+             Pre(
+                draft.content,
+                cls="bg-gray-50 p-4 rounded-lg text-gray-700 text-sm whitespace-pre-wrap border border-gray-200 overflow-auto max-h-96 mb-6"
+            )),
+            cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6"
+        ),
+        
+        # Feedback sections for review
+        H2("Generated Feedback", cls="text-2xl font-semibold text-indigo-800 mb-4"),
+        
+        # Overall score calculation
+        (Div(
+            H3("Overall Score", cls="text-xl font-semibold text-indigo-700 mb-3"),
+            (Div(
+                P(f"{sum(fb.aggregated_score * categories[fb.category_id].weight for fb in draft_feedback if fb.category_id in categories) / sum(categories[fb.category_id].weight for fb in draft_feedback if fb.category_id in categories):.1f}%", 
+                  cls="text-3xl font-bold text-indigo-600"),
+                cls="text-center mb-4"
+            ) if draft_feedback and categories else P("No score available", cls="text-gray-500 italic")),
+            cls="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4"
+        ) if draft_feedback else ""),
+        
+        # Category-specific feedback for editing
+        Form(
+            *(Div(
+                Div(
+                    H3(categories[feedback.category_id].name if feedback.category_id in categories else "General Feedback", 
+                       cls="text-lg font-semibold text-indigo-700 mb-2"),
+                    P(categories[feedback.category_id].description if feedback.category_id in categories else "", 
+                      cls="text-sm text-gray-600 mb-3"),
+                    cls="mb-4"
+                ),
+                
+                # Score input
+                Div(
+                    Label("Score:", For=f"score_{feedback.id}", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Input(
+                        type="number",
+                        name=f"score_{feedback.id}",
+                        value=str(feedback.aggregated_score),
+                        min="0",
+                        max="100",
+                        step="0.1",
+                        cls="w-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    ),
+                    Span(" / 100", cls="ml-2 text-gray-600"),
+                    cls="mb-4"
+                ),
+                
+                # Feedback text
+                Div(
+                    Label("Feedback:", For=f"feedback_{feedback.id}", cls="block text-sm font-medium text-gray-700 mb-1"),
+                    Textarea(
+                        feedback.feedback_text,
+                        name=f"feedback_{feedback.id}",
+                        rows="6",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    ),
+                    cls="mb-4"
+                ),
+                
+                # Hidden field for feedback ID
+                Input(type="hidden", name=f"feedback_id_{i}", value=str(feedback.id)),
+                
+                cls="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-4"
+            ) for i, feedback in enumerate(draft_feedback)),
+            
+            # Hidden field for total feedback count
+            Input(type="hidden", name="feedback_count", value=str(len(draft_feedback))),
+            
+            # Save changes button
+            Div(
+                Button("Save Changes", 
+                       type="submit",
+                       cls="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"),
+                cls="text-center mt-6"
+            ),
+            
+            method="post",
+            action=f"/instructor/drafts/{draft_id}/edit-feedback"
+        ),
+    )
+    
+    # Use the dashboard layout
+    return Titled(
+        f"Review Feedback - {student_name} | FeedForward",
+        dashboard_layout(
+            "Review Feedback", 
+            sidebar_content, 
+            main_content, 
+            user_role=Role.INSTRUCTOR,
+            current_path="/instructor/dashboard"
+        )
+    )
+
+@rt('/instructor/drafts/{draft_id}/review')
+@instructor_required
+def post(session, draft_id: int, action: str):
+    """Handle feedback approval or rejection"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Import necessary models
+    from app.models.feedback import Draft, drafts, AggregatedFeedback, aggregated_feedback
+    from app.models.assignment import assignments
+    
+    # Get the draft
+    try:
+        draft = drafts[draft_id]
+    except:
+        return "Draft not found."
+    
+    # Verify instructor owns the assignment
+    assignment, error = get_instructor_assignment(draft.assignment_id, user.email)
+    
+    if error:
+        return "You don't have permission to review this feedback."
+    
+    # Handle the action
+    if action == "approve":
+        # Update all aggregated feedback to approved status
+        for feedback in aggregated_feedback():
+            if feedback.draft_id == draft_id:
+                feedback.status = "approved"
+                feedback.edited_by_instructor = True
+                feedback.instructor_email = user.email
+                feedback.release_date = datetime.now().isoformat()
+                aggregated_feedback.update(feedback)
+        
+        # Update draft status to show feedback is ready
+        draft.status = "feedback_ready"
+        drafts.update(draft)
+        
+        # Redirect back to feedback list
+        return RedirectResponse(f"/instructor/assignments/{assignment.id}/feedback", status_code=303)
+    
+    elif action == "request_changes":
+        # This would typically trigger a workflow to regenerate or manually edit feedback
+        # For now, we'll just redirect back with a message
+        return Div(
+            P("Feature coming soon: Request changes to AI-generated feedback.", 
+              cls="text-yellow-600 bg-yellow-50 p-4 rounded-lg mb-4"),
+            A("Back to Review", href=f"/instructor/drafts/{draft_id}/review",
+              cls="bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    return "Invalid action."
+
+@rt('/instructor/drafts/{draft_id}/edit-feedback')
+@instructor_required
+def post(session, draft_id: int, feedback_count: int = 0, **kwargs):
+    """Save edited feedback"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Import necessary models
+    from app.models.feedback import Draft, drafts, AggregatedFeedback, aggregated_feedback
+    
+    # Get the draft
+    try:
+        draft = drafts[draft_id]
+    except:
+        return "Draft not found."
+    
+    # Verify instructor owns the assignment
+    assignment, error = get_instructor_assignment(draft.assignment_id, user.email)
+    
+    if error:
+        return "You don't have permission to edit this feedback."
+    
+    # Process the edited feedback
+    try:
+        feedback_count = int(feedback_count)
+    except:
+        feedback_count = 0
+    
+    # Update each feedback item
+    for i in range(feedback_count):
+        feedback_id_key = f"feedback_id_{i}"
+        score_key = f"score_{kwargs.get(feedback_id_key, '')}"
+        feedback_key = f"feedback_{kwargs.get(feedback_id_key, '')}"
+        
+        if feedback_id_key in kwargs and score_key in kwargs and feedback_key in kwargs:
+            try:
+                feedback_id = int(kwargs[feedback_id_key])
+                new_score = float(kwargs[score_key])
+                new_text = kwargs[feedback_key]
+                
+                # Find and update the feedback
+                for feedback in aggregated_feedback():
+                    if feedback.id == feedback_id and feedback.draft_id == draft_id:
+                        feedback.aggregated_score = new_score
+                        feedback.feedback_text = new_text
+                        feedback.edited_by_instructor = True
+                        feedback.instructor_email = user.email
+                        aggregated_feedback.update(feedback)
+                        break
+                        
+            except Exception as e:
+                print(f"Error updating feedback {i}: {e}")
+    
+    # Success message and redirect
+    return Div(
+        Div(
+            P("✓ Feedback updated successfully!", cls="text-green-700 font-medium mb-4"),
+            P("The changes have been saved. You can now approve the feedback for release to the student.", 
+              cls="text-gray-700 mb-4"),
+            Div(
+                A("Continue Review", href=f"/instructor/drafts/{draft_id}/review",
+                  cls="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 mr-3"),
+                A("Back to List", href=f"/instructor/assignments/{assignment.id}/feedback",
+                  cls="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300"),
+                cls="flex gap-3 justify-center"
+            ),
+            cls="text-center"
+        ),
+        cls="bg-green-50 p-8 rounded-xl border border-green-200 max-w-2xl mx-auto mt-8"
+    )
+
+@rt('/instructor/drafts/{draft_id}/view')
+@instructor_required
+def get(session, draft_id: int):
+    """View released feedback (read-only)"""
+    # Get current user
+    user = users[session['auth']]
+    
+    # Import necessary models
+    from app.models.feedback import Draft, drafts, AggregatedFeedback, aggregated_feedback
+    from app.models.assignment import assignments, rubrics, rubric_categories
+    
+    # Get the draft
+    try:
+        draft = drafts[draft_id]
+    except:
+        return Div(
+            P("Draft not found.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            A("Return to Dashboard", href="/instructor/dashboard", 
+              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    # Verify instructor owns the assignment
+    assignment, error = get_instructor_assignment(draft.assignment_id, user.email)
+    
+    if error:
+        return Div(
+            P("You don't have permission to view this feedback.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            A("Return to Dashboard", href="/instructor/dashboard", 
+              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+        )
+    
+    # Get student info
+    student_name = "Unknown Student"
+    try:
+        student = users[draft.student_email]
+        student_name = student.name
+    except:
+        pass
+    
+    # Get aggregated feedback
+    draft_feedback = []
+    for feedback in aggregated_feedback():
+        if feedback.draft_id == draft_id:
+            draft_feedback.append(feedback)
+    
+    # Get rubric categories
+    rubric = None
+    for r in rubrics():
+        if r.assignment_id == assignment.id:
+            rubric = r
+            break
+    
+    categories = {}
+    if rubric:
+        for cat in rubric_categories():
+            if cat.rubric_id == rubric.id:
+                categories[cat.id] = cat
+    
+    # Calculate overall score
+    total_score = 0
+    total_weight = 0
+    if draft_feedback and categories:
+        for feedback in draft_feedback:
+            if feedback.category_id in categories:
+                cat = categories[feedback.category_id]
+                total_score += feedback.aggregated_score * cat.weight
+                total_weight += cat.weight
+    
+    overall_score = total_score / total_weight if total_weight > 0 else 0
+    
+    # Main content
+    main_content = Div(
+        # Header
+        Div(
+            H1(f"Feedback for {student_name}", cls="text-3xl font-bold text-indigo-900 mb-2"),
+            P(f"{assignment.title} - Draft {draft.version}", cls="text-xl text-gray-600"),
+            cls="mb-6"
+        ),
+        
+        # Overall score card
+        Div(
+            H2("Overall Score", cls="text-xl font-semibold text-indigo-800 mb-3"),
+            P(f"{overall_score:.1f}%", cls="text-4xl font-bold text-indigo-600 text-center"),
+            cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6"
+        ),
+        
+        # Category feedback
+        H2("Detailed Feedback", cls="text-xl font-semibold text-indigo-800 mb-4"),
+        *(Div(
+            Div(
+                H3(categories[feedback.category_id].name if feedback.category_id in categories else "General", 
+                   cls="text-lg font-semibold text-indigo-700 mb-2"),
+                P(f"Score: {feedback.aggregated_score:.1f}%", 
+                  cls="text-lg font-medium text-indigo-600 mb-3"),
+                cls="mb-4"
+            ),
+            Div(
+                *[P(line, cls="mb-2") for line in feedback.feedback_text.split('\n') if line.strip()],
+                cls="text-gray-700"
+            ),
+            (P(f"Edited by: {feedback.instructor_email}", 
+               cls="text-sm text-gray-500 italic mt-4") 
+             if feedback.edited_by_instructor else ""),
+            cls="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-4"
+        ) for feedback in draft_feedback),
+        
+        # Actions
+        Div(
+            A("Back to Feedback List", 
+              href=f"/instructor/assignments/{assignment.id}/feedback",
+              cls="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300"),
+            cls="text-center mt-8"
+        )
+    )
+    
+    # Sidebar
+    sidebar_content = Div(
+        Div(
+            H3("Feedback Details", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            P(f"Student: {student_name}", cls="text-gray-700 mb-2"),
+            P(f"Submitted: {draft.submission_date}", cls="text-gray-700 mb-2"),
+            P(f"Status: Released", cls="text-green-700 font-medium mb-2"),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
+        )
+    )
+    
+    return Titled(
+        f"View Feedback - {student_name} | FeedForward",
+        dashboard_layout(
+            "View Feedback",
+            sidebar_content,
+            main_content,
+            user_role=Role.INSTRUCTOR,
+            current_path="/instructor/dashboard"
+        )
+    )

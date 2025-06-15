@@ -15,7 +15,7 @@
    - [x] Create feedback generation service
    - [x] Build aggregation logic for multiple AI runs
    - [x] Add feedback generation UI for students
-   - [ ] Implement instructor feedback review/approval interface
+   - [x] Implement instructor feedback review/approval interface
 
 4. **Testing Infrastructure** (Quality assurance)
    - [ ] Set up pytest framework
@@ -217,3 +217,14 @@
   - Updated assignment view to show draft feedback status
   - Added auto-refresh functionality for processing feedback
   - Support for different mark display options (percentage, stars, hidden)
+
+### Instructor Feedback Review Implementation
+- `app/routes/instructor.py` - Added comprehensive feedback review system:
+  - New route `/instructor/assignments/{assignment_id}/feedback` to view all submissions
+  - Drafts grouped by status: pending review, processing, approved, errors
+  - Review interface at `/instructor/drafts/{draft_id}/review` for editing feedback
+  - Ability to edit scores and feedback text before approval
+  - Approve & Release workflow for controlled feedback distribution
+  - View-only interface for released feedback
+  - Added "Review Feedback" button to assignment view page
+  - Support for assignments with or without review requirement
