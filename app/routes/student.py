@@ -3,7 +3,11 @@ Student routes - dashboard, assignment submission, feedback viewing, etc.
 """
 from fasthtml.common import *
 from starlette.responses import RedirectResponse
+from starlette.datastructures import UploadFile
 from datetime import datetime
+import os
+import aiofiles
+from pathlib import Path
 
 from app.models.user import User, Role, users
 from app.models.course import Course, Enrollment, courses, enrollments
@@ -11,8 +15,36 @@ from app.models.assignment import Assignment, Rubric, RubricCategory
 from app.models.feedback import AIModel, Draft, ModelRun, CategoryScore, FeedbackItem, AggregatedFeedback
 from app.utils.auth import get_password_hash, verify_password, is_strong_password
 from app.utils.email import APP_DOMAIN
+from app.utils.file_handlers import extract_file_content, validate_file_size
 
 from app import app, rt, student_required
+
+# --- API Endpoints ---
+@rt('/api/feedback-status/{draft_id}')
+@student_required
+def get(session, draft_id: int):
+    """Check the status of feedback generation for a draft"""
+    from app.services.background_tasks import get_task_status
+    
+    # Get current user
+    user = users[session['auth']]
+    
+    # Verify the draft belongs to the student
+    try:
+        draft = drafts[draft_id]
+        if draft.student_email != user.email:
+            return {"error": "Unauthorized"}
+    except:
+        return {"error": "Draft not found"}
+    
+    # Get task status
+    task_status = get_task_status(draft_id)
+    
+    return {
+        "draft_id": draft_id,
+        "draft_status": draft.status,
+        "task_status": task_status or "not_queued"
+    }
 
 # --- Student Join Route (from invitation) ---
 @rt('/student/join')
@@ -1053,7 +1085,49 @@ def get(session, request, assignment_id: int):
             Input(type="hidden", name="assignment_id", value=str(assignment_id)),
             Input(type="hidden", name="version", value=str(next_version)),
             
-            # Draft content textarea
+            # Submission method selection
+            Div(
+                Label("Submission Method", cls="block text-lg font-semibold text-indigo-900 mb-3"),
+                Div(
+                    # Text input option
+                    Div(
+                        Input(
+                            type="radio", 
+                            name="submission_method", 
+                            value="text", 
+                            id="method_text", 
+                            checked=True,
+                            cls="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                        ),
+                        Label(
+                            "Enter or paste text",
+                            for_="method_text",
+                            cls="ml-2 text-gray-700"
+                        ),
+                        cls="flex items-center"
+                    ),
+                    # File upload option
+                    Div(
+                        Input(
+                            type="radio", 
+                            name="submission_method", 
+                            value="file", 
+                            id="method_file",
+                            cls="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                        ),
+                        Label(
+                            "Upload a file",
+                            for_="method_file",
+                            cls="ml-2 text-gray-700"
+                        ),
+                        cls="flex items-center mt-2"
+                    ),
+                    cls="space-y-2 mb-4"
+                ),
+                cls="mb-6"
+            ),
+            
+            # Draft content textarea (shown when text method selected)
             Div(
                 Label("Your Draft", for_="content", 
                       cls="block text-lg font-semibold text-indigo-900 mb-2"),
@@ -1069,7 +1143,29 @@ def get(session, request, assignment_id: int):
                     rows="20",
                     cls="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono"
                 ),
+                id="text_input_section",
                 cls="mb-6"
+            ),
+            
+            # File upload section (shown when file method selected)
+            Div(
+                Label("Upload Your Draft", for_="file", 
+                      cls="block text-lg font-semibold text-indigo-900 mb-2"),
+                P("Upload a file containing your draft.", 
+                  cls="text-gray-600 mb-1"),
+                P("Supported formats: .txt, .docx, .pdf", 
+                  cls="text-gray-600 mb-1"),
+                P("Note: For privacy reasons, your submission content will be automatically removed from our system after feedback is generated. Please keep your own copy.", 
+                  cls="text-amber-600 text-sm mb-4 font-medium"),
+                Input(
+                    type="file",
+                    id="file",
+                    name="file",
+                    accept=".txt,.docx,.pdf",
+                    cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                ),
+                id="file_upload_section",
+                cls="mb-6 hidden"
             ),
             
             # Submit button
@@ -1079,9 +1175,33 @@ def get(session, request, assignment_id: int):
                 cls="text-center"
             ),
             
+            # JavaScript to toggle between text and file upload
+            Script("""
+                document.addEventListener('DOMContentLoaded', function() {
+                    const textMethod = document.getElementById('method_text');
+                    const fileMethod = document.getElementById('method_file');
+                    const textSection = document.getElementById('text_input_section');
+                    const fileSection = document.getElementById('file_upload_section');
+                    
+                    function toggleSections() {
+                        if (textMethod.checked) {
+                            textSection.classList.remove('hidden');
+                            fileSection.classList.add('hidden');
+                        } else {
+                            textSection.classList.add('hidden');
+                            fileSection.classList.remove('hidden');
+                        }
+                    }
+                    
+                    textMethod.addEventListener('change', toggleSections);
+                    fileMethod.addEventListener('change', toggleSections);
+                });
+            """),
+            
             # Form settings
             method="post",
             action=f"/student/assignments/{assignment_id}/submit",
+            enctype="multipart/form-data",
             cls="bg-white p-6 rounded-xl shadow-md border border-gray-100"
         )
     )
@@ -1101,7 +1221,7 @@ def get(session, request, assignment_id: int):
 # --- Student Draft Submission POST handler ---
 @rt('/student/assignments/{assignment_id}/submit')
 @student_required
-def post(session, assignment_id: int, content: str, version: int):
+async def post(session, assignment_id: int, content: str = "", version: int = 0, submission_method: str = "text", file: UploadFile = None):
     # Get current user
     user = users[session['auth']]
     
@@ -1114,13 +1234,54 @@ def post(session, assignment_id: int, content: str, version: int):
               cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
         )
     
-    # Validate content
-    if not content or content.strip() == "":
-        return Div(
-            P("Draft content cannot be empty.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
-            A(f"Try Again", href=f"/student/assignments/{assignment_id}/submit", 
-              cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
-        )
+    # Process content based on submission method
+    if submission_method == "file":
+        # Handle file upload
+        if not file or file.filename == "":
+            return Div(
+                P("Please select a file to upload.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+                A(f"Try Again", href=f"/student/assignments/{assignment_id}/submit", 
+                  cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+            )
+        
+        # Validate file size (10MB limit)
+        if not validate_file_size(file, max_size_mb=10):
+            return Div(
+                P("File size exceeds 10MB limit. Please upload a smaller file.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+                A(f"Try Again", href=f"/student/assignments/{assignment_id}/submit", 
+                  cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+            )
+        
+        # Extract content from uploaded file
+        try:
+            content = await extract_file_content(file)
+            if not content or content.strip() == "":
+                return Div(
+                    P("The uploaded file appears to be empty.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+                    A(f"Try Again", href=f"/student/assignments/{assignment_id}/submit", 
+                      cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+                )
+        except ValueError as e:
+            # Handle unsupported file type
+            return Div(
+                P(str(e), cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+                A(f"Try Again", href=f"/student/assignments/{assignment_id}/submit", 
+                  cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+            )
+        except Exception as e:
+            return Div(
+                P(f"Error processing file: {str(e)}", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+                A(f"Try Again", href=f"/student/assignments/{assignment_id}/submit", 
+                  cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+            )
+    else:
+        # Validate text content
+        if not content or content.strip() == "":
+            return Div(
+                P("Draft content cannot be empty.", cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+                A(f"Try Again", href=f"/student/assignments/{assignment_id}/submit", 
+                  cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg")
+            )
     
     # Create a new draft
     from app.models.feedback import Draft, drafts
@@ -1141,11 +1302,19 @@ def post(session, assignment_id: int, content: str, version: int):
         submission_date=datetime.now().isoformat(),
         word_count=word_count,
         status="submitted",  # Initial status, will be updated by feedback system
-        content_removed_date=""  # Will be set when content is removed
+        content_removed_date="",  # Will be set when content is removed
+        # Store file metadata if file was uploaded
+        submission_method=submission_method,
+        original_filename=file.filename if submission_method == "file" and file else None,
+        file_type=Path(file.filename).suffix.lower() if submission_method == "file" and file else None
     )
     
     # Save the draft
     drafts.insert(new_draft)
+    
+    # Queue feedback generation in the background
+    from app.services.background_tasks import queue_feedback_generation
+    await queue_feedback_generation(new_draft.id)
     
     # Redirect to the assignment view with a message about privacy
     return RedirectResponse(f"/student/assignments/{assignment_id}", status_code=303)

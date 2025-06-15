@@ -6,14 +6,14 @@
    - [x] Update registration flow to include acceptance tracking
 
 2. **File Upload Support** (Prerequisite for feedback)
-   - [ ] Add file upload handling for student submissions
-   - [ ] Support docx, pdf, txt file formats
-   - [ ] Implement file content extraction
+   - [x] Add file upload handling for student submissions
+   - [x] Support docx, pdf, txt file formats
+   - [x] Implement file content extraction
 
 3. **Feedback Generation Pipeline** (Core functionality)
-   - [ ] Implement prompt template system with rubric integration
-   - [ ] Create feedback generation service
-   - [ ] Build aggregation logic for multiple AI runs
+   - [x] Implement prompt template system with rubric integration
+   - [x] Create feedback generation service
+   - [x] Build aggregation logic for multiple AI runs
    - [ ] Add feedback generation UI for students
    - [ ] Implement instructor feedback review/approval interface
 
@@ -173,3 +173,40 @@
 - `docs/terms-of-service.md` - Created Terms of Service document
 - `docs/privacy-policy.md` - Existing Privacy Policy document
 - `app/routes/__init__.py` - Added legal routes to registration
+
+### File Upload Support Implementation
+- `app/routes/student.py` - Updated submission form to support file uploads with toggle between text/file input
+- `app/utils/file_handlers.py` - Created file processing utilities for extracting content from txt, pdf, and docx files
+- `requirements.txt` - Added pypdf, python-docx, and aiofiles dependencies
+- File content extraction fully integrated with:
+  - Text extraction from PDF (including encrypted PDF detection)
+  - Text extraction from DOCX (including table content)
+  - UTF-8/Latin-1 encoding support for text files
+  - File size validation (10MB limit)
+  - Comprehensive error handling for corrupted/invalid files
+
+### Prompt Template System Implementation
+- `app/services/prompt_templates.py` - Created comprehensive prompt template system with:
+  - Base `PromptTemplate` class for standard feedback generation
+  - `IterativePromptTemplate` class for multi-draft assignments
+  - Context-aware prompt generation based on rubric criteria
+  - Support for different feedback levels (overall, criterion-specific, or both)
+  - Integration with feedback styles (encouraging, direct, analytical, balanced)
+  - JSON-structured output format for easy parsing
+  - Weighted rubric criteria in prompt generation
+
+### Feedback Generation Service Implementation
+- `app/services/feedback_generator.py` - Created feedback generation service with:
+  - Asynchronous processing of student drafts
+  - Multiple model runs per assignment configuration
+  - LiteLLM integration for multi-provider AI support
+  - Structured feedback storage (scores, strengths, improvements)
+  - Error handling and retry logic
+  - Privacy-aware content cleanup after processing
+- `app/services/background_tasks.py` - Background task management for:
+  - Queuing feedback generation tasks
+  - Task status tracking
+  - Concurrent processing with thread pool
+- `app/routes/student.py` - Updated to:
+  - Trigger feedback generation on submission
+  - Added API endpoint for checking feedback status
