@@ -1,5 +1,28 @@
 # FeedForward Development Roadmap
 
+## Immediate Priorities (Critical Path to MVP)
+1. **Terms of Service/Privacy** (Legal requirement)
+   - [x] Add ToS/Privacy acceptance during registration
+   - [x] Update registration flow to include acceptance tracking
+
+2. **File Upload Support** (Prerequisite for feedback)
+   - [ ] Add file upload handling for student submissions
+   - [ ] Support docx, pdf, txt file formats
+   - [ ] Implement file content extraction
+
+3. **Feedback Generation Pipeline** (Core functionality)
+   - [ ] Implement prompt template system with rubric integration
+   - [ ] Create feedback generation service
+   - [ ] Build aggregation logic for multiple AI runs
+   - [ ] Add feedback generation UI for students
+   - [ ] Implement instructor feedback review/approval interface
+
+4. **Testing Infrastructure** (Quality assurance)
+   - [ ] Set up pytest framework
+   - [ ] Create unit tests for core models
+   - [ ] Add integration tests for authentication flow
+   - [ ] Test feedback generation pipeline
+
 ## ADR Candidates
 - [ ] Feedback Generation Strategy - How multiple AI models are run and results aggregated
 - [x] Database Choice - Using SQLite vs other options for data persistence (ADR-004)
@@ -12,8 +35,8 @@
 - [x] AI Model Ownership - Configuring and running models (ADR-001)
 - [x] Educational Workflow Architecture - Component relationships and lifecycles (ADR-007)
 - [x] Student Enrollment Lifecycle - Invitation and enrollment process (ADR-006)
-- [x] API Key Management - Secure storage and access of provider credentials (009)
-- [x] Model Instance Configuration - Flexible model selection and parameter tuning (010)
+- [x] API Key Management - Secure storage and access of provider credentials (ADR-009)
+- [x] Model Instance Configuration - Flexible model selection and parameter tuning (ADR-010)
 
 ## Core Infrastructure
 - [x] Initialize git repository
@@ -35,12 +58,12 @@
 
 ## Database Schema
 - [x] Define model for AI models configuration
-- [ ] Define model for runs
+- [x] Define model for runs (model_runs table implemented)
 - [x] Define model for assignments
-- [ ] Define model for drafts
-- [ ] Define model for feedback
-- [ ] Define model for aggregated feedback
-- [ ] Implement relationships between models
+- [x] Define model for drafts (drafts table implemented)
+- [x] Define model for feedback (feedback_items, category_scores implemented)
+- [x] Define model for aggregated feedback (aggregated_feedback table implemented)
+- [x] Implement relationships between models
 
 ## Instructor Features
 - [x] Course management (create, edit, list)
@@ -61,18 +84,21 @@
 - [x] Course view with assignment listing
 - [x] Draft submission interface
 - [ ] Draft submission file upload support (docx, pdf, txt)
-- [x] Feedback viewing interface
-- [ ] Progress tracking across drafts
+- [x] Feedback viewing interface (implemented in student.py)
+- [x] Progress tracking across drafts (draft history implemented)
 - [ ] Draft comparison view
+- [x] Assignment status indicators (upcoming, open, closed)
 
 ## AI Integration
 - [x] Admin interface for LLM provider configuration
-- [ ] Instructor interface for LLM selection and configuration
-- [ ] Implement API client for LLM services
-- [ ] LiteLLM integration for multiple providers support
-- [ ] Create prompt template system
-- [ ] Build multi-run feedback aggregation
+- [x] Instructor interface for LLM selection and configuration (assignment settings)
+- [x] Implement API client for LLM services (litellm_client.py implemented)
+- [x] LiteLLM integration for multiple providers support
+- [ ] Create prompt template system for rubric-based feedback
+- [ ] Build multi-run feedback aggregation logic
 - [ ] Implement feedback extraction and normalization
+- [ ] Add feedback generation endpoint and UI
+- [ ] Implement instructor feedback approval workflow
 
 ## UI/UX
 - [x] Implement base templates
@@ -101,3 +127,49 @@
 - [ ] Document deployment process
 - [ ] Create deployment scripts
 - [ ] Setup CI/CD pipeline
+
+## Completed Major Features
+### Authentication & User Management
+- ✅ Multi-role authentication system (Admin, Instructor, Student)
+- ✅ Email verification with token-based system
+- ✅ Domain whitelist for instructor auto-approval
+- ✅ Instructor approval workflow
+- ✅ Student invitation system
+- ✅ Password reset functionality
+
+### Course & Assignment Management
+- ✅ Full course CRUD operations with status management
+- ✅ Assignment creation with custom rubrics
+- ✅ Rubric templates (essay, research paper, presentation)
+- ✅ Weight-based rubric categories
+- ✅ Student roster management with CSV import
+
+### Database & Models
+- ✅ Comprehensive schema with 20+ tables
+- ✅ Soft deletion pattern implementation
+- ✅ Encryption for sensitive data
+- ✅ Full model relationships established
+
+### AI Configuration
+- ✅ AI provider and model management
+- ✅ Model instance configuration with parameters
+- ✅ Assignment-specific AI settings
+- ✅ LiteLLM client implementation
+
+### UI/UX
+- ✅ Responsive design with Tailwind CSS
+- ✅ HTMX-powered dynamic interactions
+- ✅ Role-based navigation
+- ✅ Student and instructor dashboards
+- ✅ Assignment submission interface
+
+## Relevant Files
+
+### Terms of Service/Privacy Implementation
+- `app/models/user.py` - Added tos_accepted, privacy_accepted, and acceptance_date fields to User model
+- `app/routes/auth.py` - Updated registration form and handler to include ToS/Privacy checkboxes
+- `app/routes/student.py` - Updated student join form and handler for invited students
+- `app/routes/legal.py` - Created new routes for displaying ToS and Privacy Policy pages
+- `docs/terms-of-service.md` - Created Terms of Service document
+- `docs/privacy-policy.md` - Existing Privacy Policy document
+- `app/routes/__init__.py` - Added legal routes to registration

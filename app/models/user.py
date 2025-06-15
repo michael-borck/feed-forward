@@ -28,7 +28,10 @@ if users not in db.t:
         reset_token=str,
         reset_token_expiry=str,
         status=str,  # 'active', 'inactive', 'archived', 'deleted'
-        last_active=str  # ISO format timestamp of last login/activity
+        last_active=str,  # ISO format timestamp of last login/activity
+        tos_accepted=bool,  # Terms of Service acceptance
+        privacy_accepted=bool,  # Privacy Policy acceptance
+        acceptance_date=str  # ISO format timestamp of when ToS/Privacy were accepted
     ), pk='email')
 
 # Create user dataclass

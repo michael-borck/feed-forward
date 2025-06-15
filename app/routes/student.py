@@ -101,6 +101,34 @@ def get(token: str):
                         cls="mb-6"
                     ),
                     Div(
+                        Div(
+                            Input(id="tos_accepted", type="checkbox", required=True, 
+                                  cls="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"),
+                            Label(
+                                Span("I agree to the ", cls="ml-2 text-gray-700"),
+                                A("Terms of Service", href="/terms-of-service", target="_blank", 
+                                  cls="text-indigo-600 hover:underline"),
+                                for_="tos_accepted", cls="flex items-center"
+                            ),
+                            cls="flex items-start"
+                        ),
+                        cls="mb-4"
+                    ),
+                    Div(
+                        Div(
+                            Input(id="privacy_accepted", type="checkbox", required=True,
+                                  cls="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"),
+                            Label(
+                                Span("I agree to the ", cls="ml-2 text-gray-700"),
+                                A("Privacy Policy", href="/privacy-policy", target="_blank",
+                                  cls="text-indigo-600 hover:underline"),
+                                for_="privacy_accepted", cls="flex items-center"
+                            ),
+                            cls="flex items-start"
+                        ),
+                        cls="mb-6"
+                    ),
+                    Div(
                         Button("Complete Registration", type="submit", cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm"),
                         cls="mb-4"
                     ),
@@ -119,10 +147,14 @@ def get(token: str):
     return page_container("Complete Registration - FeedForward", registration_content)
 
 @rt('/student/join')
-def post(session, token: str, email: str, name: str, password: str, confirm_password: str):
+def post(session, token: str, email: str, name: str, password: str, confirm_password: str, tos_accepted: bool = False, privacy_accepted: bool = False):
     # Validate inputs
     if not name or not password or not confirm_password:
         return "All fields are required"
+    
+    # Check ToS and Privacy acceptance
+    if not tos_accepted or not privacy_accepted:
+        return "You must accept the Terms of Service and Privacy Policy to create an account"
     
     if password != confirm_password:
         return "Passwords do not match"
@@ -141,6 +173,9 @@ def post(session, token: str, email: str, name: str, password: str, confirm_pass
         user.password = get_password_hash(password)
         user.verified = True
         user.verification_token = ""  # Clear the token
+        user.tos_accepted = True
+        user.privacy_accepted = True
+        user.acceptance_date = datetime.now().isoformat()
         users.update(user)
         
         # Update enrollment status if there's a status field

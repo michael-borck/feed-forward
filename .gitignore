@@ -45,3 +45,6 @@ docs/llms-ctx.txt
 # Session keys and local configuration
 .sesskey
 .env
+
+_notes
+.opencode
