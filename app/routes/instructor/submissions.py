@@ -11,8 +11,8 @@ from starlette.responses import RedirectResponse
 from app import instructor_required, rt
 from app.models.assignment import assignments
 from app.models.course import courses
-from app.models.feedback import (aggregated_feedback, drafts, feedback,
-                                model_runs, Draft, Feedback)
+from app.models.feedback import (aggregated_feedback, drafts,
+                                model_runs, Draft)
 from app.models.user import Role, users
 from app.utils.ui import action_button, card, dashboard_layout, status_badge
 
