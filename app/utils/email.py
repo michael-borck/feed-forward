@@ -1,20 +1,22 @@
 """
 Email utility functions for sending emails and generating tokens
 """
-import os
-import smtplib
-import secrets
+
 import logging
-from email.message import EmailMessage
-from dotenv import load_dotenv
+import os
 import pathlib
+import secrets
+import smtplib
+from email.message import EmailMessage
+
+from dotenv import load_dotenv
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Load environment variables from project root
 project_root = pathlib.Path(__file__).parent.parent.parent
-env_path = project_root / '.env'
+env_path = project_root / ".env"
 load_dotenv(dotenv_path=env_path)
 
 # Check .env file vs environment variables
@@ -28,15 +30,17 @@ with open(env_path) as f:
             break
 
 if env_smtp_server and env_file_smtp_server and env_smtp_server != env_file_smtp_server:
-    logger.warning(f"WARNING: Environment variable SMTP_SERVER ({env_smtp_server}) "
-                  f"is overriding .env file setting ({env_file_smtp_server})")
+    logger.warning(
+        f"WARNING: Environment variable SMTP_SERVER ({env_smtp_server}) "
+        f"is overriding .env file setting ({env_file_smtp_server})"
+    )
 
 # SMTP settings from environment variables (.env file only, no defaults)
-SMTP_SERVER   = os.environ["SMTP_SERVER"]
-SMTP_PORT     = int(os.environ["SMTP_PORT"])
-SMTP_USER     = os.environ["SMTP_USER"]
+SMTP_SERVER = os.environ["SMTP_SERVER"]
+SMTP_PORT = int(os.environ["SMTP_PORT"])
+SMTP_USER = os.environ["SMTP_USER"]
 SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
-SMTP_FROM     = os.environ["SMTP_FROM"]
+SMTP_FROM = os.environ["SMTP_FROM"]
 
 # Use these settings for local SMTP if AWS SES isn't working yet
 # SMTP_SERVER   = "mail.borck.me"
@@ -54,22 +58,25 @@ for line in env_file_content.splitlines():
         break
 
 if env_app_domain and env_file_app_domain and env_app_domain != env_file_app_domain:
-    logger.warning(f"WARNING: Environment variable APP_DOMAIN ({env_app_domain}) "
-                  f"is overriding .env file setting ({env_file_app_domain})")
+    logger.warning(
+        f"WARNING: Environment variable APP_DOMAIN ({env_app_domain}) "
+        f"is overriding .env file setting ({env_file_app_domain})"
+    )
 
 # Application domain for email links (used in verification links)
-APP_DOMAIN    = os.environ.get("APP_DOMAIN", "https://feedforward.serveur.au:5001")
+APP_DOMAIN = os.environ.get("APP_DOMAIN", "https://feedforward.serveur.au:5001")
 
 # Email sending is done via SMTP only
+
 
 def send_verification_email(user_email: str, token: str) -> tuple[bool, str]:
     """
     Send an email verification link to the user
-    
+
     Args:
         user_email: The user's email address
         token: The verification token
-        
+
     Returns:
         tuple: (success, message)
             - success: True if the email was sent successfully, False otherwise
@@ -89,25 +96,27 @@ If you did not sign up for FeedForward, you can safely ignore this email.
 Best regards,
 The FeedForward Team
 """
-    
+
     # Log debugging information
     logger.info(f"Sending verification email to {user_email}")
     logger.debug(f"Verification link: {verify_link}")
-    
+
     # We always use SMTP
     return send_with_smtp(user_email, subject, content)
 
+
 # Mailgun function removed
+
 
 def send_with_smtp(to_email: str, subject: str, content: str) -> tuple[bool, str]:
     """
     Send an email using SMTP
-    
+
     Args:
         to_email: Recipient email address
         subject: Email subject
         content: Email content (text)
-        
+
     Returns:
         tuple: (success, message)
     """
@@ -115,8 +124,10 @@ def send_with_smtp(to_email: str, subject: str, content: str) -> tuple[bool, str
     try:
         # Log debugging information
         logger.debug(f"Using SMTP to send email to {to_email}")
-        logger.debug(f"SMTP Settings: Server={SMTP_SERVER}, Port={SMTP_PORT}, User={SMTP_USER}")
-        
+        logger.debug(
+            f"SMTP Settings: Server={SMTP_SERVER}, Port={SMTP_PORT}, User={SMTP_USER}"
+        )
+
         msg = EmailMessage()
         msg.set_content(content)
         msg["Subject"] = subject
@@ -130,11 +141,11 @@ def send_with_smtp(to_email: str, subject: str, content: str) -> tuple[bool, str
                 logger.debug("SMTP_SSL connection established")
                 server.login(SMTP_USER, SMTP_PASSWORD)
                 logger.debug("Login successful")
-                
+
                 # Set debug level for verbose logging if needed
                 if os.environ.get("SMTP_DEBUG", "0") == "1":
                     server.set_debuglevel(1)
-                
+
                 server.send_message(msg)
                 logger.debug("Message sent")
         else:
@@ -145,14 +156,14 @@ def send_with_smtp(to_email: str, subject: str, content: str) -> tuple[bool, str
                 logger.debug("STARTTLS successful")
                 server.login(SMTP_USER, SMTP_PASSWORD)
                 logger.debug("Login successful")
-                
+
                 # Set debug level for verbose logging if needed
                 if os.environ.get("SMTP_DEBUG", "0") == "1":
                     server.set_debuglevel(1)
-                
+
                 server.send_message(msg)
                 logger.debug("Message sent")
-        
+
         return True, "Email sent successfully via SMTP"
     except ConnectionRefusedError:
         error_msg = "Connection refused. Please check if the SMTP server is reachable."
@@ -163,22 +174,23 @@ def send_with_smtp(to_email: str, subject: str, content: str) -> tuple[bool, str
         logger.error(f"EMAIL ERROR: {error_msg}")
         return False, error_msg
     except smtplib.SMTPException as e:
-        error_msg = f"SMTP error: {str(e)}"
+        error_msg = f"SMTP error: {e!s}"
         logger.error(f"EMAIL ERROR: {error_msg}")
         return False, error_msg
     except Exception as e:
-        error_msg = f"Failed to send email via SMTP: {str(e)}"
+        error_msg = f"Failed to send email via SMTP: {e!s}"
         logger.error(f"EMAIL ERROR: {error_msg}")
         return False, error_msg
+
 
 def send_password_reset_email(user_email: str, token: str) -> tuple[bool, str]:
     """
     Send a password reset link to the user
-    
+
     Args:
         user_email: The user's email address
         token: The reset token
-        
+
     Returns:
         tuple: (success, message)
             - success: True if the email was sent successfully, False otherwise
@@ -198,24 +210,27 @@ This link will expire in 24 hours. If you did not request a password reset, you 
 Best regards,
 The FeedForward Team
 """
-    
+
     # Log debugging information
     logger.info(f"Sending password reset email to {user_email}")
     logger.debug(f"Reset link: {reset_link}")
-    
+
     # We always use SMTP
     return send_with_smtp(user_email, subject, content)
 
-def send_student_invitation_email(student_email: str, instructor_name: str, course_name: str, token: str) -> tuple[bool, str]:
+
+def send_student_invitation_email(
+    student_email: str, instructor_name: str, course_name: str, token: str
+) -> tuple[bool, str]:
     """
     Send an invitation email to a student to join a course
-    
+
     Args:
         student_email: The student's email address
         instructor_name: The name of the instructor
         course_name: The name of the course
         token: The invitation token
-        
+
     Returns:
         tuple: (success, message)
             - success: True if the email was sent successfully, False otherwise
@@ -236,49 +251,56 @@ Please click the following link to accept the invitation and create your account
 Best regards,
 The FeedForward Team
 """
-    
+
     # Log debugging information
-    print(f"INVITING: Email to {student_email} for course '{course_name}' from {instructor_name}")
+    print(
+        f"INVITING: Email to {student_email} for course '{course_name}' from {instructor_name}"
+    )
     print(f"INVITATION LINK: {invitation_link}")
     logger.info(f"Sending invitation email to {student_email}")
     logger.debug(f"Invitation link: {invitation_link}")
-    
+
     # For development, we'll simulate email sending and return success
     # In a development environment, we want to bypass actual email sending
     # but still provide the links for testing
-    if APP_DOMAIN.startswith(("http://localhost", "http://127.0.0.1", "https://localhost")):
+    if APP_DOMAIN.startswith(
+        ("http://localhost", "http://127.0.0.1", "https://localhost")
+    ):
         print(f"DEV MODE: Simulating email to {student_email}")
         print(f"DEV MODE: Click this link to join: {invitation_link}")
         return True, "Email simulated in development mode"
-    
+
     # We always use SMTP
     return send_with_smtp(student_email, subject, content)
+
 
 def generate_verification_token(email: str) -> str:
     """
     Generate a secure token for email verification
-    
+
     Args:
         email: The user's email address (not used in token generation but included for future reference)
-        
+
     Returns:
         str: A secure random token
     """
     return secrets.token_urlsafe(32)
+
 
 def generate_password_reset_token() -> str:
     """
     Generate a secure token for password reset
-    
+
     Returns:
         str: A secure random token
     """
     return secrets.token_urlsafe(32)
 
+
 def generate_invitation_token() -> str:
     """
     Generate a secure token for student invitation
-    
+
     Returns:
         str: A secure random token
     """

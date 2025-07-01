@@ -2,6 +2,7 @@
 venv/
 *.venv
 .env
+.venv/  # uv virtual environment
 
 # Python bytecode
 __pycache__/
@@ -35,6 +36,14 @@ alembic/versions/*
 dist/
 build/
 *.egg-info/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Linting/Formatting
+.ruff_cache/
 
 # Project specific reference materials
 docs/reference/

@@ -2,14 +2,16 @@
 """
 Seed the domain whitelist table with initial values
 """
-from datetime import datetime
-import sys
+
 import os
+import sys
+from datetime import datetime
 
 # Add parent directory to path so we can import app modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.models.config import domain_whitelist
+
 
 def seed_domain_whitelist():
     """Seed the domain whitelist table with initial values"""
@@ -19,9 +21,11 @@ def seed_domain_whitelist():
         print(f"Domain whitelist already contains {len(existing)} entries.")
         print("Current domains:")
         for domain in existing:
-            print(f"- {domain['domain']} (auto-approve: {domain['auto_approve_instructor']})")
+            print(
+                f"- {domain['domain']} (auto-approve: {domain['auto_approve_instructor']})"
+            )
         choice = input("Do you want to add more domains? (y/n): ")
-        if choice.lower() != 'y':
+        if choice.lower() != "y":
             return
 
     # Define initial domains
@@ -30,7 +34,7 @@ def seed_domain_whitelist():
         {"domain": "ecu.edu.au", "auto_approve_instructor": True},
         {"domain": "uwa.edu.au", "auto_approve_instructor": True},
         {"domain": "murdoch.edu.au", "auto_approve_instructor": True},
-        {"domain": "notre-dame.edu.au", "auto_approve_instructor": False}
+        {"domain": "notre-dame.edu.au", "auto_approve_instructor": False},
     ]
 
     # Add timestamp fields
@@ -42,7 +46,7 @@ def seed_domain_whitelist():
     # Check for duplicates and insert new domains
     existing_domains = set(d["domain"] for d in existing)
     domains_added = 0
-    
+
     for domain in initial_domains:
         if domain["domain"] not in existing_domains:
             # Generate a new ID
@@ -51,15 +55,18 @@ def seed_domain_whitelist():
                 domain_id = max_id + 1 + domains_added
             else:
                 domain_id = 1 + domains_added
-            
+
             domain["id"] = domain_id
             domain_whitelist.insert(domain)
-            print(f"Added domain: {domain['domain']} (auto-approve: {domain['auto_approve_instructor']})")
+            print(
+                f"Added domain: {domain['domain']} (auto-approve: {domain['auto_approve_instructor']})"
+            )
             domains_added += 1
         else:
             print(f"Domain {domain['domain']} already exists, skipping.")
 
     print(f"Added {domains_added} new domains to the whitelist.")
+
 
 if __name__ == "__main__":
     seed_domain_whitelist()

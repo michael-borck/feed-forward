@@ -2,8 +2,9 @@
 Script to clean up draft content for privacy
 Run this as a scheduled task to ensure student submissions are not stored long-term
 """
-import sys
+
 import os
+import sys
 
 # Make sure app is in path
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))

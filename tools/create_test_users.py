@@ -1,8 +1,10 @@
 """
 Script to create test users for FeedForward
 """
-from app.models.user import User, Role, users
+
+from app.models.user import Role, User, users
 from app.utils.auth import get_password_hash
+
 
 def create_test_users():
     """Create test users for development purposes"""
@@ -17,9 +19,9 @@ def create_test_users():
         "approved": True,  # Pre-approved for testing
         "department": "Computer Science",
         "reset_token": "",
-        "reset_token_expiry": ""
+        "reset_token_expiry": "",
     }
-    
+
     # Create admin user
     admin = {
         "email": "admin@curtin.edu.au",
@@ -31,9 +33,9 @@ def create_test_users():
         "approved": True,  # Pre-approved for testing
         "department": "Computer Science",
         "reset_token": "",
-        "reset_token_expiry": ""
+        "reset_token_expiry": "",
     }
-    
+
     # Create instructor if needed
     instructor = {
         "email": "instructor@curtin.edu.au",
@@ -45,22 +47,22 @@ def create_test_users():
         "approved": True,  # Pre-approved for testing
         "department": "Computer Science",
         "reset_token": "",
-        "reset_token_expiry": ""
+        "reset_token_expiry": "",
     }
-    
+
     # Add users to database
     try:
         # First check if users already exist
-        users.get('student@student.curtin.edu.au')
+        users.get("student@student.curtin.edu.au")
         print("Student already exists, skipping...")
     except:
         users.insert(User(**student))
         print("Created test student: student@student.curtin.edu.au / Test@123")
-    
+
     try:
-        users.get('admin@curtin.edu.au')
+        users.get("admin@curtin.edu.au")
         # Update user to admin role if exists
-        user = users['admin@curtin.edu.au']
+        user = users["admin@curtin.edu.au"]
         if user.role != Role.ADMIN:
             user.role = Role.ADMIN
             users.update(user)
@@ -70,19 +72,20 @@ def create_test_users():
     except:
         users.insert(User(**admin))
         print("Created admin user: admin@curtin.edu.au / Admin@123")
-    
+
     try:
-        users.get('instructor@curtin.edu.au')
+        users.get("instructor@curtin.edu.au")
         print("Instructor already exists, skipping...")
     except:
         users.insert(User(**instructor))
         print("Created test instructor: instructor@curtin.edu.au / Instr@123")
-    
+
     print("\nAll test users created successfully!")
     print("You can now log in with these credentials:")
     print("  - Student: student@student.curtin.edu.au / Test@123")
     print("  - Admin: admin@curtin.edu.au / Admin@123")
     print("  - Instructor: instructor@curtin.edu.au / Instr@123")
+
 
 if __name__ == "__main__":
     create_test_users()
