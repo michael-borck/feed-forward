@@ -3,6 +3,7 @@ Instructor AI models management routes
 """
 
 import json
+
 from fasthtml.common import *
 from starlette.responses import RedirectResponse
 
@@ -25,7 +26,7 @@ def instructor_models_list(session, request):
     # Get current instructor information
     current_user = users[session["auth"]]
     instructor_id = get_instructor_id(current_user.email)
-    
+
     # Get all available models (system models + instructor's own models)
     all_models = []
     for model in ai_models():
@@ -36,13 +37,13 @@ def instructor_models_list(session, request):
             # Get capabilities for this model
             capabilities = []
             primary_capability = None
-            
+
             for cap in model_capabilities():
                 if cap.model_id == model.id:
                     capabilities.append(cap.capability)
                     if cap.is_primary:
                         primary_capability = cap.capability
-            
+
             all_models.append({
                 "id": model.id,
                 "name": model.name,
@@ -55,7 +56,7 @@ def instructor_models_list(session, request):
                 "owner_type": model.owner_type,
                 "active": model.active,
             })
-    
+
     # Sidebar content
     sidebar_content = Div(
         # Navigation
@@ -77,11 +78,11 @@ def instructor_models_list(session, request):
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
         )
     )
-    
+
     # Main content
     main_content = Div(
         H2("AI Models Management", cls="text-2xl font-bold text-indigo-900 mb-6"),
-        
+
         # Models grid
         Div(
             *(
@@ -96,7 +97,7 @@ def instructor_models_list(session, request):
                             ),
                             cls="mb-4"
                         ),
-                        
+
                         # Capabilities
                         Div(
                             P("Capabilities:", cls="font-medium text-gray-700 mb-2"),
@@ -112,11 +113,11 @@ def instructor_models_list(session, request):
                             ) if model["capabilities"] else Div(cls="mb-4"),
                             cls="mb-4"
                         ),
-                        
+
                         # Status and actions
                         Div(
                             Div(
-                                status_badge("Active" if model["active"] else "Inactive", 
+                                status_badge("Active" if model["active"] else "Inactive",
                                            "green" if model["active"] else "gray"),
                                 Span(
                                     "System Model" if model["owner_type"] == "system" else "Your Model",
@@ -125,7 +126,7 @@ def instructor_models_list(session, request):
                                 cls="mb-3"
                             ),
                             Div(
-                                A("View Details", href=f"/instructor/models/view/{model['id']}", 
+                                A("View Details", href=f"/instructor/models/view/{model['id']}",
                                   cls="text-indigo-600 hover:underline text-sm"),
                                 cls="text-center"
                             ) if model["owner_type"] == "instructor" else "",
@@ -138,10 +139,10 @@ def instructor_models_list(session, request):
                 for model in all_models
             ),
             cls="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        ) if all_models else P("No AI models configured yet.", 
+        ) if all_models else P("No AI models configured yet.",
                               cls="text-gray-500 italic text-center p-8 bg-white rounded-xl border border-gray-200")
     )
-    
+
     return Titled(
         "AI Models | FeedForward",
         dashboard_layout(
@@ -155,12 +156,12 @@ def instructor_models_list(session, request):
 
 
 @rt("/instructor/models/new")
-@instructor_required  
+@instructor_required
 def instructor_models_new(session, request):
     """Create new AI model configuration"""
     # Get current instructor
     current_user = users[session["auth"]]
-    
+
     # Sidebar content
     sidebar_content = Div(
         Div(
@@ -170,11 +171,11 @@ def instructor_models_new(session, request):
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
         )
     )
-    
+
     # Main content - Model creation form
     main_content = Div(
         H2("Configure New AI Model", cls="text-2xl font-bold text-indigo-900 mb-6"),
-        
+
         Form(
             # Provider selection
             Div(
@@ -194,7 +195,7 @@ def instructor_models_new(session, request):
                 ),
                 cls="mb-4"
             ),
-            
+
             # Model ID
             Div(
                 Label("Model ID", for_="model_id", cls="block text-sm font-medium text-gray-700 mb-2"),
@@ -209,7 +210,7 @@ def instructor_models_new(session, request):
                 P("The specific model identifier for your chosen provider", cls="text-sm text-gray-500 mt-1"),
                 cls="mb-4"
             ),
-            
+
             # Model name
             Div(
                 Label("Display Name", for_="name", cls="block text-sm font-medium text-gray-700 mb-2"),
@@ -223,7 +224,7 @@ def instructor_models_new(session, request):
                 ),
                 cls="mb-4"
             ),
-            
+
             # API Key
             Div(
                 Label("API Key", for_="api_key", cls="block text-sm font-medium text-gray-700 mb-2"),
@@ -237,7 +238,7 @@ def instructor_models_new(session, request):
                 P("Required for cloud providers. Leave empty for Ollama.", cls="text-sm text-gray-500 mt-1"),
                 cls="mb-4"
             ),
-            
+
             # Base URL (optional)
             Div(
                 Label("Base URL (Optional)", for_="base_url", cls="block text-sm font-medium text-gray-700 mb-2"),
@@ -251,7 +252,7 @@ def instructor_models_new(session, request):
                 P("Only needed for self-hosted models or custom endpoints", cls="text-sm text-gray-500 mt-1"),
                 cls="mb-6"
             ),
-            
+
             # Test configuration section
             Div(
                 H3("Test Configuration", cls="text-lg font-semibold text-gray-800 mb-3"),
@@ -267,7 +268,7 @@ def instructor_models_new(session, request):
                 Div(id="test-result", cls="mt-4"),
                 cls="bg-gray-50 p-4 rounded-lg mb-6"
             ),
-            
+
             # Submit buttons
             Div(
                 Button(
@@ -282,13 +283,13 @@ def instructor_models_new(session, request):
                 ),
                 cls="flex items-center"
             ),
-            
+
             action="/instructor/models/create",
             method="post",
             cls="bg-white p-6 rounded-xl shadow-md"
         )
     )
-    
+
     return Titled(
         "New AI Model | FeedForward",
         dashboard_layout(
@@ -303,7 +304,7 @@ def instructor_models_new(session, request):
 
 @rt("/instructor/models/create")
 @instructor_required
-def instructor_models_create(session, 
+def instructor_models_create(session,
                            provider: str,
                            model_id: str,
                            name: str,
@@ -313,29 +314,29 @@ def instructor_models_create(session,
     # Get current instructor
     current_user = users[session["auth"]]
     instructor_id = get_instructor_id(current_user.email)
-    
+
     # Validate inputs
     if not provider or not model_id or not name:
         return Div(
             P("Missing required fields", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
-    
+
     # Build API configuration
     api_config = {}
-    
+
     # Add API key if provided (encrypt it)
     if api_key and api_key.strip():
         api_config["api_key_encrypted"] = encrypt_sensitive_data(api_key.strip())
-    
+
     # Add base URL if provided
     if base_url and base_url.strip():
         api_config["base_url"] = base_url.strip()
-    
+
     # Add provider-specific defaults
     if provider == "ollama" and not base_url:
         api_config["base_url"] = "http://localhost:11434"
-    
+
     # Create the model
     new_model = AIModel(
         id=None,  # Will be auto-assigned
@@ -347,14 +348,14 @@ def instructor_models_create(session,
         owner_type="instructor",
         owner_id=instructor_id
     )
-    
+
     # Save to database
     try:
         model_id = ai_models.insert(new_model)
         return RedirectResponse(f"/instructor/models/view/{model_id}", status_code=303)
     except Exception as e:
         return Div(
-            P(f"Error creating model: {str(e)}", cls="text-red-600"),
+            P(f"Error creating model: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
 
@@ -364,14 +365,14 @@ def instructor_models_create(session,
 def instructor_models_test(session, provider: str, api_key: str = None, base_url: str = None):
     """Test AI model connection"""
     import litellm
-    
+
     # Validate provider
     if not provider:
         return Div(
             P("Please select a provider", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
-    
+
     # Build test configuration
     test_config = {}
     if api_key and api_key.strip():
@@ -380,7 +381,7 @@ def instructor_models_test(session, provider: str, api_key: str = None, base_url
         test_config["base_url"] = base_url.strip()
     elif provider == "ollama":
         test_config["base_url"] = "http://localhost:11434"
-    
+
     # Test the connection
     try:
         # Simple test prompt
@@ -388,7 +389,7 @@ def instructor_models_test(session, provider: str, api_key: str = None, base_url
             model = "ollama/llama2"  # Default test model for Ollama
         else:
             model = f"{provider}/gpt-3.5-turbo"  # Use a small model for testing
-        
+
         response = litellm.completion(
             model=model,
             messages=[{"role": "user", "content": "Say 'test successful' in 3 words or less"}],
@@ -396,7 +397,7 @@ def instructor_models_test(session, provider: str, api_key: str = None, base_url
             temperature=0,
             **test_config
         )
-        
+
         return Div(
             P("✅ Connection successful!", cls="text-green-600 font-medium"),
             P(f"Response: {response.choices[0].message.content}", cls="text-gray-600 text-sm mt-1"),
@@ -408,7 +409,7 @@ def instructor_models_test(session, provider: str, api_key: str = None, base_url
             error_msg = "Invalid or missing API key"
         elif "connection" in error_msg.lower():
             error_msg = "Could not connect to the service"
-        
+
         return Div(
             P("❌ Connection failed", cls="text-red-600 font-medium"),
             P(f"Error: {error_msg}", cls="text-gray-600 text-sm mt-1"),
@@ -423,26 +424,26 @@ def instructor_models_view(session, model_id: int):
     # Get current instructor
     current_user = users[session["auth"]]
     instructor_id = get_instructor_id(current_user.email)
-    
+
     # Get the model
     model = None
     for m in ai_models():
         if m.id == model_id:
             model = m
             break
-    
+
     if not model:
         return RedirectResponse("/instructor/models", status_code=303)
-    
+
     # Check ownership
     if model.owner_type != "instructor" or model.owner_id != instructor_id:
         return RedirectResponse("/instructor/models", status_code=303)
-    
+
     # Parse API config
     api_config = json.loads(model.api_config) if model.api_config else {}
     has_api_key = "api_key_encrypted" in api_config
     base_url = api_config.get("base_url", "")
-    
+
     # Sidebar content
     sidebar_content = Div(
         Div(
@@ -454,11 +455,11 @@ def instructor_models_view(session, model_id: int):
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
         )
     )
-    
+
     # Main content
     main_content = Div(
         H2(f"Model: {model.name}", cls="text-2xl font-bold text-indigo-900 mb-6"),
-        
+
         # Model configuration form
         Form(
             # Status toggle
@@ -477,7 +478,7 @@ def instructor_models_view(session, model_id: int):
                 ),
                 cls="mb-4"
             ),
-            
+
             # Display name
             Div(
                 Label("Display Name", for_="name", cls="block text-sm font-medium text-gray-700 mb-2"),
@@ -491,7 +492,7 @@ def instructor_models_view(session, model_id: int):
                 ),
                 cls="mb-4"
             ),
-            
+
             # API Key update
             Div(
                 Label("API Key", for_="api_key", cls="block text-sm font-medium text-gray-700 mb-2"),
@@ -508,7 +509,7 @@ def instructor_models_view(session, model_id: int):
                 ),
                 cls="mb-4"
             ),
-            
+
             # Base URL
             Div(
                 Label("Base URL", for_="base_url", cls="block text-sm font-medium text-gray-700 mb-2"),
@@ -522,10 +523,10 @@ def instructor_models_view(session, model_id: int):
                 ),
                 cls="mb-6"
             ),
-            
+
             # Hidden fields
             Input(type="hidden", name="model_id", value=str(model.id)),
-            
+
             # Submit buttons
             Div(
                 Button(
@@ -541,13 +542,13 @@ def instructor_models_view(session, model_id: int):
                 ),
                 cls="flex items-center"
             ),
-            
+
             action=f"/instructor/models/update/{model.id}",
             method="post",
             cls="bg-white p-6 rounded-xl shadow-md"
         )
     )
-    
+
     return Titled(
         f"{model.name} | FeedForward",
         dashboard_layout(

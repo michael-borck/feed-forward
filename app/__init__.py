@@ -68,7 +68,7 @@ def role_required(role):
                     return RedirectResponse(
                         f"/error/403?message={error_message}", status_code=303
                     )
-            except:
+            except Exception:
                 return RedirectResponse("/login", status_code=303)
 
             return f(session, *args, **kwargs)

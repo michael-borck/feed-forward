@@ -3,7 +3,6 @@ Instructor analytics and performance dashboard routes
 """
 
 import statistics
-from datetime import datetime
 
 from fasthtml.common import *
 from fastlite import NotFoundError
@@ -13,10 +12,9 @@ from app import instructor_required, rt
 from app.models.assignment import assignments, rubric_categories
 from app.models.config import ai_models
 from app.models.course import courses
-from app.models.feedback import (aggregated_feedback, category_scores,
-                                drafts, model_runs)
+from app.models.feedback import aggregated_feedback, category_scores, drafts, model_runs
 from app.models.user import Role, users
-from app.utils.ui import action_button, card, dashboard_layout, status_badge
+from app.utils.ui import dashboard_layout
 
 
 @rt("/instructor/assignments/{assignment_id}/analytics")
@@ -360,7 +358,7 @@ def instructor_assignment_analytics(session, assignment_id: int):
         Div(
             H4("Top Performing Model", cls="font-semibold text-gray-700 mb-2"),
             P(top_model or "No data yet", cls="text-sm text-gray-600 mb-4"),
-            
+
             H4("Category Insights", cls="font-semibold text-gray-700 mb-2"),
             (
                 Div(
@@ -369,7 +367,7 @@ def instructor_assignment_analytics(session, assignment_id: int):
                         *[Li(cat, cls="text-sm text-gray-600") for cat in strong_categories[:3]],
                         cls="list-disc list-inside mb-2"
                     ) if strong_categories else P("None identified", cls="text-sm text-gray-500 mb-2"),
-                    
+
                     P("Areas for Improvement:", cls="text-sm font-medium text-gray-700"),
                     Ul(
                         *[Li(cat, cls="text-sm text-gray-600") for cat in weak_categories[:3]],
@@ -379,7 +377,7 @@ def instructor_assignment_analytics(session, assignment_id: int):
                 if category_performance
                 else P("No data yet", cls="text-sm text-gray-600 mb-4")
             ),
-            
+
             H4("Recommendations", cls="font-semibold text-gray-700 mb-2"),
             Ul(
                 Li(

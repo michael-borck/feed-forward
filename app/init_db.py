@@ -42,7 +42,7 @@ def init_db():
         # Check if admin exists
         users[admin_email]
         print(f"Admin user {admin_email} already exists")
-    except:
+    except Exception:
         # Create admin user
         admin = User(
             email=admin_email,
@@ -77,9 +77,9 @@ def init_db():
     for key, value, description in config_items:
         try:
             # Check if config exists
-            existing = system_config[key]
+            _ = system_config[key]
             print(f"Config {key} already exists")
-        except:
+        except Exception:
             # Create config
             config = SystemConfig(key=key, value=value, description=description)
             system_config.insert(config)

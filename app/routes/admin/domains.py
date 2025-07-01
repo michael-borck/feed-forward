@@ -5,11 +5,10 @@ Admin domain whitelist management routes
 from datetime import datetime
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
 from app import admin_required, rt
 from app.models.config import DomainWhitelist, domain_whitelist
-from app.models.user import Role, users
+from app.models.user import Role
 from app.utils.ui import action_button, dashboard_layout
 
 
@@ -17,8 +16,7 @@ from app.utils.ui import action_button, dashboard_layout
 @admin_required
 def admin_domains_list(session):
     """Admin domain whitelist management view"""
-    # Get current user and UI components
-    user = users[session["auth"]]
+    # Note: user variable removed as it's not used in this function
 
     # Get all domains from the whitelist
     all_domains = list(domain_whitelist())

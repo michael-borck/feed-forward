@@ -3,7 +3,6 @@ Admin instructor management routes
 """
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
 from app import admin_required, rt
 from app.models.course import courses, enrollments
@@ -15,8 +14,7 @@ from app.utils.ui import action_button, dashboard_layout
 @admin_required
 def admin_instructors_approve_list(session):
     """Admin instructor approval list view"""
-    # Get current user and UI components
-    user = users[session["auth"]]
+    # Note: user variable removed as it's not used in this function
 
     # Get all instructors that need approval
     pending_instructors = []
@@ -169,7 +167,7 @@ def admin_instructor_approve(session, email: str):
             Script("setTimeout(function() { window.location.reload(); }, 1000);"),
             cls="py-2 px-4",
         )
-    except:
+    except Exception:
         # Return error message
         return Div(P("Error approving instructor", cls="text-red-500"), cls="py-2 px-4")
 
@@ -188,7 +186,7 @@ def admin_instructor_reject(session, email: str):
             Script("setTimeout(function() { window.location.reload(); }, 1000);"),
             cls="py-2 px-4",
         )
-    except:
+    except Exception:
         # Return error message
         return Div(P("Error rejecting instructor", cls="text-red-500"), cls="py-2 px-4")
 
@@ -197,8 +195,7 @@ def admin_instructor_reject(session, email: str):
 @admin_required
 def admin_instructors_list(session):
     """Admin instructors management list view"""
-    # Get current user
-    user = users[session["auth"]]
+    # Note: user variable removed as it's not used in this function
 
     # Get all instructors who aren't deleted
     instructor_list = []

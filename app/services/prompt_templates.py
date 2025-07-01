@@ -1,11 +1,11 @@
 """
 Prompt template system for generating AI prompts based on rubrics
 """
-from typing import List, Dict, Optional
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
+from typing import List, Optional
 
-from app.models.assignment import Assignment, Rubric, RubricCategory, rubrics, rubric_categories
+from app.models.assignment import Assignment, RubricCategory, rubric_categories, rubrics
 from app.models.config import FeedbackStyle, feedback_styles
 
 
@@ -24,10 +24,10 @@ class PromptContext:
 
 class PromptTemplate:
     """Base class for prompt templates"""
-    
+
     def __init__(self):
         self.system_prompt = self._get_system_prompt()
-    
+
     def _get_system_prompt(self) -> str:
         """Get the system prompt for the AI model"""
         return """You are an expert educational assessment assistant helping to provide constructive feedback on student assignments. 
@@ -47,21 +47,21 @@ Important guidelines:
     def generate_prompt(self, context: PromptContext) -> str:
         """Generate a complete prompt based on the context"""
         prompt_parts = []
-        
+
         # Add assignment context
         prompt_parts.append(self._format_assignment_context(context))
-        
+
         # Add rubric criteria
         prompt_parts.append(self._format_rubric_criteria(context))
-        
+
         # Add student submission
         prompt_parts.append(self._format_student_submission(context))
-        
+
         # Add feedback instructions
         prompt_parts.append(self._format_feedback_instructions(context))
-        
+
         return "\n\n".join(prompt_parts)
-    
+
     def _format_assignment_context(self, context: PromptContext) -> str:
         """Format the assignment context section"""
         return f"""## Assignment Context
@@ -75,14 +75,14 @@ Word Count: {context.word_count or 'Not specified'}"""
         """Format the rubric criteria section"""
         criteria_text = "## Evaluation Criteria\n\n"
         criteria_text += "Please evaluate the submission based on these weighted criteria:\n\n"
-        
+
         total_weight = sum(cat.weight for cat in context.rubric_categories)
-        
+
         for category in sorted(context.rubric_categories, key=lambda c: c.weight, reverse=True):
             weight_percent = (category.weight / total_weight) * 100 if total_weight > 0 else 0
             criteria_text += f"### {category.name} ({weight_percent:.0f}% of grade)\n"
             criteria_text += f"{category.description}\n\n"
-        
+
         return criteria_text
 
     def _format_student_submission(self, context: PromptContext) -> str:
@@ -94,11 +94,11 @@ Word Count: {context.word_count or 'Not specified'}"""
     def _format_feedback_instructions(self, context: PromptContext) -> str:
         """Format the feedback instructions based on settings"""
         instructions = "## Feedback Instructions\n\n"
-        
+
         # Add style-specific instructions
         if context.feedback_style:
             instructions += f"Feedback Style: {context.feedback_style.name} - {context.feedback_style.description}\n\n"
-        
+
         # Add level-specific instructions
         if context.feedback_level == "overall":
             instructions += self._get_overall_feedback_instructions()
@@ -106,12 +106,12 @@ Word Count: {context.word_count or 'Not specified'}"""
             instructions += self._get_criterion_feedback_instructions(context)
         else:  # both
             instructions += self._get_combined_feedback_instructions(context)
-        
+
         # Add JSON format requirements
         instructions += "\n\n" + self._get_json_format_instructions(context)
-        
+
         return instructions
-    
+
     def _get_overall_feedback_instructions(self) -> str:
         """Get instructions for overall feedback only"""
         return """Please provide an overall assessment of the submission including:
@@ -186,7 +186,7 @@ Word Count: {context.word_count or 'Not specified'}"""
                     "summary": "Overall assessment"
                 }
             }
-        
+
         return f"""Please format your response as JSON following this structure:
 
 ```json
@@ -198,27 +198,27 @@ Ensure all scores are between 0 and 100, and all text fields contain specific, a
 
 class IterativePromptTemplate(PromptTemplate):
     """Specialized template for iterative feedback on multiple drafts"""
-    
+
     def _format_assignment_context(self, context: PromptContext) -> str:
         """Add draft-specific context for iterative feedback"""
         base_context = super()._format_assignment_context(context)
-        
+
         if context.draft_version > 1:
             base_context += f"\n\nNote: This is draft {context.draft_version} of {context.max_drafts}. "
             base_context += "Please acknowledge improvements from previous drafts while still providing constructive feedback for continued improvement."
-        
+
         return base_context
-    
+
     def _get_combined_feedback_instructions(self, context: PromptContext) -> str:
         """Add iterative-specific instructions"""
         base_instructions = super()._get_combined_feedback_instructions(context)
-        
+
         if context.draft_version > 1:
             base_instructions += "\n\n3. For revision drafts, also comment on:"
             base_instructions += "\n   - Progress made since the previous draft"
             base_instructions += "\n   - Whether previous feedback was addressed"
             base_instructions += "\n   - Remaining areas for improvement"
-        
+
         return base_instructions
 
 
@@ -255,19 +255,19 @@ def generate_feedback_prompt(
         if rubric.assignment_id == assignment.id:
             assignment_rubric = rubric
             break
-    
+
     if not assignment_rubric:
         raise ValueError(f"No rubric found for assignment {assignment.id}")
-    
+
     # Get rubric categories
     categories = []
     for category in rubric_categories():
         if category.rubric_id == assignment_rubric.id:
             categories.append(category)
-    
+
     if not categories:
         raise ValueError(f"No rubric categories found for rubric {assignment_rubric.id}")
-    
+
     # Get feedback style if specified
     style = None
     if feedback_style_id:
@@ -275,10 +275,10 @@ def generate_feedback_prompt(
             if fs.id == feedback_style_id:
                 style = fs
                 break
-    
+
     # Calculate word count
     word_count = len(student_submission.split()) if student_submission else 0
-    
+
     # Create context
     context = PromptContext(
         assignment=assignment,
@@ -290,9 +290,9 @@ def generate_feedback_prompt(
         feedback_level=feedback_level,
         word_count=word_count
     )
-    
+
     # Create appropriate template
     template = create_prompt_template("iterative" if assignment.max_drafts > 1 else "standard")
-    
+
     # Generate and return prompt
     return template.generate_prompt(context)

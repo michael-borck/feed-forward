@@ -6,10 +6,9 @@ import logging
 from datetime import datetime
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
-from app import rt, student_required
-from app.models.course import courses, enrollments
+from app import rt
+from app.models.course import enrollments
 from app.models.user import Role, users
 from app.utils.auth import get_password_hash, is_strong_password
 from app.utils.ui import page_container

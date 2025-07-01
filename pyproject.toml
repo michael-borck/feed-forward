@@ -3,7 +3,7 @@ name = "feedforward"
 version = "0.1.0"
 description = "AI-powered educational feedback platform"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "python-fasthtml",
     "passlib==1.7.4",

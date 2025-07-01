@@ -8,12 +8,17 @@ from fasthtml.common import *
 from starlette.responses import RedirectResponse
 
 from app import instructor_required, rt
-from app.models.assignment import (Assignment, assignments, rubric_categories,
-                                   rubrics, Rubric, RubricCategory)
+from app.models.assignment import (
+    Assignment,
+    Rubric,
+    RubricCategory,
+    assignments,
+    rubric_categories,
+    rubrics,
+)
 from app.models.course import courses
-from app.models.feedback import drafts
 from app.models.user import Role, users
-from app.utils.ui import action_button, card, dashboard_layout, status_badge
+from app.utils.ui import action_button, dashboard_layout, status_badge
 
 
 def get_instructor_course(course_id, instructor_email):
@@ -396,7 +401,7 @@ def instructor_assignments_new(session, course_id: int):
 
 @rt("/instructor/courses/{course_id}/assignments/new")
 @instructor_required
-def instructor_assignments_create(session, course_id: int, title: str, 
+def instructor_assignments_create(session, course_id: int, title: str,
                                 instructions: str, due_date: str = None, max_drafts: int = 3):
     """Create a new assignment"""
     # Get current user
@@ -424,7 +429,7 @@ def instructor_assignments_create(session, course_id: int, title: str,
     try:
         assignment_id = assignments.insert(new_assignment)
         return RedirectResponse(f"/instructor/assignments/{assignment_id}/edit", status_code=303)
-    except Exception as e:
+    except Exception:
         return RedirectResponse(f"/instructor/courses/{course_id}/assignments/new", status_code=303)
 
 
@@ -1136,7 +1141,7 @@ def instructor_rubric_create(session, assignment_id: int):
         return RedirectResponse(f"/instructor/assignments/{assignment_id}/rubric", status_code=303)
     except Exception as e:
         return Div(
-            P(f"Error creating rubric: {str(e)}", cls="text-red-600"),
+            P(f"Error creating rubric: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
 
@@ -1197,6 +1202,6 @@ def instructor_rubric_category_add(session, assignment_id: int, name: str,
         return RedirectResponse(f"/instructor/assignments/{assignment_id}/rubric", status_code=303)
     except Exception as e:
         return Div(
-            P(f"Error adding category: {str(e)}", cls="text-red-600"),
+            P(f"Error adding category: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )

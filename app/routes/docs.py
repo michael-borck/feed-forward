@@ -3,43 +3,44 @@ In-app documentation viewer for FeedForward.
 Renders markdown documentation files directly in the application.
 """
 
-from fasthtml.common import *
-from pathlib import Path
 import re
-from functools import lru_cache
+from pathlib import Path
+
 import markdown
+from fasthtml.common import *
+
 
 def setup_routes(app, rt, db, User):
     """Set up documentation routes."""
-    
+
     # @lru_cache(maxsize=128)  # Disabled for development
     def load_markdown_file(filepath):
         """Load and parse a markdown file, with caching."""
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath) as f:
                 content = f.read()
-                
+
             # Remove Jekyll front matter
             content = re.sub(r'^---\n.*?\n---\n', '', content, flags=re.DOTALL)
-            
+
             # Convert markdown to HTML (basic conversion)
             # In production, consider using a proper markdown parser
             content = convert_markdown_to_html(content)
-            
+
             return content
         except FileNotFoundError:
             return None
-    
+
     def convert_markdown_to_html(md_content):
         """Convert markdown to HTML using the markdown library."""
         # Pre-process Jekyll-specific syntax
         # Convert Jekyll TOC syntax to Python markdown TOC syntax
         md_content = re.sub(r'{:\s*\.no_toc\s*(?:\.text-delta)?\s*}', '', md_content)
         md_content = re.sub(r'1\.\s+TOC\s*\n\s*{:toc}', '[TOC]', md_content)
-        
+
         # Remove other Jekyll-specific class assignments
         md_content = re.sub(r'{:\s*\.[^}]+}', '', md_content)
-        
+
         # Configure markdown extensions
         md = markdown.Markdown(extensions=[
             'markdown.extensions.fenced_code',
@@ -49,17 +50,17 @@ def setup_routes(app, rt, db, User):
             'markdown.extensions.codehilite',
             'markdown.extensions.toc'
         ])
-        
+
         # Convert markdown to HTML
         html = md.convert(md_content)
-        
+
         # Post-process to fix any internal links
         # Convert .md links to proper routes
         html = re.sub(r'href="\./([^"]+)\.md"', r'href="/docs/\1"', html)
         html = re.sub(r'href="([^"]+)\.md"', r'href="/docs/\1"', html)
-        
+
         return html
-    
+
     def get_doc_structure():
         """Get the documentation structure for navigation."""
         docs_path = Path('docs')
@@ -112,12 +113,12 @@ def setup_routes(app, rt, db, User):
             ],
         }
         return structure
-    
+
     def render_doc_nav(current_path=None):
         """Render the documentation navigation sidebar."""
         structure = get_doc_structure()
         nav_items = []
-        
+
         # Add navigation links at the top
         nav_items.append(
             Div(
@@ -134,7 +135,7 @@ def setup_routes(app, rt, db, User):
                 cls="border-b border-gray-200 pb-4 mb-4"
             )
         )
-        
+
         for section, items in structure.items():
             # Special styling for Quick Access section
             if section == 'Quick Access':
@@ -169,7 +170,7 @@ def setup_routes(app, rt, db, User):
                         sub_links.append(
                             Li(
                                 A(
-                                    title, 
+                                    title,
                                     href=f'/docs/{path}',
                                     cls=f"block px-4 py-1 text-sm hover:bg-gray-100 {'bg-blue-50 text-blue-600' if active else ''}"
                                 )
@@ -213,7 +214,7 @@ def setup_routes(app, rt, db, User):
                         cls="mb-4"
                     )
                 )
-        
+
         return Nav(
             Div(
                 *nav_items,
@@ -221,7 +222,7 @@ def setup_routes(app, rt, db, User):
             ),
             cls="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto p-4 flex-shrink-0"
         )
-    
+
     @rt('/docs')
     def get(session):
         """Documentation home page."""
@@ -231,16 +232,16 @@ def setup_routes(app, rt, db, User):
                 render_doc_nav(),
                 Div(
                     H1("FeedForward Documentation", cls="text-3xl font-bold mb-4"),
-                    P("Welcome to the FeedForward documentation. Select a topic from the navigation menu to get started.", 
+                    P("Welcome to the FeedForward documentation. Select a topic from the navigation menu to get started.",
                       cls="text-lg text-gray-600 mb-6"),
-                    
+
                     Div(
                         H2("Quick Links", cls="text-2xl font-semibold mb-3"),
                         Div(
                             Card(
                                 H3("For Students", cls="text-xl font-semibold mb-2"),
                                 P("Learn how to submit work and view feedback"),
-                                A("Get Started →", href="/docs/user-guides/student/getting-started", 
+                                A("Get Started →", href="/docs/user-guides/student/getting-started",
                                   cls="text-blue-600 hover:underline")
                             ),
                             Card(
@@ -263,17 +264,17 @@ def setup_routes(app, rt, db, User):
                 cls="flex h-screen overflow-hidden"
             )
         )
-    
+
     @rt('/docs/{path:path}')
-    def get(session, path: str):
+    def get_doc_page(session, path: str):
         """Display a specific documentation page."""
         # Sanitize path to prevent directory traversal
         path = path.replace('..', '')
-        
+
         # Load the markdown file
         doc_path = Path(f'docs/{path}.md')
         content = load_markdown_file(doc_path)
-        
+
         if content is None:
             return Titled(
                 "Documentation Not Found",
@@ -288,11 +289,11 @@ def setup_routes(app, rt, db, User):
                     cls="flex h-screen overflow-hidden"
                 )
             )
-        
+
         # Extract title from content (first H1)
         title_match = re.search(r'<h1>(.*?)</h1>', content)
         title = title_match.group(1) if title_match else "Documentation"
-        
+
         return Titled(
             title,
             Div(

@@ -3,8 +3,9 @@ Background task handling for asynchronous operations
 """
 import asyncio
 import logging
-from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
+from typing import Optional
+
 from app.services.feedback_generator import process_draft_submission
 
 # Configure logging
@@ -32,16 +33,16 @@ async def queue_feedback_generation(draft_id: int) -> bool:
         if draft_id in active_tasks:
             logger.info(f"Draft {draft_id} is already being processed")
             return False
-        
+
         # Create and track the task
         task = asyncio.create_task(_process_draft_with_tracking(draft_id))
         active_tasks[draft_id] = task
-        
+
         logger.info(f"Queued draft {draft_id} for feedback generation")
         return True
-        
+
     except Exception as e:
-        logger.error(f"Error queuing draft {draft_id}: {str(e)}")
+        logger.error(f"Error queuing draft {draft_id}: {e!s}")
         return False
 
 
@@ -50,15 +51,15 @@ async def _process_draft_with_tracking(draft_id: int):
     try:
         # Process the draft
         success = await process_draft_submission(draft_id)
-        
+
         if success:
             logger.info(f"Successfully processed draft {draft_id}")
         else:
             logger.error(f"Failed to process draft {draft_id}")
-            
+
     except Exception as e:
-        logger.error(f"Error processing draft {draft_id}: {str(e)}")
-        
+        logger.error(f"Error processing draft {draft_id}: {e!s}")
+
     finally:
         # Remove from active tasks
         active_tasks.pop(draft_id, None)
@@ -88,13 +89,13 @@ def get_task_status(draft_id: int) -> Optional[str]:
 async def cleanup_completed_tasks():
     """Clean up completed tasks from tracking"""
     completed = []
-    
+
     for draft_id, task in active_tasks.items():
         if task.done() or task.cancelled():
             completed.append(draft_id)
-    
+
     for draft_id in completed:
         active_tasks.pop(draft_id, None)
-        
+
     if completed:
         logger.info(f"Cleaned up {len(completed)} completed tasks")

@@ -3,15 +3,19 @@ Student dashboard routes
 """
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
-from app import student_required, rt
+from app import rt, student_required
 from app.models.assignment import assignments
 from app.models.course import courses, enrollments
 from app.models.feedback import drafts
 from app.models.user import Role, users
-from app.utils.ui import (action_button, card, dashboard_layout,
-                         feedback_card, status_badge)
+from app.utils.ui import (
+    action_button,
+    card,
+    dashboard_layout,
+    feedback_card,
+    status_badge,
+)
 
 
 def generate_recent_feedback(student_drafts):

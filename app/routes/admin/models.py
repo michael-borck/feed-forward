@@ -2,14 +2,12 @@
 Admin AI models management routes
 """
 
-import json
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
 from app import admin_required, rt
-from app.models.config import AIModel, ai_models, model_capabilities
-from app.models.user import Role, users
+from app.models.config import ai_models
+from app.models.user import Role
 from app.utils.ui import action_button, dashboard_layout
 
 
@@ -17,8 +15,7 @@ from app.utils.ui import action_button, dashboard_layout
 @admin_required
 def admin_models_list(session):
     """Admin AI models management list view"""
-    # Get current user and UI components
-    user = users[session["auth"]]
+    # Note: user variable removed as it's not used in this function
 
     # Get all AI models
     model_list = list(ai_models())
@@ -44,7 +41,7 @@ def admin_models_list(session):
                     "Add New Model",
                     color="indigo",
                     href="/admin/ai-models/new",
-                    icon="➕",
+                    icon="+",
                 ),
                 action_button(
                     "System Settings", color="teal", href="/admin/settings", icon="⚙️"
@@ -111,7 +108,7 @@ def admin_models_list(session):
                         "Add New Model",
                         color="indigo",
                         href="/admin/ai-models/new",
-                        icon="➕",
+                        icon="+",
                         size="regular",
                     ),
                     cls="mb-6",
@@ -244,7 +241,7 @@ def admin_models_list(session):
 # Note: Due to the large size of the AI model management code,
 # this is a simplified version. The full implementation would include:
 # - admin_models_new() - new model form
-# - admin_models_create() - create model POST handler  
+# - admin_models_create() - create model POST handler
 # - admin_models_edit() - edit model form
 # - admin_models_update() - update model POST handler
 # - admin_models_test() - test model API

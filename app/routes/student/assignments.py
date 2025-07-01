@@ -3,7 +3,6 @@ Student assignment routes
 """
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
 from app import rt, student_required
 from app.models.assignment import assignments, rubric_categories, rubrics

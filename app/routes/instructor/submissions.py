@@ -11,10 +11,9 @@ from starlette.responses import RedirectResponse
 from app import instructor_required, rt
 from app.models.assignment import assignments
 from app.models.course import courses
-from app.models.feedback import (aggregated_feedback, drafts,
-                                model_runs, Draft)
+from app.models.feedback import aggregated_feedback, drafts, model_runs
 from app.models.user import Role, users
-from app.utils.ui import action_button, card, dashboard_layout, status_badge
+from app.utils.ui import card, dashboard_layout
 
 
 @rt("/instructor/assignments/{assignment_id}/submissions")
@@ -317,7 +316,7 @@ def instructor_submissions_list(session, assignment_id: int):
 def instructor_submission_detail(session, draft_id: int):
     """View detailed submission information with AI feedback breakdown"""
     import json
-    
+
     # Get current user
     user = users[session["auth"]]
 
@@ -521,7 +520,7 @@ def instructor_submission_detail(session, draft_id: int):
     )
 
     return dashboard_layout(
-        f"Submission Details | FeedForward",
+        "Submission Details | FeedForward",
         sidebar_content,
         main_content,
         user_role=Role.INSTRUCTOR,
@@ -534,7 +533,7 @@ def instructor_submission_detail(session, draft_id: int):
 def instructor_feedback_review(session, draft_id: int):
     """Review and edit AI-generated feedback before approval"""
     import json
-    
+
     # Get current user
     user = users[session["auth"]]
 

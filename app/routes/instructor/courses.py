@@ -8,10 +8,9 @@ from fasthtml.common import *
 from starlette.responses import RedirectResponse
 
 from app import instructor_required, rt
-from app.models.assignment import assignments
 from app.models.course import Course, courses, enrollments
 from app.models.user import Role, users
-from app.utils.ui import action_button, card, dashboard_layout, status_badge
+from app.utils.ui import action_button, dashboard_layout, status_badge
 
 
 @rt("/instructor/courses")
@@ -365,7 +364,7 @@ def instructor_courses_create(session, title: str, code: str, term: str = None, 
     try:
         course_id = courses.insert(new_course)
         return RedirectResponse(f"/instructor/courses/{course_id}/students", status_code=303)
-    except Exception as e:
+    except Exception:
         # Handle duplicate course codes or other errors
         return RedirectResponse("/instructor/courses/new", status_code=303)
 

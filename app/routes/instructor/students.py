@@ -11,10 +11,9 @@ from fasthtml.common import *
 from starlette.responses import RedirectResponse
 
 from app import instructor_required, rt
-from app.models.course import Course, Enrollment, courses, enrollments
+from app.models.course import Enrollment, courses, enrollments
 from app.models.user import Role, User, users
-from app.utils.email import (generate_verification_token,
-                           send_student_invitation_email)
+from app.utils.email import generate_verification_token, send_student_invitation_email
 from app.utils.ui import action_button, card, dashboard_layout, status_badge
 
 
@@ -455,7 +454,7 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
         )
     except Exception as e:
         return Div(
-            P(f"Failed to send invitation: {str(e)}", cls="text-red-600"),
+            P(f"Failed to send invitation: {e!s}", cls="text-red-600"),
             cls="p-3 bg-red-50 rounded-lg"
         )
 
@@ -490,7 +489,7 @@ def instructor_remove_student(session, request, email: str, course_id: int):
                 break
             except Exception as ex:
                 return Div(
-                    P(f"Failed to remove student: {str(ex)}", cls="text-red-600"),
+                    P(f"Failed to remove student: {ex!s}", cls="text-red-600"),
                     cls="p-3 bg-red-50 rounded-lg"
                 )
 
@@ -635,7 +634,7 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
 
     # Parse emails
     email_list = [email.strip() for email in emails.strip().split('\n') if email.strip()]
-    
+
     # Remove duplicates
     email_list = list(set(email_list))
 

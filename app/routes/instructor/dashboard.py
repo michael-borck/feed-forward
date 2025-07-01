@@ -3,7 +3,6 @@ Instructor dashboard routes
 """
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
 from app import instructor_required, rt
 from app.models.assignment import assignments
@@ -19,25 +18,25 @@ def instructor_dashboard(session, request):
     """Main instructor dashboard view"""
     # Get current instructor
     instructor = users[session["auth"]]
-    
+
     # Get instructor's courses
     instructor_courses = []
     for course in courses():
         if course.instructor_email == instructor.email:
             instructor_courses.append(course)
-    
+
     # Get enrollment counts
     course_enrollments = {}
     for course in instructor_courses:
         enrollment_count = sum(1 for e in enrollments() if e.course_id == course.id)
         course_enrollments[course.id] = enrollment_count
-    
+
     # Get assignment counts
     course_assignments = {}
     for course in instructor_courses:
         assignment_count = sum(1 for a in assignments() if a.course_id == course.id)
         course_assignments[course.id] = assignment_count
-    
+
     # Get recent submissions
     recent_submissions = []
     for draft in sorted(drafts(), key=lambda d: d.submission_date, reverse=True)[:10]:
@@ -53,12 +52,12 @@ def instructor_dashboard(session, request):
                         })
                         break
                 break
-    
+
     # Sidebar content
     sidebar_content = Div(
         # Welcome card
         Div(
-            H3(f"Welcome, {instructor.name or instructor.email}", 
+            H3(f"Welcome, {instructor.name or instructor.email}",
                cls="text-xl font-semibold text-indigo-900 mb-2"),
             P("Instructor Dashboard", cls="text-gray-600 mb-4"),
             Div(
@@ -77,7 +76,7 @@ def instructor_dashboard(session, request):
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100"
         )
     )
-    
+
     # Main content
     main_content = Div(
         # Stats overview
@@ -108,12 +107,12 @@ def instructor_dashboard(session, request):
             ),
             cls="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
         ),
-        
+
         # Courses section
         Div(
             Div(
                 H2("Your Courses", cls="text-2xl font-bold text-indigo-900"),
-                A("Manage Courses", href="/instructor/courses", 
+                A("Manage Courses", href="/instructor/courses",
                   cls="text-indigo-600 hover:underline text-sm"),
                 cls="flex justify-between items-center mb-6"
             ),
@@ -123,16 +122,16 @@ def instructor_dashboard(session, request):
                         H3(course.title, cls="text-xl font-bold text-indigo-800 mb-1"),
                         P(f"Code: {course.code}", cls="text-gray-600 mb-1"),
                         Div(
-                            Span(f"{course_enrollments.get(course.id, 0)} students", 
+                            Span(f"{course_enrollments.get(course.id, 0)} students",
                                  cls="text-sm text-gray-500 mr-4"),
-                            Span(f"{course_assignments.get(course.id, 0)} assignments", 
+                            Span(f"{course_assignments.get(course.id, 0)} assignments",
                                  cls="text-sm text-gray-500"),
                             cls="mb-3"
                         ),
                         Div(
-                            action_button("View Details", color="indigo", 
+                            action_button("View Details", color="indigo",
                                         href=f"/instructor/courses/{course.id}", size="small"),
-                            action_button("Assignments", color="teal", 
+                            action_button("Assignments", color="teal",
                                         href=f"/instructor/courses/{course.id}/assignments", size="small"),
                             cls="flex gap-3"
                         ),
@@ -140,11 +139,11 @@ def instructor_dashboard(session, request):
                     )
                     for course in instructor_courses[:3]  # Show first 3 courses
                 )
-            ) if instructor_courses else P("No courses yet. Create your first course!", 
+            ) if instructor_courses else P("No courses yet. Create your first course!",
                                           cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center"),
             cls="mb-8"
         ),
-        
+
         # Recent submissions section
         Div(
             H2("Recent Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
@@ -152,10 +151,10 @@ def instructor_dashboard(session, request):
                 *(
                     Div(
                         Div(
-                            P(f"Student submitted draft for {sub['assignment'].title}", 
+                            P(f"Student submitted draft for {sub['assignment'].title}",
                               cls="text-indigo-800 font-medium"),
                             P(f"Course: {sub['course'].title}", cls="text-sm text-gray-500"),
-                            P(f"Status: {sub['draft'].status.replace('_', ' ').capitalize()}", 
+                            P(f"Status: {sub['draft'].status.replace('_', ' ').capitalize()}",
                               cls="text-sm text-gray-600 mt-1"),
                             cls="flex-1"
                         ),
@@ -168,11 +167,11 @@ def instructor_dashboard(session, request):
                     )
                     for sub in recent_submissions[:5]
                 )
-            ) if recent_submissions else P("No recent submissions", 
+            ) if recent_submissions else P("No recent submissions",
                                           cls="text-gray-500 italic p-4 bg-white rounded-xl border border-gray-200")
         )
     )
-    
+
     return Titled(
         "Instructor Dashboard | FeedForward",
         dashboard_layout(

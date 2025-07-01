@@ -3,7 +3,6 @@ Admin dashboard routes
 """
 
 from fasthtml.common import *
-from starlette.responses import RedirectResponse
 
 from app import admin_required, rt
 from app.models.user import Role, users

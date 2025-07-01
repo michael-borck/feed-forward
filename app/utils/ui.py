@@ -244,7 +244,7 @@ def dashboard_header(user_role, current_path=None):
         else:
             # Fallback to role first letter if we can't get email
             user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
-    except:
+    except Exception:
         # If anything goes wrong, fallback to role first letter
         user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
 
@@ -573,7 +573,7 @@ def modal_dialog(title, content, footer=None):
         Div(
             Div(
                 H3(title, cls="text-xl font-bold text-indigo-900"),
-                Button("×", cls="text-gray-500 hover:text-gray-700 text-2xl font-bold"),
+                Button("x", cls="text-gray-500 hover:text-gray-700 text-2xl font-bold"),
                 cls="flex justify-between items-center border-b border-gray-200 pb-4 mb-6",
             ),
             Div(content, cls="mb-6"),
