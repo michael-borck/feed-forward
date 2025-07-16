@@ -1,0 +1,41 @@
+[Unit]
+Description=FeedForward Educational Feedback Platform
+After=network.target
+
+[Service]
+Type=simple
+User=feedforward
+Group=feedforward
+WorkingDirectory=/opt/feedforward
+
+# Environment variables
+Environment="PATH=/home/feedforward/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+
+# Load environment from .env file
+EnvironmentFile=/opt/feedforward/.env
+
+# Command to start the service
+ExecStart=/opt/feedforward/.venv/bin/python /opt/feedforward/app.py
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/feedforward/data
+
+# Resource limits
+LimitNOFILE=65536
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=feedforward
+
+[Install]
+WantedBy=multi-user.target

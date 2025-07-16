@@ -1,0 +1,68 @@
+# FeedForward Caddy Configuration
+# Copy this to your Caddy configuration and adjust the domain name
+
+feedforward.yourdomain.com {
+    # Reverse proxy to FeedForward app
+    reverse_proxy localhost:5001 {
+        # WebSocket support for FastHTML live reload (development)
+        header_up Upgrade {http.request.header.Upgrade}
+        header_up Connection {http.request.header.Connection}
+        
+        # Increase timeouts for AI processing
+        transport http {
+            read_timeout 300s
+            write_timeout 300s
+        }
+    }
+    
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        
+        # XSS Protection
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        
+        # Content Security Policy
+        Content-Security-Policy "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' wss: https:;"
+        
+        # Referrer Policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Permissions Policy
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        
+        # Remove server header
+        -Server
+    }
+    
+    # Compression
+    encode gzip
+    
+    # Logging (optional)
+    log {
+        output file /var/log/caddy/feedforward.log {
+            roll_size 10mb
+            roll_keep 10
+            roll_keep_for 720h
+        }
+    }
+    
+    # File upload size limit (adjust as needed)
+    request_body {
+        max_size 10MB
+    }
+}
+
+# Redirect www to non-www
+www.feedforward.yourdomain.com {
+    redir https://feedforward.yourdomain.com{uri} permanent
+}
+
+# HTTP to HTTPS redirect (Caddy does this automatically)
+# But if you need explicit control:
+# http://feedforward.yourdomain.com {
+#     redir https://{host}{uri} permanent
+# }
