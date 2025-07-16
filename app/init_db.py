@@ -10,6 +10,7 @@ from datetime import datetime
 # Add parent directory to path to allow imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from app.models.assessment import AssessmentType, assessment_types
 from app.models.config import (
     AggregationMethod,
     AIModel,
@@ -33,6 +34,101 @@ def init_db():
 
     # Create data directory if it doesn't exist
     os.makedirs("data", exist_ok=True)
+
+    # Initialize assessment types
+    now = datetime.now().isoformat()
+    default_assessment_types = [
+        {
+            "id": 1,
+            "type_code": "essay",
+            "display_name": "Essay",
+            "description": "Traditional text-based essay assessment",
+            "handler_class": "EssayAssessmentHandler",
+            "file_extensions": json.dumps([".txt", ".docx", ".pdf"]),
+            "max_file_size": 10485760,  # 10MB
+            "requires_file": False,
+            "supports_text_input": True,
+            "configuration": json.dumps({
+                "min_words": 100,
+                "max_words": 5000,
+                "allowed_formats": ["plain_text", "markdown"]
+            }),
+            "is_active": True,
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "id": 2,
+            "type_code": "code",
+            "display_name": "Code",
+            "description": "Programming code assessment",
+            "handler_class": "CodeAssessmentHandler",
+            "file_extensions": json.dumps([".py", ".js", ".java", ".cpp", ".c", ".html", ".css"]),
+            "max_file_size": 1048576,  # 1MB
+            "requires_file": False,
+            "supports_text_input": True,
+            "configuration": json.dumps({
+                "supported_languages": ["python", "javascript", "java", "cpp", "c", "html", "css"],
+                "syntax_highlighting": True,
+                "execution_enabled": False
+            }),
+            "is_active": True,
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "id": 3,
+            "type_code": "math",
+            "display_name": "Mathematics",
+            "description": "Mathematical proofs and calculations",
+            "handler_class": "MathAssessmentHandler",
+            "file_extensions": json.dumps([".tex", ".pdf"]),
+            "max_file_size": 5242880,  # 5MB
+            "requires_file": False,
+            "supports_text_input": True,
+            "configuration": json.dumps({
+                "latex_support": True,
+                "equation_rendering": True
+            }),
+            "is_active": True,
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "id": 4,
+            "type_code": "video",
+            "display_name": "Video Presentation",
+            "description": "Video-based presentations and demonstrations",
+            "handler_class": "VideoAssessmentHandler",
+            "file_extensions": json.dumps([".mp4", ".avi", ".mov", ".webm"]),
+            "max_file_size": 104857600,  # 100MB
+            "requires_file": True,
+            "supports_text_input": False,
+            "configuration": json.dumps({
+                "max_duration_seconds": 600,  # 10 minutes
+                "requires_external_service": True,
+                "service_name": "video_analyzer"
+            }),
+            "is_active": False,  # Disabled by default until service is configured
+            "created_at": now,
+            "updated_at": now,
+        },
+    ]
+
+    for type_config in default_assessment_types:
+        try:
+            # Check if type exists by ID
+            existing_types = [t for t in assessment_types() if t.id == type_config["id"]]
+            if existing_types:
+                print(f"Assessment type {type_config['display_name']} already exists")
+                continue
+
+            # Create assessment type
+            assessment_type = AssessmentType(**type_config)
+            assessment_types.insert(assessment_type)
+            print(f"Created assessment type: {type_config['display_name']}")
+        except Exception as e:
+            print(f"Error creating assessment type {type_config['display_name']}: {e!s}")
 
     # Create admin user if it doesn't exist
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@example.com")

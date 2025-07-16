@@ -38,6 +38,11 @@ if drafts not in db.t:
             status=str,  # 'submitted', 'processing', 'feedback_ready', 'archived'
             content_removed_date=str,  # When the content was removed
             hidden_by_student=bool,  # For "soft delete" functionality - hide from student view
+            submission_type=str,  # 'text', 'file', 'mixed'
+            submission_metadata=str,  # JSON metadata
+            preprocessing_status=str,  # 'pending', 'processing', 'complete', 'error'
+            preprocessing_result=str,  # JSON result from preprocessing
+            external_service_id=int,  # If processed by external service
         ),
         pk="id",
     )
@@ -56,6 +61,8 @@ if model_runs not in db.t:
             prompt=str,
             raw_response=str,
             status=str,  # 'pending', 'complete', 'error'
+            preprocessing_service_id=int,  # Track which service processed the submission
+            service_response_time=float,  # Time in seconds
         ),
         pk="id",
     )

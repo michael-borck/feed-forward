@@ -17,6 +17,8 @@ if assignments not in db.t:
             max_drafts=int,
             created_by=str,  # Instructor's email
             status=str,  # 'draft', 'active', 'closed', 'archived', 'deleted'
+            assessment_type_id=int,  # Reference to assessment_types table
+            type_config=str,  # JSON for type-specific settings
             created_at=str,  # ISO format timestamp
             updated_at=str,  # ISO format timestamp
         ),
@@ -31,6 +33,8 @@ if rubrics not in db.t:
         dict(
             id=int,
             assignment_id=int,
+            assessment_type_id=int,  # Reference to assessment_types table
+            type_specific_criteria=str,  # JSON for type-specific evaluation
         ),
         pk="id",
     )
