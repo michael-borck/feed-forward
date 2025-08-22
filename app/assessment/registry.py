@@ -4,7 +4,7 @@ Registry for managing assessment type handlers
 
 import importlib
 import logging
-from typing import Dict, List, Optional, Type
+from typing import Optional
 
 from app.assessment.base import AssessmentHandler
 from app.models.assessment import AssessmentType, assessment_types
@@ -21,8 +21,8 @@ class AssessmentRegistry:
     """
 
     _instance = None
-    _handlers: Dict[str, Type[AssessmentHandler]] = {}
-    _handler_instances: Dict[str, AssessmentHandler] = {}
+    _handlers: dict[str, type[AssessmentHandler]] = {}
+    _handler_instances: dict[str, AssessmentHandler] = {}
 
     def __new__(cls):
         if cls._instance is None:
@@ -92,7 +92,7 @@ class AssessmentRegistry:
         except Exception as e:
             logger.error(f"Error creating handler instance for {type_code}: {e}")
 
-    def register_handler(self, type_code: str, handler_class: Type[AssessmentHandler]):
+    def register_handler(self, type_code: str, handler_class: type[AssessmentHandler]):
         """
         Register a handler class for an assessment type.
 
@@ -135,7 +135,7 @@ class AssessmentRegistry:
         """
         return self._handler_instances.get(type_code)
 
-    def get_active_types(self) -> List[Dict[str, any]]:
+    def get_active_types(self) -> list[dict[str, any]]:
         """
         Get list of active assessment types with their handlers.
 

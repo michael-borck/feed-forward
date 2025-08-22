@@ -3,6 +3,7 @@ Instructor AI models management routes
 """
 
 import json
+from typing import Optional
 
 from fasthtml.common import *
 from starlette.responses import RedirectResponse
@@ -195,7 +196,7 @@ def instructor_models_list(session, request):
 def instructor_models_new(session, request):
     """Create new AI model configuration"""
     # Get current instructor
-    current_user = users[session["auth"]]
+    users[session["auth"]]
 
     # Sidebar content
     sidebar_content = Div(
@@ -370,8 +371,8 @@ def instructor_models_create(
     provider: str,
     model_id: str,
     name: str,
-    api_key: str = None,
-    base_url: str = None,
+    api_key: Optional[str] = None,
+    base_url: Optional[str] = None,
 ):
     """Create a new AI model configuration"""
     # Get current instructor
@@ -426,7 +427,7 @@ def instructor_models_create(
 @rt("/instructor/models/test")
 @instructor_required
 def instructor_models_test(
-    session, provider: str, api_key: str = None, base_url: str = None
+    session, provider: str, api_key: Optional[str] = None, base_url: Optional[str] = None
 ):
     """Test AI model connection"""
     import litellm

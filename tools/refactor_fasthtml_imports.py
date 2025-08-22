@@ -4,13 +4,13 @@ Automated refactoring tool for FastHTML imports
 Converts star imports to namespace imports (fh.Component pattern)
 """
 
+import argparse
 import ast
-import os
+import difflib
 import sys
 from pathlib import Path
-from typing import List, Set, Tuple, Optional
-import difflib
-import argparse
+from typing import Optional
+
 from rich.console import Console
 from rich.progress import track
 from rich.prompt import Confirm
@@ -18,7 +18,7 @@ from rich.prompt import Confirm
 
 class FastHTMLImportRefactorer:
     """Refactor FastHTML star imports to namespace imports"""
-    
+
     # Common FastHTML components and functions
     FASTHTML_COMPONENTS = {
         # HTML elements
@@ -37,31 +37,31 @@ class FastHTMLImportRefactorer:
         'Code', 'Pre', 'Kbd', 'Samp', 'Var',
         'B', 'I', 'U', 'S', 'Small', 'Strong', 'Em', 'Cite', 'Q',
         'Blockquote', 'Address',
-        
+
         # FastHTML specific
         'Titled', 'Card', 'Container', 'Group', 'Grid', 'NotStr',
         'Safe', 'Hidden', 'Fragment',
-        
+
         # Common utilities
         'fast_app', 'FastHTML', 'Route', 'APIRouter',
         'serve', 'setup_toasts',
-        
+
         # Response types
         'HTMLResponse', 'RedirectResponse', 'FileResponse',
-        
+
         # Form utilities
         'File', 'UploadFile', 'Beforeware',
-        
+
         # UI Components
         'Toast', 'Modal', 'Dropdown', 'Accordion', 'Tab', 'Tabs',
-        
+
         # Icons and special
         'Icon', 'Favicon', 'SvgIcon',
-        
+
         # HTMX related
         'HtmxResponseHeaders',
     }
-    
+
     def __init__(self, dry_run: bool = False, verbose: bool = False):
         self.dry_run = dry_run
         self.verbose = verbose
@@ -73,24 +73,24 @@ class FastHTMLImportRefactorer:
             'components_prefixed': 0,
             'errors': 0
         }
-    
-    def find_fasthtml_usage(self, tree: ast.AST) -> Set[str]:
+
+    def find_fasthtml_usage(self, tree: ast.AST) -> set[str]:
         """Find all FastHTML components used in the file"""
         used_components = set()
-        
+
         class ComponentVisitor(ast.NodeVisitor):
             def visit_Name(self, node):
                 if node.id in FastHTMLImportRefactorer.FASTHTML_COMPONENTS:
                     used_components.add(node.id)
                 self.generic_visit(node)
-            
+
             def visit_Attribute(self, node):
                 # Skip if already namespaced (e.g., fh.Div)
                 self.generic_visit(node)
-        
+
         ComponentVisitor().visit(tree)
         return used_components
-    
+
     def has_star_import(self, tree: ast.AST) -> bool:
         """Check if file has star import from fasthtml.common"""
         for node in ast.walk(tree):
@@ -99,78 +99,78 @@ class FastHTMLImportRefactorer:
                     if any(alias.name == '*' for alias in node.names):
                         return True
         return False
-    
-    def refactor_imports(self, source: str) -> Tuple[str, List[str]]:
+
+    def refactor_imports(self, source: str) -> tuple[str, list[str]]:
         """Refactor FastHTML imports in source code"""
         try:
             tree = ast.parse(source)
         except SyntaxError as e:
             return source, [f"Syntax error: {e}"]
-        
+
         if not self.has_star_import(tree):
             return source, []
-        
+
         # Find used components
         used_components = self.find_fasthtml_usage(tree)
         if not used_components and not self.has_star_import(tree):
             return source, []
-        
+
         lines = source.splitlines(keepends=True)
         changes = []
-        
+
         # Find and replace import statements
         import_line_idx = None
-        for i, node in enumerate(tree.body):
+        for _i, node in enumerate(tree.body):
             if isinstance(node, ast.ImportFrom):
                 if node.module and 'fasthtml' in node.module:
                     if any(alias.name == '*' for alias in node.names):
                         import_line_idx = node.lineno - 1
                         # Replace star import with namespace import
-                        old_line = lines[import_line_idx]
+                        lines[import_line_idx]
                         new_line = "from fasthtml import common as fh\n"
                         lines[import_line_idx] = new_line
                         changes.append(f"Line {node.lineno}: Replaced star import")
                         self.stats['imports_refactored'] += 1
                         break
-        
+
         # Now prefix all component usage
         if import_line_idx is not None:
             # Parse again to get accurate positions
             modified_source = ''.join(lines)
-            
+
             # Use regex for more accurate replacement
             import re
-            
+
             # Build pattern for all used components
             for component in used_components:
                 # Match component usage but not when already prefixed or in strings
                 pattern = r'\b(?<!fh\.)(?<!["\'])(' + re.escape(component) + r')(?=\s*\()'
                 replacement = r'fh.\1'
-                
+
                 new_source, count = re.subn(pattern, replacement, modified_source)
                 if count > 0:
                     modified_source = new_source
                     changes.append(f"Prefixed {count} instances of {component}")
                     self.stats['components_prefixed'] += count
-            
+
             return modified_source, changes
-        
+
         return source, []
-    
+
     def process_file(self, file_path: Path) -> bool:
         """Process a single Python file"""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 original_source = f.read()
-            
+
             refactored_source, changes = self.refactor_imports(original_source)
-            
+
             if changes:
                 if self.verbose or self.dry_run:
                     self.console.print(f"\n[cyan]File: {file_path}[/cyan]")
                     for change in changes:
                         self.console.print(f"  • {change}")
-                
+
                 if not self.dry_run:
                     # Show diff if verbose
                     if self.verbose:
@@ -189,39 +189,39 @@ class FastHTMLImportRefactorer:
                                 self.console.print(f"[red]{line.rstrip()}[/red]")
                             else:
                                 self.console.print(line.rstrip())
-                    
+
                     # Write back
                     with open(file_path, 'w', encoding='utf-8') as f:
                         f.write(refactored_source)
-                    
+
                     self.stats['files_modified'] += 1
                     return True
-            
+
             return False
-            
+
         except Exception as e:
             self.console.print(f"[red]Error processing {file_path}: {e}[/red]")
             self.stats['errors'] += 1
             return False
-    
-    def process_directory(self, directory: Path, exclude: List[str] = None) -> None:
+
+    def process_directory(self, directory: Path, exclude: Optional[list[str]] = None) -> None:
         """Process all Python files in directory"""
         exclude = exclude or ['.venv', '__pycache__', '.git']
-        
+
         python_files = []
         for file_path in directory.rglob("*.py"):
             if not any(exc in str(file_path) for exc in exclude):
                 python_files.append(file_path)
-        
+
         self.console.print(f"\n[bold]Found {len(python_files)} Python files to process[/bold]")
-        
+
         if not python_files:
             return
-        
+
         for file_path in track(python_files, description="Processing files..."):
             self.stats['files_processed'] += 1
             self.process_file(file_path)
-    
+
     def print_summary(self) -> None:
         """Print processing summary"""
         self.console.print("\n[bold cyan]Refactoring Summary[/bold cyan]")
@@ -229,10 +229,10 @@ class FastHTMLImportRefactorer:
         self.console.print(f"Files modified: {self.stats['files_modified']}")
         self.console.print(f"Imports refactored: {self.stats['imports_refactored']}")
         self.console.print(f"Components prefixed: {self.stats['components_prefixed']}")
-        
+
         if self.stats['errors'] > 0:
             self.console.print(f"[red]Errors: {self.stats['errors']}[/red]")
-        
+
         if self.dry_run:
             self.console.print("\n[yellow]This was a dry run. No files were modified.[/yellow]")
 
@@ -241,18 +241,18 @@ def create_backup(directory: Path) -> Path:
     """Create a backup of the codebase before refactoring"""
     import shutil
     from datetime import datetime
-    
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_dir = directory.parent / f"{directory.name}_backup_{timestamp}"
-    
+
     console = Console()
     console.print(f"[yellow]Creating backup at {backup_dir}...[/yellow]")
-    
+
     shutil.copytree(directory, backup_dir, ignore=shutil.ignore_patterns(
         '.git', '.venv', '__pycache__', '*.pyc', '.mypy_cache', '.ruff_cache'
     ))
-    
-    console.print(f"[green]Backup created successfully[/green]")
+
+    console.print("[green]Backup created successfully[/green]")
     return backup_dir
 
 
@@ -288,28 +288,28 @@ def main():
         default=['.venv', '__pycache__', '.git'],
         help='Directories to exclude'
     )
-    
+
     args = parser.parse_args()
-    
+
     path = Path(args.path)
     console = Console()
-    
+
     if not path.exists():
         console.print(f"[red]Path {path} does not exist[/red]")
         sys.exit(1)
-    
+
     # Create backup unless skipped
     if not args.dry_run and not args.no_backup and path.is_dir():
         if Confirm.ask("[yellow]Create backup before refactoring?[/yellow]", default=True):
             backup_path = create_backup(path)
             console.print(f"[green]Backup created at: {backup_path}[/green]")
-    
+
     # Create refactorer
     refactorer = FastHTMLImportRefactorer(
         dry_run=args.dry_run,
         verbose=args.verbose
     )
-    
+
     # Process files
     if path.is_file():
         refactorer.stats['files_processed'] = 1
@@ -317,10 +317,10 @@ def main():
             console.print(f"[green]Successfully refactored {path}[/green]")
     else:
         refactorer.process_directory(path, exclude=args.exclude)
-    
+
     # Print summary
     refactorer.print_summary()
-    
+
     # Show next steps
     if not args.dry_run and refactorer.stats['files_modified'] > 0:
         console.print("\n[bold]Next Steps:[/bold]")

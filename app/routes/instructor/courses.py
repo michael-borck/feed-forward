@@ -3,6 +3,7 @@ Instructor course management routes
 """
 
 from datetime import datetime
+from typing import Optional
 
 from fasthtml.common import *
 from starlette.responses import RedirectResponse
@@ -235,7 +236,7 @@ def instructor_courses_list(session, request):
 def instructor_courses_new(session):
     """Course creation page for instructors"""
     # Get current user
-    user = users[session["auth"]]
+    users[session["auth"]]
 
     # Main content
     main_content = Div(
@@ -355,7 +356,7 @@ def instructor_courses_new(session):
 @rt("/instructor/courses/new")
 @instructor_required
 def instructor_courses_create(
-    session, title: str, code: str, term: str = None, description: str = None
+    session, title: str, code: str, term: Optional[str] = None, description: Optional[str] = None
 ):
     """Create a new course"""
     # Get current user
@@ -572,9 +573,9 @@ def instructor_course_update(
     course_id: int,
     title: str,
     code: str,
-    term: str = None,
-    status: str = None,
-    description: str = None,
+    term: Optional[str] = None,
+    status: Optional[str] = None,
+    description: Optional[str] = None,
 ):
     """Update course details"""
     # Get current user

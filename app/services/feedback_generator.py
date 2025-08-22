@@ -7,7 +7,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Optional
 
 import litellm
 
@@ -49,7 +49,7 @@ class FeedbackGenerationResult:
 
     model_run_id: int
     success: bool
-    feedback_data: Optional[Dict] = None
+    feedback_data: Optional[dict] = None
     error_message: Optional[str] = None
 
 
@@ -218,7 +218,7 @@ class FeedbackGenerator:
             )
 
     async def _call_ai_model(
-        self, model: AIModel, prompt: str, api_config: Dict
+        self, model: AIModel, prompt: str, api_config: dict
     ) -> str:
         """Call the AI model using LiteLLM"""
 
@@ -270,7 +270,7 @@ class FeedbackGenerator:
                     continue
                 raise e
 
-    def _parse_ai_response(self, response: str) -> Dict:
+    def _parse_ai_response(self, response: str) -> dict:
         """Parse the AI response into structured feedback"""
         try:
             # Try to parse as JSON
@@ -298,7 +298,7 @@ class FeedbackGenerator:
             }
 
     async def _store_model_feedback(
-        self, model_run_id: int, assignment_id: int, feedback_data: Dict
+        self, model_run_id: int, assignment_id: int, feedback_data: dict
     ):
         """Store the parsed feedback data in the database"""
 
@@ -378,7 +378,7 @@ class FeedbackGenerator:
         draft: Draft,
         assignment: Assignment,
         settings: AssignmentSettings,
-        successful_runs: List[FeedbackGenerationResult],
+        successful_runs: list[FeedbackGenerationResult],
     ):
         """Aggregate feedback from multiple model runs"""
 
@@ -534,7 +534,7 @@ class FeedbackGenerator:
                 return settings
         return None
 
-    def _get_model_configurations(self, settings_id: int) -> List[AssignmentModelRun]:
+    def _get_model_configurations(self, settings_id: int) -> list[AssignmentModelRun]:
         """Get model configurations for assignment settings"""
         configs = []
         for config in assignment_model_runs():

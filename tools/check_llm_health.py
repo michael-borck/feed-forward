@@ -10,7 +10,6 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Dict, List
 
 # Add app to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -40,7 +39,7 @@ class LLMHealthChecker:
         load_dotenv()
         self.results = []
 
-    async def check_provider(self, model: AIModel) -> Dict:
+    async def check_provider(self, model: AIModel) -> dict:
         """Check a single provider's health"""
         start_time = datetime.now()
 
@@ -56,7 +55,7 @@ class LLMHealthChecker:
 
         try:
             # Check for API key
-            config = json.loads(model.api_config)
+            json.loads(model.api_config)
 
             # Check environment for API key
             env_var_map = {
@@ -138,7 +137,7 @@ class LLMHealthChecker:
 
         return result
 
-    async def check_all_providers(self) -> List[Dict]:
+    async def check_all_providers(self) -> list[dict]:
         """Check all configured providers"""
         models = ai_models()
         active_models = [m for m in models if m.active]
@@ -153,7 +152,7 @@ class LLMHealthChecker:
 
         return results
 
-    def display_results(self, results: List[Dict]):
+    def display_results(self, results: list[dict]):
         """Display results in a formatted table"""
         table = Table(title="LLM Provider Health Check", box=box.ROUNDED)
 

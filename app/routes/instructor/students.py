@@ -82,7 +82,7 @@ def instructor_manage_students(session, request):
     # Create the main content
     if students_list:
         student_rows = []
-        for idx, student_info in enumerate(students_list):
+        for _idx, student_info in enumerate(students_list):
             student = student_info["student"]
             email = student.email if student else student_info.get("email", "Unknown")
             name = student.name if student and student.name else "(Not registered)"

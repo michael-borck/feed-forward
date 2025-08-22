@@ -8,7 +8,7 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import litellm
 from litellm import completion
@@ -27,9 +27,9 @@ class FeedbackResponse:
     """Structured response from AI model evaluation"""
 
     overall_score: float
-    category_scores: Dict[str, float]
-    strengths: List[str]
-    improvements: List[str]
+    category_scores: dict[str, float]
+    strengths: list[str]
+    improvements: list[str]
     general_feedback: str
     confidence: float = 0.8
 
@@ -56,7 +56,7 @@ class AIClient:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def _get_model_config(self, ai_model: AIModel) -> Dict[str, Any]:
+    def _get_model_config(self, ai_model: AIModel) -> dict[str, Any]:
         """Extract and decrypt model configuration"""
         try:
             config = json.loads(ai_model.api_config)
@@ -97,7 +97,7 @@ class AIClient:
             raise AIClientError(f"Failed to parse model config: {e!s}")
 
     def _build_litellm_model_name(
-        self, ai_model: AIModel, config: Dict[str, Any]
+        self, ai_model: AIModel, config: dict[str, Any]
     ) -> str:
         """Build LiteLLM model name from provider and model_id"""
         provider_mapping = {
@@ -117,7 +117,7 @@ class AIClient:
     def _create_rubric_prompt(
         self,
         assignment: Assignment,
-        rubric_categories: List[RubricCategory],
+        rubric_categories: list[RubricCategory],
         student_submission: str,
     ) -> str:
         """Create a structured prompt for AI evaluation based on rubric"""
@@ -132,7 +132,7 @@ Criteria: {category.criteria}""")
 
         rubric_text = "\n".join(rubric_details)
 
-        prompt = f"""You are an expert academic evaluator providing constructive feedback on student work. 
+        prompt = f"""You are an expert academic evaluator providing constructive feedback on student work.
 
 **Assignment:** {assignment.title}
 **Description:** {assignment.description}
@@ -227,7 +227,7 @@ Respond ONLY with valid JSON. Be specific, constructive, and encouraging in your
         self,
         ai_model: AIModel,
         assignment: Assignment,
-        rubric_categories: List[RubricCategory],
+        rubric_categories: list[RubricCategory],
         student_submission: str,
         draft_id: int,
         run_number: int,
@@ -334,7 +334,7 @@ Respond ONLY with valid JSON. Be specific, constructive, and encouraging in your
         self,
         model_run_id: int,
         feedback: FeedbackResponse,
-        rubric_categories: List[RubricCategory],
+        rubric_categories: list[RubricCategory],
     ):
         """Store parsed feedback data in database"""
         from app.models.feedback import category_scores, feedback_items

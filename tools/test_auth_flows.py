@@ -256,14 +256,12 @@ def test_student_invitation():
     except:
         pass
 
-    now = datetime.now().isoformat()
+    datetime.now().isoformat()
 
     for email in student_emails:
         # Check if student already exists
-        student_exists = False
         try:
-            students = users[email]
-            student_exists = True
+            users[email]
             print(f"⚠️ Student {email} already exists, skipping")
             continue
         except:

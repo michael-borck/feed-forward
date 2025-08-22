@@ -78,15 +78,15 @@ def create_test_draft(assignment_id: int) -> int:
 
     test_content = """
     This is a sample student submission for testing the AI feedback system.
-    
+
     The submission demonstrates several key concepts including clear structure,
     argumentation, and evidence-based reasoning. The student has attempted to
     address the assignment requirements through a well-organized approach.
-    
+
     However, there are areas that could be improved, such as deeper analysis
     and stronger conclusion. The writing style is generally clear but could
     benefit from more sophisticated vocabulary and varied sentence structure.
-    
+
     Overall, this represents a solid effort that shows understanding of the
     material while leaving room for enhancement in future drafts.
     """

@@ -131,8 +131,8 @@ def create_test_data():
         }
 
         try:
-            instructor_result = users.insert(test_instructor)
-            instructor_email = test_instructor["email"]
+            users.insert(test_instructor)
+            test_instructor["email"]
             print(f"✅ Created test instructor: {test_instructor['email']}")
         except:
             # Instructor might already exist
@@ -141,7 +141,7 @@ def create_test_data():
                 (u for u in all_users if u.email == test_instructor["email"]), None
             )
             if instructor:
-                instructor_email = test_instructor["email"]
+                test_instructor["email"]
                 print(f"✅ Using existing test instructor: {test_instructor['email']}")
             else:
                 raise Exception("Could not create or find test instructor")
@@ -314,11 +314,11 @@ def create_test_data():
                 "content": """
 This is a comprehensive test submission for the instructor feedback interface testing.
 
-The submission demonstrates strong writing quality with clear organization and structure. 
+The submission demonstrates strong writing quality with clear organization and structure.
 The student has provided evidence-based arguments that show understanding of the course material.
 However, there are areas where the critical thinking could be enhanced with deeper analysis.
 
-The conclusion ties together the main points effectively, though it could benefit from 
+The conclusion ties together the main points effectively, though it could benefit from
 stronger connections to broader implications of the topic.
                 """.strip(),
                 "content_preserved": True,

@@ -41,7 +41,7 @@ def init_db():
 
     try:
         # Check if admin exists
-        existing_admin = users[admin_email]
+        users[admin_email]
         print(f"✓ Admin user {admin_email} already exists")
     except:
         # Create admin user with all new fields

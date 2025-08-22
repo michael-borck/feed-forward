@@ -54,7 +54,7 @@ def instructor_assignment_analytics(session, assignment_id: int):
 
     # Get scores and aggregated feedback
     all_scores = category_scores()
-    all_agg = aggregated_feedback()
+    aggregated_feedback()
 
     # Calculate submission statistics
     total_submissions = len(assignment_drafts)

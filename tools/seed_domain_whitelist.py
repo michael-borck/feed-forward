@@ -44,7 +44,7 @@ def seed_domain_whitelist():
         domain["updated_at"] = now
 
     # Check for duplicates and insert new domains
-    existing_domains = set(d["domain"] for d in existing)
+    existing_domains = {d["domain"] for d in existing}
     domains_added = 0
 
     for domain in initial_domains:

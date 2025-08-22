@@ -8,16 +8,16 @@ from app.models.user import db
 ai_models = db.t.ai_models
 if ai_models not in db.t:
     ai_models.create(
-        dict(
-            id=int,
-            name=str,
-            provider=str,
-            model_id=str,
-            api_config=str,  # JSON string containing API configuration
-            active=bool,
-            owner_type=str,  # 'system' or 'instructor'
-            owner_id=str,  # For instructor models, stores the instructor's email
-        ),
+        {
+            "id": int,
+            "name": str,
+            "provider": str,
+            "model_id": str,
+            "api_config": str,  # JSON string containing API configuration
+            "active": bool,
+            "owner_type": str,  # 'system' or 'instructor'
+            "owner_id": str,  # For instructor models, stores the instructor's email
+        },
         pk="id",
     )
 AIModel = ai_models.dataclass()
@@ -26,24 +26,24 @@ AIModel = ai_models.dataclass()
 drafts = db.t.drafts
 if drafts not in db.t:
     drafts.create(
-        dict(
-            id=int,
-            assignment_id=int,
-            student_email=str,
-            version=int,
-            content=str,  # Temporarily stores content until feedback is generated
-            content_preserved=bool,  # Flag to indicate if content should be preserved (defaults to False)
-            submission_date=str,
-            word_count=int,  # Store word count for statistics
-            status=str,  # 'submitted', 'processing', 'feedback_ready', 'archived'
-            content_removed_date=str,  # When the content was removed
-            hidden_by_student=bool,  # For "soft delete" functionality - hide from student view
-            submission_type=str,  # 'text', 'file', 'mixed'
-            submission_metadata=str,  # JSON metadata
-            preprocessing_status=str,  # 'pending', 'processing', 'complete', 'error'
-            preprocessing_result=str,  # JSON result from preprocessing
-            external_service_id=int,  # If processed by external service
-        ),
+        {
+            "id": int,
+            "assignment_id": int,
+            "student_email": str,
+            "version": int,
+            "content": str,  # Temporarily stores content until feedback is generated
+            "content_preserved": bool,  # Flag to indicate if content should be preserved (defaults to False)
+            "submission_date": str,
+            "word_count": int,  # Store word count for statistics
+            "status": str,  # 'submitted', 'processing', 'feedback_ready', 'archived'
+            "content_removed_date": str,  # When the content was removed
+            "hidden_by_student": bool,  # For "soft delete" functionality - hide from student view
+            "submission_type": str,  # 'text', 'file', 'mixed'
+            "submission_metadata": str,  # JSON metadata
+            "preprocessing_status": str,  # 'pending', 'processing', 'complete', 'error'
+            "preprocessing_result": str,  # JSON result from preprocessing
+            "external_service_id": int,  # If processed by external service
+        },
         pk="id",
     )
 Draft = drafts.dataclass()
@@ -52,18 +52,18 @@ Draft = drafts.dataclass()
 model_runs = db.t.model_runs
 if model_runs not in db.t:
     model_runs.create(
-        dict(
-            id=int,
-            draft_id=int,
-            model_id=int,
-            run_number=int,
-            timestamp=str,
-            prompt=str,
-            raw_response=str,
-            status=str,  # 'pending', 'complete', 'error'
-            preprocessing_service_id=int,  # Track which service processed the submission
-            service_response_time=float,  # Time in seconds
-        ),
+        {
+            "id": int,
+            "draft_id": int,
+            "model_id": int,
+            "run_number": int,
+            "timestamp": str,
+            "prompt": str,
+            "raw_response": str,
+            "status": str,  # 'pending', 'complete', 'error'
+            "preprocessing_service_id": int,  # Track which service processed the submission
+            "service_response_time": float,  # Time in seconds
+        },
         pk="id",
     )
 ModelRun = model_runs.dataclass()
@@ -72,7 +72,7 @@ ModelRun = model_runs.dataclass()
 category_scores = db.t.category_scores
 if category_scores not in db.t:
     category_scores.create(
-        dict(id=int, model_run_id=int, category_id=int, score=float, confidence=float),
+        {"id": int, "model_run_id": int, "category_id": int, "score": float, "confidence": float},
         pk="id",
     )
 CategoryScore = category_scores.dataclass()
@@ -81,15 +81,15 @@ CategoryScore = category_scores.dataclass()
 feedback_items = db.t.feedback_items
 if feedback_items not in db.t:
     feedback_items.create(
-        dict(
-            id=int,
-            model_run_id=int,
-            category_id=int,
-            type=str,  # 'strength', 'improvement', 'general'
-            content=str,
-            is_strength=bool,
-            is_aggregated=bool,
-        ),
+        {
+            "id": int,
+            "model_run_id": int,
+            "category_id": int,
+            "type": str,  # 'strength', 'improvement', 'general'
+            "content": str,
+            "is_strength": bool,
+            "is_aggregated": bool,
+        },
         pk="id",
     )
 FeedbackItem = feedback_items.dataclass()
@@ -98,17 +98,17 @@ FeedbackItem = feedback_items.dataclass()
 aggregated_feedback = db.t.aggregated_feedback
 if aggregated_feedback not in db.t:
     aggregated_feedback.create(
-        dict(
-            id=int,
-            draft_id=int,
-            category_id=int,
-            aggregated_score=float,
-            feedback_text=str,
-            edited_by_instructor=bool,
-            instructor_email=str,
-            release_date=str,
-            status=str,  # 'pending_review', 'approved', 'released'
-        ),
+        {
+            "id": int,
+            "draft_id": int,
+            "category_id": int,
+            "aggregated_score": float,
+            "feedback_text": str,
+            "edited_by_instructor": bool,
+            "instructor_email": str,
+            "release_date": str,
+            "status": str,  # 'pending_review', 'approved', 'released'
+        },
         pk="id",
     )
 AggregatedFeedback = aggregated_feedback.dataclass()

@@ -4,11 +4,13 @@ Handles multi-model runs, aggregation, and feedback processing pipeline
 """
 
 import asyncio
+import builtins
+import contextlib
 import logging
 import os
 import statistics
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Optional
 
 from app.models.assignment import (
     Assignment,
@@ -37,7 +39,7 @@ class AggregatedScore:
     category_id: int
     category_name: str
     final_score: float
-    individual_scores: List[float]
+    individual_scores: list[float]
     confidence: float
     method_used: str
 
@@ -48,7 +50,7 @@ class ProcessingResult:
 
     draft_id: int
     success: bool
-    aggregated_scores: List[AggregatedScore]
+    aggregated_scores: list[AggregatedScore]
     total_models_run: int
     successful_runs: int
     error_message: Optional[str] = None
@@ -60,7 +62,7 @@ class FeedbackOrchestrator:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def get_assignment_models(self, assignment: Assignment) -> List[AIModel]:
+    def get_assignment_models(self, assignment: Assignment) -> list[AIModel]:
         """Get AI models configured for an assignment"""
         try:
             # Get models from assignment configuration
@@ -105,7 +107,7 @@ class FeedbackOrchestrator:
             self.logger.error(f"Error getting assignment models: {e!s}")
             return []
 
-    def get_rubric_categories(self, assignment_id: int) -> List[RubricCategory]:
+    def get_rubric_categories(self, assignment_id: int) -> list[RubricCategory]:
         """Get rubric categories for an assignment"""
         try:
             categories = rubric_categories()
@@ -224,10 +226,8 @@ class FeedbackOrchestrator:
             error_msg = f"Pipeline error: {e!s}"
             self.logger.error(error_msg)
 
-            try:
+            with contextlib.suppress(builtins.BaseException):
                 drafts.update(draft_id, {"status": "error"})
-            except:
-                pass
 
             return ProcessingResult(
                 draft_id=draft_id,
@@ -240,10 +240,10 @@ class FeedbackOrchestrator:
 
     def aggregate_feedback(
         self,
-        results: List[ModelResult],
-        categories: List[RubricCategory],
+        results: list[ModelResult],
+        categories: list[RubricCategory],
         assignment: Assignment,
-    ) -> List[AggregatedScore]:
+    ) -> list[AggregatedScore]:
         """Aggregate scores from multiple AI models"""
 
         # Get aggregation method from assignment config
@@ -324,8 +324,8 @@ class FeedbackOrchestrator:
     def store_aggregated_feedback(
         self,
         draft_id: int,
-        aggregated_scores: List[AggregatedScore],
-        categories: List[RubricCategory],
+        aggregated_scores: list[AggregatedScore],
+        categories: list[RubricCategory],
     ):
         """Store aggregated feedback in database"""
 
@@ -356,7 +356,6 @@ class FeedbackOrchestrator:
         # Store aggregated feedback for each category
         for agg_score in aggregated_scores:
             # Combine relevant feedback
-            category_feedback = []
 
             # Add category-specific feedback (if any)
             category_strengths = [s for s in strengths if len(s) > 0][
@@ -391,7 +390,7 @@ class FeedbackOrchestrator:
                 }
             )
 
-    def get_draft_feedback_status(self, draft_id: int) -> Dict:
+    def get_draft_feedback_status(self, draft_id: int) -> dict:
         """Get current feedback processing status for a draft"""
         try:
             draft = drafts[draft_id]
@@ -440,17 +439,14 @@ class FeedbackOrchestrator:
             "OLLAMA_API_BASE",
         ]
 
-        for var in api_key_vars:
-            if os.environ.get(var):
-                return True
-        return False
+        return any(os.environ.get(var) for var in api_key_vars)
 
     async def _process_with_mock_feedback(
         self,
         draft_id: int,
         draft,
         assignment: Assignment,
-        categories: List[RubricCategory],
+        categories: list[RubricCategory],
     ) -> ProcessingResult:
         """Process draft using mock feedback generator"""
         try:
@@ -602,10 +598,8 @@ class FeedbackOrchestrator:
             error_msg = f"Mock feedback generation failed: {e!s}"
             self.logger.error(error_msg)
 
-            try:
+            with contextlib.suppress(builtins.BaseException):
                 drafts.update(draft_id, {"status": "error"})
-            except:
-                pass
 
             return ProcessingResult(
                 draft_id=draft_id,

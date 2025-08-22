@@ -3,7 +3,7 @@ Base class for all assessment type handlers
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 
 class AssessmentHandler(ABC):
@@ -14,7 +14,7 @@ class AssessmentHandler(ABC):
     this interface to integrate with the FeedForward platform.
     """
 
-    def __init__(self, assessment_type_config: Dict[str, Any]):
+    def __init__(self, assessment_type_config: dict[str, Any]):
         """
         Initialize the handler with type-specific configuration.
 
@@ -27,8 +27,8 @@ class AssessmentHandler(ABC):
 
     @abstractmethod
     def validate_submission(
-        self, content: Any, metadata: Dict[str, Any]
-    ) -> Tuple[bool, Optional[str]]:
+        self, content: Any, metadata: dict[str, Any]
+    ) -> tuple[bool, Optional[str]]:
         """
         Validate that the submission meets the requirements for this assessment type.
 
@@ -44,7 +44,7 @@ class AssessmentHandler(ABC):
         pass
 
     @abstractmethod
-    def preprocess(self, content: Any, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess(self, content: Any, metadata: dict[str, Any]) -> dict[str, Any]:
         """
         Preprocess the submission for AI evaluation.
 
@@ -68,7 +68,7 @@ class AssessmentHandler(ABC):
 
     @abstractmethod
     def get_prompt_template(
-        self, rubric: Dict[str, Any], processed_content: Dict[str, Any]
+        self, rubric: dict[str, Any], processed_content: dict[str, Any]
     ) -> str:
         """
         Generate the prompt template for this assessment type.
@@ -84,8 +84,8 @@ class AssessmentHandler(ABC):
 
     @abstractmethod
     def format_feedback(
-        self, raw_feedback: Dict[str, Any], metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, raw_feedback: dict[str, Any], metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Format the raw LLM feedback for display.
 
@@ -113,7 +113,7 @@ class AssessmentHandler(ABC):
         """Check if this assessment type supports direct text input."""
         return self.config.get("supports_text_input", True)
 
-    def get_allowed_extensions(self) -> List[str]:
+    def get_allowed_extensions(self) -> list[str]:
         """Get list of allowed file extensions for this assessment type."""
         import json
 
@@ -140,7 +140,7 @@ class AssessmentHandler(ABC):
         config = json.loads(config_json) if config_json else {}
         return config.get("service_name")
 
-    def get_display_components(self) -> Dict[str, str]:
+    def get_display_components(self) -> dict[str, str]:
         """
         Get UI component names for this assessment type.
 
@@ -156,7 +156,7 @@ class AssessmentHandler(ABC):
             "preview": f"{self.type_code}_preview",
         }
 
-    def get_rubric_template(self) -> Dict[str, Any]:
+    def get_rubric_template(self) -> dict[str, Any]:
         """
         Get a template rubric for this assessment type.
 

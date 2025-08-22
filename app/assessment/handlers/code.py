@@ -2,7 +2,7 @@
 Code assessment type handler
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 from app.assessment.base import AssessmentHandler
 
@@ -16,8 +16,8 @@ class CodeAssessmentHandler(AssessmentHandler):
     """
 
     def validate_submission(
-        self, content: Any, metadata: Dict[str, Any]
-    ) -> Tuple[bool, Optional[str]]:
+        self, content: Any, metadata: dict[str, Any]
+    ) -> tuple[bool, Optional[str]]:
         """Validate code submission."""
         if not content:
             return False, "Code content is required"
@@ -38,7 +38,7 @@ class CodeAssessmentHandler(AssessmentHandler):
 
         return True, None
 
-    def preprocess(self, content: Any, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess(self, content: Any, metadata: dict[str, Any]) -> dict[str, Any]:
         """Preprocess code for AI evaluation."""
         # Detect language if not specified
         language = metadata.get("language", self._detect_language(content))
@@ -71,7 +71,7 @@ class CodeAssessmentHandler(AssessmentHandler):
         }
 
     def get_prompt_template(
-        self, rubric: Dict[str, Any], processed_content: Dict[str, Any]
+        self, rubric: dict[str, Any], processed_content: dict[str, Any]
     ) -> str:
         """Generate code-specific prompt."""
         context = processed_content["additional_context"]
@@ -140,8 +140,8 @@ Return your response in this exact JSON format:
         return prompt
 
     def format_feedback(
-        self, raw_feedback: Dict[str, Any], metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, raw_feedback: dict[str, Any], metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """Format code feedback for display."""
         formatted = {
             "overall": raw_feedback.get("overall", {}),
@@ -178,7 +178,7 @@ Return your response in this exact JSON format:
         else:
             return "text"
 
-    def _analyze_code_metrics(self, code: str, language: str) -> Dict[str, Any]:
+    def _analyze_code_metrics(self, code: str, language: str) -> dict[str, Any]:
         """Analyze basic code metrics."""
         lines = code.split("\n")
 
@@ -228,7 +228,7 @@ Return your response in this exact JSON format:
 
         return any(pattern in code for pattern in patterns)
 
-    def get_rubric_template(self) -> Dict[str, Any]:
+    def get_rubric_template(self) -> dict[str, Any]:
         """Get code-specific rubric template."""
         return {
             "categories": [

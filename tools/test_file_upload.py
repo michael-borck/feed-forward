@@ -114,7 +114,7 @@ async def test_file_extraction():
     # Create test files
     txt_content = create_test_txt_file()
     pdf_content = create_test_pdf_file()
-    docx_content = create_test_docx_file()
+    create_test_docx_file()
 
     print("\nTesting extraction...\n")
 

@@ -4,6 +4,8 @@ Integrates with feedback orchestrator for background AI processing
 """
 
 import asyncio
+import builtins
+import contextlib
 import logging
 import threading
 from datetime import datetime, timedelta
@@ -48,7 +50,7 @@ class FeedbackPipeline:
             asyncio.set_event_loop(loop)
 
             # Run the async processing
-            result = loop.run_until_complete(self._process_draft_async(draft_id))
+            loop.run_until_complete(self._process_draft_async(draft_id))
 
             # Clean up
             loop.close()
@@ -92,10 +94,8 @@ class FeedbackPipeline:
             logger.error(f"Async processing error for draft {draft_id}: {e!s}")
 
             # Update draft status to indicate error
-            try:
+            with contextlib.suppress(builtins.BaseException):
                 drafts.update(draft_id, {"status": "error"})
-            except:
-                pass
 
             raise
 

@@ -4,7 +4,7 @@ Prompt template system for generating AI prompts based on rubrics
 
 import json
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 
 from app.models.assignment import Assignment, RubricCategory, rubric_categories, rubrics
 from app.models.config import FeedbackStyle, feedback_styles
@@ -15,7 +15,7 @@ class PromptContext:
     """Context data for generating prompts"""
 
     assignment: Assignment
-    rubric_categories: List[RubricCategory]
+    rubric_categories: list[RubricCategory]
     student_submission: str
     draft_version: int
     max_drafts: int
@@ -32,7 +32,7 @@ class PromptTemplate:
 
     def _get_system_prompt(self) -> str:
         """Get the system prompt for the AI model"""
-        return """You are an expert educational assessment assistant helping to provide constructive feedback on student assignments. 
+        return """You are an expert educational assessment assistant helping to provide constructive feedback on student assignments.
 Your role is to:
 1. Evaluate student work against specific rubric criteria
 2. Provide actionable, specific feedback for improvement

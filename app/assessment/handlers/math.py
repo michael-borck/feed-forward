@@ -3,7 +3,7 @@ Mathematics assessment type handler
 """
 
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from app.assessment.base import AssessmentHandler
 
@@ -16,8 +16,8 @@ class MathAssessmentHandler(AssessmentHandler):
     """
 
     def validate_submission(
-        self, content: Any, metadata: Dict[str, Any]
-    ) -> Tuple[bool, Optional[str]]:
+        self, content: Any, metadata: dict[str, Any]
+    ) -> tuple[bool, Optional[str]]:
         """Validate math submission."""
         if not content:
             return False, "Mathematical content is required"
@@ -47,7 +47,7 @@ class MathAssessmentHandler(AssessmentHandler):
 
         return True, None
 
-    def preprocess(self, content: Any, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess(self, content: Any, metadata: dict[str, Any]) -> dict[str, Any]:
         """Preprocess mathematical content for AI evaluation."""
         # Extract LaTeX expressions
         latex_expressions = self._extract_latex(content)
@@ -76,7 +76,7 @@ class MathAssessmentHandler(AssessmentHandler):
         }
 
     def get_prompt_template(
-        self, rubric: Dict[str, Any], processed_content: Dict[str, Any]
+        self, rubric: dict[str, Any], processed_content: dict[str, Any]
     ) -> str:
         """Generate math-specific prompt."""
         context = processed_content["additional_context"]
@@ -144,8 +144,8 @@ Return your response in this exact JSON format:
         return prompt
 
     def format_feedback(
-        self, raw_feedback: Dict[str, Any], metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, raw_feedback: dict[str, Any], metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """Format math feedback for display."""
         formatted = {
             "overall": raw_feedback.get("overall", {}),
@@ -162,7 +162,7 @@ Return your response in this exact JSON format:
 
         return formatted
 
-    def _extract_latex(self, content: str) -> List[str]:
+    def _extract_latex(self, content: str) -> list[str]:
         """Extract LaTeX expressions from content."""
         # Match $...$ and $$...$$ patterns
         inline_pattern = r"\$([^\$]+)\$"
@@ -201,7 +201,7 @@ Return your response in this exact JSON format:
 
         return readable
 
-    def _analyze_math_structure(self, content: str) -> Dict[str, Any]:
+    def _analyze_math_structure(self, content: str) -> dict[str, Any]:
         """Analyze the structure of mathematical content."""
         lower_content = content.lower()
 
@@ -222,7 +222,7 @@ Return your response in this exact JSON format:
             "has_calculations": any(op in content for op in ["+", "-", "*", "/", "^"]),
         }
 
-    def get_rubric_template(self) -> Dict[str, Any]:
+    def get_rubric_template(self) -> dict[str, Any]:
         """Get math-specific rubric template."""
         return {
             "categories": [

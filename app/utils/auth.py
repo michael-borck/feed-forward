@@ -78,9 +78,7 @@ def is_strong_password(password: str) -> bool:
         return False
     if not re.search(r"[0-9]", password):
         return False
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return False
-    return True
+    return re.search(r'[!@#$%^&*(),.?":{}|<>]', password)
 
 
 def is_institutional_email(email: str) -> tuple[bool, str, bool]:

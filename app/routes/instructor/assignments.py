@@ -3,6 +3,7 @@ Instructor assignment management routes
 """
 
 from datetime import datetime
+from typing import Optional
 
 from fasthtml.common import *
 from starlette.responses import RedirectResponse
@@ -425,7 +426,7 @@ def instructor_assignments_create(
     course_id: int,
     title: str,
     instructions: str,
-    due_date: str = None,
+    due_date: Optional[str] = None,
     max_drafts: int = 3,
 ):
     """Create a new assignment"""
@@ -732,7 +733,7 @@ def instructor_assignment_update(
     title: str,
     instructions: str,
     status: str = "draft",
-    due_date: str = None,
+    due_date: Optional[str] = None,
     max_drafts: int = 3,
 ):
     """Update assignment details"""
@@ -1222,7 +1223,7 @@ def instructor_rubric_create(session, assignment_id: int):
 
     # Save to database
     try:
-        rubric_id = rubrics.insert(new_rubric)
+        rubrics.insert(new_rubric)
         # Redirect to refresh the page
         return RedirectResponse(
             f"/instructor/assignments/{assignment_id}/rubric", status_code=303
@@ -1237,7 +1238,7 @@ def instructor_rubric_create(session, assignment_id: int):
 @rt("/instructor/assignments/{assignment_id}/rubric/categories/add")
 @instructor_required
 def instructor_rubric_category_add(
-    session, assignment_id: int, name: str, description: str = None, weight: float = 0
+    session, assignment_id: int, name: str, description: Optional[str] = None, weight: float = 0
 ):
     """Add a new category to a rubric"""
     # Get current user

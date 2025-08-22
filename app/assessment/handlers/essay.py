@@ -3,7 +3,7 @@ Essay assessment type handler
 """
 
 import json
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 from app.assessment.base import AssessmentHandler
 
@@ -17,8 +17,8 @@ class EssayAssessmentHandler(AssessmentHandler):
     """
 
     def validate_submission(
-        self, content: Any, metadata: Dict[str, Any]
-    ) -> Tuple[bool, Optional[str]]:
+        self, content: Any, metadata: dict[str, Any]
+    ) -> tuple[bool, Optional[str]]:
         """Validate essay submission."""
         # Check if content is provided
         if not content or not isinstance(content, str):
@@ -49,7 +49,7 @@ class EssayAssessmentHandler(AssessmentHandler):
 
         return True, None
 
-    def preprocess(self, content: Any, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess(self, content: Any, metadata: dict[str, Any]) -> dict[str, Any]:
         """Preprocess essay for AI evaluation."""
         # Clean and normalize text
         cleaned_content = content.strip()
@@ -87,7 +87,7 @@ class EssayAssessmentHandler(AssessmentHandler):
         }
 
     def get_prompt_template(
-        self, rubric: Dict[str, Any], processed_content: Dict[str, Any]
+        self, rubric: dict[str, Any], processed_content: dict[str, Any]
     ) -> str:
         """Generate essay-specific prompt."""
         context = processed_content["additional_context"]
@@ -161,8 +161,8 @@ Return your response in this exact JSON format:
         return prompt
 
     def format_feedback(
-        self, raw_feedback: Dict[str, Any], metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, raw_feedback: dict[str, Any], metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """Format essay feedback for display."""
         # Ensure feedback has required structure
         formatted = {
@@ -252,7 +252,7 @@ Return your response in this exact JSON format:
 
         return highlighted
 
-    def get_rubric_template(self) -> Dict[str, Any]:
+    def get_rubric_template(self) -> dict[str, Any]:
         """Get essay-specific rubric template."""
         return {
             "categories": [

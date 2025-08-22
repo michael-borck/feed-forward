@@ -22,20 +22,20 @@ class Role(str, Enum):
 users = db.t.users
 if users not in db.t:
     users.create(
-        dict(
-            email=str,
-            name=str,
-            password=str,
-            role=str,
-            verified=bool,
-            verification_token=str,
-            approved=bool,
-            department=str,
-            reset_token=str,
-            reset_token_expiry=str,
-            status=str,  # 'active', 'inactive', 'archived', 'deleted'
-            last_active=str,  # ISO format timestamp of last login/activity
-        ),
+        {
+            "email": str,
+            "name": str,
+            "password": str,
+            "role": str,
+            "verified": bool,
+            "verification_token": str,
+            "approved": bool,
+            "department": str,
+            "reset_token": str,
+            "reset_token_expiry": str,
+            "status": str,  # 'active', 'inactive', 'archived', 'deleted'
+            "last_active": str,  # ISO format timestamp of last login/activity
+        },
         pk="email",
     )
 

@@ -65,7 +65,7 @@ def setup_routes(app, rt, db, User):
 
     def get_doc_structure():
         """Get the documentation structure for navigation."""
-        docs_path = Path("docs")
+        Path("docs")
         structure = {
             "Quick Access": [
                 ("Student Guide", "user-guides/student/index"),
@@ -350,65 +350,65 @@ def setup_routes(app, rt, db, User):
                 .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.5rem; }
                 .prose th { background-color: #f9fafb; font-weight: 600; }
                 /* Table of Contents styling */
-                .prose .toc { 
-                    background-color: #f9fafb; 
-                    border: 1px solid #e5e7eb; 
-                    border-radius: 0.5rem; 
-                    padding: 1rem; 
-                    margin-bottom: 2rem; 
+                .prose .toc {
+                    background-color: #f9fafb;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.5rem;
+                    padding: 1rem;
+                    margin-bottom: 2rem;
                 }
-                .prose .toc > ul { 
-                    list-style: none; 
-                    padding-left: 0; 
-                    margin: 0; 
+                .prose .toc > ul {
+                    list-style: none;
+                    padding-left: 0;
+                    margin: 0;
                 }
-                .prose .toc ul ul { 
-                    list-style: none; 
-                    padding-left: 1.5rem; 
-                    margin-top: 0.25rem; 
+                .prose .toc ul ul {
+                    list-style: none;
+                    padding-left: 1.5rem;
+                    margin-top: 0.25rem;
                 }
-                .prose .toc li { 
-                    margin-bottom: 0.25rem; 
+                .prose .toc li {
+                    margin-bottom: 0.25rem;
                 }
-                .prose .toc a { 
-                    text-decoration: none; 
-                    color: #4b5563; 
+                .prose .toc a {
+                    text-decoration: none;
+                    color: #4b5563;
                 }
-                .prose .toc a:hover { 
-                    color: #2563eb; 
-                    text-decoration: underline; 
+                .prose .toc a:hover {
+                    color: #2563eb;
+                    text-decoration: underline;
                 }
                 /* Fix navigation layout */
                 nav { display: block !important; }
                 nav > div { display: block !important; }
                 nav div { display: block !important; }
-                nav ul { 
-                    display: block !important; 
+                nav ul {
+                    display: block !important;
                     list-style: none !important;
                     padding: 0 !important;
                     margin: 0 !important;
                     width: 100% !important;
                 }
-                nav li { 
-                    display: block !important; 
+                nav li {
+                    display: block !important;
                     list-style: none !important;
                     margin: 0 !important;
                     padding: 0 !important;
                     width: 100% !important;
                 }
-                nav a { 
-                    display: block !important; 
-                    white-space: normal !important; 
+                nav a {
+                    display: block !important;
+                    white-space: normal !important;
                     word-wrap: break-word !important;
                     text-decoration: none !important;
                     width: 100% !important;
                 }
-                nav h3, nav h4 { 
-                    display: block !important; 
+                nav h3, nav h4 {
+                    display: block !important;
                     margin-bottom: 0.5rem !important;
                 }
                 /* Ensure vertical stacking */
-                .list-none { 
+                .list-none {
                     display: block !important;
                 }
                 .list-none li {

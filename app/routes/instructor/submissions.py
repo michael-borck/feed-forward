@@ -2,7 +2,10 @@
 Instructor submission review and feedback management routes
 """
 
+import builtins
+import contextlib
 from datetime import datetime
+from typing import Optional
 
 from fasthtml.common import *
 from fastlite import NotFoundError
@@ -374,10 +377,8 @@ def instructor_submission_detail(session, draft_id: int):
         af = agg_feedback[0]  # Should only be one per draft
         agg_feedback_text = af.aggregated_feedback
         if af.aggregated_scores:
-            try:
+            with contextlib.suppress(builtins.BaseException):
                 agg_scores = json.loads(af.aggregated_scores)
-            except:
-                pass
 
     # Build model results table
     model_cards = []
@@ -575,10 +576,8 @@ def instructor_feedback_review(session, draft_id: int):
     af = agg_feedback[0]
     agg_scores = {}
     if af.aggregated_scores:
-        try:
+        with contextlib.suppress(builtins.BaseException):
             agg_scores = json.loads(af.aggregated_scores)
-        except:
-            pass
 
     # Build feedback form
     feedback_form = Form(
@@ -713,7 +712,7 @@ def instructor_feedback_save(
     overall_score: int,
     feedback_text: str,
     action: str = "save",
-    approve: str = None,
+    approve: Optional[str] = None,
 ):
     """Save reviewed feedback"""
     # Get current user

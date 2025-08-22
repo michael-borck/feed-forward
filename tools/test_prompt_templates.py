@@ -143,7 +143,7 @@ def test_prompt_generation():
     )
 
     template3 = create_prompt_template("standard")
-    prompt3 = template3.generate_prompt(context3)
+    template3.generate_prompt(context3)
 
     # Show the JSON format instructions
     print("\nJSON Format Instructions:")

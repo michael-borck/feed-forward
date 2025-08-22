@@ -38,6 +38,8 @@ load_dotenv()
 APP_DOMAIN = os.environ.get("APP_DOMAIN", "http://localhost:5001")
 
 # Import authentication decorators
+from typing import Optional
+
 from app import (
     basic_auth,
 )
@@ -296,14 +298,14 @@ def get(session=None):
     document.addEventListener('DOMContentLoaded', function() {
         // Find anchor links that point to IDs on this page
         const anchorLinks = document.querySelectorAll('a[href^="#"]');
-        
+
         anchorLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 const targetId = this.getAttribute('href').substring(1);
                 const targetElement = document.getElementById(targetId);
-                
+
                 if (targetElement) {
                     targetElement.scrollIntoView({
                         behavior: 'smooth',
@@ -648,7 +650,7 @@ def get(session=None):
 
 # --- Error Pages ---
 @rt("/error/404")
-def get(session=None, message: str = None):
+def get(session=None, message: Optional[str] = None):
     """Custom 404 error page"""
     error_message = (
         message or "The page you are looking for doesn't exist or has been moved."
@@ -706,7 +708,7 @@ def get(session=None, message: str = None):
 
 
 @rt("/error/403")
-def get(session=None, message: str = None):
+def get(session=None, message: Optional[str] = None):
     """Custom 403 error page"""
     error_message = message or "You don't have permission to access this page."
 
@@ -1000,7 +1002,7 @@ def get(session: dict):
 # --- API Routes for Profile Updates ---
 @rt("/api/update-profile", "POST")
 @basic_auth
-def post(session: dict, form_type: str, name: str = None, department: str = None):
+def post(session: dict, form_type: str, name: Optional[str] = None, department: Optional[str] = None):
     """Handle profile update form submission"""
 
     if form_type != "personal_info":
@@ -1102,9 +1104,9 @@ def post(session: dict, form_type: str, name: str = None, department: str = None
 def post(
     session: dict,
     form_type: str,
-    current_password: str = None,
-    new_password: str = None,
-    confirm_password: str = None,
+    current_password: Optional[str] = None,
+    new_password: Optional[str] = None,
+    confirm_password: Optional[str] = None,
 ):
     """Handle password change form submission"""
 

@@ -6,7 +6,6 @@ Provides simulated feedback when no LLM providers are available
 import json
 import random
 from datetime import datetime
-from typing import Dict, List
 
 from app.models.assignment import Assignment, RubricCategory
 
@@ -52,10 +51,10 @@ class MockFeedbackGenerator:
     def generate_mock_feedback(
         self,
         assignment: Assignment,
-        rubric_categories: List[RubricCategory],
+        rubric_categories: list[RubricCategory],
         student_submission: str,
         draft_version: int = 1,
-    ) -> Dict:
+    ) -> dict:
         """Generate mock feedback based on rubric categories"""
 
         # Calculate a base score with some randomness
@@ -145,19 +144,19 @@ class MockFeedbackGenerator:
             },
         }
 
-    def format_as_json_response(self, feedback: Dict) -> str:
+    def format_as_json_response(self, feedback: dict) -> str:
         """Format the feedback as a JSON string matching expected format"""
         return json.dumps(feedback, indent=2)
 
     def generate_mock_model_run(
         self,
         assignment: Assignment,
-        rubric_categories: List[RubricCategory],
+        rubric_categories: list[RubricCategory],
         student_submission: str,
         draft_version: int = 1,
         provider: str = "Mock",
         model_id: str = "mock-1.0",
-    ) -> Dict:
+    ) -> dict:
         """Generate a complete mock model run response"""
 
         feedback = self.generate_mock_feedback(

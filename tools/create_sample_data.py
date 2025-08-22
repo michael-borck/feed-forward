@@ -799,41 +799,41 @@ class Book:
         self.author = author
         self.isbn = isbn
         self.available = True
-    
+
     def check_out(self):
         if self.available:
             self.available = False
             return True
         return False
-    
+
     def check_in(self):
         self.available = True
 
 class Library:
     def __init__(self):
         self.books = []
-    
+
     def add_book(self, book):
         self.books.append(book)
-    
+
     def find_book_by_title(self, title):
         for book in self.books:
             if book.title.lower() == title.lower():
                 return book
         return None
-    
+
     def find_book_by_isbn(self, isbn):
         for book in self.books:
             if book.isbn == isbn:
                 return book
         return None
-    
+
     def check_out_book(self, isbn):
         book = self.find_book_by_isbn(isbn)
         if book:
             return book.check_out()
         return False
-    
+
     def check_in_book(self, isbn):
         book = self.find_book_by_isbn(isbn)
         if book:
@@ -922,17 +922,17 @@ from abc import ABC, abstractmethod
 class Subject:
     def __init__(self):
         self._observers = []
-    
+
     def attach(self, observer):
         if observer not in self._observers:
             self._observers.append(observer)
-    
+
     def detach(self, observer):
         try:
             self._observers.remove(observer)
         except ValueError:
             pass
-    
+
     def notify(self, *args, **kwargs):
         for observer in self._observers:
             observer.update(self, *args, **kwargs)
@@ -947,20 +947,20 @@ class WeatherStation(Subject):
         super().__init__()
         self._temperature = 0
         self._humidity = 0
-    
+
     @property
     def temperature(self):
         return self._temperature
-    
+
     @temperature.setter
     def temperature(self, value):
         self._temperature = value
         self.notify()
-    
+
     @property
     def humidity(self):
         return self._humidity
-    
+
     @humidity.setter
     def humidity(self, value):
         self._humidity = value

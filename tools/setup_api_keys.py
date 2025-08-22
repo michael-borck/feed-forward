@@ -7,7 +7,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 # Add app to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -124,7 +124,7 @@ class APIKeySetup:
         set_key(str(self.env_path), env_var, api_key)
         print(f"✅ Saved {provider_info['name']} configuration to .env file")
 
-    def get_current_keys(self) -> Dict[str, Optional[str]]:
+    def get_current_keys(self) -> dict[str, Optional[str]]:
         """Get currently configured API keys"""
         current = {}
         for provider, info in self.PROVIDERS.items():

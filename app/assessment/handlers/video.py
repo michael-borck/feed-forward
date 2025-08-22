@@ -3,7 +3,7 @@ Video assessment type handler
 """
 
 import json
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 from app.assessment.base import AssessmentHandler
 from app.models.assessment import AssessmentService, assessment_services
@@ -18,11 +18,11 @@ class VideoAssessmentHandler(AssessmentHandler):
     """
 
     def validate_submission(
-        self, content: Any, metadata: Dict[str, Any]
-    ) -> Tuple[bool, Optional[str]]:
+        self, content: Any, metadata: dict[str, Any]
+    ) -> tuple[bool, Optional[str]]:
         """Validate video submission."""
         # For video, content should be a file path
-        if not metadata.get("submission_type") == "file":
+        if metadata.get("submission_type") != "file":
             return False, "Video submissions must be uploaded as files"
 
         if not content or not isinstance(content, str):
@@ -47,7 +47,7 @@ class VideoAssessmentHandler(AssessmentHandler):
 
         return True, None
 
-    def preprocess(self, content: Any, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess(self, content: Any, metadata: dict[str, Any]) -> dict[str, Any]:
         """Preprocess video using external service."""
         # Get the video processing service
         service = self._get_video_service()
@@ -81,7 +81,7 @@ class VideoAssessmentHandler(AssessmentHandler):
         }
 
     def get_prompt_template(
-        self, rubric: Dict[str, Any], processed_content: Dict[str, Any]
+        self, rubric: dict[str, Any], processed_content: dict[str, Any]
     ) -> str:
         """Generate video-specific prompt."""
         context = processed_content["additional_context"]
@@ -158,8 +158,8 @@ Return your response in this exact JSON format:
         return prompt
 
     def format_feedback(
-        self, raw_feedback: Dict[str, Any], metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, raw_feedback: dict[str, Any], metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """Format video feedback for display."""
         formatted = {
             "overall": raw_feedback.get("overall", {}),
@@ -194,8 +194,8 @@ Return your response in this exact JSON format:
         return None
 
     def _call_video_service(
-        self, video_path: str, service: AssessmentService, metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, video_path: str, service: AssessmentService, metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """Call external video processing service."""
         # This is a mock implementation
         # In reality, this would make an HTTP request to your Electron app service
@@ -213,16 +213,16 @@ Return your response in this exact JSON format:
         # Mock response for development
         return {
             "transcript": """Hello, today I'll be presenting on the topic of sustainable energy.
-            
-            First, let me discuss solar power. Solar energy is one of the most promising 
+
+            First, let me discuss solar power. Solar energy is one of the most promising
             renewable energy sources. It's clean, abundant, and becoming more affordable.
-            
+
             Next, I'll cover wind energy. Wind turbines can generate significant amounts
             of electricity, especially in coastal and mountainous regions.
-            
+
             Finally, let's look at the future. Combining multiple renewable sources
             will be key to achieving energy independence.
-            
+
             Thank you for watching my presentation.""",
             "duration": 180,  # 3 minutes
             "audio_quality": "good",
@@ -242,7 +242,7 @@ Return your response in this exact JSON format:
             ],
         }
 
-    def get_rubric_template(self) -> Dict[str, Any]:
+    def get_rubric_template(self) -> dict[str, Any]:
         """Get video-specific rubric template."""
         return {
             "categories": [

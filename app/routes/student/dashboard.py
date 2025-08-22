@@ -79,7 +79,7 @@ def generate_assignments_sidebar(student_assignments, student_drafts):
         )
 
     # Filter out hidden drafts when counting
-    visible_drafts = [
+    [
         d
         for d in student_drafts
         if not (hasattr(d, "hidden_by_student") and d.hidden_by_student)
