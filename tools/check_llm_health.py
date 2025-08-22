@@ -208,7 +208,7 @@ class LLMHealthChecker:
         console.print(f"  [red]Errors: {errors}[/red]")
 
         if missing_keys > 0:
-            console.print("\n[yellow]ℹ️  To configure missing API keys, run:[/yellow]")
+            console.print("\n[yellow]ℹ️  To configure missing API keys, run:[/yellow]")  # noqa: RUF001 - Intentional info emoji
             console.print("    python tools/setup_api_keys.py")
 
         return healthy == total

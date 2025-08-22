@@ -144,7 +144,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                     "Cancel",
                     color="gray",
                     href=f"/student/assignments/{assignment_id}",
-                    icon="×",
+                    icon="×",  # noqa: RUF001 - Intentional × symbol
                 ),
                 cls="space-y-3",
             ),

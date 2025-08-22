@@ -4,7 +4,7 @@ Registry for managing assessment type handlers
 
 import importlib
 import logging
-from typing import Any, Optional
+from typing import Any, ClassVar, Optional
 
 from app.assessment.base import AssessmentHandler
 from app.models.assessment import AssessmentType, assessment_types
@@ -20,9 +20,9 @@ class AssessmentRegistry:
     based on the configuration in the database.
     """
 
-    _instance = None
-    _handlers: dict[str, type[AssessmentHandler]] = {}
-    _handler_instances: dict[str, AssessmentHandler] = {}
+    _instance: ClassVar[Optional["AssessmentRegistry"]] = None
+    _handlers: ClassVar[dict[str, type[AssessmentHandler]]] = {}
+    _handler_instances: ClassVar[dict[str, AssessmentHandler]] = {}
 
     def __new__(cls):
         if cls._instance is None:

@@ -9,7 +9,7 @@ import ast
 import difflib
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import ClassVar, Optional
 
 from rich.console import Console
 from rich.progress import track
@@ -20,7 +20,7 @@ class FastHTMLImportRefactorer:
     """Refactor FastHTML star imports to namespace imports"""
 
     # Common FastHTML components and functions
-    FASTHTML_COMPONENTS = {
+    FASTHTML_COMPONENTS: ClassVar[set[str]] = {
         # HTML elements
         'Html', 'Head', 'Body', 'Title', 'Meta', 'Link', 'Script', 'Style',
         'Div', 'P', 'Span', 'A', 'Img', 'Hr', 'Br',
@@ -94,10 +94,8 @@ class FastHTMLImportRefactorer:
     def has_star_import(self, tree: ast.AST) -> bool:
         """Check if file has star import from fasthtml.common"""
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom):
-                if node.module and 'fasthtml' in node.module:
-                    if any(alias.name == '*' for alias in node.names):
-                        return True
+            if isinstance(node, ast.ImportFrom) and node.module and 'fasthtml' in node.module and any(alias.name == '*' for alias in node.names):
+                return True
         return False
 
     def refactor_imports(self, source: str) -> tuple[str, list[str]]:
@@ -121,17 +119,14 @@ class FastHTMLImportRefactorer:
         # Find and replace import statements
         import_line_idx = None
         for _i, node in enumerate(tree.body):
-            if isinstance(node, ast.ImportFrom):
-                if node.module and 'fasthtml' in node.module:
-                    if any(alias.name == '*' for alias in node.names):
-                        import_line_idx = node.lineno - 1
-                        # Replace star import with namespace import
-                        lines[import_line_idx]
-                        new_line = "from fasthtml import common as fh\n"
-                        lines[import_line_idx] = new_line
-                        changes.append(f"Line {node.lineno}: Replaced star import")
-                        self.stats['imports_refactored'] += 1
-                        break
+            if isinstance(node, ast.ImportFrom) and node.module and 'fasthtml' in node.module and any(alias.name == '*' for alias in node.names):
+                import_line_idx = node.lineno - 1
+                # Replace star import with namespace import
+                new_line = "from fasthtml import common as fh\n"
+                lines[import_line_idx] = new_line
+                changes.append(f"Line {node.lineno}: Replaced star import")
+                self.stats['imports_refactored'] += 1
+                break
 
         # Now prefix all component usage
         if import_line_idx is not None:

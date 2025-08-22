@@ -12,7 +12,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import ClassVar, Optional
 
 from rich import box
 from rich.console import Console
@@ -37,7 +37,7 @@ class TechDebtTracker:
     """Track and manage technical debt in the codebase"""
 
     # Patterns to detect technical debt
-    DEBT_PATTERNS = {
+    DEBT_PATTERNS: ClassVar[dict] = {
         # Type checking suppressions
         r'#\s*type:\s*ignore(?:\[([^\]]+)\])?': ('type-ignore', 'type-checking'),
         r'#\s*mypy:\s*ignore-errors': ('mypy-ignore', 'type-checking'),
@@ -67,7 +67,7 @@ class TechDebtTracker:
     }
 
     # Severity mapping
-    SEVERITY_MAP = {
+    SEVERITY_MAP: ClassVar[dict] = {
         'todo': 'low',
         'hack': 'medium',
         'fixme': 'high',

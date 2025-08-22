@@ -7,7 +7,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import ClassVar, Optional
 
 # Add app to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -19,7 +19,7 @@ from litellm import completion
 class APIKeySetup:
     """Helper class for setting up and validating API keys"""
 
-    PROVIDERS = {
+    PROVIDERS: ClassVar[dict] = {
         "openai": {
             "name": "OpenAI",
             "env_var": "OPENAI_API_KEY",

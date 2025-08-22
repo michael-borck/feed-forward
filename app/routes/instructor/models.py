@@ -72,7 +72,7 @@ def instructor_models_list(session, request):
                     "New Model",
                     color="indigo",
                     href="/instructor/models/new",
-                    icon="➕",
+                    icon="➕",  # noqa: RUF001 - Intentional emoji icon
                 ),
                 cls="space-y-3",
             ),
@@ -202,7 +202,7 @@ def instructor_models_new(session, request):
         fh.Div(
             fh.H3("Create New Model", cls="font-semibold text-indigo-900 mb-4"),
             fh.P("Configure a new AI model for your courses.", cls="text-gray-600 mb-4"),
-            action_button("Cancel", color="gray", href="/instructor/models", icon="×"),
+            action_button("Cancel", color="gray", href="/instructor/models", icon="×"),  # noqa: RUF001 - Intentional × symbol
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )
@@ -450,10 +450,7 @@ def instructor_models_test(
     # Test the connection
     try:
         # Simple test prompt
-        if provider == "ollama":
-            model = "ollama/llama2"  # Default test model for Ollama
-        else:
-            model = f"{provider}/gpt-3.5-turbo"  # Use a small model for testing
+        model = "ollama/llama2" if provider == "ollama" else f"{provider}/gpt-3.5-turbo"
 
         response = litellm.completion(
             model=model,
