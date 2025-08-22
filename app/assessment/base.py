@@ -105,13 +105,13 @@ class AssessmentHandler(ABC):
 
     def supports_file_upload(self) -> bool:
         """Check if this assessment type supports file uploads."""
-        return self.config.get("requires_file", False) or self.config.get(
+        return bool(self.config.get("requires_file", False) or self.config.get(
             "supports_file_upload", True
-        )
+        ))
 
     def supports_text_input(self) -> bool:
         """Check if this assessment type supports direct text input."""
-        return self.config.get("supports_text_input", True)
+        return bool(self.config.get("supports_text_input", True))
 
     def get_allowed_extensions(self) -> list[str]:
         """Get list of allowed file extensions for this assessment type."""
@@ -122,7 +122,7 @@ class AssessmentHandler(ABC):
 
     def get_max_file_size(self) -> int:
         """Get maximum file size in bytes."""
-        return self.config.get("max_file_size", 10485760)  # Default 10MB
+        return int(self.config.get("max_file_size", 10485760))  # Default 10MB
 
     def requires_external_service(self) -> bool:
         """Check if this assessment type requires an external service."""
@@ -130,7 +130,7 @@ class AssessmentHandler(ABC):
 
         config_json = self.config.get("configuration", "{}")
         config = json.loads(config_json) if config_json else {}
-        return config.get("requires_external_service", False)
+        return bool(config.get("requires_external_service", False))
 
     def get_external_service_name(self) -> Optional[str]:
         """Get the name of the required external service."""

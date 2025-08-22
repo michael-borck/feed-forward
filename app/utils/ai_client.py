@@ -59,7 +59,7 @@ class AIClient:
     def _get_model_config(self, ai_model: AIModel) -> dict[str, Any]:
         """Extract and decrypt model configuration"""
         try:
-            config = json.loads(ai_model.api_config)
+            config: dict[str, Any] = json.loads(ai_model.api_config)
 
             # Decrypt API key if present
             if "api_key_encrypted" in config:

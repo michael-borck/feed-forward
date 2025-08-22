@@ -262,7 +262,7 @@ class FeedbackOrchestrator:
         all_scores = category_scores()
 
         # Group scores by category
-        category_score_groups = {}
+        category_score_groups: dict[int, list] = {}
         for score in all_scores:
             if score.model_run_id in all_run_ids:
                 if score.category_id not in category_score_groups:

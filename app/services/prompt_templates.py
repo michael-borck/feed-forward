@@ -153,6 +153,7 @@ Word Count: {context.word_count or "Not specified"}"""
 
     def _get_json_format_instructions(self, context: PromptContext) -> str:
         """Get JSON format instructions for structured output"""
+        example: dict[str, object]
         if context.feedback_level == "overall":
             example = {
                 "overall_feedback": {

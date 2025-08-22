@@ -4,7 +4,7 @@ Registry for managing assessment type handlers
 
 import importlib
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from app.assessment.base import AssessmentHandler
 from app.models.assessment import AssessmentType, assessment_types
@@ -135,7 +135,7 @@ class AssessmentRegistry:
         """
         return self._handler_instances.get(type_code)
 
-    def get_active_types(self) -> list[dict[str, any]]:
+    def get_active_types(self) -> list[dict[str, Any]]:
         """
         Get list of active assessment types with their handlers.
 

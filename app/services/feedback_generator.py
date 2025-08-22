@@ -7,7 +7,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 import litellm
 
@@ -262,19 +262,26 @@ class FeedbackGenerator:
                     else None,
                 )
 
-                return response.choices[0].message.content
+                content = response.choices[0].message.content
+                if content is None:
+                    raise ValueError("Empty response from AI model")
+                return str(content)
 
             except Exception as e:
                 if attempt < self.max_retries - 1:
                     await asyncio.sleep(self.retry_delay)
                     continue
                 raise e
+        
+        # This should never be reached due to the raise above, but mypy needs it
+        raise RuntimeError("Failed to get AI response after all retries")
 
-    def _parse_ai_response(self, response: str) -> dict:
+    def _parse_ai_response(self, response: str) -> dict[Any, Any]:
         """Parse the AI response into structured feedback"""
         try:
             # Try to parse as JSON
-            return json.loads(response)
+            result: dict[Any, Any] = json.loads(response)
+            return result
         except json.JSONDecodeError:
             # If not valid JSON, try to extract JSON from the response
             import re
@@ -282,7 +289,8 @@ class FeedbackGenerator:
             json_match = re.search(r"\{.*\}", response, re.DOTALL)
             if json_match:
                 try:
-                    return json.loads(json_match.group())
+                    result2: dict[Any, Any] = json.loads(json_match.group())
+                    return result2
                 except:
                     pass
 
@@ -298,7 +306,7 @@ class FeedbackGenerator:
             }
 
     async def _store_model_feedback(
-        self, model_run_id: int, assignment_id: int, feedback_data: dict
+        self, model_run_id: int, assignment_id: int, feedback_data: dict[Any, Any]
     ):
         """Store the parsed feedback data in the database"""
 
@@ -482,11 +490,11 @@ class FeedbackGenerator:
             ]
 
             # Deduplicate and combine feedback, keeping track of frequency
-            strength_counts = {}
+            strength_counts: dict[str, int] = {}
             for s in strengths:
                 strength_counts[s] = strength_counts.get(s, 0) + 1
 
-            improvement_counts = {}
+            improvement_counts: dict[str, int] = {}
             for i in improvements:
                 improvement_counts[i] = improvement_counts.get(i, 0) + 1
 
@@ -542,12 +550,13 @@ class FeedbackGenerator:
                 configs.append(config)
         return configs
 
-    def _get_next_id(self, table) -> int:
+    def _get_next_id(self, table: Any) -> int:
         """Get the next available ID for a table"""
         try:
             all_records = list(table())
             if all_records:
-                return max(r.id for r in all_records) + 1
+                max_id: int = max(r.id for r in all_records) + 1
+                return max_id
             return 1
         except:
             return 1

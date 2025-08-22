@@ -5,8 +5,8 @@ File handling utilities for processing uploaded documents
 import io
 from pathlib import Path
 
-import docx
-import pypdf
+import docx  # type: ignore[import-not-found]  # TECH-DEBT: Add type stubs for python-docx
+import pypdf  # type: ignore[import-not-found]  # TECH-DEBT: Add type stubs for pypdf
 from starlette.datastructures import UploadFile
 
 
