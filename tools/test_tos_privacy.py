@@ -28,7 +28,7 @@ def test_tos_privacy_fields():
         if test_email in users:
             users.delete(test_email)
             print(f"Deleted existing test user: {test_email}")
-    except:
+    except Exception:  # TECH-DEBT: Use specific exception types
         pass
 
     # Create new test user with ToS/Privacy acceptance

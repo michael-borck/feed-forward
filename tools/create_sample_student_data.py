@@ -205,7 +205,7 @@ def ensure_test_users_exist():
     try:
         users.get(TEST_STUDENT_EMAIL)
         print("Test student already exists")
-    except:
+    except Exception:
         # Create test student
         student = {
             "email": TEST_STUDENT_EMAIL,
@@ -226,7 +226,7 @@ def ensure_test_users_exist():
     try:
         users.get(TEST_INSTRUCTOR_EMAIL)
         print("Test instructor already exists")
-    except:
+    except Exception:
         # Create test instructor
         instructor = {
             "email": TEST_INSTRUCTOR_EMAIL,

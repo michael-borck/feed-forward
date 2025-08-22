@@ -58,7 +58,7 @@ def instructor_manage_students(session, request):
                             "verified": student.verified,
                         }
                     all_students[student.email]["courses"].append(course)
-                except:
+                except Exception:
                     # Handle missing student records
                     if enrollment.student_email not in all_students:
                         all_students[enrollment.student_email] = {
@@ -254,7 +254,7 @@ def instructor_course_students(session, course_id: int):
                         "verified": student.verified,
                     }
                 )
-            except:
+            except Exception:
                 # Student record might be missing
                 course_students.append(
                     {
@@ -453,7 +453,7 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
         try:
             student = users[email]
             token = student.verification_token
-        except:
+        except Exception:
             # Create student account if doesn't exist
             token = generate_verification_token()
             new_student = User(
@@ -703,7 +703,7 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
             try:
                 student = users[email]
                 token = student.verification_token
-            except:
+            except Exception:
                 # Create student account if doesn't exist
                 token = generate_verification_token()
                 new_student = User(

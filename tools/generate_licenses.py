@@ -6,6 +6,8 @@ Script to generate third-party license acknowledgments from requirements.txt
 import json
 from pathlib import Path
 
+import requests
+
 # Common license mappings
 LICENSE_URLS = {
     "MIT": "https://opensource.org/licenses/MIT",

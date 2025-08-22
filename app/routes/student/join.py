@@ -220,7 +220,7 @@ def student_join_process(
         session["auth"] = user.email
 
         # Redirect to the student dashboard
-        return HttpHeader("HX-Redirect", "/student/dashboard")
+        return fh.HttpHeader("HX-Redirect", "/student/dashboard")
     except Exception as e:
         print(f"Error in student join: {e!s}")
         return "Invalid registration request"

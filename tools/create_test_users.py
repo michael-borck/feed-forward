@@ -55,7 +55,7 @@ def create_test_users():
         # First check if users already exist
         users.get("student@student.curtin.edu.au")
         print("Student already exists, skipping...")
-    except:
+    except Exception:
         users.insert(User(**student))
         print("Created test student: student@student.curtin.edu.au / Test@123")
 
@@ -69,14 +69,14 @@ def create_test_users():
             print("Updated user to admin role")
         else:
             print("Admin already exists, skipping...")
-    except:
+    except Exception:
         users.insert(User(**admin))
         print("Created admin user: admin@curtin.edu.au / Admin@123")
 
     try:
         users.get("instructor@curtin.edu.au")
         print("Instructor already exists, skipping...")
-    except:
+    except Exception:
         users.insert(User(**instructor))
         print("Created test instructor: instructor@curtin.edu.au / Instr@123")
 

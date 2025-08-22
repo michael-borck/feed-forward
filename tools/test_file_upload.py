@@ -11,7 +11,6 @@ import os
 import sys
 
 import docx
-import pypdf
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
@@ -166,7 +165,7 @@ async def test_file_extraction():
         try:
             os.remove(file)
             print(f"✓ Removed {file}")
-        except:
+        except Exception:
             pass
 
     print("\n✅ File extraction testing complete!")

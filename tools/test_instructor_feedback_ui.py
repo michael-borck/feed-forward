@@ -25,8 +25,6 @@ def test_route_endpoints():
     print("\n=== Testing Route Endpoints ===")
 
     try:
-        from app.routes.instructor import rt
-
         # Expected routes
         expected_routes = [
             "/instructor/assignments/{assignment_id}/submissions",
@@ -134,7 +132,7 @@ def create_test_data():
             users.insert(test_instructor)
             test_instructor["email"]
             print(f"✅ Created test instructor: {test_instructor['email']}")
-        except:
+        except Exception:  # TECH-DEBT: Use specific exception types
             # Instructor might already exist
             all_users = users()
             instructor = next(
@@ -164,7 +162,7 @@ def create_test_data():
                 course_result.id if hasattr(course_result, "id") else course_result
             )
             print(f"✅ Created test course: {test_course['title']}")
-        except:
+        except Exception:  # TECH-DEBT: Use specific exception types
             # Course might already exist
             all_courses = courses()
             course = next(
@@ -192,7 +190,7 @@ def create_test_data():
         try:
             assignment_id = assignments.insert(test_assignment)
             print(f"✅ Created test assignment: {test_assignment['title']}")
-        except:
+        except Exception:  # TECH-DEBT: Use specific exception types
             # Assignment might already exist
             all_assignments = assignments()
             assignment = next(
@@ -213,7 +211,7 @@ def create_test_data():
         try:
             rubric_id = rubrics.insert(test_rubric)
             print(f"✅ Created test rubric for assignment {assignment_id}")
-        except:
+        except Exception:  # TECH-DEBT: Use specific exception types
             all_rubrics = rubrics()
             rubric = next(
                 (r for r in all_rubrics if r.assignment_id == assignment_id), None
@@ -252,7 +250,7 @@ def create_test_data():
                 cat_id = rubric_categories.insert(category)
                 category_ids.append(cat_id)
                 print(f"✅ Created rubric category: {category['name']}")
-            except:
+            except Exception:  # TECH-DEBT: Use specific exception types
                 # Category might already exist
                 all_cats = rubric_categories()
                 existing_cat = next(
@@ -295,7 +293,7 @@ def create_test_data():
                 model_id = ai_models.insert(model)
                 model_ids.append(model_id)
                 print(f"✅ Created AI model: {model['name']}")
-            except:
+            except Exception:  # TECH-DEBT: Use specific exception types
                 # Model might already exist
                 all_models = ai_models()
                 existing_model = next(
@@ -356,7 +354,7 @@ of complex concepts discussed in class.
                 draft_id = drafts.insert(submission)
                 draft_ids.append(draft_id)
                 print(f"✅ Created test submission from {submission['student_email']}")
-            except:
+            except Exception:  # TECH-DEBT: Use specific exception types
                 # Submission might already exist
                 all_drafts = drafts()
                 existing_draft = next(

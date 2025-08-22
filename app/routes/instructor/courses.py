@@ -398,7 +398,7 @@ def instructor_course_edit(session, course_id: int):
     # Get the course
     try:
         course = courses[course_id]
-    except:
+    except Exception:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
@@ -583,7 +583,7 @@ def instructor_course_update(
     # Get the course
     try:
         course = courses[course_id]
-    except:
+    except Exception:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership

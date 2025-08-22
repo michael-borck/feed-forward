@@ -472,7 +472,7 @@ def instructor_assignment_view(session, assignment_id: int):
     # Get the assignment
     try:
         assignment = assignments[assignment_id]
-    except:
+    except Exception:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
@@ -505,7 +505,7 @@ def instructor_assignment_update_status(session, assignment_id: int, status: str
     # Get the assignment
     try:
         assignment = assignments[assignment_id]
-    except:
+    except Exception:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
@@ -535,7 +535,7 @@ def instructor_assignment_edit(session, assignment_id: int):
     # Get the assignment
     try:
         assignment = assignments[assignment_id]
-    except:
+    except Exception:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
@@ -742,7 +742,7 @@ def instructor_assignment_update(
     # Get the assignment
     try:
         assignment = assignments[assignment_id]
-    except:
+    except Exception:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership

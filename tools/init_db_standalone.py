@@ -43,7 +43,7 @@ def init_db():
         # Check if admin exists
         users[admin_email]
         print(f"✓ Admin user {admin_email} already exists")
-    except:
+    except Exception:
         # Create admin user with all new fields
         admin = User(
             email=admin_email,

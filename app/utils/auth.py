@@ -138,7 +138,7 @@ def is_reset_token_valid(token_expiry: str) -> bool:
     try:
         expiry_time = datetime.fromisoformat(token_expiry)
         return datetime.now() < expiry_time
-    except:
+    except Exception:
         return False
 
 

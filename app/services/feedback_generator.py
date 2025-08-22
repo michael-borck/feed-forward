@@ -141,7 +141,7 @@ class FeedbackGenerator:
                 draft = drafts[draft_id]
                 draft.status = "error"
                 drafts.update(draft)
-            except:
+            except Exception:  # TECH-DEBT: Use specific exception types
                 pass
             return False
 
@@ -272,7 +272,7 @@ class FeedbackGenerator:
                     await asyncio.sleep(self.retry_delay)
                     continue
                 raise e
-        
+
         # This should never be reached due to the raise above, but mypy needs it
         raise RuntimeError("Failed to get AI response after all retries")
 
@@ -291,7 +291,7 @@ class FeedbackGenerator:
                 try:
                     result2: dict[Any, Any] = json.loads(json_match.group())
                     return result2
-                except:
+                except Exception:  # TECH-DEBT: Use specific exception types
                     pass
 
             # If we can't parse it, create a simple structure
@@ -558,7 +558,7 @@ class FeedbackGenerator:
                 max_id: int = max(r.id for r in all_records) + 1
                 return max_id
             return 1
-        except:
+        except Exception:  # TECH-DEBT: Use specific exception types
             return 1
 
 

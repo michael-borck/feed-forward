@@ -132,7 +132,7 @@ def test_instructor_registration():
             users[case["email"]]
             print(f"⚠️ User {case['email']} already exists, skipping")
             continue
-        except:
+        except Exception:
             pass
 
         # Create verification token
@@ -188,7 +188,7 @@ def test_student_invitation():
     instructor_email = "test_instructor@curtin.edu.au"
     try:
         instructor = users[instructor_email]
-    except:
+    except Exception:
         # Create test instructor
         token = generate_verification_token(instructor_email)
         instructor = User(
@@ -223,7 +223,7 @@ def test_student_invitation():
             course_ids = [c.id for c in courses()]
             if course_ids:
                 next_course_id = max(course_ids) + 1
-        except:
+        except Exception:
             pass
 
         # Create test course
@@ -253,7 +253,7 @@ def test_student_invitation():
         enrollment_ids = [e.id for e in enrollments()]
         if enrollment_ids:
             next_enrollment_id = max(enrollment_ids) + 1
-    except:
+    except Exception:
         pass
 
     datetime.now().isoformat()
@@ -264,7 +264,7 @@ def test_student_invitation():
             users[email]
             print(f"⚠️ Student {email} already exists, skipping")
             continue
-        except:
+        except Exception:
             pass
 
         # Generate token

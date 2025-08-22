@@ -13,7 +13,7 @@ from fastlite import NotFoundError
 from app import instructor_required, rt
 from app.models.assignment import assignments
 from app.models.course import courses
-from app.models.feedback import aggregated_feedback, drafts, model_runs
+from app.models.feedback import Feedback, aggregated_feedback, drafts, feedbacks, model_runs
 from app.models.user import Role, users
 from app.utils.ui import card, dashboard_layout
 
@@ -364,7 +364,7 @@ def instructor_submission_detail(session, draft_id: int):
                 result["overall_score"] = response_data.get("overall_score")
                 result["general_feedback"] = response_data.get("general_feedback")
                 result["rubric_scores"] = response_data.get("rubric_scores", {})
-            except:
+            except Exception:
                 pass
 
         model_results.append(result)
@@ -551,7 +551,7 @@ def instructor_feedback_review(session, draft_id: int):
         return fh.RedirectResponse("/instructor/dashboard", status_code=303)
 
     # Check if feedback is already approved
-    all_feedback = feedback()
+    all_feedback = feedbacks()
     existing_feedback = [f for f in all_feedback if f.draft_id == draft_id]
     if existing_feedback and existing_feedback[0].instructor_approved:
         return fh.RedirectResponse(f"/instructor/submissions/{draft_id}", status_code=303)
@@ -728,7 +728,7 @@ def instructor_feedback_save(
         return fh.RedirectResponse("/instructor/dashboard", status_code=303)
 
     # Check if feedback already exists
-    all_feedback = feedback()
+    all_feedback = feedbacks()
     existing_feedback = [f for f in all_feedback if f.draft_id == draft_id]
 
     if existing_feedback:
@@ -739,7 +739,7 @@ def instructor_feedback_save(
         fb.instructor_approved = action == "approve" or approve == "true"
         fb.approved_at = datetime.now() if fb.instructor_approved else None
         fb.approved_by = user.email if fb.instructor_approved else None
-        feedback.update(fb)
+        feedbacks.update(fb)
     else:
         # Create new feedback record
         new_feedback = Feedback(
@@ -757,7 +757,7 @@ def instructor_feedback_save(
             else None,
             created_at=datetime.now(),
         )
-        feedback.insert(new_feedback)
+        feedbacks.insert(new_feedback)
 
     # Update aggregated feedback status
     all_agg_feedback = aggregated_feedback()
