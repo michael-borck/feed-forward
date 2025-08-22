@@ -11,39 +11,37 @@ Successfully improved code quality from initial state to near-zero errors:
 ### Linting (Ruff)
 - **Initial**: 501 errors
 - **After auto-fixes**: 83 errors
-- **Current**: 41 errors
-- **Reduction**: 92% improvement
+- **Current**: 27 errors
+- **Reduction**: 94.6% improvement
 
-## Remaining Linting Issues (41)
+## Remaining Linting Issues (27)
 
 ### B904 - Missing `from` in exception chains (11 occurrences)
 These require manual review to determine appropriate exception chaining:
 - Exception re-raising without proper context
 - Need to add `from e` or `from None` as appropriate
-- **Action**: Review each case individually
+- **Action**: Review each case individually for proper exception context
 
-### F811 - Redefinition of unused names (9 occurrences)
-Multiple definitions of the same name in scope:
-- Likely duplicate imports or function definitions
-- May be intentional overrides that need documentation
-- **Action**: Review and consolidate or document intentional overrides
+### RUF012 - Mutable class attributes need ClassVar (6 occurrences)
+Class-level mutable defaults should be annotated with `typing.ClassVar`:
+- Prevents accidental instance sharing of mutable defaults
+- Common in singleton patterns
+- **Action**: Add `ClassVar` annotation to class-level dicts/lists
 
-### F401 - Unused imports (2 occurrences)
-- `reportlab.lib.pagesizes.letter` in test_file_upload.py (actually used in string)
-- One other unused import
-- **Action**: Remove if truly unused or add `# noqa: F401` if needed for side effects
+### SIM102 - Collapsible if statements (5 occurrences)
+Nested if statements that can be combined with `and`:
+- Simplifies code structure
+- **Action**: Combine nested ifs where appropriate
 
-### N806 - Variable name not lowercase (1 occurrence)
-- Non-PEP8 compliant variable naming
-- **Action**: Rename to follow conventions
+### RUF001 - Ambiguous Unicode characters (4 occurrences)
+Unicode characters that might be confused with ASCII:
+- Example: ➕ (HEAVY PLUS SIGN) vs + (PLUS SIGN)
+- Often in emoji/icons
+- **Action**: Replace with ASCII or add `# noqa` if intentional
 
-### N803 - Argument name not lowercase (1 occurrence)
-- Non-PEP8 compliant argument naming
-- **Action**: Rename to follow conventions
-
-### I001 - Import sorting issue (1 occurrence)
-- Imports not properly sorted
-- **Action**: Use `ruff check --fix` or manually sort
+### SIM108 - Use ternary operator (1 occurrence)
+If-else returning boolean can be simplified:
+- **Action**: Use ternary operator for simple conditionals
 
 ## Tech Debt Markers Added
 
