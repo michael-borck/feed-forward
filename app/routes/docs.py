@@ -10,7 +10,7 @@ import markdown
 from fasthtml import common as fh
 
 
-def setup_routes(app, rt, db, User):
+def setup_routes(app, rt, db, user_model):
     """Set up documentation routes."""
 
     # @lru_cache(maxsize=128)  # Disabled for development

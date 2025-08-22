@@ -56,17 +56,17 @@ def test_email_sending(
         email_profile: Which default email to use if test_email is None ("personal" or "work")
     """
     # Default email profiles
-    DEFAULT_EMAILS = {
+    default_emails = {
         "personal": "michael@borck.me",
         "work": "michael.borck@curtin.edu.au",
     }
 
     # Use default email if none provided
     if not test_email:
-        if email_profile in DEFAULT_EMAILS:
-            test_email = DEFAULT_EMAILS[email_profile]
+        if email_profile in default_emails:
+            test_email = default_emails[email_profile]
         else:
-            test_email = DEFAULT_EMAILS["personal"]
+            test_email = default_emails["personal"]
             print(
                 f"Warning: Profile '{email_profile}' not found, using 'personal' instead."
             )

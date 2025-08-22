@@ -13,7 +13,13 @@ from fastlite import NotFoundError
 from app import instructor_required, rt
 from app.models.assignment import assignments
 from app.models.course import courses
-from app.models.feedback import Feedback, aggregated_feedback, drafts, feedbacks, model_runs
+from app.models.feedback import (
+    Feedback,
+    aggregated_feedback,
+    drafts,
+    feedbacks,
+    model_runs,
+)
 from app.models.user import Role, users
 from app.utils.ui import card, dashboard_layout
 
