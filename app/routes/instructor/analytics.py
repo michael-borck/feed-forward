@@ -329,15 +329,21 @@ def instructor_assignment_analytics(session, assignment_id: int):
         sorted_models = sorted(
             llm_stats.items(),
             key=lambda x: (
-                x[1]["successful_runs"] / x[1]["total_runs"] if x[1]["total_runs"] > 0 else 0,
-                statistics.mean(x[1]["scores"]) if x[1]["scores"] else 0
+                x[1]["successful_runs"] / x[1]["total_runs"]
+                if x[1]["total_runs"] > 0
+                else 0,
+                statistics.mean(x[1]["scores"]) if x[1]["scores"] else 0,
             ),
-            reverse=True
+            reverse=True,
         )
         if sorted_models:
             top_model_name, top_model_stats = sorted_models[0]
             success_rate = (
-                (top_model_stats["successful_runs"] / top_model_stats["total_runs"] * 100)
+                (
+                    top_model_stats["successful_runs"]
+                    / top_model_stats["total_runs"]
+                    * 100
+                )
                 if top_model_stats["total_runs"] > 0
                 else 0
             )
@@ -358,39 +364,55 @@ def instructor_assignment_analytics(session, assignment_id: int):
         Div(
             H4("Top Performing Model", cls="font-semibold text-gray-700 mb-2"),
             P(top_model or "No data yet", cls="text-sm text-gray-600 mb-4"),
-
             H4("Category Insights", cls="font-semibold text-gray-700 mb-2"),
             (
                 Div(
                     P("Strong Areas:", cls="text-sm font-medium text-gray-700"),
                     Ul(
-                        *[Li(cat, cls="text-sm text-gray-600") for cat in strong_categories[:3]],
-                        cls="list-disc list-inside mb-2"
-                    ) if strong_categories else P("None identified", cls="text-sm text-gray-500 mb-2"),
-
-                    P("Areas for Improvement:", cls="text-sm font-medium text-gray-700"),
+                        *[
+                            Li(cat, cls="text-sm text-gray-600")
+                            for cat in strong_categories[:3]
+                        ],
+                        cls="list-disc list-inside mb-2",
+                    )
+                    if strong_categories
+                    else P("None identified", cls="text-sm text-gray-500 mb-2"),
+                    P(
+                        "Areas for Improvement:",
+                        cls="text-sm font-medium text-gray-700",
+                    ),
                     Ul(
-                        *[Li(cat, cls="text-sm text-gray-600") for cat in weak_categories[:3]],
-                        cls="list-disc list-inside mb-4"
-                    ) if weak_categories else P("None identified", cls="text-sm text-gray-500 mb-4"),
+                        *[
+                            Li(cat, cls="text-sm text-gray-600")
+                            for cat in weak_categories[:3]
+                        ],
+                        cls="list-disc list-inside mb-4",
+                    )
+                    if weak_categories
+                    else P("None identified", cls="text-sm text-gray-500 mb-4"),
                 )
                 if category_performance
                 else P("No data yet", cls="text-sm text-gray-600 mb-4")
             ),
-
             H4("Recommendations", cls="font-semibold text-gray-700 mb-2"),
             Ul(
                 Li(
-                    "Consider adjusting rubric weights" if category_performance else "Collect more submissions",
+                    "Consider adjusting rubric weights"
+                    if category_performance
+                    else "Collect more submissions",
                     cls="text-sm text-gray-600 mb-1",
                 ),
                 Li(
-                    "Review low-performing models" if llm_stats else "Configure AI models",
-                    cls="text-sm text-gray-600 mb-1"
+                    "Review low-performing models"
+                    if llm_stats
+                    else "Configure AI models",
+                    cls="text-sm text-gray-600 mb-1",
                 ),
                 Li(
-                    "Provide targeted feedback guidance" if weak_categories else "Monitor performance trends",
-                    cls="text-sm text-gray-600"
+                    "Provide targeted feedback guidance"
+                    if weak_categories
+                    else "Monitor performance trends",
+                    cls="text-sm text-gray-600",
                 ),
                 cls="list-disc list-inside",
             ),

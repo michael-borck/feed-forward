@@ -72,10 +72,12 @@ def instructor_manage_students(session, request):
 
     # Convert to list and sort
     students_list = list(all_students.values())
-    students_list.sort(key=lambda s: (
-        0 if s["verified"] else 1,
-        s["student"].email if s["student"] else s.get("email", "")
-    ))
+    students_list.sort(
+        key=lambda s: (
+            0 if s["verified"] else 1,
+            s["student"].email if s["student"] else s.get("email", ""),
+        )
+    )
 
     # Create the main content
     if students_list:
@@ -104,7 +106,9 @@ def instructor_manage_students(session, request):
                             hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(email)}&course_id={student_info['courses'][0].id}",
                             hx_target="#message-area",
                             cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
-                        ) if not student_info["verified"] else "",
+                        )
+                        if not student_info["verified"]
+                        else "",
                         Button(
                             "Remove",
                             hx_post=f"/instructor/remove-student?email={urllib.parse.quote(email)}&course_id={student_info['courses'][0].id}",
@@ -128,8 +132,18 @@ def instructor_manage_students(session, request):
                     Thead(
                         Tr(
                             *[
-                                Th(h, cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100")
-                                for h in ["Email", "Name", "Status", "Courses", "Enrolled In", "Actions"]
+                                Th(
+                                    h,
+                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                )
+                                for h in [
+                                    "Email",
+                                    "Name",
+                                    "Status",
+                                    "Courses",
+                                    "Enrolled In",
+                                    "Actions",
+                                ]
                             ],
                             cls="bg-indigo-50",
                         )
@@ -146,7 +160,10 @@ def instructor_manage_students(session, request):
             H2("All Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
             card(
                 Div(
-                    P("You don't have any students enrolled yet.", cls="text-center text-gray-600 mb-6"),
+                    P(
+                        "You don't have any students enrolled yet.",
+                        cls="text-center text-gray-600 mb-6",
+                    ),
                     Div(
                         A(
                             "Invite Students",
@@ -165,8 +182,15 @@ def instructor_manage_students(session, request):
         Div(
             H3("Student Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
             Div(
-                action_button("Dashboard", color="gray", href="/instructor/dashboard", icon="←"),
-                action_button("Invite Students", color="indigo", href="/instructor/invite-students", icon="✉️"),
+                action_button(
+                    "Dashboard", color="gray", href="/instructor/dashboard", icon="←"
+                ),
+                action_button(
+                    "Invite Students",
+                    color="indigo",
+                    href="/instructor/invite-students",
+                    icon="✉️",
+                ),
                 cls="space-y-3",
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
@@ -174,8 +198,14 @@ def instructor_manage_students(session, request):
         Div(
             H3("Statistics", cls="font-semibold text-indigo-900 mb-4"),
             P(f"Total Students: {len(students_list)}", cls="text-gray-600 mb-2"),
-            P(f"Enrolled: {sum(1 for s in students_list if s['verified'])}", cls="text-green-600 mb-2"),
-            P(f"Invited: {sum(1 for s in students_list if not s['verified'])}", cls="text-yellow-600 mb-2"),
+            P(
+                f"Enrolled: {sum(1 for s in students_list if s['verified'])}",
+                cls="text-green-600 mb-2",
+            ),
+            P(
+                f"Invited: {sum(1 for s in students_list if not s['verified'])}",
+                cls="text-yellow-600 mb-2",
+            ),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
     )
@@ -402,8 +432,7 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
 
     if not course:
         return Div(
-            P("Course not found", cls="text-red-600"),
-            cls="p-3 bg-red-50 rounded-lg"
+            P("Course not found", cls="text-red-600"), cls="p-3 bg-red-50 rounded-lg"
         )
 
     # Verify the enrollment exists
@@ -416,7 +445,7 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
     if not enrollment_exists:
         return Div(
             P("Student not found in this course", cls="text-red-600"),
-            cls="p-3 bg-red-50 rounded-lg"
+            cls="p-3 bg-red-50 rounded-lg",
         )
 
     # Send the invitation email
@@ -450,12 +479,12 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
 
         return Div(
             P(f"Invitation resent to {email}", cls="text-green-600"),
-            cls="p-3 bg-green-50 rounded-lg"
+            cls="p-3 bg-green-50 rounded-lg",
         )
     except Exception as e:
         return Div(
             P(f"Failed to send invitation: {e!s}", cls="text-red-600"),
-            cls="p-3 bg-red-50 rounded-lg"
+            cls="p-3 bg-red-50 rounded-lg",
         )
 
 
@@ -475,8 +504,7 @@ def instructor_remove_student(session, request, email: str, course_id: int):
 
     if not course:
         return Div(
-            P("Course not found", cls="text-red-600"),
-            cls="p-3 bg-red-50 rounded-lg"
+            P("Course not found", cls="text-red-600"), cls="p-3 bg-red-50 rounded-lg"
         )
 
     # Find and remove the enrollment
@@ -490,18 +518,18 @@ def instructor_remove_student(session, request, email: str, course_id: int):
             except Exception as ex:
                 return Div(
                     P(f"Failed to remove student: {ex!s}", cls="text-red-600"),
-                    cls="p-3 bg-red-50 rounded-lg"
+                    cls="p-3 bg-red-50 rounded-lg",
                 )
 
     if enrollment_found:
         return Div(
             P(f"Student {email} removed from {course.code}", cls="text-green-600"),
-            cls="p-3 bg-green-50 rounded-lg"
+            cls="p-3 bg-green-50 rounded-lg",
         )
     else:
         return Div(
             P("Student not found in this course", cls="text-red-600"),
-            cls="p-3 bg-red-50 rounded-lg"
+            cls="p-3 bg-red-50 rounded-lg",
         )
 
 
@@ -539,14 +567,19 @@ def instructor_invite_students_form(session, request):
         Form(
             # Course selection
             Div(
-                Label("Select Course", for_="course_id",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Select Course",
+                    for_="course_id",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Select(
                     *[
                         Option(
                             f"{course.title} ({course.code})",
                             value=str(course.id),
-                            selected=(str(course.id) == course_id) if course_id else (i == 0),
+                            selected=(str(course.id) == course_id)
+                            if course_id
+                            else (i == 0),
                         )
                         for i, course in enumerate(instructor_courses)
                     ],
@@ -558,8 +591,11 @@ def instructor_invite_students_form(session, request):
             ),
             # Email input
             Div(
-                Label("Student Emails", for_="emails",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Student Emails",
+                    for_="emails",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Textarea(
                     id="emails",
                     name="emails",
@@ -633,7 +669,9 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
         return RedirectResponse("/instructor/dashboard", status_code=303)
 
     # Parse emails
-    email_list = [email.strip() for email in emails.strip().split('\n') if email.strip()]
+    email_list = [
+        email.strip() for email in emails.strip().split("\n") if email.strip()
+    ]
 
     # Remove duplicates
     email_list = list(set(email_list))
@@ -645,7 +683,7 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
 
     for email in email_list:
         # Basic email validation
-        if '@' not in email or '.' not in email:
+        if "@" not in email or "." not in email:
             failed.append((email, "Invalid email format"))
             continue
 
@@ -705,4 +743,6 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
             failed.append((email, str(e)))
 
     # Redirect to course students page with results
-    return RedirectResponse(f"/instructor/courses/{course_id}/students", status_code=303)
+    return RedirectResponse(
+        f"/instructor/courses/{course_id}/students", status_code=303
+    )

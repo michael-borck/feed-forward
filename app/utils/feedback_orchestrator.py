@@ -5,6 +5,7 @@ Handles multi-model runs, aggregation, and feedback processing pipeline
 
 import asyncio
 import logging
+import os
 import statistics
 from dataclasses import dataclass
 from typing import Dict, List, Optional
@@ -26,6 +27,7 @@ from app.models.feedback import (
     model_runs,
 )
 from app.utils.ai_client import ModelResult, ai_client
+from app.utils.mock_feedback import mock_feedback_generator
 
 
 @dataclass
@@ -121,7 +123,18 @@ class FeedbackOrchestrator:
             models = self.get_assignment_models(assignment)
             categories = self.get_rubric_categories(assignment.id)
 
-            if not models:
+            # Check if we have any real API keys configured
+            has_api_keys = self._check_for_api_keys()
+
+            if not models and not has_api_keys:
+                # Use mock feedback if no models and no API keys
+                self.logger.warning(
+                    f"No AI models or API keys configured. Using mock feedback for draft {draft_id}"
+                )
+                return await self._process_with_mock_feedback(
+                    draft_id, draft, assignment, categories
+                )
+            elif not models:
                 return ProcessingResult(
                     draft_id=draft_id,
                     success=False,
@@ -416,6 +429,192 @@ class FeedbackOrchestrator:
                 "has_aggregated_feedback": False,
                 "feedback_status": "error",
             }
+
+    def _check_for_api_keys(self) -> bool:
+        """Check if any API keys are configured"""
+        api_key_vars = [
+            "OPENAI_API_KEY",
+            "ANTHROPIC_API_KEY",
+            "GOOGLE_API_KEY",
+            "GROQ_API_KEY",
+            "OLLAMA_API_BASE",
+        ]
+
+        for var in api_key_vars:
+            if os.environ.get(var):
+                return True
+        return False
+
+    async def _process_with_mock_feedback(
+        self,
+        draft_id: int,
+        draft,
+        assignment: Assignment,
+        categories: List[RubricCategory],
+    ) -> ProcessingResult:
+        """Process draft using mock feedback generator"""
+        try:
+            # Update draft status
+            drafts.update(draft_id, {"status": "processing"})
+
+            # Generate mock feedback
+            mock_response = mock_feedback_generator.generate_mock_model_run(
+                assignment=assignment,
+                rubric_categories=categories,
+                student_submission=draft.content,
+                draft_version=draft.version,
+                provider="Mock",
+                model_id="mock-feedback-1.0",
+            )
+
+            # Create a mock model run record
+            model_run_data = {
+                "draft_id": draft_id,
+                "model_id": 0,  # Use 0 for mock
+                "run_number": 1,
+                "timestamp": mock_response["timestamp"],
+                "prompt": "Mock feedback generation",
+                "raw_response": mock_response["response"],
+                "status": "complete",
+            }
+            model_run_id = model_runs.insert(model_run_data)
+
+            # Store the mock feedback
+            feedback_data = mock_response["feedback"]
+
+            # Store category scores
+            for category_feedback in feedback_data["criteria_feedback"]:
+                # Find matching category
+                matching_category = next(
+                    (
+                        c
+                        for c in categories
+                        if c.name == category_feedback["criterion_name"]
+                    ),
+                    None,
+                )
+                if matching_category:
+                    category_scores.insert(
+                        {
+                            "model_run_id": model_run_id,
+                            "category_id": matching_category.id,
+                            "score": category_feedback["score"],
+                            "confidence": 0.7,  # Mock confidence
+                        }
+                    )
+
+            # Store feedback items
+            for strength in feedback_data["overall_feedback"]["strengths"]:
+                feedback_items.insert(
+                    {
+                        "model_run_id": model_run_id,
+                        "category_id": None,
+                        "type": "strength",
+                        "content": strength,
+                        "is_strength": True,
+                        "is_aggregated": False,
+                    }
+                )
+
+            for improvement in feedback_data["overall_feedback"]["improvements"]:
+                feedback_items.insert(
+                    {
+                        "model_run_id": model_run_id,
+                        "category_id": None,
+                        "type": "improvement",
+                        "content": improvement,
+                        "is_strength": False,
+                        "is_aggregated": False,
+                    }
+                )
+
+            # Store aggregated feedback
+            for category in categories:
+                category_feedback = next(
+                    (
+                        cf
+                        for cf in feedback_data["criteria_feedback"]
+                        if cf["criterion_name"] == category.name
+                    ),
+                    None,
+                )
+                if category_feedback:
+                    feedback_text = (
+                        "**Strengths:**\n"
+                        + "\n".join(
+                            f"• {s}" for s in category_feedback["strengths"][:3]
+                        )
+                        + "\n\n**Areas for Improvement:**\n"
+                        + "\n".join(
+                            f"• {i}" for i in category_feedback["improvements"][:3]
+                        )
+                    )
+
+                    aggregated_feedback.insert(
+                        {
+                            "draft_id": draft_id,
+                            "category_id": category.id,
+                            "aggregated_score": category_feedback["score"],
+                            "feedback_text": feedback_text,
+                            "edited_by_instructor": False,
+                            "instructor_email": "",
+                            "release_date": "",
+                            "status": "pending_review",
+                        }
+                    )
+
+            # Update draft status
+            drafts.update(draft_id, {"status": "feedback_ready"})
+
+            # Create aggregated scores
+            aggregated_scores = [
+                AggregatedScore(
+                    category_id=cat.id,
+                    category_name=cat.name,
+                    final_score=next(
+                        (
+                            cf["score"]
+                            for cf in feedback_data["criteria_feedback"]
+                            if cf["criterion_name"] == cat.name
+                        ),
+                        75.0,
+                    ),
+                    individual_scores=[],
+                    confidence=0.7,
+                    method_used="mock",
+                )
+                for cat in categories
+            ]
+
+            self.logger.info(
+                f"Mock feedback generated successfully for draft {draft_id}"
+            )
+
+            return ProcessingResult(
+                draft_id=draft_id,
+                success=True,
+                aggregated_scores=aggregated_scores,
+                total_models_run=1,
+                successful_runs=1,
+            )
+
+        except Exception as e:
+            error_msg = f"Mock feedback generation failed: {e!s}"
+            self.logger.error(error_msg)
+
+            try:
+                drafts.update(draft_id, {"status": "error"})
+            except:
+                pass
+
+            return ProcessingResult(
+                draft_id=draft_id,
+                success=False,
+                aggregated_scores=[],
+                total_models_run=0,
+                successful_runs=0,
+                error_message=error_msg,
+            )
 
 
 # Global orchestrator instance

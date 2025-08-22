@@ -1,0 +1,27 @@
+# Development override for docker-compose
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  feedforward:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Mount source code for hot reload
+      - ./app:/app/app:ro
+      - ./tools:/app/tools:ro
+      - ./docs:/app/docs:ro
+      # Mount data directory
+      - ./data:/app/data
+      # Mount .env file
+      - ./.env:/app/.env:ro
+    environment:
+      - DEBUG=True
+      - RELOAD=True
+    command: ["python", "app.py", "--reload"]
+
+  # Include Ollama in development
+  ollama:
+    profiles: []  # Always start in dev

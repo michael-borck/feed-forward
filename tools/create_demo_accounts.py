@@ -253,9 +253,7 @@ def create_demo_course():
                             print(f"✅ Category already exists: {category['name']}")
 
                     except Exception as e:
-                        print(
-                            f"❌ Error creating category {category['name']}: {e!s}"
-                        )
+                        print(f"❌ Error creating category {category['name']}: {e!s}")
 
             except Exception as e:
                 print(f"❌ Error creating rubric: {e!s}")

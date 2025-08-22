@@ -308,9 +308,7 @@ def admin_domain_toggle(session, id: int):
             Td(domain_record["domain"], cls="py-4 px-6"),
             Td(
                 Span(
-                    "✅ Yes"
-                    if domain_record["auto_approve_instructor"]
-                    else "❌ No",
+                    "✅ Yes" if domain_record["auto_approve_instructor"] else "❌ No",
                     cls="px-3 py-1 rounded-full text-sm "
                     + (
                         "bg-green-100 text-green-800"

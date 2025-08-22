@@ -500,10 +500,14 @@ def student_assignments_list(session, request):
                                             cls="font-medium text-indigo-800",
                                         ),
                                         P(
-                                            assignment_data["assignment"].description[:100]
+                                            assignment_data["assignment"].description[
+                                                :100
+                                            ]
                                             + "..."
                                             if len(
-                                                assignment_data["assignment"].description
+                                                assignment_data[
+                                                    "assignment"
+                                                ].description
                                             )
                                             > 100
                                             else assignment_data[
@@ -538,7 +542,9 @@ def student_assignments_list(session, request):
                                 ),
                                 Td(
                                     status_badge(
-                                        assignment_data["assignment"].status.capitalize(),
+                                        assignment_data[
+                                            "assignment"
+                                        ].status.capitalize(),
                                         "green"
                                         if assignment_data["assignment"].status
                                         == "active"

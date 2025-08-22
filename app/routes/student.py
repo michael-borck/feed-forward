@@ -4,7 +4,7 @@ Student routes - refactored into modules
 All student routes have been organized into logical modules:
 - dashboard: Main student dashboard
 - courses: Course views and course-specific assignment lists
-- assignments: Individual assignment views and general assignment lists  
+- assignments: Individual assignment views and general assignment lists
 - submissions: Draft submission forms, submission history, and management
 - join: Course enrollment via invitation tokens
 

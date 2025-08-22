@@ -2,23 +2,24 @@
 """
 Test script for the prompt template system
 """
-import sys
+
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.models.assignment import Assignment, Rubric, RubricCategory
+from app.models.assignment import Assignment, RubricCategory
 from app.models.config import FeedbackStyle
 from app.services.prompt_templates import (
-    generate_feedback_prompt, 
-    PromptContext, 
-    create_prompt_template
+    PromptContext,
+    create_prompt_template,
 )
 
 
 def test_prompt_generation():
     """Test the prompt generation system"""
     print("=== Testing Prompt Template System ===\n")
-    
+
     # Create mock assignment
     assignment = Assignment(
         id=1,
@@ -30,9 +31,9 @@ def test_prompt_generation():
         created_by="instructor@example.com",
         status="active",
         created_at="2024-01-01",
-        updated_at="2024-01-01"
+        updated_at="2024-01-01",
     )
-    
+
     # Create mock rubric categories
     categories = [
         RubricCategory(
@@ -40,39 +41,39 @@ def test_prompt_generation():
             rubric_id=1,
             name="Thesis and Argumentation",
             description="Clear thesis statement and logical flow of arguments with supporting evidence",
-            weight=30.0
+            weight=30.0,
         ),
         RubricCategory(
             id=2,
             rubric_id=1,
             name="Critical Analysis",
             description="Depth of analysis, consideration of multiple perspectives, and original insights",
-            weight=30.0
+            weight=30.0,
         ),
         RubricCategory(
             id=3,
             rubric_id=1,
             name="Evidence and Sources",
             description="Use of credible sources, proper citations, and integration of evidence",
-            weight=25.0
+            weight=25.0,
         ),
         RubricCategory(
             id=4,
             rubric_id=1,
             name="Writing Quality",
             description="Grammar, clarity, organization, and academic writing conventions",
-            weight=15.0
-        )
+            weight=15.0,
+        ),
     ]
-    
+
     # Create mock feedback style
     feedback_style = FeedbackStyle(
         id=1,
         name="Encouraging",
         description="Positive and supportive tone",
-        is_active=True
+        is_active=True,
     )
-    
+
     # Mock student submission
     student_submission = """
     The Impact of Social Media on Mental Health
@@ -87,11 +88,11 @@ def test_prompt_generation():
 
     In conclusion, while social media offers benefits, its impact on mental health cannot be ignored. As a society, we must develop healthier relationships with these technologies and implement safeguards to protect vulnerable populations from their potentially harmful effects.
     """
-    
+
     # Test 1: Overall feedback only
     print("Test 1: Generating prompt for overall feedback only")
     print("-" * 50)
-    
+
     context1 = PromptContext(
         assignment=assignment,
         rubric_categories=categories,
@@ -100,17 +101,17 @@ def test_prompt_generation():
         max_drafts=3,
         feedback_style=feedback_style,
         feedback_level="overall",
-        word_count=len(student_submission.split())
+        word_count=len(student_submission.split()),
     )
-    
+
     template1 = create_prompt_template("iterative")
     prompt1 = template1.generate_prompt(context1)
     print(prompt1[:500] + "...\n")
-    
+
     # Test 2: Criterion-specific feedback
     print("\nTest 2: Generating prompt for criterion-specific feedback")
     print("-" * 50)
-    
+
     context2 = PromptContext(
         assignment=assignment,
         rubric_categories=categories,
@@ -119,17 +120,17 @@ def test_prompt_generation():
         max_drafts=3,
         feedback_style=feedback_style,
         feedback_level="criterion",
-        word_count=len(student_submission.split())
+        word_count=len(student_submission.split()),
     )
-    
+
     template2 = create_prompt_template("iterative")
     prompt2 = template2.generate_prompt(context2)
     print(prompt2[:500] + "...\n")
-    
+
     # Test 3: Combined feedback (both overall and criterion)
     print("\nTest 3: Generating prompt for combined feedback")
     print("-" * 50)
-    
+
     context3 = PromptContext(
         assignment=assignment,
         rubric_categories=categories,
@@ -138,18 +139,18 @@ def test_prompt_generation():
         max_drafts=3,
         feedback_style=None,  # No specific style
         feedback_level="both",
-        word_count=len(student_submission.split())
+        word_count=len(student_submission.split()),
     )
-    
+
     template3 = create_prompt_template("standard")
     prompt3 = template3.generate_prompt(context3)
-    
+
     # Show the JSON format instructions
     print("\nJSON Format Instructions:")
     print("-" * 50)
     json_instructions = template3._get_json_format_instructions(context3)
     print(json_instructions)
-    
+
     print("\n✅ Prompt template system test complete!")
 
 

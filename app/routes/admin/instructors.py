@@ -325,7 +325,9 @@ def admin_instructors_list(session):
                                         ),
                                         Td(
                                             Span(
-                                                "Approved" if instructor.approved else "Pending",
+                                                "Approved"
+                                                if instructor.approved
+                                                else "Pending",
                                                 cls="px-3 py-1 rounded-full text-sm "
                                                 + (
                                                     "bg-green-100 text-green-800"

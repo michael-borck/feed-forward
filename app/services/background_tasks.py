@@ -1,6 +1,7 @@
 """
 Background task handling for asynchronous operations
 """
+
 import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor
@@ -21,10 +22,10 @@ active_tasks = {}
 async def queue_feedback_generation(draft_id: int) -> bool:
     """
     Queue a draft for feedback generation in the background
-    
+
     Args:
         draft_id: ID of the draft to process
-        
+
     Returns:
         True if task was queued successfully
     """
@@ -68,10 +69,10 @@ async def _process_draft_with_tracking(draft_id: int):
 def get_task_status(draft_id: int) -> Optional[str]:
     """
     Get the status of a feedback generation task
-    
+
     Args:
         draft_id: ID of the draft
-        
+
     Returns:
         Status string or None if not found
     """

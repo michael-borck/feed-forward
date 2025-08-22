@@ -21,7 +21,7 @@ def setup_routes(app, rt, db, User):
                 content = f.read()
 
             # Remove Jekyll front matter
-            content = re.sub(r'^---\n.*?\n---\n', '', content, flags=re.DOTALL)
+            content = re.sub(r"^---\n.*?\n---\n", "", content, flags=re.DOTALL)
 
             # Convert markdown to HTML (basic conversion)
             # In production, consider using a proper markdown parser
@@ -35,21 +35,23 @@ def setup_routes(app, rt, db, User):
         """Convert markdown to HTML using the markdown library."""
         # Pre-process Jekyll-specific syntax
         # Convert Jekyll TOC syntax to Python markdown TOC syntax
-        md_content = re.sub(r'{:\s*\.no_toc\s*(?:\.text-delta)?\s*}', '', md_content)
-        md_content = re.sub(r'1\.\s+TOC\s*\n\s*{:toc}', '[TOC]', md_content)
+        md_content = re.sub(r"{:\s*\.no_toc\s*(?:\.text-delta)?\s*}", "", md_content)
+        md_content = re.sub(r"1\.\s+TOC\s*\n\s*{:toc}", "[TOC]", md_content)
 
         # Remove other Jekyll-specific class assignments
-        md_content = re.sub(r'{:\s*\.[^}]+}', '', md_content)
+        md_content = re.sub(r"{:\s*\.[^}]+}", "", md_content)
 
         # Configure markdown extensions
-        md = markdown.Markdown(extensions=[
-            'markdown.extensions.fenced_code',
-            'markdown.extensions.tables',
-            'markdown.extensions.nl2br',
-            'markdown.extensions.sane_lists',
-            'markdown.extensions.codehilite',
-            'markdown.extensions.toc'
-        ])
+        md = markdown.Markdown(
+            extensions=[
+                "markdown.extensions.fenced_code",
+                "markdown.extensions.tables",
+                "markdown.extensions.nl2br",
+                "markdown.extensions.sane_lists",
+                "markdown.extensions.codehilite",
+                "markdown.extensions.toc",
+            ]
+        )
 
         # Convert markdown to HTML
         html = md.convert(md_content)
@@ -63,53 +65,53 @@ def setup_routes(app, rt, db, User):
 
     def get_doc_structure():
         """Get the documentation structure for navigation."""
-        docs_path = Path('docs')
+        docs_path = Path("docs")
         structure = {
-            'Quick Access': [
-                ('Student Guide', 'user-guides/student/index'),
-                ('Instructor Guide', 'user-guides/instructor/index'),
-                ('Admin Guide', 'user-guides/admin/index'),
+            "Quick Access": [
+                ("Student Guide", "user-guides/student/index"),
+                ("Instructor Guide", "user-guides/instructor/index"),
+                ("Admin Guide", "user-guides/admin/index"),
             ],
-            'Getting Started': [
-                ('Installation', 'getting-started/installation'),
-                ('Configuration', 'getting-started/configuration'),
-                ('Quick Start', 'getting-started/quick-start'),
+            "Getting Started": [
+                ("Installation", "getting-started/installation"),
+                ("Configuration", "getting-started/configuration"),
+                ("Quick Start", "getting-started/quick-start"),
             ],
-            'User Guides': {
-                'Students': [
-                    ('Overview', 'user-guides/student/index'),
-                    ('Getting Started', 'user-guides/student/getting-started'),
-                    ('Submitting Work', 'user-guides/student/submissions'),
-                    ('Viewing Feedback', 'user-guides/student/viewing-feedback'),
-                    ('Tracking Progress', 'user-guides/student/progress'),
+            "User Guides": {
+                "Students": [
+                    ("Overview", "user-guides/student/index"),
+                    ("Getting Started", "user-guides/student/getting-started"),
+                    ("Submitting Work", "user-guides/student/submissions"),
+                    ("Viewing Feedback", "user-guides/student/viewing-feedback"),
+                    ("Tracking Progress", "user-guides/student/progress"),
                 ],
-                'Instructors': [
-                    ('Overview', 'user-guides/instructor/index'),
-                    ('Course Management', 'user-guides/instructor/course-management'),
-                    ('Creating Assignments', 'user-guides/instructor/assignments'),
-                    ('Using Rubrics', 'user-guides/instructor/rubrics'),
-                    ('Managing Students', 'user-guides/instructor/student-invites'),
-                    ('Reviewing Feedback', 'user-guides/instructor/feedback-review'),
+                "Instructors": [
+                    ("Overview", "user-guides/instructor/index"),
+                    ("Course Management", "user-guides/instructor/course-management"),
+                    ("Creating Assignments", "user-guides/instructor/assignments"),
+                    ("Using Rubrics", "user-guides/instructor/rubrics"),
+                    ("Managing Students", "user-guides/instructor/student-invites"),
+                    ("Reviewing Feedback", "user-guides/instructor/feedback-review"),
                 ],
-                'Administrators': [
-                    ('Overview', 'user-guides/admin/index'),
-                    ('Initial Setup', 'user-guides/admin/initial-setup'),
-                    ('User Management', 'user-guides/admin/user-management'),
-                    ('AI Configuration', 'user-guides/admin/ai-configuration'),
-                    ('Maintenance', 'user-guides/admin/maintenance'),
+                "Administrators": [
+                    ("Overview", "user-guides/admin/index"),
+                    ("Initial Setup", "user-guides/admin/initial-setup"),
+                    ("User Management", "user-guides/admin/user-management"),
+                    ("AI Configuration", "user-guides/admin/ai-configuration"),
+                    ("Maintenance", "user-guides/admin/maintenance"),
                 ],
             },
-            'Deployment': [
-                ('Requirements', 'deployment/requirements'),
-                ('Installation', 'deployment/installation'),
-                ('Configuration', 'deployment/configuration'),
-                ('Troubleshooting', 'deployment/troubleshooting'),
+            "Deployment": [
+                ("Requirements", "deployment/requirements"),
+                ("Installation", "deployment/installation"),
+                ("Configuration", "deployment/configuration"),
+                ("Troubleshooting", "deployment/troubleshooting"),
             ],
-            'Technical': [
-                ('Architecture', 'technical/architecture'),
-                ('Database Schema', 'technical/database-schema'),
-                ('API Reference', 'technical/api-reference'),
-                ('Privacy & Security', 'technical/privacy-security'),
+            "Technical": [
+                ("Architecture", "technical/architecture"),
+                ("Database Schema", "technical/database-schema"),
+                ("API Reference", "technical/api-reference"),
+                ("Privacy & Security", "technical/privacy-security"),
             ],
         }
         return structure
@@ -125,39 +127,45 @@ def setup_routes(app, rt, db, User):
                 A(
                     "← Back to App",
                     href="/",
-                    cls="block px-3 py-2 text-green-600 hover:bg-green-50 rounded font-medium mb-2"
+                    cls="block px-3 py-2 text-green-600 hover:bg-green-50 rounded font-medium mb-2",
                 ),
                 A(
                     "← Documentation Home",
                     href="/docs",
-                    cls="block px-3 py-2 text-blue-600 hover:bg-blue-50 rounded font-medium mb-4"
+                    cls="block px-3 py-2 text-blue-600 hover:bg-blue-50 rounded font-medium mb-4",
                 ),
-                cls="border-b border-gray-200 pb-4 mb-4"
+                cls="border-b border-gray-200 pb-4 mb-4",
             )
         )
 
         for section, items in structure.items():
             # Special styling for Quick Access section
-            if section == 'Quick Access':
+            if section == "Quick Access":
                 links = []
                 for title, path in items:
                     active = path == current_path
-                    icon = "🎓" if "student" in path else "👩‍🏫" if "instructor" in path else "⚙️"
+                    icon = (
+                        "🎓"
+                        if "student" in path
+                        else "👩‍🏫"
+                        if "instructor" in path
+                        else "⚙️"
+                    )
                     links.append(
                         Li(
                             A(
                                 f"{icon} {title}",
-                                href=f'/docs/{path}',
-                                cls=f"block w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded font-medium {'bg-blue-100 text-blue-700' if active else ''}"
+                                href=f"/docs/{path}",
+                                cls=f"block w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded font-medium {'bg-blue-100 text-blue-700' if active else ''}",
                             ),
-                            cls="block mb-2"
+                            cls="block mb-2",
                         )
                     )
                 nav_items.append(
                     Div(
                         H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
                         Ul(*links, cls="list-none block"),
-                        cls="mb-4 pb-4 border-b border-gray-200"
+                        cls="mb-4 pb-4 border-b border-gray-200",
                     )
                 )
             elif isinstance(items, dict):
@@ -171,26 +179,26 @@ def setup_routes(app, rt, db, User):
                             Li(
                                 A(
                                     title,
-                                    href=f'/docs/{path}',
-                                    cls=f"block px-4 py-1 text-sm hover:bg-gray-100 {'bg-blue-50 text-blue-600' if active else ''}"
+                                    href=f"/docs/{path}",
+                                    cls=f"block px-4 py-1 text-sm hover:bg-gray-100 {'bg-blue-50 text-blue-600' if active else ''}",
                                 )
                             )
                         )
                     section_items.append(
                         Div(
-                            H4(subsection, cls="font-medium text-gray-700 px-3 py-1 text-sm"),
+                            H4(
+                                subsection,
+                                cls="font-medium text-gray-700 px-3 py-1 text-sm",
+                            ),
                             Ul(*sub_links, cls="list-none space-y-1 ml-4"),
-                            cls="mb-3"
+                            cls="mb-3",
                         )
                     )
                 nav_items.append(
                     Div(
                         H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
-                        Div(
-                            *section_items,
-                            cls="space-y-3"
-                        ),
-                        cls="mb-4"
+                        Div(*section_items, cls="space-y-3"),
+                        cls="mb-4",
                     )
                 )
             else:
@@ -202,8 +210,8 @@ def setup_routes(app, rt, db, User):
                         Li(
                             A(
                                 title,
-                                href=f'/docs/{path}',
-                                cls=f"block px-4 py-1 hover:bg-gray-100 {'bg-blue-50 text-blue-600' if active else ''}"
+                                href=f"/docs/{path}",
+                                cls=f"block px-4 py-1 hover:bg-gray-100 {'bg-blue-50 text-blue-600' if active else ''}",
                             )
                         )
                     )
@@ -211,19 +219,16 @@ def setup_routes(app, rt, db, User):
                     Div(
                         H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
                         Ul(*links, cls="list-none space-y-1 block"),
-                        cls="mb-4"
+                        cls="mb-4",
                     )
                 )
 
         return Nav(
-            Div(
-                *nav_items,
-                cls="space-y-4"
-            ),
-            cls="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto p-4 flex-shrink-0"
+            Div(*nav_items, cls="space-y-4"),
+            cls="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto p-4 flex-shrink-0",
         )
 
-    @rt('/docs')
+    @rt("/docs")
     def get(session):
         """Documentation home page."""
         return Titled(
@@ -232,47 +237,60 @@ def setup_routes(app, rt, db, User):
                 render_doc_nav(),
                 Div(
                     H1("FeedForward Documentation", cls="text-3xl font-bold mb-4"),
-                    P("Welcome to the FeedForward documentation. Select a topic from the navigation menu to get started.",
-                      cls="text-lg text-gray-600 mb-6"),
-
+                    P(
+                        "Welcome to the FeedForward documentation. Select a topic from the navigation menu to get started.",
+                        cls="text-lg text-gray-600 mb-6",
+                    ),
                     Div(
                         H2("Quick Links", cls="text-2xl font-semibold mb-3"),
                         Div(
                             Card(
                                 H3("For Students", cls="text-xl font-semibold mb-2"),
                                 P("Learn how to submit work and view feedback"),
-                                A("Get Started →", href="/docs/user-guides/student/getting-started",
-                                  cls="text-blue-600 hover:underline")
+                                A(
+                                    "Get Started →",
+                                    href="/docs/user-guides/student/getting-started",
+                                    cls="text-blue-600 hover:underline",
+                                ),
                             ),
                             Card(
                                 H3("For Instructors", cls="text-xl font-semibold mb-2"),
                                 P("Create courses, assignments, and review feedback"),
-                                A("Get Started →", href="/docs/user-guides/instructor/course-management",
-                                  cls="text-blue-600 hover:underline")
+                                A(
+                                    "Get Started →",
+                                    href="/docs/user-guides/instructor/course-management",
+                                    cls="text-blue-600 hover:underline",
+                                ),
                             ),
                             Card(
-                                H3("For Administrators", cls="text-xl font-semibold mb-2"),
+                                H3(
+                                    "For Administrators",
+                                    cls="text-xl font-semibold mb-2",
+                                ),
                                 P("Configure and maintain your FeedForward instance"),
-                                A("Get Started →", href="/docs/user-guides/admin/initial-setup",
-                                  cls="text-blue-600 hover:underline")
+                                A(
+                                    "Get Started →",
+                                    href="/docs/user-guides/admin/initial-setup",
+                                    cls="text-blue-600 hover:underline",
+                                ),
                             ),
-                            cls="grid grid-cols-1 md:grid-cols-3 gap-4"
-                        )
+                            cls="grid grid-cols-1 md:grid-cols-3 gap-4",
+                        ),
                     ),
-                    cls="flex-1 p-8 overflow-y-auto"
+                    cls="flex-1 p-8 overflow-y-auto",
                 ),
-                cls="flex h-screen overflow-hidden"
-            )
+                cls="flex h-screen overflow-hidden",
+            ),
         )
 
-    @rt('/docs/{path:path}')
+    @rt("/docs/{path:path}")
     def get_doc_page(session, path: str):
         """Display a specific documentation page."""
         # Sanitize path to prevent directory traversal
-        path = path.replace('..', '')
+        path = path.replace("..", "")
 
         # Load the markdown file
-        doc_path = Path(f'docs/{path}.md')
+        doc_path = Path(f"docs/{path}.md")
         content = load_markdown_file(doc_path)
 
         if content is None:
@@ -282,16 +300,23 @@ def setup_routes(app, rt, db, User):
                     render_doc_nav(path),
                     Div(
                         H1("Page Not Found", cls="text-3xl font-bold mb-4"),
-                        P(f"The documentation page '{path}' could not be found.", cls="text-gray-600"),
-                        A("← Back to Documentation", href="/docs", cls="text-blue-600 hover:underline"),
-                        cls="flex-1 p-8"
+                        P(
+                            f"The documentation page '{path}' could not be found.",
+                            cls="text-gray-600",
+                        ),
+                        A(
+                            "← Back to Documentation",
+                            href="/docs",
+                            cls="text-blue-600 hover:underline",
+                        ),
+                        cls="flex-1 p-8",
                     ),
-                    cls="flex h-screen overflow-hidden"
-                )
+                    cls="flex h-screen overflow-hidden",
+                ),
             )
 
         # Extract title from content (first H1)
-        title_match = re.search(r'<h1>(.*?)</h1>', content)
+        title_match = re.search(r"<h1>(.*?)</h1>", content)
         title = title_match.group(1) if title_match else "Documentation"
 
         return Titled(
@@ -299,13 +324,10 @@ def setup_routes(app, rt, db, User):
             Div(
                 render_doc_nav(path),
                 Div(
-                    Div(
-                        NotStr(content),
-                        cls="prose prose-lg max-w-none"
-                    ),
-                    cls="flex-1 p-8 overflow-y-auto"
+                    Div(NotStr(content), cls="prose prose-lg max-w-none"),
+                    cls="flex-1 p-8 overflow-y-auto",
                 ),
-                cls="flex h-screen overflow-hidden"
+                cls="flex h-screen overflow-hidden",
             ),
             # Add some CSS for better markdown rendering
             Style("""
@@ -406,5 +428,5 @@ def setup_routes(app, rt, db, User):
                 .space-y-1 > * { margin-top: 0 !important; margin-bottom: 0.25rem !important; }
                 .space-y-3 > * { margin-top: 0 !important; margin-bottom: 0.75rem !important; }
                 .space-y-4 > * { margin-top: 0 !important; margin-bottom: 1rem !important; }
-            """)
+            """),
         )

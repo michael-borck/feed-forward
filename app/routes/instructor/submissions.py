@@ -475,7 +475,10 @@ def instructor_submission_detail(session, draft_id: int):
                     ),
                     Div(
                         H4("Feedback", cls="font-medium text-gray-800 mb-2"),
-                        P(agg_feedback_text or "No feedback available.", cls="text-gray-700"),
+                        P(
+                            agg_feedback_text or "No feedback available.",
+                            cls="text-gray-700",
+                        ),
                         cls="",
                     ),
                     cls="",
@@ -581,8 +584,11 @@ def instructor_feedback_review(session, draft_id: int):
     feedback_form = Form(
         # Overall Score
         Div(
-            Label("Overall Score (%)", for_="overall_score",
-                  cls="block text-sm font-medium text-gray-700 mb-2"),
+            Label(
+                "Overall Score (%)",
+                for_="overall_score",
+                cls="block text-sm font-medium text-gray-700 mb-2",
+            ),
             Input(
                 type="number",
                 id="overall_score",
@@ -597,8 +603,11 @@ def instructor_feedback_review(session, draft_id: int):
         ),
         # Feedback Text
         Div(
-            Label("Feedback", for_="feedback_text",
-                  cls="block text-sm font-medium text-gray-700 mb-2"),
+            Label(
+                "Feedback",
+                for_="feedback_text",
+                cls="block text-sm font-medium text-gray-700 mb-2",
+            ),
             Textarea(
                 af.aggregated_feedback or "",
                 id="feedback_text",
@@ -624,8 +633,10 @@ def instructor_feedback_review(session, draft_id: int):
                         value="true",
                         cls="mr-2",
                     ),
-                    Span("Approve this feedback for student viewing",
-                         cls="text-sm text-gray-700"),
+                    Span(
+                        "Approve this feedback for student viewing",
+                        cls="text-sm text-gray-700",
+                    ),
                 ],
             ),
             cls="mb-6",
@@ -696,8 +707,14 @@ def instructor_feedback_review(session, draft_id: int):
 
 @rt("/instructor/submissions/{draft_id}/review")
 @instructor_required
-def instructor_feedback_save(session, draft_id: int, overall_score: int,
-                           feedback_text: str, action: str = "save", approve: str = None):
+def instructor_feedback_save(
+    session,
+    draft_id: int,
+    overall_score: int,
+    feedback_text: str,
+    action: str = "save",
+    approve: str = None,
+):
     """Save reviewed feedback"""
     # Get current user
     user = users[session["auth"]]
@@ -721,7 +738,7 @@ def instructor_feedback_save(session, draft_id: int, overall_score: int,
         fb = existing_feedback[0]
         fb.overall_score = overall_score
         fb.general_feedback = feedback_text.strip()
-        fb.instructor_approved = (action == "approve" or approve == "true")
+        fb.instructor_approved = action == "approve" or approve == "true"
         fb.approved_at = datetime.now() if fb.instructor_approved else None
         fb.approved_by = user.email if fb.instructor_approved else None
         feedback.update(fb)
@@ -734,9 +751,13 @@ def instructor_feedback_save(session, draft_id: int, overall_score: int,
             general_feedback=feedback_text.strip(),
             rubric_scores="{}",  # Empty for now
             instructor_approved=(action == "approve" or approve == "true"),
-            approved_at=datetime.now() if (action == "approve" or approve == "true") else None,
-            approved_by=user.email if (action == "approve" or approve == "true") else None,
-            created_at=datetime.now()
+            approved_at=datetime.now()
+            if (action == "approve" or approve == "true")
+            else None,
+            approved_by=user.email
+            if (action == "approve" or approve == "true")
+            else None,
+            created_at=datetime.now(),
         )
         feedback.insert(new_feedback)
 
@@ -744,14 +765,19 @@ def instructor_feedback_save(session, draft_id: int, overall_score: int,
     all_agg_feedback = aggregated_feedback()
     for af in all_agg_feedback:
         if af.draft_id == draft_id:
-            af.status = "approved" if (action == "approve" or approve == "true") else "pending_review"
+            af.status = (
+                "approved"
+                if (action == "approve" or approve == "true")
+                else "pending_review"
+            )
             aggregated_feedback.update(af)
             break
 
     # Redirect based on action
     if action == "approve" or approve == "true":
         return RedirectResponse(
-            f"/instructor/assignments/{assignment.assignment_id}/submissions", status_code=303
+            f"/instructor/assignments/{assignment.assignment_id}/submissions",
+            status_code=303,
         )
     else:
         return RedirectResponse(

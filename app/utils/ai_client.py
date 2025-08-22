@@ -5,6 +5,7 @@ Handles interaction with multiple AI providers via LiteLLM
 
 import json
 import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -64,6 +65,32 @@ class AIClient:
             if "api_key_encrypted" in config:
                 config["api_key"] = decrypt_sensitive_data(config["api_key_encrypted"])
                 del config["api_key_encrypted"]
+
+            # Check for API keys in environment variables if not in config
+            if "api_key" not in config:
+                provider = ai_model.provider.lower()
+                env_var_map = {
+                    "openai": "OPENAI_API_KEY",
+                    "anthropic": "ANTHROPIC_API_KEY",
+                    "google": "GOOGLE_API_KEY",
+                    "groq": "GROQ_API_KEY",
+                    "cohere": "COHERE_API_KEY",
+                    "huggingface": "HUGGINGFACE_API_KEY",
+                }
+
+                if provider in env_var_map:
+                    env_var = env_var_map[provider]
+                    api_key = os.environ.get(env_var)
+                    if api_key:
+                        config["api_key"] = api_key
+                        self.logger.info(
+                            f"Using API key from environment variable {env_var}"
+                        )
+                    else:
+                        self.logger.warning(
+                            f"No API key found for {ai_model.provider}. "
+                            f"Please set {env_var} in your .env file or run: python tools/setup_api_keys.py"
+                        )
 
             return config
         except (json.JSONDecodeError, Exception) as e:
@@ -266,7 +293,33 @@ Respond ONLY with valid JSON. Be specific, constructive, and encouraging in your
 
         except Exception as e:
             error_msg = str(e)
-            self.logger.error(f"AI model run failed: {error_msg}")
+
+            # Provide more helpful error messages based on the error type
+            if "api_key" in error_msg.lower() or "unauthorized" in error_msg.lower():
+                helpful_msg = (
+                    f"API key error for {ai_model.provider}. "
+                    f"Please configure your API keys by running: python tools/setup_api_keys.py"
+                )
+                self.logger.error(helpful_msg)
+                error_msg = helpful_msg
+            elif "rate limit" in error_msg.lower():
+                helpful_msg = f"Rate limit exceeded for {ai_model.provider}. Please wait and try again."
+                self.logger.error(helpful_msg)
+                error_msg = helpful_msg
+            elif "connection" in error_msg.lower() or "refused" in error_msg.lower():
+                if ai_model.provider.lower() == "ollama":
+                    helpful_msg = (
+                        "Cannot connect to Ollama. Please ensure Ollama is running locally. "
+                        "Install from https://ollama.ai and run: ollama serve"
+                    )
+                else:
+                    helpful_msg = f"Connection error for {ai_model.provider}. Please check your internet connection."
+                self.logger.error(helpful_msg)
+                error_msg = helpful_msg
+            else:
+                self.logger.error(
+                    f"AI model run failed for {ai_model.provider}: {error_msg}"
+                )
 
             # Update model run with error
             model_runs.update(

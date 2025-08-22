@@ -2,7 +2,6 @@
 Admin AI models management routes
 """
 
-
 from fasthtml.common import *
 
 from app import admin_required, rt
@@ -246,6 +245,7 @@ def admin_models_list(session):
 # - admin_models_update() - update model POST handler
 # - admin_models_test() - test model API
 # - admin_models_delete() - delete model handler
+
 
 @rt("/admin/ai-models/new")
 @admin_required

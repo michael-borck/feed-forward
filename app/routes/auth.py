@@ -618,7 +618,12 @@ def post(session, email: str, password: str):
     # THIS IS NOT SECURE - Only for development/troubleshooting
 
     # For our test accounts, just compare the hardcoded password directly
-    if (email == "test@example.com" and password == "Test123!") or (email == "easy@example.com" and password == "Easy123!") or (email == "instructor2@example.com" and password == "Test123!") or (email == "newadmin@example.com" and password == "Admin123!"):
+    if (
+        (email == "test@example.com" and password == "Test123!")
+        or (email == "easy@example.com" and password == "Easy123!")
+        or (email == "instructor2@example.com" and password == "Test123!")
+        or (email == "newadmin@example.com" and password == "Admin123!")
+    ):
         password_match = True
     else:
         # Try direct bcrypt as a last resort

@@ -1,6 +1,7 @@
 """
 Feedback generation service for processing student submissions
 """
+
 import asyncio
 import json
 import logging
@@ -45,6 +46,7 @@ litellm.drop_params = True  # Drop unsupported params instead of raising errors
 @dataclass
 class FeedbackGenerationResult:
     """Result of feedback generation for a single run"""
+
     model_run_id: int
     success: bool
     feedback_data: Optional[Dict] = None
@@ -61,10 +63,10 @@ class FeedbackGenerator:
     async def generate_feedback_for_draft(self, draft_id: int) -> bool:
         """
         Generate feedback for a student draft submission
-        
+
         Args:
             draft_id: ID of the draft to process
-            
+
         Returns:
             True if feedback generation was successful, False otherwise
         """
@@ -149,7 +151,7 @@ class FeedbackGenerator:
         assignment: Assignment,
         settings: AssignmentSettings,
         model: AIModel,
-        run_number: int
+        run_number: int,
     ) -> FeedbackGenerationResult:
         """Run a single AI model to generate feedback"""
 
@@ -162,7 +164,7 @@ class FeedbackGenerator:
             timestamp=datetime.now().isoformat(),
             prompt="",  # Will be set below
             raw_response="",
-            status="pending"
+            status="pending",
         )
         model_runs.insert(model_run)
 
@@ -173,7 +175,7 @@ class FeedbackGenerator:
                 student_submission=draft.content,
                 draft_version=draft.version,
                 feedback_style_id=settings.feedback_style_id,
-                feedback_level=settings.feedback_level
+                feedback_level=settings.feedback_level,
             )
 
             # Update prompt in model run
@@ -185,9 +187,7 @@ class FeedbackGenerator:
 
             # Call the AI model
             response = await self._call_ai_model(
-                model=model,
-                prompt=prompt,
-                api_config=api_config
+                model=model, prompt=prompt, api_config=api_config
             )
 
             # Parse the response
@@ -199,12 +199,12 @@ class FeedbackGenerator:
             model_runs.update(model_run)
 
             # Store structured feedback
-            await self._store_model_feedback(model_run.id, draft.assignment_id, feedback_data)
+            await self._store_model_feedback(
+                model_run.id, draft.assignment_id, feedback_data
+            )
 
             return FeedbackGenerationResult(
-                model_run_id=model_run.id,
-                success=True,
-                feedback_data=feedback_data
+                model_run_id=model_run.id, success=True, feedback_data=feedback_data
             )
 
         except Exception as e:
@@ -214,16 +214,11 @@ class FeedbackGenerator:
             model_runs.update(model_run)
 
             return FeedbackGenerationResult(
-                model_run_id=model_run.id,
-                success=False,
-                error_message=str(e)
+                model_run_id=model_run.id, success=False, error_message=str(e)
             )
 
     async def _call_ai_model(
-        self,
-        model: AIModel,
-        prompt: str,
-        api_config: Dict
+        self, model: AIModel, prompt: str, api_config: Dict
     ) -> str:
         """Call the AI model using LiteLLM"""
 
@@ -249,12 +244,9 @@ class FeedbackGenerator:
         messages = [
             {
                 "role": "system",
-                "content": "You are an expert educational assessment assistant. Provide feedback in valid JSON format only."
+                "content": "You are an expert educational assessment assistant. Provide feedback in valid JSON format only.",
             },
-            {
-                "role": "user",
-                "content": prompt
-            }
+            {"role": "user", "content": prompt},
         ]
 
         # Make the API call with retries
@@ -265,7 +257,9 @@ class FeedbackGenerator:
                     messages=messages,
                     temperature=api_config.get("temperature", 0.7),
                     max_tokens=api_config.get("max_tokens", 2000),
-                    response_format={"type": "json_object"} if model.provider.lower() == "openai" else None
+                    response_format={"type": "json_object"}
+                    if model.provider.lower() == "openai"
+                    else None,
                 )
 
                 return response.choices[0].message.content
@@ -284,7 +278,8 @@ class FeedbackGenerator:
         except json.JSONDecodeError:
             # If not valid JSON, try to extract JSON from the response
             import re
-            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+
+            json_match = re.search(r"\{.*\}", response, re.DOTALL)
             if json_match:
                 try:
                     return json.loads(json_match.group())
@@ -298,15 +293,12 @@ class FeedbackGenerator:
                     "score": 70,  # Default score
                     "strengths": ["Unable to parse structured feedback"],
                     "improvements": ["Response format was not as expected"],
-                    "suggestions": ["Please try again"]
+                    "suggestions": ["Please try again"],
                 }
             }
 
     async def _store_model_feedback(
-        self,
-        model_run_id: int,
-        assignment_id: int,
-        feedback_data: Dict
+        self, model_run_id: int, assignment_id: int, feedback_data: Dict
     ):
         """Store the parsed feedback data in the database"""
 
@@ -336,7 +328,7 @@ class FeedbackGenerator:
                         model_run_id=model_run_id,
                         category_id=category_id,
                         score=float(criterion.get("score", 0)),
-                        confidence=0.8  # Default confidence
+                        confidence=0.8,  # Default confidence
                     )
                     category_scores.insert(score)
 
@@ -349,7 +341,7 @@ class FeedbackGenerator:
                             type="strength",
                             content=strength,
                             is_strength=True,
-                            is_aggregated=False
+                            is_aggregated=False,
                         )
                         feedback_items.insert(item)
 
@@ -361,7 +353,7 @@ class FeedbackGenerator:
                             type="improvement",
                             content=improvement,
                             is_strength=False,
-                            is_aggregated=False
+                            is_aggregated=False,
                         )
                         feedback_items.insert(item)
 
@@ -377,7 +369,7 @@ class FeedbackGenerator:
                 type="general",
                 content=overall.get("summary", ""),
                 is_strength=False,
-                is_aggregated=False
+                is_aggregated=False,
             )
             feedback_items.insert(summary_item)
 
@@ -386,7 +378,7 @@ class FeedbackGenerator:
         draft: Draft,
         assignment: Assignment,
         settings: AssignmentSettings,
-        successful_runs: List[FeedbackGenerationResult]
+        successful_runs: List[FeedbackGenerationResult],
     ):
         """Aggregate feedback from multiple model runs"""
 
@@ -408,7 +400,9 @@ class FeedbackGenerator:
                 break
 
         if not aggregation_method:
-            logger.warning(f"Aggregation method {settings.aggregation_method_id} not found, using average")
+            logger.warning(
+                f"Aggregation method {settings.aggregation_method_id} not found, using average"
+            )
             aggregation_method_name = "Average"
         else:
             aggregation_method_name = aggregation_method.name
@@ -426,13 +420,21 @@ class FeedbackGenerator:
             for run in successful_runs:
                 # Get scores for this category from this run
                 for score in category_scores():
-                    if score.model_run_id == run.model_run_id and score.category_id == category.id:
+                    if (
+                        score.model_run_id == run.model_run_id
+                        and score.category_id == category.id
+                    ):
                         all_scores.append(score.score)
-                        score_confidences.append(score.confidence if hasattr(score, 'confidence') else 0.8)
+                        score_confidences.append(
+                            score.confidence if hasattr(score, "confidence") else 0.8
+                        )
 
                 # Get feedback items for this category
                 for item in feedback_items():
-                    if item.model_run_id == run.model_run_id and item.category_id == category.id:
+                    if (
+                        item.model_run_id == run.model_run_id
+                        and item.category_id == category.id
+                    ):
                         all_feedback_items.append(item)
 
             # Calculate aggregated score based on method
@@ -443,7 +445,10 @@ class FeedbackGenerator:
                 elif aggregation_method_name == "Weighted Average":
                     # Weighted average based on confidence
                     if score_confidences and sum(score_confidences) > 0:
-                        weighted_sum = sum(score * conf for score, conf in zip(all_scores, score_confidences))
+                        weighted_sum = sum(
+                            score * conf
+                            for score, conf in zip(all_scores, score_confidences)
+                        )
                         weight_total = sum(score_confidences)
                         aggregated_score = weighted_sum / weight_total
                     else:
@@ -457,9 +462,11 @@ class FeedbackGenerator:
                     sorted_scores = sorted(all_scores)
                     n = len(sorted_scores)
                     if n % 2 == 0:
-                        aggregated_score = (sorted_scores[n//2 - 1] + sorted_scores[n//2]) / 2
+                        aggregated_score = (
+                            sorted_scores[n // 2 - 1] + sorted_scores[n // 2]
+                        ) / 2
                     else:
-                        aggregated_score = sorted_scores[n//2]
+                        aggregated_score = sorted_scores[n // 2]
                 else:
                     # Default to average
                     aggregated_score = sum(all_scores) / len(all_scores)
@@ -467,8 +474,12 @@ class FeedbackGenerator:
                 aggregated_score = 0
 
             # Combine feedback text
-            strengths = [item.content for item in all_feedback_items if item.is_strength]
-            improvements = [item.content for item in all_feedback_items if not item.is_strength]
+            strengths = [
+                item.content for item in all_feedback_items if item.is_strength
+            ]
+            improvements = [
+                item.content for item in all_feedback_items if not item.is_strength
+            ]
 
             # Deduplicate and combine feedback, keeping track of frequency
             strength_counts = {}
@@ -480,17 +491,25 @@ class FeedbackGenerator:
                 improvement_counts[i] = improvement_counts.get(i, 0) + 1
 
             # Sort by frequency (most common first)
-            sorted_strengths = sorted(strength_counts.items(), key=lambda x: x[1], reverse=True)
-            sorted_improvements = sorted(improvement_counts.items(), key=lambda x: x[1], reverse=True)
+            sorted_strengths = sorted(
+                strength_counts.items(), key=lambda x: x[1], reverse=True
+            )
+            sorted_improvements = sorted(
+                improvement_counts.items(), key=lambda x: x[1], reverse=True
+            )
 
             # Create aggregated feedback text
             feedback_text = ""
             if sorted_strengths:
-                feedback_text += "Strengths:\n" + "\n".join(f"• {s[0]}" for s in sorted_strengths)
+                feedback_text += "Strengths:\n" + "\n".join(
+                    f"• {s[0]}" for s in sorted_strengths
+                )
             if sorted_improvements:
                 if feedback_text:
                     feedback_text += "\n\n"
-                feedback_text += "Areas for Improvement:\n" + "\n".join(f"• {i[0]}" for i in sorted_improvements)
+                feedback_text += "Areas for Improvement:\n" + "\n".join(
+                    f"• {i[0]}" for i in sorted_improvements
+                )
 
             # Store aggregated feedback
             agg_feedback = AggregatedFeedback(
@@ -502,11 +521,13 @@ class FeedbackGenerator:
                 edited_by_instructor=False,
                 instructor_email="",
                 release_date=datetime.now().isoformat(),
-                status="approved"  # Auto-approve for now
+                status="approved",  # Auto-approve for now
             )
             aggregated_feedback.insert(agg_feedback)
 
-    def _get_assignment_settings(self, assignment_id: int) -> Optional[AssignmentSettings]:
+    def _get_assignment_settings(
+        self, assignment_id: int
+    ) -> Optional[AssignmentSettings]:
         """Get settings for an assignment"""
         for settings in assignment_settings():
             if settings.assignment_id == assignment_id:
@@ -539,13 +560,13 @@ feedback_generator = FeedbackGenerator()
 async def process_draft_submission(draft_id: int) -> bool:
     """
     Process a draft submission for feedback generation
-    
+
     This is the main entry point for the feedback generation pipeline.
     It should be called after a student submits a draft.
-    
+
     Args:
         draft_id: ID of the draft to process
-        
+
     Returns:
         True if successful, False otherwise
     """

@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  feedforward:
+    build: .
+    container_name: feedforward-app
+    ports:
+      - "5001:5001"
+    volumes:
+      # Persist data directory
+      - ./data:/app/data
+      # Mount .env file for API keys
+      - ./.env:/app/.env:ro
+      # Logs volume
+      - feedforward-logs:/app/logs
+    environment:
+      - APP_DOMAIN=${APP_DOMAIN:-http://localhost:5001}
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      # Email configuration
+      - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM:-noreply@feedforward.local}
+      # Admin account
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-Admin123!}
+      # LLM API Keys (optional - will use mock feedback if not provided)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OLLAMA_API_BASE=${OLLAMA_API_BASE}
+    restart: unless-stopped
+    networks:
+      - feedforward-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Ollama for local LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: feedforward-ollama
+    profiles: ["with-ollama"]  # Only start if explicitly requested
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - feedforward-network
+    restart: unless-stopped
+    # Automatically pull a model on startup
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "ollama serve & 
+      sleep 5 && 
+      ollama pull llama3.2 && 
+      tail -f /dev/null"
+
+  # Optional: Caddy for reverse proxy with automatic HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: feedforward-caddy
+    profiles: ["production"]  # Only start in production
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - feedforward-network
+    restart: unless-stopped
+    depends_on:
+      - feedforward
+
+networks:
+  feedforward-network:
+    driver: bridge
+
+volumes:
+  feedforward-logs:
+    driver: local
+  ollama-data:
+    driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local

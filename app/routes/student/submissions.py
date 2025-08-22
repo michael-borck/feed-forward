@@ -235,7 +235,9 @@ def student_assignment_submit_form(session, request, assignment_id: int):
 
 @rt("/student/assignments/{assignment_id}/submit")
 @student_required
-def student_assignment_submit_process(session, assignment_id: int, content: str, version: int):
+def student_assignment_submit_process(
+    session, assignment_id: int, content: str, version: int
+):
     """Student assignment submission POST handler"""
     # Get current user
     user = users[session["auth"]]

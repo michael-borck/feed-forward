@@ -244,87 +244,102 @@ def instructor_courses_new(session):
         Form(
             # Course Title
             Div(
-                Label("Course Title", for_="title",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Course Title",
+                    for_="title",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Input(
                     type="text",
                     id="title",
                     name="title",
                     placeholder="e.g., Introduction to Computer Science",
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-4"
+                cls="mb-4",
             ),
             # Course Code
             Div(
-                Label("Course Code", for_="code",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Course Code",
+                    for_="code",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Input(
                     type="text",
                     id="code",
                     name="code",
                     placeholder="e.g., CS101",
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-4"
+                cls="mb-4",
             ),
             # Term
             Div(
-                Label("Term", for_="term",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Term",
+                    for_="term",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Input(
                     type="text",
                     id="term",
                     name="term",
                     placeholder="e.g., Fall 2024",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-4"
+                cls="mb-4",
             ),
             # Description
             Div(
-                Label("Description", for_="description",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Description",
+                    for_="description",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Textarea(
                     id="description",
                     name="description",
                     placeholder="Brief description of the course",
                     rows=4,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-6"
+                cls="mb-6",
             ),
             # Submit buttons
             Div(
                 Button(
                     "Create Course",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
                 ),
                 A(
                     "Cancel",
                     href="/instructor/courses",
-                    cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
                 ),
-                cls="flex items-center"
+                cls="flex items-center",
             ),
             action="/instructor/courses/new",
             method="post",
-            cls="bg-white p-6 rounded-xl shadow-md"
-        )
+            cls="bg-white p-6 rounded-xl shadow-md",
+        ),
     )
 
     # Sidebar content
     sidebar_content = Div(
         Div(
             H3("Create Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P("Fill in the course details to create a new course.",
-              cls="text-gray-600 mb-4"),
-            action_button("Back to Courses", color="gray",
-                         href="/instructor/courses", icon="←"),
-            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100"
+            P(
+                "Fill in the course details to create a new course.",
+                cls="text-gray-600 mb-4",
+            ),
+            action_button(
+                "Back to Courses", color="gray", href="/instructor/courses", icon="←"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )
 
@@ -333,13 +348,15 @@ def instructor_courses_new(session):
         sidebar_content,
         main_content,
         user_role=Role.INSTRUCTOR,
-        current_path="/instructor/courses/new"
+        current_path="/instructor/courses/new",
     )
 
 
 @rt("/instructor/courses/new")
 @instructor_required
-def instructor_courses_create(session, title: str, code: str, term: str = None, description: str = None):
+def instructor_courses_create(
+    session, title: str, code: str, term: str = None, description: str = None
+):
     """Create a new course"""
     # Get current user
     user = users[session["auth"]]
@@ -357,13 +374,15 @@ def instructor_courses_create(session, title: str, code: str, term: str = None, 
         description=description.strip() if description else "",
         instructor_email=user.email,
         status="active",
-        created_at=datetime.now()
+        created_at=datetime.now(),
     )
 
     # Save to database
     try:
         course_id = courses.insert(new_course)
-        return RedirectResponse(f"/instructor/courses/{course_id}/students", status_code=303)
+        return RedirectResponse(
+            f"/instructor/courses/{course_id}/students", status_code=303
+        )
     except Exception:
         # Handle duplicate course codes or other errors
         return RedirectResponse("/instructor/courses/new", status_code=303)
@@ -388,98 +407,125 @@ def instructor_course_edit(session, course_id: int):
 
     # Main content
     main_content = Div(
-        H2(f"Edit Course: {course.title}", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        H2(
+            f"Edit Course: {course.title}",
+            cls="text-2xl font-bold text-indigo-900 mb-6",
+        ),
         # Course edit form
         Form(
             # Course Title
             Div(
-                Label("Course Title", for_="title",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Course Title",
+                    for_="title",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Input(
                     type="text",
                     id="title",
                     name="title",
                     value=course.title,
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-4"
+                cls="mb-4",
             ),
             # Course Code
             Div(
-                Label("Course Code", for_="code",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Course Code",
+                    for_="code",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Input(
                     type="text",
                     id="code",
                     name="code",
                     value=course.code,
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-4"
+                cls="mb-4",
             ),
             # Term
             Div(
-                Label("Term", for_="term",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Term",
+                    for_="term",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Input(
                     type="text",
                     id="term",
                     name="term",
                     value=getattr(course, "term", "Current") or "Current",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-4"
+                cls="mb-4",
             ),
             # Status
             Div(
-                Label("Status", for_="status",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Status",
+                    for_="status",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Select(
-                    Option("Active", value="active",
-                           selected=getattr(course, "status", "active") == "active"),
-                    Option("Closed", value="closed",
-                           selected=getattr(course, "status", "active") == "closed"),
-                    Option("Archived", value="archived",
-                           selected=getattr(course, "status", "active") == "archived"),
+                    Option(
+                        "Active",
+                        value="active",
+                        selected=getattr(course, "status", "active") == "active",
+                    ),
+                    Option(
+                        "Closed",
+                        value="closed",
+                        selected=getattr(course, "status", "active") == "closed",
+                    ),
+                    Option(
+                        "Archived",
+                        value="archived",
+                        selected=getattr(course, "status", "active") == "archived",
+                    ),
                     id="status",
                     name="status",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-4"
+                cls="mb-4",
             ),
             # Description
             Div(
-                Label("Description", for_="description",
-                      cls="block text-sm font-medium text-gray-700 mb-2"),
+                Label(
+                    "Description",
+                    for_="description",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
                 Textarea(
                     getattr(course, "description", "") or "",
                     id="description",
                     name="description",
                     rows=4,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                cls="mb-6"
+                cls="mb-6",
             ),
             # Submit buttons
             Div(
                 Button(
                     "Save Changes",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
                 ),
                 A(
                     "Cancel",
                     href="/instructor/courses",
-                    cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
                 ),
-                cls="flex items-center"
+                cls="flex items-center",
             ),
             action=f"/instructor/courses/{course_id}/edit",
             method="post",
-            cls="bg-white p-6 rounded-xl shadow-md"
-        )
+            cls="bg-white p-6 rounded-xl shadow-md",
+        ),
     )
 
     # Sidebar content
@@ -487,15 +533,26 @@ def instructor_course_edit(session, course_id: int):
         Div(
             H3("Edit Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
             P(f"Course Code: {course.code}", cls="text-gray-600 mb-2"),
-            P(f"Students: {sum(1 for e in enrollments() if e.course_id == course.id)}",
-              cls="text-gray-600 mb-4"),
-            action_button("View Students", color="teal",
-                         href=f"/instructor/courses/{course_id}/students", icon="👥"),
-            action_button("View Assignments", color="indigo",
-                         href=f"/instructor/courses/{course_id}/assignments", icon="📝"),
-            action_button("Back to Courses", color="gray",
-                         href="/instructor/courses", icon="←"),
-            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 space-y-3"
+            P(
+                f"Students: {sum(1 for e in enrollments() if e.course_id == course.id)}",
+                cls="text-gray-600 mb-4",
+            ),
+            action_button(
+                "View Students",
+                color="teal",
+                href=f"/instructor/courses/{course_id}/students",
+                icon="👥",
+            ),
+            action_button(
+                "View Assignments",
+                color="indigo",
+                href=f"/instructor/courses/{course_id}/assignments",
+                icon="📝",
+            ),
+            action_button(
+                "Back to Courses", color="gray", href="/instructor/courses", icon="←"
+            ),
+            cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 space-y-3",
         )
     )
 
@@ -504,14 +561,21 @@ def instructor_course_edit(session, course_id: int):
         sidebar_content,
         main_content,
         user_role=Role.INSTRUCTOR,
-        current_path=f"/instructor/courses/{course_id}/edit"
+        current_path=f"/instructor/courses/{course_id}/edit",
     )
 
 
 @rt("/instructor/courses/{course_id}/edit")
 @instructor_required
-def instructor_course_update(session, course_id: int, title: str, code: str,
-                           term: str = None, status: str = None, description: str = None):
+def instructor_course_update(
+    session,
+    course_id: int,
+    title: str,
+    code: str,
+    term: str = None,
+    status: str = None,
+    description: str = None,
+):
     """Update course details"""
     # Get current user
     user = users[session["auth"]]

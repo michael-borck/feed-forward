@@ -1,6 +1,7 @@
 """
 Prompt template system for generating AI prompts based on rubrics
 """
+
 import json
 from dataclasses import dataclass
 from typing import List, Optional
@@ -12,6 +13,7 @@ from app.models.config import FeedbackStyle, feedback_styles
 @dataclass
 class PromptContext:
     """Context data for generating prompts"""
+
     assignment: Assignment
     rubric_categories: List[RubricCategory]
     student_submission: str
@@ -69,17 +71,23 @@ Important guidelines:
 Title: {context.assignment.title}
 Description: {context.assignment.description}
 Draft: {context.draft_version} of {context.max_drafts}
-Word Count: {context.word_count or 'Not specified'}"""
+Word Count: {context.word_count or "Not specified"}"""
 
     def _format_rubric_criteria(self, context: PromptContext) -> str:
         """Format the rubric criteria section"""
         criteria_text = "## Evaluation Criteria\n\n"
-        criteria_text += "Please evaluate the submission based on these weighted criteria:\n\n"
+        criteria_text += (
+            "Please evaluate the submission based on these weighted criteria:\n\n"
+        )
 
         total_weight = sum(cat.weight for cat in context.rubric_categories)
 
-        for category in sorted(context.rubric_categories, key=lambda c: c.weight, reverse=True):
-            weight_percent = (category.weight / total_weight) * 100 if total_weight > 0 else 0
+        for category in sorted(
+            context.rubric_categories, key=lambda c: c.weight, reverse=True
+        ):
+            weight_percent = (
+                (category.weight / total_weight) * 100 if total_weight > 0 else 0
+            )
             criteria_text += f"### {category.name} ({weight_percent:.0f}% of grade)\n"
             criteria_text += f"{category.description}\n\n"
 
@@ -152,7 +160,7 @@ Word Count: {context.word_count or 'Not specified'}"""
                     "improvements": ["List of areas for improvement"],
                     "suggestions": ["Specific suggestions for next draft"],
                     "score": 85,
-                    "summary": "Brief overall summary"
+                    "summary": "Brief overall summary",
                 }
             }
         elif context.feedback_level == "criterion":
@@ -163,7 +171,7 @@ Word Count: {context.word_count or 'Not specified'}"""
                         "strengths": ["Specific strengths for this criterion"],
                         "improvements": ["Areas to improve for this criterion"],
                         "examples": ["Specific examples from the text"],
-                        "score": 80
+                        "score": 80,
                     }
                 ]
             }
@@ -175,7 +183,7 @@ Word Count: {context.word_count or 'Not specified'}"""
                         "strengths": ["Specific strengths"],
                         "improvements": ["Areas to improve"],
                         "examples": ["Examples from text"],
-                        "score": 80
+                        "score": 80,
                     }
                 ],
                 "overall_feedback": {
@@ -183,8 +191,8 @@ Word Count: {context.word_count or 'Not specified'}"""
                     "improvements": ["Priority improvements"],
                     "suggestions": ["Next steps"],
                     "score": 85,
-                    "summary": "Overall assessment"
-                }
+                    "summary": "Overall assessment",
+                },
             }
 
         return f"""Please format your response as JSON following this structure:
@@ -234,18 +242,18 @@ def generate_feedback_prompt(
     student_submission: str,
     draft_version: int,
     feedback_style_id: Optional[int] = None,
-    feedback_level: str = "both"
+    feedback_level: str = "both",
 ) -> str:
     """
     Generate a complete feedback prompt for an assignment submission
-    
+
     Args:
         assignment: The assignment object
         student_submission: The student's submitted text
         draft_version: Which draft number this is
         feedback_style_id: Optional feedback style to use
         feedback_level: Type of feedback ('overall', 'criterion', 'both')
-        
+
     Returns:
         Complete prompt string ready for AI model
     """
@@ -266,7 +274,9 @@ def generate_feedback_prompt(
             categories.append(category)
 
     if not categories:
-        raise ValueError(f"No rubric categories found for rubric {assignment_rubric.id}")
+        raise ValueError(
+            f"No rubric categories found for rubric {assignment_rubric.id}"
+        )
 
     # Get feedback style if specified
     style = None
@@ -288,11 +298,13 @@ def generate_feedback_prompt(
         max_drafts=assignment.max_drafts,
         feedback_style=style,
         feedback_level=feedback_level,
-        word_count=word_count
+        word_count=word_count,
     )
 
     # Create appropriate template
-    template = create_prompt_template("iterative" if assignment.max_drafts > 1 else "standard")
+    template = create_prompt_template(
+        "iterative" if assignment.max_drafts > 1 else "standard"
+    )
 
     # Generate and return prompt
     return template.generate_prompt(context)

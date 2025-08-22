@@ -1,0 +1,42 @@
+# Development Dockerfile with hot reload support
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml README.md ./
+
+# Install dependencies
+RUN uv venv && \
+    . .venv/bin/activate && \
+    uv pip install -e ".[dev]"
+
+# Copy application code
+COPY . .
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:${PATH}"
+
+# Create data directory
+RUN mkdir -p /app/data/uploads
+
+# Expose port
+EXPOSE 5001
+
+# Initialize database and start with hot reload
+CMD ["sh", "-c", "python app/init_db.py && python app.py"]
