@@ -11,7 +11,6 @@ import os
 import sys
 
 import docx
-from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +38,7 @@ End of test file."""
 
 
 def create_test_pdf_file():
-    """Create a test PDF file using pypdf"""
+    """Create a test PDF file using reportlab"""
     from reportlab.lib.pagesizes import letter
 
     # Create a PDF in memory
@@ -197,10 +196,10 @@ if __name__ == "__main__":
     print("=== File Upload and Extraction Test ===\n")
 
     # Check if required libraries are installed
+    # Note: docx and reportlab are already imported at the top
+    # We just need to check for pypdf which we don't use directly
     try:
-        import docx
-        import pypdf
-        from reportlab.lib.pagesizes import letter
+        import pypdf  # noqa: F401 - Only checking if installed for app compatibility
 
         print("✓ All required libraries are installed")
     except ImportError as e:
