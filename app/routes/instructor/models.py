@@ -202,7 +202,7 @@ def instructor_models_new(session, request):
         fh.Div(
             fh.H3("Create New Model", cls="font-semibold text-indigo-900 mb-4"),
             fh.P("Configure a new AI model for your courses.", cls="text-gray-600 mb-4"),
-            action_button("Cancel", color="gray", href="/instructor/models", icon="×"),  # noqa: RUF001 - Intentional × symbol
+            action_button("Cancel", color="gray", href="/instructor/models", icon="×"),  # noqa: RUF001 - Intentional multiplication sign as close button
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )

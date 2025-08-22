@@ -294,10 +294,9 @@ def main():
         sys.exit(1)
 
     # Create backup unless skipped
-    if not args.dry_run and not args.no_backup and path.is_dir():
-        if Confirm.ask("[yellow]Create backup before refactoring?[/yellow]", default=True):
-            backup_path = create_backup(path)
-            console.print(f"[green]Backup created at: {backup_path}[/green]")
+    if not args.dry_run and not args.no_backup and path.is_dir() and Confirm.ask("[yellow]Create backup before refactoring?[/yellow]", default=True):
+        backup_path = create_backup(path)
+        console.print(f"[green]Backup created at: {backup_path}[/green]")
 
     # Create refactorer
     refactorer = FastHTMLImportRefactorer(
