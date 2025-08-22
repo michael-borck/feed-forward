@@ -56,7 +56,7 @@ from app.utils.ui import dynamic_header, page_footer
 
 # --- Root Route with Smart Redirection ---
 @rt("/")
-def get(session=None):
+def root_redirect(session=None):
     """Smart root route that redirects based on authentication status"""
     # Check for authenticated user
     if session and "auth" in session:
@@ -82,7 +82,7 @@ def get(session=None):
 
 
 @rt("/landing")
-def get(session=None):
+def landing_page(session=None):
     """Landing page for FeedForward with dynamic header based on auth status"""
     # Create the main content for the landing page
     landing_content = Div(
@@ -332,7 +332,7 @@ def get(session=None):
 
 # --- Legal Pages ---
 @rt("/privacy")
-def get(session=None):
+def privacy_page(session=None):
     """Privacy Policy page"""
     # Create a simplified privacy policy page instead of parsing markdown
     privacy_content = Div(
@@ -451,7 +451,7 @@ def get(session=None):
 
 
 @rt("/terms")
-def get(session=None):
+def terms_page(session=None):
     """Terms of Service page"""
     terms_content = Div(
         H1(
@@ -598,7 +598,7 @@ def get(session=None):
 
 
 @rt("/contact")
-def get(session=None):
+def contact_page(session=None):
     """Contact page with developer information"""
     contact_content = Div(
         H1("Contact Us", cls="text-3xl font-bold text-indigo-900 mb-6"),
@@ -650,7 +650,7 @@ def get(session=None):
 
 # --- Error Pages ---
 @rt("/error/404")
-def get(session=None, message: Optional[str] = None):
+def error_404_page(session=None, message: Optional[str] = None):
     """Custom 404 error page"""
     error_message = (
         message or "The page you are looking for doesn't exist or has been moved."
@@ -708,7 +708,7 @@ def get(session=None, message: Optional[str] = None):
 
 
 @rt("/error/403")
-def get(session=None, message: Optional[str] = None):
+def error_403_page(session=None, message: Optional[str] = None):
     """Custom 403 error page"""
     error_message = message or "You don't have permission to access this page."
 
@@ -765,7 +765,7 @@ def get(session=None, message: Optional[str] = None):
 
 # --- Catchall for 404 errors ---
 @rt("/{path:path}")
-def get(path: str, session=None):
+def catch_all_404(path: str, session=None):
     """Catch-all route for 404 errors"""
     # Check if the path exists in the routing table
     # If not, redirect to the 404 error page
@@ -775,7 +775,7 @@ def get(path: str, session=None):
 # --- User Profile ---
 @rt("/profile")
 @basic_auth
-def get(session: dict):
+def profile_page(session: dict):
     """User profile page for viewing and editing account settings"""
 
     # Get current user
@@ -1002,7 +1002,7 @@ def get(session: dict):
 # --- API Routes for Profile Updates ---
 @rt("/api/update-profile", "POST")
 @basic_auth
-def post(session: dict, form_type: str, name: Optional[str] = None, department: Optional[str] = None):
+def update_profile(session: dict, form_type: str, name: Optional[str] = None, department: Optional[str] = None):
     """Handle profile update form submission"""
 
     if form_type != "personal_info":
@@ -1101,7 +1101,7 @@ def post(session: dict, form_type: str, name: Optional[str] = None, department: 
 
 @rt("/api/change-password", "POST")
 @basic_auth
-def post(
+def change_password(
     session: dict,
     form_type: str,
     current_password: Optional[str] = None,
