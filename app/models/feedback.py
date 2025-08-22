@@ -94,6 +94,25 @@ if feedback_items not in db.t:
     )
 FeedbackItem = feedback_items.dataclass()
 
+# Define feedbacks table for instructor-approved feedback
+feedbacks = db.t.feedbacks
+if feedbacks not in db.t:
+    feedbacks.create(
+        {
+            "id": int,
+            "draft_id": int,
+            "overall_score": float,
+            "general_feedback": str,
+            "rubric_scores": str,  # JSON string
+            "instructor_approved": bool,
+            "approved_at": str,
+            "approved_by": str,
+            "created_at": str,
+        },
+        pk="id",
+    )
+Feedback = feedbacks.dataclass()
+
 # Define aggregated feedback table if it doesn't exist
 aggregated_feedback = db.t.aggregated_feedback
 if aggregated_feedback not in db.t:
