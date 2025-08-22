@@ -2,7 +2,7 @@
 Student dashboard routes
 """
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app import rt, student_required
 from app.models.assignment import assignments
@@ -29,9 +29,9 @@ def generate_recent_feedback(student_drafts):
 
     # Main content
     if not visible_drafts:
-        return Div(
-            H2("Recent Feedback", cls="text-2xl font-bold text-indigo-900 mb-6"),
-            P(
+        return fh.Div(
+            fh.H2("Recent Feedback", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.P(
                 "No recent feedback.",
                 cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center",
             ),
@@ -47,11 +47,11 @@ def generate_recent_feedback(student_drafts):
     feedback_items = []
     for draft in recent_drafts:
         feedback_items.append(
-            Div(
+            fh.Div(
                 feedback_card(
                     f"Feedback on Assignment {draft.assignment_id} - Draft {draft.version}",
-                    Div(
-                        P(
+                    fh.Div(
+                        fh.P(
                             "No feedback available yet. Your submission is being processed.",
                             cls="text-gray-600 italic",
                         ),
@@ -62,9 +62,9 @@ def generate_recent_feedback(student_drafts):
             )
         )
 
-    return Div(
-        H2("Recent Feedback", cls="text-2xl font-bold text-indigo-900 mb-6"),
-        Div(*feedback_items),
+    return fh.Div(
+        fh.H2("Recent Feedback", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.Div(*feedback_items),
         cls="mb-8",
     )
 
@@ -72,9 +72,9 @@ def generate_recent_feedback(student_drafts):
 def generate_assignments_sidebar(student_assignments, student_drafts):
     """Generate the assignments sidebar component for student dashboard"""
     if not student_assignments:
-        return Div(
-            H3("Active Assignments", cls="font-semibold text-indigo-900 mb-4"),
-            P("No active assignments.", cls="text-gray-500 italic text-sm"),
+        return fh.Div(
+            fh.H3("Active Assignments", cls="font-semibold text-indigo-900 mb-4"),
+            fh.P("No active assignments.", cls="text-gray-500 italic text-sm"),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
 
@@ -89,21 +89,21 @@ def generate_assignments_sidebar(student_assignments, student_drafts):
     assignment_items = []
     for assignment_data in student_assignments[:3]:  # Show only 3 most recent
         assignment_items.append(
-            Div(
-                Div(
-                    Div(
-                        Div(
-                            H4(
+            fh.Div(
+                fh.Div(
+                    fh.Div(
+                        fh.Div(
+                            fh.H4(
                                 assignment_data["assignment"].title,
                                 cls="font-medium text-indigo-700",
                             ),
-                            P(
+                            fh.P(
                                 f"{assignment_data['course'].code}: {assignment_data['course'].title}",
                                 cls="text-xs text-gray-500",
                             ),
                             cls="flex-1",
                         ),
-                        Div(
+                        fh.Div(
                             # Calculate draft count for this assignment (both visible and hidden)
                             status_badge(
                                 f"Draft {sum(1 for d in student_drafts if d.assignment_id == assignment_data['assignment'].id)}/{assignment_data['assignment'].max_drafts}",
@@ -113,7 +113,7 @@ def generate_assignments_sidebar(student_assignments, student_drafts):
                         ),
                         cls="flex justify-between items-start",
                     ),
-                    P(
+                    fh.P(
                         f"Due: {assignment_data['assignment'].due_date}",
                         cls="text-xs text-gray-500 mt-1",
                     ),
@@ -124,10 +124,10 @@ def generate_assignments_sidebar(student_assignments, student_drafts):
         )
 
     # Create the full sidebar component
-    return Div(
-        H3("Active Assignments", cls="font-semibold text-indigo-900 mb-4"),
-        Div(*assignment_items),
-        A(
+    return fh.Div(
+        fh.H3("Active Assignments", cls="font-semibold text-indigo-900 mb-4"),
+        fh.Div(*assignment_items),
+        fh.A(
             "View All Assignments",
             href="/student/assignments",
             cls="text-sm text-indigo-600 hover:underline block mt-2",
@@ -183,20 +183,20 @@ def student_dashboard(session, request):
             pending_assignments += 1
 
     # Create each part of the sidebar separately
-    welcome_card = Div(
-        H3("Welcome, " + user.name, cls="text-xl font-semibold text-indigo-900 mb-2"),
-        P("Student Account", cls="text-gray-600 mb-4"),
-        Div(
+    welcome_card = fh.Div(
+        fh.H3("Welcome, " + user.name, cls="text-xl font-semibold text-indigo-900 mb-2"),
+        fh.P("Student Account", cls="text-gray-600 mb-4"),
+        fh.Div(
             # Active assignments summary
-            Div(
-                Div(str(len(enrolled_courses)), cls="text-indigo-700 font-bold"),
-                P("Enrolled Courses", cls="text-gray-600"),
+            fh.Div(
+                fh.Div(str(len(enrolled_courses)), cls="text-indigo-700 font-bold"),
+                fh.P("Enrolled Courses", cls="text-gray-600"),
                 cls="flex items-center space-x-2 mb-2",
             ),
             # Pending assignments summary
-            Div(
-                Div(str(pending_assignments), cls="text-indigo-700 font-bold"),
-                P("Pending Assignments", cls="text-gray-600"),
+            fh.Div(
+                fh.Div(str(pending_assignments), cls="text-indigo-700 font-bold"),
+                fh.P("Pending Assignments", cls="text-gray-600"),
                 cls="flex items-center space-x-2",
             ),
             cls="space-y-2",
@@ -205,12 +205,12 @@ def student_dashboard(session, request):
     )
 
     # Active courses section
-    courses_card = Div(
-        H3("Your Courses", cls="font-semibold text-indigo-900 mb-4"),
-        Div(
+    courses_card = fh.Div(
+        fh.H3("Your Courses", cls="font-semibold text-indigo-900 mb-4"),
+        fh.Div(
             *(
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         course.title,
                         href=f"/student/courses/{course.id}",
                         cls="font-medium text-indigo-700 hover:underline",
@@ -221,7 +221,7 @@ def student_dashboard(session, request):
             )
         )
         if enrolled_courses
-        else P(
+        else fh.P(
             "You are not enrolled in any courses yet.",
             cls="text-gray-500 italic text-sm",
         ),
@@ -232,45 +232,45 @@ def student_dashboard(session, request):
     assignments_card = generate_assignments_sidebar(student_assignments, student_drafts)
 
     # Combine all sidebar components
-    sidebar_content = Div(welcome_card, courses_card, assignments_card)
+    sidebar_content = fh.Div(welcome_card, courses_card, assignments_card)
 
     # Main content
-    main_content = Div(
+    main_content = fh.Div(
         # Progress summary
-        Div(
-            Div(
+        fh.Div(
+            fh.Div(
                 # Courses card
                 card(
-                    Div(
-                        H3(
+                    fh.Div(
+                        fh.H3(
                             str(len(enrolled_courses)),
                             cls="text-4xl font-bold text-indigo-700 mb-2",
                         ),
-                        P("Enrolled Courses", cls="text-gray-600"),
+                        fh.P("Enrolled Courses", cls="text-gray-600"),
                         cls="text-center p-4",
                     ),
                     padding=0,
                 ),
                 # Active assignments card
                 card(
-                    Div(
-                        H3(
+                    fh.Div(
+                        fh.H3(
                             str(len(student_assignments)),
                             cls="text-4xl font-bold text-teal-700 mb-2",
                         ),
-                        P("Active Assignments", cls="text-gray-600"),
+                        fh.P("Active Assignments", cls="text-gray-600"),
                         cls="text-center p-4",
                     ),
                     padding=0,
                 ),
                 # Completed drafts card
                 card(
-                    Div(
-                        H3(
+                    fh.Div(
+                        fh.H3(
                             str(len(student_drafts)),
                             cls="text-4xl font-bold text-indigo-700 mb-2",
                         ),
-                        P("Submitted Drafts", cls="text-gray-600"),
+                        fh.P("Submitted Drafts", cls="text-gray-600"),
                         cls="text-center p-4",
                     ),
                     padding=0,
@@ -279,24 +279,24 @@ def student_dashboard(session, request):
             )
         ),
         # Courses section
-        Div(
-            H2("Your Courses", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.Div(
+            fh.H2("Your Courses", cls="text-2xl font-bold text-indigo-900 mb-6"),
             (
-                Div(
+                fh.Div(
                     *(
-                        Div(
-                            Div(
-                                H3(
+                        fh.Div(
+                            fh.Div(
+                                fh.H3(
                                     course.title,
                                     cls="text-xl font-bold text-indigo-800 mb-1",
                                 ),
-                                P(f"Code: {course.code}", cls="text-gray-600 mb-1"),
-                                P(
+                                fh.P(f"Code: {course.code}", cls="text-gray-600 mb-1"),
+                                fh.P(
                                     f"Term: {getattr(course, 'term', 'Current')}",
                                     cls="text-gray-600 mb-1",
                                 ),
-                                Div(
-                                    Span(
+                                fh.Div(
+                                    fh.Span(
                                         getattr(
                                             course, "status", "active"
                                         ).capitalize(),
@@ -312,8 +312,8 @@ def student_dashboard(session, request):
                                 ),
                                 cls="flex-1",
                             ),
-                            Div(
-                                Div(
+                            fh.Div(
+                                fh.Div(
                                     action_button(
                                         "View Course",
                                         color="indigo",
@@ -337,35 +337,35 @@ def student_dashboard(session, request):
                 )
             )
             if enrolled_courses
-            else P(
+            else fh.P(
                 "You are not enrolled in any courses yet.",
                 cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center",
             ),
             cls="mb-8",
         ),
         # Upcoming assignments section
-        Div(
-            H2("Upcoming Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"),
-            Div(
+        fh.Div(
+            fh.H2("Upcoming Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.Div(
                 *(
-                    Div(
-                        Div(
-                            Div(
-                                H3(
+                    fh.Div(
+                        fh.Div(
+                            fh.Div(
+                                fh.H3(
                                     assignment_data["assignment"].title,
                                     cls="text-xl font-bold text-indigo-800 mb-1",
                                 ),
-                                P(
+                                fh.P(
                                     f"Course: {assignment_data['course'].title} ({assignment_data['course'].code})",
                                     cls="text-gray-600 mb-1",
                                 ),
-                                P(
+                                fh.P(
                                     f"Due: {assignment_data['assignment'].due_date}",
                                     cls="text-gray-600 mb-2",
                                 ),
                                 # Calculate current drafts
-                                Div(
-                                    P(
+                                fh.Div(
+                                    fh.P(
                                         f"Drafts: {sum(1 for d in student_drafts if d.assignment_id == assignment_data['assignment'].id)}/{assignment_data['assignment'].max_drafts}",
                                         cls="text-sm text-gray-600",
                                     ),
@@ -373,7 +373,7 @@ def student_dashboard(session, request):
                                 ),
                                 cls="flex-1",
                             ),
-                            Div(
+                            fh.Div(
                                 action_button(
                                     "View Assignment",
                                     color="indigo",
@@ -396,7 +396,7 @@ def student_dashboard(session, request):
                 )
             )
             if student_assignments
-            else P(
+            else fh.P(
                 "No upcoming assignments.",
                 cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center",
             ),
@@ -407,7 +407,7 @@ def student_dashboard(session, request):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         "Student Dashboard | FeedForward",
         dashboard_layout(
             "Student Dashboard",

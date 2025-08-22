@@ -2,7 +2,7 @@
 Instructor dashboard routes
 """
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app import instructor_required, rt
 from app.models.assignment import assignments
@@ -52,15 +52,15 @@ def instructor_dashboard(session, request):
                 break
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # Welcome card
-        Div(
-            H3(
+        fh.Div(
+            fh.H3(
                 f"Welcome, {instructor.name or instructor.email}",
                 cls="text-xl font-semibold text-indigo-900 mb-2",
             ),
-            P("Instructor Dashboard", cls="text-gray-600 mb-4"),
-            Div(
+            fh.P("Instructor Dashboard", cls="text-gray-600 mb-4"),
+            fh.Div(
                 action_button(
                     "Manage Courses", color="indigo", href="/instructor/courses"
                 ),
@@ -70,14 +70,14 @@ def instructor_dashboard(session, request):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Quick stats
-        Div(
-            H3("Quick Stats", cls="font-semibold text-indigo-900 mb-4"),
-            P(f"Active Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
-            P(
+        fh.Div(
+            fh.H3("Quick Stats", cls="font-semibold text-indigo-900 mb-4"),
+            fh.P(f"Active Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
+            fh.P(
                 f"Total Students: {sum(course_enrollments.values())}",
                 cls="text-gray-600 mb-2",
             ),
-            P(
+            fh.P(
                 f"Total Assignments: {sum(course_assignments.values())}",
                 cls="text-gray-600",
             ),
@@ -86,38 +86,38 @@ def instructor_dashboard(session, request):
     )
 
     # Main content
-    main_content = Div(
+    main_content = fh.Div(
         # Stats overview
-        Div(
+        fh.Div(
             card(
-                Div(
-                    H3(
+                fh.Div(
+                    fh.H3(
                         str(len(instructor_courses)),
                         cls="text-4xl font-bold text-indigo-700 mb-2",
                     ),
-                    P("Active Courses", cls="text-gray-600"),
+                    fh.P("Active Courses", cls="text-gray-600"),
                     cls="text-center p-4",
                 ),
                 padding=0,
             ),
             card(
-                Div(
-                    H3(
+                fh.Div(
+                    fh.H3(
                         str(sum(course_enrollments.values())),
                         cls="text-4xl font-bold text-teal-700 mb-2",
                     ),
-                    P("Total Students", cls="text-gray-600"),
+                    fh.P("Total Students", cls="text-gray-600"),
                     cls="text-center p-4",
                 ),
                 padding=0,
             ),
             card(
-                Div(
-                    H3(
+                fh.Div(
+                    fh.H3(
                         str(sum(course_assignments.values())),
                         cls="text-4xl font-bold text-indigo-700 mb-2",
                     ),
-                    P("Total Assignments", cls="text-gray-600"),
+                    fh.P("Total Assignments", cls="text-gray-600"),
                     cls="text-center p-4",
                 ),
                 padding=0,
@@ -125,33 +125,33 @@ def instructor_dashboard(session, request):
             cls="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8",
         ),
         # Courses section
-        Div(
-            Div(
-                H2("Your Courses", cls="text-2xl font-bold text-indigo-900"),
-                A(
+        fh.Div(
+            fh.Div(
+                fh.H2("Your Courses", cls="text-2xl font-bold text-indigo-900"),
+                fh.A(
                     "Manage Courses",
                     href="/instructor/courses",
                     cls="text-indigo-600 hover:underline text-sm",
                 ),
                 cls="flex justify-between items-center mb-6",
             ),
-            Div(
+            fh.Div(
                 *(
-                    Div(
-                        H3(course.title, cls="text-xl font-bold text-indigo-800 mb-1"),
-                        P(f"Code: {course.code}", cls="text-gray-600 mb-1"),
-                        Div(
-                            Span(
+                    fh.Div(
+                        fh.H3(course.title, cls="text-xl font-bold text-indigo-800 mb-1"),
+                        fh.P(f"Code: {course.code}", cls="text-gray-600 mb-1"),
+                        fh.Div(
+                            fh.Span(
                                 f"{course_enrollments.get(course.id, 0)} students",
                                 cls="text-sm text-gray-500 mr-4",
                             ),
-                            Span(
+                            fh.Span(
                                 f"{course_assignments.get(course.id, 0)} assignments",
                                 cls="text-sm text-gray-500",
                             ),
                             cls="mb-3",
                         ),
-                        Div(
+                        fh.Div(
                             action_button(
                                 "View Details",
                                 color="indigo",
@@ -172,28 +172,28 @@ def instructor_dashboard(session, request):
                 )
             )
             if instructor_courses
-            else P(
+            else fh.P(
                 "No courses yet. Create your first course!",
                 cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center",
             ),
             cls="mb-8",
         ),
         # Recent submissions section
-        Div(
-            H2("Recent Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
-            Div(
+        fh.Div(
+            fh.H2("Recent Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.Div(
                 *(
-                    Div(
-                        Div(
-                            P(
+                    fh.Div(
+                        fh.Div(
+                            fh.P(
                                 f"Student submitted draft for {sub['assignment'].title}",
                                 cls="text-indigo-800 font-medium",
                             ),
-                            P(
+                            fh.P(
                                 f"Course: {sub['course'].title}",
                                 cls="text-sm text-gray-500",
                             ),
-                            P(
+                            fh.P(
                                 f"Status: {sub['draft'].status.replace('_', ' ').capitalize()}",
                                 cls="text-sm text-gray-600 mt-1",
                             ),
@@ -213,14 +213,14 @@ def instructor_dashboard(session, request):
                 )
             )
             if recent_submissions
-            else P(
+            else fh.P(
                 "No recent submissions",
                 cls="text-gray-500 italic p-4 bg-white rounded-xl border border-gray-200",
             ),
         ),
     )
 
-    return Titled(
+    return fh.Titled(
         "Instructor Dashboard | FeedForward",
         dashboard_layout(
             "Instructor Dashboard",

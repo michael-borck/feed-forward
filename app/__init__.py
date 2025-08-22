@@ -6,21 +6,21 @@ import os
 import secrets
 from functools import wraps
 
-from fasthtml.common import *
+from fasthtml import common as fh
 from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 
 # Create FastHTML app instance
-custom_styles = Style("""
+custom_styles = fh.Style("""
 .mw-960 { max-width: 960px; }
 .mw-480 { max-width: 480px; }
 .mx-auto { margin-left: auto; margin-right: auto; }
 """)
 
 # Include Tailwind CSS for styling
-tailwind_cdn = Script(src="https://cdn.tailwindcss.com")
+tailwind_cdn = fh.Script(src="https://cdn.tailwindcss.com")
 
-app, rt = fast_app(live=True, debug=True, hdrs=(custom_styles, tailwind_cdn))
+app, rt = fh.fast_app(live=True, debug=True, hdrs=(custom_styles, tailwind_cdn))
 
 # We'll use explicit route handlers for error pages instead of exception handlers
 # This ensures proper HTML rendering
@@ -31,7 +31,7 @@ def basic_auth(f):
     @wraps(f)
     def wrapper(session, *args, **kwargs):
         if "auth" not in session:
-            return RedirectResponse("/login", status_code=303)
+            return fh.RedirectResponse("/login", status_code=303)
 
         try:
             from app.models.user import users
@@ -40,10 +40,10 @@ def basic_auth(f):
             # Add role check based on domain
             if not user.verified:
                 del session["auth"]
-                return RedirectResponse("/login", status_code=303)
+                return fh.RedirectResponse("/login", status_code=303)
         except Exception:
             del session["auth"]
-            return RedirectResponse("/login", status_code=303)
+            return fh.RedirectResponse("/login", status_code=303)
 
         return f(session, *args, **kwargs)
 
@@ -65,11 +65,11 @@ def role_required(role):
                         f"You need {role.name.lower()} role to access this page."
                     )
                     # We'll create a dedicated error route for 403 errors
-                    return RedirectResponse(
+                    return fh.RedirectResponse(
                         f"/error/403?message={error_message}", status_code=303
                     )
             except Exception:
-                return RedirectResponse("/login", status_code=303)
+                return fh.RedirectResponse("/login", status_code=303)
 
             return f(session, *args, **kwargs)
 

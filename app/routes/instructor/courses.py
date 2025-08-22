@@ -5,8 +5,7 @@ Instructor course management routes
 from datetime import datetime
 from typing import Optional
 
-from fasthtml.common import *
-from starlette.responses import RedirectResponse
+from fasthtml import common as fh
 
 from app import instructor_required, rt
 from app.models.course import Course, courses, enrollments
@@ -45,10 +44,10 @@ def instructor_courses_list(session, request):
     )
 
     # Create the main content
-    main_content = Div(
+    main_content = fh.Div(
         # Header with action button
-        Div(
-            H2("Course Management", cls="text-2xl font-bold text-indigo-900"),
+        fh.Div(
+            fh.H2("Course Management", cls="text-2xl font-bold text-indigo-900"),
             action_button(
                 "Create New Course",
                 color="indigo",
@@ -59,57 +58,57 @@ def instructor_courses_list(session, request):
         ),
         # Course listing or empty state
         (
-            Div(
-                P(
+            fh.Div(
+                fh.P(
                     f"You have {len(instructor_courses)} {'course' if len(instructor_courses) == 1 else 'courses'}.",
                     cls="text-gray-600 mb-6",
                 ),
                 # Course table with actions
-                Div(
-                    Table(
-                        Thead(
-                            Tr(
-                                Th(
+                fh.Div(
+                    fh.Table(
+                        fh.Thead(
+                            fh.Tr(
+                                fh.Th(
                                     "Course Title",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Code",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Term",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Status",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Students",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Actions",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
                             ),
                             cls="bg-indigo-50",
                         ),
-                        Tbody(
+                        fh.Tbody(
                             *(
-                                Tr(
+                                fh.Tr(
                                     # Course title
-                                    Td(course.title, cls="py-4 px-6"),
+                                    fh.Td(course.title, cls="py-4 px-6"),
                                     # Course code
-                                    Td(course.code, cls="py-4 px-6"),
+                                    fh.Td(course.code, cls="py-4 px-6"),
                                     # Term
-                                    Td(
+                                    fh.Td(
                                         getattr(course, "term", "Current") or "Current",
                                         cls="py-4 px-6",
                                     ),
                                     # Status badge
-                                    Td(
+                                    fh.Td(
                                         status_badge(
                                             getattr(
                                                 course, "status", "active"
@@ -126,21 +125,21 @@ def instructor_courses_list(session, request):
                                         cls="py-4 px-6",
                                     ),
                                     # Student count
-                                    Td(str(student_count), cls="py-4 px-6"),
+                                    fh.Td(str(student_count), cls="py-4 px-6"),
                                     # Action buttons
-                                    Td(
-                                        Div(
-                                            A(
+                                    fh.Td(
+                                        fh.Div(
+                                            fh.A(
                                                 "Students",
                                                 href=f"/instructor/courses/{course.id}/students",
                                                 cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
                                             ),
-                                            A(
+                                            fh.A(
                                                 "Edit",
                                                 href=f"/instructor/courses/{course.id}/edit",
                                                 cls="text-xs px-3 py-1 bg-amber-600 text-white rounded-md hover:bg-amber-700 mr-2",
                                             ),
-                                            A(
+                                            fh.A(
                                                 "Assignments",
                                                 href=f"/instructor/courses/{course.id}/assignments",
                                                 cls="text-xs px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700",
@@ -160,13 +159,13 @@ def instructor_courses_list(session, request):
                 cls="",
             )
             if instructor_courses
-            else Div(
-                P(
+            else fh.Div(
+                fh.P(
                     "You don't have any courses yet. Create your first course to get started.",
                     cls="text-center text-gray-600 mb-6",
                 ),
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         "Create New Course",
                         href="/instructor/courses/new",
                         cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -179,10 +178,10 @@ def instructor_courses_list(session, request):
     )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/instructor/dashboard", icon="←"
                 ),
@@ -202,18 +201,18 @@ def instructor_courses_list(session, request):
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
-        Div(
-            H3("Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P(f"Total Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
-            P(
+        fh.Div(
+            fh.H3("Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.P(f"Total Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
+            fh.P(
                 f"Active Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'active')}",
                 cls="text-green-600 mb-2",
             ),
-            P(
+            fh.P(
                 f"Closed Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'closed')}",
                 cls="text-amber-600 mb-2",
             ),
-            P(
+            fh.P(
                 f"Archived Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'archived')}",
                 cls="text-gray-600 mb-2",
             ),
@@ -239,18 +238,18 @@ def instructor_courses_new(session):
     users[session["auth"]]
 
     # Main content
-    main_content = Div(
-        H2("Create New Course", cls="text-2xl font-bold text-indigo-900 mb-6"),
+    main_content = fh.Div(
+        fh.H2("Create New Course", cls="text-2xl font-bold text-indigo-900 mb-6"),
         # Course creation form
-        Form(
+        fh.Form(
             # Course Title
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Course Title",
                     for_="title",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="title",
                     name="title",
@@ -261,13 +260,13 @@ def instructor_courses_new(session):
                 cls="mb-4",
             ),
             # Course Code
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Course Code",
                     for_="code",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="code",
                     name="code",
@@ -278,13 +277,13 @@ def instructor_courses_new(session):
                 cls="mb-4",
             ),
             # Term
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Term",
                     for_="term",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="term",
                     name="term",
@@ -294,13 +293,13 @@ def instructor_courses_new(session):
                 cls="mb-4",
             ),
             # Description
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Description",
                     for_="description",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Textarea(
+                fh.Textarea(
                     id="description",
                     name="description",
                     placeholder="Brief description of the course",
@@ -310,13 +309,13 @@ def instructor_courses_new(session):
                 cls="mb-6",
             ),
             # Submit buttons
-            Div(
-                Button(
+            fh.Div(
+                fh.Button(
                     "Create Course",
                     type="submit",
                     cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
                 ),
-                A(
+                fh.A(
                     "Cancel",
                     href="/instructor/courses",
                     cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
@@ -330,10 +329,10 @@ def instructor_courses_new(session):
     )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Create Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Create Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.P(
                 "Fill in the course details to create a new course.",
                 cls="text-gray-600 mb-4",
             ),
@@ -364,7 +363,7 @@ def instructor_courses_create(
 
     # Validate inputs
     if not title or not code:
-        return RedirectResponse("/instructor/courses/new", status_code=303)
+        return fh.RedirectResponse("/instructor/courses/new", status_code=303)
 
     # Create the course
     new_course = Course(
@@ -381,12 +380,12 @@ def instructor_courses_create(
     # Save to database
     try:
         course_id = courses.insert(new_course)
-        return RedirectResponse(
+        return fh.RedirectResponse(
             f"/instructor/courses/{course_id}/students", status_code=303
         )
     except Exception:
         # Handle duplicate course codes or other errors
-        return RedirectResponse("/instructor/courses/new", status_code=303)
+        return fh.RedirectResponse("/instructor/courses/new", status_code=303)
 
 
 @rt("/instructor/courses/{course_id}/edit")
@@ -400,28 +399,28 @@ def instructor_course_edit(session, course_id: int):
     try:
         course = courses[course_id]
     except:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
     if course.instructor_email != user.email:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Main content
-    main_content = Div(
-        H2(
+    main_content = fh.Div(
+        fh.H2(
             f"Edit Course: {course.title}",
             cls="text-2xl font-bold text-indigo-900 mb-6",
         ),
         # Course edit form
-        Form(
+        fh.Form(
             # Course Title
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Course Title",
                     for_="title",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="title",
                     name="title",
@@ -432,13 +431,13 @@ def instructor_course_edit(session, course_id: int):
                 cls="mb-4",
             ),
             # Course Code
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Course Code",
                     for_="code",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="code",
                     name="code",
@@ -449,13 +448,13 @@ def instructor_course_edit(session, course_id: int):
                 cls="mb-4",
             ),
             # Term
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Term",
                     for_="term",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="term",
                     name="term",
@@ -465,24 +464,24 @@ def instructor_course_edit(session, course_id: int):
                 cls="mb-4",
             ),
             # Status
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Status",
                     for_="status",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Select(
-                    Option(
+                fh.Select(
+                    fh.Option(
                         "Active",
                         value="active",
                         selected=getattr(course, "status", "active") == "active",
                     ),
-                    Option(
+                    fh.Option(
                         "Closed",
                         value="closed",
                         selected=getattr(course, "status", "active") == "closed",
                     ),
-                    Option(
+                    fh.Option(
                         "Archived",
                         value="archived",
                         selected=getattr(course, "status", "active") == "archived",
@@ -494,13 +493,13 @@ def instructor_course_edit(session, course_id: int):
                 cls="mb-4",
             ),
             # Description
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Description",
                     for_="description",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Textarea(
+                fh.Textarea(
                     getattr(course, "description", "") or "",
                     id="description",
                     name="description",
@@ -510,13 +509,13 @@ def instructor_course_edit(session, course_id: int):
                 cls="mb-6",
             ),
             # Submit buttons
-            Div(
-                Button(
+            fh.Div(
+                fh.Button(
                     "Save Changes",
                     type="submit",
                     cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
                 ),
-                A(
+                fh.A(
                     "Cancel",
                     href="/instructor/courses",
                     cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
@@ -530,11 +529,11 @@ def instructor_course_edit(session, course_id: int):
     )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Edit Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P(f"Course Code: {course.code}", cls="text-gray-600 mb-2"),
-            P(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Edit Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.P(f"Course Code: {course.code}", cls="text-gray-600 mb-2"),
+            fh.P(
                 f"Students: {sum(1 for e in enrollments() if e.course_id == course.id)}",
                 cls="text-gray-600 mb-4",
             ),
@@ -585,11 +584,11 @@ def instructor_course_update(
     try:
         course = courses[course_id]
     except:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
     if course.instructor_email != user.email:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Update course details
     course.title = title.strip()
@@ -601,4 +600,4 @@ def instructor_course_update(
     # Save changes
     courses.update(course)
 
-    return RedirectResponse("/instructor/courses", status_code=303)
+    return fh.RedirectResponse("/instructor/courses", status_code=303)

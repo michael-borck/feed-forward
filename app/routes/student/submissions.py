@@ -4,8 +4,7 @@ Student submission routes
 
 from datetime import datetime
 
-from fasthtml.common import *
-from starlette.responses import RedirectResponse
+from fasthtml import common as fh
 
 from app import rt, student_required
 from app.models.assignment import assignments
@@ -89,9 +88,9 @@ def student_assignment_submit_form(session, request, assignment_id: int):
     # Verify access to the assignment
     assignment, course, error = get_student_assignment(assignment_id, user.email)
     if error:
-        return Div(
-            P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
-            A(
+        return fh.Div(
+            fh.P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
                 cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
@@ -107,12 +106,12 @@ def student_assignment_submit_form(session, request, assignment_id: int):
 
     # Determine if student can submit a new draft
     if len(assignment_drafts) >= assignment.max_drafts:
-        return Div(
-            P(
+        return fh.Div(
+            fh.P(
                 f"You have reached the maximum number of drafts ({assignment.max_drafts}) for this assignment.",
                 cls="text-red-600 bg-red-50 p-4 rounded-lg",
             ),
-            A(
+            fh.A(
                 "View Assignment",
                 href=f"/student/assignments/{assignment_id}",
                 cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
@@ -129,18 +128,18 @@ def student_assignment_submit_form(session, request, assignment_id: int):
         previous_content = latest_draft.content
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # Assignment info card
-        Div(
-            H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"),
-            P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
-            P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
-            P(f"Maximum Drafts: {assignment.max_drafts}", cls="text-gray-600 mb-2"),
-            P(
+        fh.Div(
+            fh.H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"),
+            fh.P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
+            fh.P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
+            fh.P(f"Maximum Drafts: {assignment.max_drafts}", cls="text-gray-600 mb-2"),
+            fh.P(
                 f"Current Draft: {next_version} of {assignment.max_drafts}",
                 cls="text-indigo-700 font-medium mb-4",
             ),
-            Div(
+            fh.Div(
                 action_button(
                     "Cancel",
                     color="gray",
@@ -152,18 +151,18 @@ def student_assignment_submit_form(session, request, assignment_id: int):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Submission tips
-        Div(
-            H3("Submission Tips", cls="font-semibold text-indigo-900 mb-4"),
-            P(
+        fh.Div(
+            fh.H3("Submission Tips", cls="font-semibold text-indigo-900 mb-4"),
+            fh.P(
                 "• Each submission counts as one draft",
                 cls="text-gray-600 mb-2 text-sm",
             ),
-            P("• You cannot edit after submitting", cls="text-gray-600 mb-2 text-sm"),
-            P(
+            fh.P("• You cannot edit after submitting", cls="text-gray-600 mb-2 text-sm"),
+            fh.P(
                 f"• You have {assignment.max_drafts - next_version + 1} remaining drafts",
                 cls="text-gray-600 mb-2 text-sm",
             ),
-            P(
+            fh.P(
                 "• Feedback will be provided after submission",
                 cls="text-gray-600 text-sm",
             ),
@@ -172,29 +171,29 @@ def student_assignment_submit_form(session, request, assignment_id: int):
     )
 
     # Main content - Submission form
-    main_content = Div(
-        H2(
+    main_content = fh.Div(
+        fh.H2(
             f"Submit Draft {next_version} for {assignment.title}",
             cls="text-2xl font-bold text-indigo-900 mb-6",
         ),
         # Submission form
-        Form(
+        fh.Form(
             # Hidden fields for POST
-            Input(type="hidden", name="assignment_id", value=str(assignment_id)),
-            Input(type="hidden", name="version", value=str(next_version)),
+            fh.Input(type="hidden", name="assignment_id", value=str(assignment_id)),
+            fh.Input(type="hidden", name="version", value=str(next_version)),
             # Draft content textarea
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Your Draft",
                     for_="content",
                     cls="block text-lg font-semibold text-indigo-900 mb-2",
                 ),
-                P("Enter or paste your draft text below.", cls="text-gray-600 mb-1"),
-                P(
+                fh.P("Enter or paste your draft text below.", cls="text-gray-600 mb-1"),
+                fh.P(
                     "Note: For privacy reasons, your submission content will be automatically removed from our system after feedback is generated. Please keep your own copy.",
                     cls="text-amber-600 text-sm mb-4 font-medium",
                 ),
-                Textarea(
+                fh.Textarea(
                     id="content",
                     name="content",
                     value=previous_content,
@@ -205,8 +204,8 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 cls="mb-6",
             ),
             # Submit button
-            Div(
-                Button(
+            fh.Div(
+                fh.Button(
                     "Submit Draft",
                     type="submit",
                     cls="bg-green-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-md",
@@ -221,7 +220,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         f"Submit Draft - {assignment.title} | FeedForward",
         dashboard_layout(
             f"Submit Draft - {assignment.title}",
@@ -245,9 +244,9 @@ def student_assignment_submit_process(
     # Verify access to the assignment
     assignment, course, error = get_student_assignment(assignment_id, user.email)
     if error:
-        return Div(
-            P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
-            A(
+        return fh.Div(
+            fh.P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
                 cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
@@ -256,12 +255,12 @@ def student_assignment_submit_process(
 
     # Validate content
     if not content or content.strip() == "":
-        return Div(
-            P(
+        return fh.Div(
+            fh.P(
                 "Draft content cannot be empty.",
                 cls="text-red-600 bg-red-50 p-4 rounded-lg",
             ),
-            A(
+            fh.A(
                 "Try Again",
                 href=f"/student/assignments/{assignment_id}/submit",
                 cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
@@ -287,18 +286,18 @@ def student_assignment_submit_process(
         drafts.insert(new_draft)
 
         # Redirect to the assignment view to see the submitted draft
-        return RedirectResponse(
+        return fh.RedirectResponse(
             f"/student/assignments/{assignment_id}",
             status_code=303,
         )
 
     except Exception as e:
-        return Div(
-            P(
+        return fh.Div(
+            fh.P(
                 f"Error submitting draft: {e!s}",
                 cls="text-red-600 bg-red-50 p-4 rounded-lg",
             ),
-            A(
+            fh.A(
                 "Try Again",
                 href=f"/student/assignments/{assignment_id}/submit",
                 cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
@@ -352,34 +351,34 @@ def student_submissions_list(session, request):
         draft_groups[draft.assignment_id].append(draft)
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # User welcome card
-        Div(
-            H3(
+        fh.Div(
+            fh.H3(
                 "Submission Management",
                 cls="text-xl font-semibold text-indigo-900 mb-2",
             ),
-            P(
+            fh.P(
                 "This page allows you to view and manage all your submissions across courses.",
                 cls="text-gray-600 mb-4",
             ),
-            P(
+            fh.P(
                 "• Your submission content is removed after feedback is generated",
                 cls="text-gray-600 text-sm mb-1",
             ),
-            P(
+            fh.P(
                 "• You can hide submissions you no longer need to see",
                 cls="text-gray-600 text-sm mb-1",
             ),
-            P(
+            fh.P(
                 "• Hidden submissions still count toward your draft limits",
                 cls="text-gray-600 text-sm mb-1",
             ),
-            P(
+            fh.P(
                 "• Draft statistics are preserved for analytics",
                 cls="text-gray-600 text-sm mb-1",
             ),
-            Div(
+            fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/student/dashboard", icon="←"
                 ),
@@ -388,23 +387,23 @@ def student_submissions_list(session, request):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Submission stats
-        Div(
-            H3(
+        fh.Div(
+            fh.H3(
                 "Submission Statistics",
                 cls="text-xl font-semibold text-indigo-900 mb-4",
             ),
-            P(f"Total Submissions: {len(student_drafts)}", cls="text-gray-600 mb-2"),
-            P(f"Active Assignments: {len(draft_groups)}", cls="text-gray-600 mb-2"),
+            fh.P(f"Total Submissions: {len(student_drafts)}", cls="text-gray-600 mb-2"),
+            fh.P(f"Active Assignments: {len(draft_groups)}", cls="text-gray-600 mb-2"),
             # Count drafts by status
-            P(
+            fh.P(
                 f"Feedback Available: {sum(1 for d in student_drafts if d.status == 'feedback_ready')}",
                 cls="text-gray-600 mb-2",
             ),
-            P(
+            fh.P(
                 f"Processing: {sum(1 for d in student_drafts if d.status == 'processing')}",
                 cls="text-gray-600 mb-2",
             ),
-            A(
+            fh.A(
                 "View Hidden Submissions",
                 hx_get="/student/submissions/hidden",
                 hx_target="#main-content",
@@ -415,15 +414,15 @@ def student_submissions_list(session, request):
     )
 
     # Main content - grouped submissions with management options
-    main_content = Div(
-        H2(
+    main_content = fh.Div(
+        fh.H2(
             "Your Submission History",
             cls="text-2xl font-bold text-indigo-900 mb-6",
             id="main-content",
         ),
         # If no submissions yet
         (
-            P(
+            fh.P(
                 "You haven't submitted any drafts yet.",
                 cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center mb-8",
             )
@@ -432,14 +431,14 @@ def student_submissions_list(session, request):
         ),
         # Submissions by assignment
         *(
-            Div(
-                H3(
-                    Div(
-                        Span(
+            fh.Div(
+                fh.H3(
+                    fh.Div(
+                        fh.Span(
                             assignment_info[assignment_id].title,
                             cls="text-xl font-bold text-indigo-800",
                         ),
-                        Span(
+                        fh.Span(
                             f" ({course_info[assignment_info[assignment_id].course_id].code})",
                             cls="text-gray-600 font-normal text-base",
                         ),
@@ -447,46 +446,46 @@ def student_submissions_list(session, request):
                     cls="mb-4",
                 ),
                 # Table of drafts for this assignment
-                Div(
-                    Table(
-                        Thead(
-                            Tr(
-                                Th(
+                fh.Div(
+                    fh.Table(
+                        fh.Thead(
+                            fh.Tr(
+                                fh.Th(
                                     "Draft",
                                     cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Date",
                                     cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Status",
                                     cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Words",
                                     cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Actions",
                                     cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                                 ),
                             )
                         ),
-                        Tbody(
+                        fh.Tbody(
                             *(
-                                Tr(
+                                fh.Tr(
                                     # Draft number
-                                    Td(str(draft.version), cls="py-3 px-4 font-medium"),
+                                    fh.Td(str(draft.version), cls="py-3 px-4 font-medium"),
                                     # Submission date
-                                    Td(
+                                    fh.Td(
                                         draft.submission_date.split("T")[0]
                                         if "T" in draft.submission_date
                                         else draft.submission_date,
                                         cls="py-3 px-4 text-gray-600",
                                     ),
                                     # Status with badge
-                                    Td(
+                                    fh.Td(
                                         status_badge(
                                             draft.status.replace("_", " ").capitalize(),
                                             "green"
@@ -498,19 +497,19 @@ def student_submissions_list(session, request):
                                         cls="py-3 px-4",
                                     ),
                                     # Word count
-                                    Td(
+                                    fh.Td(
                                         str(getattr(draft, "word_count", "N/A")),
                                         cls="py-3 px-4 text-gray-600",
                                     ),
                                     # Action buttons
-                                    Td(
-                                        Div(
-                                            A(
+                                    fh.Td(
+                                        fh.Div(
+                                            fh.A(
                                                 "View",
                                                 href=f"/student/assignments/{assignment_id}#draft-{draft.id}",
                                                 cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
                                             ),
-                                            Button(
+                                            fh.Button(
                                                 "Hide",
                                                 hx_post=f"/student/submissions/hide/{draft.id}",
                                                 hx_confirm="This will hide the draft from your history. It will still count toward your draft limit. Continue?",
@@ -541,7 +540,7 @@ def student_submissions_list(session, request):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         "Submission History | FeedForward",
         dashboard_layout(
             "Submission History",
@@ -569,8 +568,8 @@ def student_submission_hide(session, draft_id: int):
             break
 
     if not target_draft:
-        return Div(
-            P(
+        return fh.Div(
+            fh.P(
                 "Draft not found or you don't have permission to hide it.",
                 cls="text-red-600 p-3 bg-red-50 rounded",
             )
@@ -585,8 +584,8 @@ def student_submission_hide(session, draft_id: int):
     drafts.update(target_draft)
 
     # Return a confirmation message that will replace the table row
-    return Div(
-        Td(
+    return fh.Div(
+        fh.Td(
             "Draft hidden",
             colspan="5",
             cls="py-3 px-4 text-gray-500 italic text-center",
@@ -632,11 +631,11 @@ def student_submissions_hidden(session, request):
     hidden_drafts.sort(key=lambda d: d.submission_date, reverse=True)
 
     # Return the hidden submissions view
-    return Div(
-        H2("Hidden Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
+    return fh.Div(
+        fh.H2("Hidden Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
         # Show button to go back
-        Div(
-            Button(
+        fh.Div(
+            fh.Button(
                 "← Back to Visible Submissions",
                 hx_get="/student/submissions",
                 hx_target="#main-content",
@@ -646,7 +645,7 @@ def student_submissions_hidden(session, request):
         ),
         # If no hidden submissions
         (
-            P(
+            fh.P(
                 "You don't have any hidden submissions.",
                 cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center mb-8",
             )
@@ -655,43 +654,43 @@ def student_submissions_hidden(session, request):
         ),
         # Hidden submissions table
         (
-            Div(
-                Table(
-                    Thead(
-                        Tr(
-                            Th(
+            fh.Div(
+                fh.Table(
+                    fh.Thead(
+                        fh.Tr(
+                            fh.Th(
                                 "Assignment",
                                 cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Draft",
                                 cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Date",
                                 cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Status",
                                 cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Actions",
                                 cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
                             ),
                         )
                     ),
-                    Tbody(
+                    fh.Tbody(
                         *(
-                            Tr(
+                            fh.Tr(
                                 # Assignment name
-                                Td(
-                                    Div(
-                                        P(
+                                fh.Td(
+                                    fh.Div(
+                                        fh.P(
                                             assignment_info[draft.assignment_id].title,
                                             cls="font-medium text-indigo-700",
                                         ),
-                                        P(
+                                        fh.P(
                                             f"{course_info[assignment_info[draft.assignment_id].course_id].code}",
                                             cls="text-xs text-gray-500",
                                         ),
@@ -700,16 +699,16 @@ def student_submissions_hidden(session, request):
                                     cls="py-3 px-4",
                                 ),
                                 # Draft number
-                                Td(str(draft.version), cls="py-3 px-4 font-medium"),
+                                fh.Td(str(draft.version), cls="py-3 px-4 font-medium"),
                                 # Submission date
-                                Td(
+                                fh.Td(
                                     draft.submission_date.split("T")[0]
                                     if "T" in draft.submission_date
                                     else draft.submission_date,
                                     cls="py-3 px-4 text-gray-600",
                                 ),
                                 # Status with badge
-                                Td(
+                                fh.Td(
                                     status_badge(
                                         draft.status.replace("_", " ").capitalize(),
                                         "green"
@@ -721,14 +720,14 @@ def student_submissions_hidden(session, request):
                                     cls="py-3 px-4",
                                 ),
                                 # Action buttons
-                                Td(
-                                    Div(
-                                        A(
+                                fh.Td(
+                                    fh.Div(
+                                        fh.A(
                                             "View",
                                             href=f"/student/assignments/{draft.assignment_id}#draft-{draft.id}",
                                             cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
                                         ),
-                                        Button(
+                                        fh.Button(
                                             "Unhide",
                                             hx_post=f"/student/submissions/unhide/{draft.id}",
                                             hx_target="#main-content",
@@ -769,8 +768,8 @@ def student_submission_unhide(session, draft_id: int):
             break
 
     if not target_draft:
-        return Div(
-            P(
+        return fh.Div(
+            fh.P(
                 "Draft not found or you don't have permission to unhide it.",
                 cls="text-red-600 p-3 bg-red-50 rounded",
             )
@@ -781,6 +780,5 @@ def student_submission_unhide(session, draft_id: int):
     drafts.update(target_draft)
 
     # Redirect back to hidden submissions view (which will now show one less item)
-    from starlette.responses import RedirectResponse
 
-    return RedirectResponse("/student/submissions/hidden", status_code=303)
+    return fh.RedirectResponse("/student/submissions/hidden", status_code=303)

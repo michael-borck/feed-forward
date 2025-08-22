@@ -2,7 +2,7 @@
 Student assignment routes
 """
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app import rt, student_required
 from app.models.assignment import assignments, rubric_categories, rubrics
@@ -90,9 +90,9 @@ def student_assignment_view(session, request, assignment_id: int):
     # Verify access to the assignment
     assignment, course, error = get_student_assignment(assignment_id, user.email)
     if error:
-        return Div(
-            P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
-            A(
+        return fh.Div(
+            fh.P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
                 cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
@@ -138,16 +138,16 @@ def student_assignment_view(session, request, assignment_id: int):
     assignment_drafts.sort(key=lambda d: d.version)
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # Assignment info card
-        Div(
-            H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"),
-            P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
-            P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
-            P(f"Maximum Drafts: {assignment.max_drafts}", cls="text-gray-600 mb-2"),
-            P(f"Your Drafts: {len(assignment_drafts)}", cls="text-gray-600 mb-2"),
-            P(f"Status: {assignment.status.capitalize()}", cls="text-gray-600 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"),
+            fh.P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
+            fh.P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
+            fh.P(f"Maximum Drafts: {assignment.max_drafts}", cls="text-gray-600 mb-2"),
+            fh.P(f"Your Drafts: {len(assignment_drafts)}", cls="text-gray-600 mb-2"),
+            fh.P(f"Status: {assignment.status.capitalize()}", cls="text-gray-600 mb-4"),
+            fh.Div(
                 action_button(
                     "Back to Course",
                     color="gray",
@@ -166,19 +166,19 @@ def student_assignment_view(session, request, assignment_id: int):
         ),
         # Rubric info if available
         (
-            Div(
-                H3(
+            fh.Div(
+                fh.H3(
                     "Rubric Categories",
                     cls="text-xl font-semibold text-indigo-900 mb-3",
                 ),
-                Div(
+                fh.Div(
                     *(
-                        Div(
-                            P(
+                        fh.Div(
+                            fh.P(
                                 f"{category.name} ({int(category.weight)}%)",
                                 cls="font-medium text-indigo-700 mb-1",
                             ),
-                            P(category.description, cls="text-sm text-gray-600"),
+                            fh.P(category.description, cls="text-sm text-gray-600"),
                             cls="mb-3",
                         )
                         for category in sorted(
@@ -194,25 +194,25 @@ def student_assignment_view(session, request, assignment_id: int):
     )
 
     # Main content
-    main_content = Div(
+    main_content = fh.Div(
         # Header
-        H2(assignment.title, cls="text-2xl font-bold text-indigo-900 mb-2"),
+        fh.H2(assignment.title, cls="text-2xl font-bold text-indigo-900 mb-2"),
         # Assignment description
         card(
-            Div(
-                H3(
+            fh.Div(
+                fh.H3(
                     "Assignment Description",
                     cls="text-xl font-semibold text-indigo-900 mb-4",
                 ),
-                P(assignment.description, cls="text-gray-700 whitespace-pre-line"),
+                fh.P(assignment.description, cls="text-gray-700 whitespace-pre-line"),
                 cls="prose max-w-none",
             )
         ),
         # Draft history and selection
-        Div(
-            H3("Your Drafts", cls="text-xl font-semibold text-indigo-900 mt-8 mb-4"),
+        fh.Div(
+            fh.H3("Your Drafts", cls="text-xl font-semibold text-indigo-900 mt-8 mb-4"),
             (
-                Div(
+                fh.Div(
                     tabs(
                         [
                             (f"Draft {draft.version}", f"#draft-{draft.id}")
@@ -222,20 +222,20 @@ def student_assignment_view(session, request, assignment_id: int):
                     ),
                     # Draft content and feedback
                     *(
-                        Div(
-                            Div(
+                        fh.Div(
+                            fh.Div(
                                 # Draft info
-                                Div(
-                                    Div(
-                                        H4(
+                                fh.Div(
+                                    fh.Div(
+                                        fh.H4(
                                             f"Draft {draft.version}",
                                             cls="text-lg font-bold text-indigo-900 mb-2",
                                         ),
-                                        P(
+                                        fh.P(
                                             f"Submitted: {draft.submission_date}",
                                             cls="text-sm text-gray-500 mb-2",
                                         ),
-                                        Div(
+                                        fh.Div(
                                             status_badge(
                                                 draft.status.replace(
                                                     "_", " "
@@ -251,13 +251,13 @@ def student_assignment_view(session, request, assignment_id: int):
                                         cls="border-b border-gray-200 pb-4 mb-4",
                                     ),
                                     # Draft content
-                                    Div(
-                                        H5(
+                                    fh.Div(
+                                        fh.H5(
                                             "Your Submission",
                                             cls="text-md font-semibold text-gray-700 mb-2",
                                         ),
                                         (
-                                            P(
+                                            fh.P(
                                                 "For your privacy, the content of this submission has been removed after feedback was generated.",
                                                 cls="text-amber-600 italic mb-2 text-sm",
                                             )
@@ -266,7 +266,7 @@ def student_assignment_view(session, request, assignment_id: int):
                                             else ""
                                         ),
                                         (
-                                            P(
+                                            fh.P(
                                                 f"Word count: {getattr(draft, 'word_count', 'N/A')}",
                                                 cls="text-gray-500 text-sm mb-2",
                                             )
@@ -274,22 +274,22 @@ def student_assignment_view(session, request, assignment_id: int):
                                             and draft.word_count
                                             else ""
                                         ),
-                                        Pre(
+                                        fh.Pre(
                                             draft.content,
                                             cls="bg-gray-50 p-4 rounded-md text-gray-700 text-sm mb-6 whitespace-pre-wrap border border-gray-200 overflow-auto max-h-60",
                                         ),
                                         cls="mb-6",
                                     ),
                                     # Feedback if available
-                                    Div(
-                                        H5(
+                                    fh.Div(
+                                        fh.H5(
                                             "Feedback",
                                             cls="text-md font-semibold text-gray-700 mb-3",
                                         ),
                                         (
-                                            Div(
+                                            fh.Div(
                                                 *(
-                                                    Div(
+                                                    fh.Div(
                                                         feedback_card(
                                                             next(
                                                                 (
@@ -300,12 +300,12 @@ def student_assignment_view(session, request, assignment_id: int):
                                                                 ),
                                                                 "General Feedback",
                                                             ),
-                                                            Div(
-                                                                P(
+                                                            fh.Div(
+                                                                fh.P(
                                                                     fb.feedback_text,
                                                                     cls="text-gray-700",
                                                                 ),
-                                                                P(
+                                                                fh.P(
                                                                     f"Score: {fb.aggregated_score}/100",
                                                                     cls="text-sm text-gray-500 mt-2 font-medium",
                                                                 ),
@@ -327,8 +327,8 @@ def student_assignment_view(session, request, assignment_id: int):
                                         )
                                         if draft_feedback.get(draft.id)
                                         and draft.status == "feedback_ready"
-                                        else Div(
-                                            P(
+                                        else fh.Div(
+                                            fh.P(
                                                 "Feedback is not available yet.",
                                                 cls="text-gray-500 italic text-center p-4 bg-gray-50 rounded-md",
                                             )
@@ -345,13 +345,13 @@ def student_assignment_view(session, request, assignment_id: int):
                 )
             )
             if assignment_drafts
-            else Div(
-                P(
+            else fh.Div(
+                fh.P(
                     "You haven't submitted any drafts for this assignment yet.",
                     cls="text-gray-500 italic",
                 ),
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         "Submit Your First Draft",
                         href=f"/student/assignments/{assignment_id}/submit",
                         cls="inline-block bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm mt-4",
@@ -365,7 +365,7 @@ def student_assignment_view(session, request, assignment_id: int):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         f"{assignment.title} | FeedForward",
         dashboard_layout(
             f"Assignment: {assignment.title}",
@@ -422,11 +422,11 @@ def student_assignments_list(session, request):
             student_drafts[draft.assignment_id].append(draft)
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # User welcome card
-        Div(
-            H3("Assignment Options", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Assignment Options", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/student/dashboard", icon="←"
                 ),
@@ -435,12 +435,12 @@ def student_assignments_list(session, request):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Courses filter
-        Div(
-            H3("Filter by Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Filter by Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 *(
-                    Div(
-                        A(
+                    fh.Div(
+                        fh.A(
                             f"{course.code}: {course.title}",
                             href=f"/student/courses/{course.id}/assignments",
                             cls="text-indigo-700 hover:underline",
@@ -455,51 +455,51 @@ def student_assignments_list(session, request):
     )
 
     # Main content - assignment table
-    main_content = Div(
-        H2("All Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"),
+    main_content = fh.Div(
+        fh.H2("All Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"),
         # Assignments table
-        Div(
-            Div(
-                Table(
-                    Thead(
-                        Tr(
-                            Th(
+        fh.Div(
+            fh.Div(
+                fh.Table(
+                    fh.Thead(
+                        fh.Tr(
+                            fh.Th(
                                 "Assignment",
                                 cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Course",
                                 cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Due Date",
                                 cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Status",
                                 cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Progress",
                                 cls="text-center py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                             ),
-                            Th(
+                            fh.Th(
                                 "Actions",
                                 cls="text-center py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                             ),
                             cls="",
                         )
                     ),
-                    Tbody(
+                    fh.Tbody(
                         *(
-                            Tr(
-                                Td(
-                                    Div(
-                                        H4(
+                            fh.Tr(
+                                fh.Td(
+                                    fh.Div(
+                                        fh.H4(
                                             assignment_data["assignment"].title,
                                             cls="font-medium text-indigo-800",
                                         ),
-                                        P(
+                                        fh.P(
                                             assignment_data["assignment"].description[
                                                 :100
                                             ]
@@ -519,13 +519,13 @@ def student_assignments_list(session, request):
                                     ),
                                     cls="py-4 px-6 border-b border-gray-100",
                                 ),
-                                Td(
-                                    Div(
-                                        P(
+                                fh.Td(
+                                    fh.Div(
+                                        fh.P(
                                             assignment_data["course"].title,
                                             cls="font-medium text-gray-800",
                                         ),
-                                        P(
+                                        fh.P(
                                             assignment_data["course"].code,
                                             cls="text-sm text-gray-600",
                                         ),
@@ -533,14 +533,14 @@ def student_assignments_list(session, request):
                                     ),
                                     cls="py-4 px-6 border-b border-gray-100",
                                 ),
-                                Td(
-                                    P(
+                                fh.Td(
+                                    fh.P(
                                         assignment_data["assignment"].due_date,
                                         cls="text-gray-700",
                                     ),
                                     cls="py-4 px-6 border-b border-gray-100",
                                 ),
-                                Td(
+                                fh.Td(
                                     status_badge(
                                         assignment_data[
                                             "assignment"
@@ -555,19 +555,19 @@ def student_assignments_list(session, request):
                                     ),
                                     cls="py-4 px-6 border-b border-gray-100",
                                 ),
-                                Td(
-                                    Div(
-                                        P(
+                                fh.Td(
+                                    fh.Div(
+                                        fh.P(
                                             f"{len(student_drafts.get(assignment_data['assignment'].id, []))}/{assignment_data['assignment'].max_drafts}",
                                             cls="font-medium text-indigo-700",
                                         ),
-                                        P("Drafts", cls="text-xs text-gray-500"),
+                                        fh.P("Drafts", cls="text-xs text-gray-500"),
                                         cls="text-center",
                                     ),
                                     cls="py-4 px-6 border-b border-gray-100",
                                 ),
-                                Td(
-                                    Div(
+                                fh.Td(
+                                    fh.Div(
                                         action_button(
                                             "View",
                                             color="indigo",
@@ -605,9 +605,9 @@ def student_assignments_list(session, request):
                         )
                         if student_assignments
                         else [
-                            Tr(
-                                Td(
-                                    P(
+                            fh.Tr(
+                                fh.Td(
+                                    fh.P(
                                         "No assignments found.",
                                         cls="text-gray-500 italic text-center",
                                     ),
@@ -626,7 +626,7 @@ def student_assignments_list(session, request):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         "All Assignments | FeedForward",
         dashboard_layout(
             "All Assignments",

@@ -4,9 +4,8 @@ Instructor analytics and performance dashboard routes
 
 import statistics
 
-from fasthtml.common import *
+from fasthtml import common as fh
 from fastlite import NotFoundError
-from starlette.responses import RedirectResponse
 
 from app import instructor_required, rt
 from app.models.assignment import assignments, rubric_categories
@@ -28,9 +27,9 @@ def instructor_assignment_analytics(session, assignment_id: int):
         assignment = assignments[assignment_id]
         course = courses[assignment.course_id]
         if course.instructor_email != user.email:
-            return RedirectResponse("/instructor/dashboard", status_code=303)
+            return fh.RedirectResponse("/instructor/dashboard", status_code=303)
     except NotFoundError:
-        return RedirectResponse("/instructor/dashboard", status_code=303)
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
 
     # Get all drafts for this assignment
     all_drafts = drafts()
@@ -136,59 +135,59 @@ def instructor_assignment_analytics(session, assignment_id: int):
             rate_color = "text-red-600"
 
         llm_comparison_rows.append(
-            Tr(
-                Td(model_name, cls="px-4 py-3 font-medium"),
-                Td(f"{stats['total_runs']}", cls="px-4 py-3 text-center"),
-                Td(
+            fh.Tr(
+                fh.Td(model_name, cls="px-4 py-3 font-medium"),
+                fh.Td(f"{stats['total_runs']}", cls="px-4 py-3 text-center"),
+                fh.Td(
                     f"{success_rate:.1f}%",
                     cls=f"px-4 py-3 text-center {rate_color} font-semibold",
                 ),
-                Td(
+                fh.Td(
                     f"{avg_score:.1f}/100" if avg_score > 0 else "—",
                     cls="px-4 py-3 text-center",
                 ),
-                Td(
+                fh.Td(
                     f"{len(stats['scores'])}", cls="px-4 py-3 text-center text-gray-600"
                 ),
             )
         )
 
     llm_comparison_table = (
-        Div(
-            H3("AI Model Performance Comparison", cls="text-lg font-semibold mb-4"),
-            Table(
-                Thead(
-                    Tr(
-                        Th(
+        fh.Div(
+            fh.H3("AI Model Performance Comparison", cls="text-lg font-semibold mb-4"),
+            fh.Table(
+                fh.Thead(
+                    fh.Tr(
+                        fh.Th(
                             "Model",
                             cls="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase",
                         ),
-                        Th(
+                        fh.Th(
                             "Total Runs",
                             cls="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase",
                         ),
-                        Th(
+                        fh.Th(
                             "Success Rate",
                             cls="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase",
                         ),
-                        Th(
+                        fh.Th(
                             "Avg Score",
                             cls="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase",
                         ),
-                        Th(
+                        fh.Th(
                             "Scored Runs",
                             cls="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase",
                         ),
                     )
                 ),
-                Tbody(*llm_comparison_rows, cls="bg-white divide-y divide-gray-200"),
+                fh.Tbody(*llm_comparison_rows, cls="bg-white divide-y divide-gray-200"),
                 cls="min-w-full divide-y divide-gray-200",
             ),
             cls="bg-white rounded-lg shadow overflow-hidden mb-8",
         )
         if llm_comparison_rows
-        else Div(
-            P(
+        else fh.Div(
+            fh.P(
                 "No model performance data available yet.",
                 cls="text-gray-500 text-center py-8",
             ),
@@ -211,18 +210,18 @@ def instructor_assignment_analytics(session, assignment_id: int):
             bar_color = "bg-red-500"
 
         category_chart_bars.append(
-            Div(
-                Div(
-                    Div(
-                        P(category_name, cls="font-medium text-gray-900"),
-                        P(
+            fh.Div(
+                fh.Div(
+                    fh.Div(
+                        fh.P(category_name, cls="font-medium text-gray-900"),
+                        fh.P(
                             f"{perf['avg_score']:.1f}/100 avg ({perf['count']} submissions)",
                             cls="text-sm text-gray-600",
                         ),
                         cls="mb-2",
                     ),
-                    Div(
-                        Div(
+                    fh.Div(
+                        fh.Div(
                             cls=f"h-4 {bar_color} rounded", style=f"width: {bar_width}%"
                         ),
                         cls="w-full bg-gray-200 rounded-full h-4",
@@ -233,11 +232,11 @@ def instructor_assignment_analytics(session, assignment_id: int):
             )
         )
 
-    category_performance_section = Div(
-        H3("Rubric Category Performance", cls="text-lg font-semibold mb-4"),
-        Div(*category_chart_bars, cls="space-y-4")
+    category_performance_section = fh.Div(
+        fh.H3("Rubric Category Performance", cls="text-lg font-semibold mb-4"),
+        fh.Div(*category_chart_bars, cls="space-y-4")
         if category_chart_bars
-        else P(
+        else fh.P(
             "No category performance data available.",
             cls="text-gray-500 text-center py-8",
         ),
@@ -245,20 +244,20 @@ def instructor_assignment_analytics(session, assignment_id: int):
     )
 
     # Summary statistics cards
-    stats_cards = Div(
-        Div(
-            Div(
-                P("Total Submissions", cls="text-sm font-medium text-gray-500"),
-                P(str(total_submissions), cls="text-3xl font-bold text-gray-900"),
-                P("Student drafts", cls="text-sm text-gray-600"),
+    stats_cards = fh.Div(
+        fh.Div(
+            fh.Div(
+                fh.P("Total Submissions", cls="text-sm font-medium text-gray-500"),
+                fh.P(str(total_submissions), cls="text-3xl font-bold text-gray-900"),
+                fh.P("Student drafts", cls="text-sm text-gray-600"),
             ),
             cls="bg-white p-6 rounded-lg shadow",
         ),
-        Div(
-            Div(
-                P("Feedback Complete", cls="text-sm font-medium text-gray-500"),
-                P(str(completed_feedback), cls="text-3xl font-bold text-green-600"),
-                P(
+        fh.Div(
+            fh.Div(
+                fh.P("Feedback Complete", cls="text-sm font-medium text-gray-500"),
+                fh.P(str(completed_feedback), cls="text-3xl font-bold text-green-600"),
+                fh.P(
                     f"{(completed_feedback / total_submissions * 100):.1f}% complete"
                     if total_submissions > 0
                     else "0% complete",
@@ -267,19 +266,19 @@ def instructor_assignment_analytics(session, assignment_id: int):
             ),
             cls="bg-white p-6 rounded-lg shadow",
         ),
-        Div(
-            Div(
-                P("Processing", cls="text-sm font-medium text-gray-500"),
-                P(str(processing), cls="text-3xl font-bold text-blue-600"),
-                P("Currently running", cls="text-sm text-gray-600"),
+        fh.Div(
+            fh.Div(
+                fh.P("Processing", cls="text-sm font-medium text-gray-500"),
+                fh.P(str(processing), cls="text-3xl font-bold text-blue-600"),
+                fh.P("Currently running", cls="text-sm text-gray-600"),
             ),
             cls="bg-white p-6 rounded-lg shadow",
         ),
-        Div(
-            Div(
-                P("Errors", cls="text-sm font-medium text-gray-500"),
-                P(str(errors), cls="text-3xl font-bold text-red-600"),
-                P("Need attention", cls="text-sm text-gray-600"),
+        fh.Div(
+            fh.Div(
+                fh.P("Errors", cls="text-sm font-medium text-gray-500"),
+                fh.P(str(errors), cls="text-3xl font-bold text-red-600"),
+                fh.P("Need attention", cls="text-sm text-gray-600"),
             ),
             cls="bg-white p-6 rounded-lg shadow",
         ),
@@ -287,24 +286,24 @@ def instructor_assignment_analytics(session, assignment_id: int):
     )
 
     # Main content
-    main_content = Div(
+    main_content = fh.Div(
         # Header
-        Div(
-            Div(
-                H1(
+        fh.Div(
+            fh.Div(
+                fh.H1(
                     f"Analytics: {assignment.title}",
                     cls="text-2xl font-bold text-gray-900",
                 ),
-                P(f"Course: {course.name}", cls="text-gray-600"),
+                fh.P(f"Course: {course.name}", cls="text-gray-600"),
                 cls="flex-1",
             ),
-            Div(
-                A(
+            fh.Div(
+                fh.A(
                     "← Back to Assignment",
                     href=f"/instructor/assignments/{assignment_id}",
                     cls="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors",
                 ),
-                A(
+                fh.A(
                     "View Submissions",
                     href=f"/instructor/assignments/{assignment_id}/submissions",
                     cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors ml-3",
@@ -359,56 +358,56 @@ def instructor_assignment_analytics(session, assignment_id: int):
             elif perf["avg_score"] < 60:
                 weak_categories.append(cat_name)
 
-    sidebar_content = Div(
-        H3("Insights", cls="text-lg font-semibold text-gray-900 mb-4"),
-        Div(
-            H4("Top Performing Model", cls="font-semibold text-gray-700 mb-2"),
-            P(top_model or "No data yet", cls="text-sm text-gray-600 mb-4"),
-            H4("Category Insights", cls="font-semibold text-gray-700 mb-2"),
+    sidebar_content = fh.Div(
+        fh.H3("Insights", cls="text-lg font-semibold text-gray-900 mb-4"),
+        fh.Div(
+            fh.H4("Top Performing Model", cls="font-semibold text-gray-700 mb-2"),
+            fh.P(top_model or "No data yet", cls="text-sm text-gray-600 mb-4"),
+            fh.H4("Category Insights", cls="font-semibold text-gray-700 mb-2"),
             (
-                Div(
-                    P("Strong Areas:", cls="text-sm font-medium text-gray-700"),
-                    Ul(
+                fh.Div(
+                    fh.P("Strong Areas:", cls="text-sm font-medium text-gray-700"),
+                    fh.Ul(
                         *[
-                            Li(cat, cls="text-sm text-gray-600")
+                            fh.Li(cat, cls="text-sm text-gray-600")
                             for cat in strong_categories[:3]
                         ],
                         cls="list-disc list-inside mb-2",
                     )
                     if strong_categories
-                    else P("None identified", cls="text-sm text-gray-500 mb-2"),
-                    P(
+                    else fh.P("None identified", cls="text-sm text-gray-500 mb-2"),
+                    fh.P(
                         "Areas for Improvement:",
                         cls="text-sm font-medium text-gray-700",
                     ),
-                    Ul(
+                    fh.Ul(
                         *[
-                            Li(cat, cls="text-sm text-gray-600")
+                            fh.Li(cat, cls="text-sm text-gray-600")
                             for cat in weak_categories[:3]
                         ],
                         cls="list-disc list-inside mb-4",
                     )
                     if weak_categories
-                    else P("None identified", cls="text-sm text-gray-500 mb-4"),
+                    else fh.P("None identified", cls="text-sm text-gray-500 mb-4"),
                 )
                 if category_performance
-                else P("No data yet", cls="text-sm text-gray-600 mb-4")
+                else fh.P("No data yet", cls="text-sm text-gray-600 mb-4")
             ),
-            H4("Recommendations", cls="font-semibold text-gray-700 mb-2"),
-            Ul(
-                Li(
+            fh.H4("Recommendations", cls="font-semibold text-gray-700 mb-2"),
+            fh.Ul(
+                fh.Li(
                     "Consider adjusting rubric weights"
                     if category_performance
                     else "Collect more submissions",
                     cls="text-sm text-gray-600 mb-1",
                 ),
-                Li(
+                fh.Li(
                     "Review low-performing models"
                     if llm_stats
                     else "Configure AI models",
                     cls="text-sm text-gray-600 mb-1",
                 ),
-                Li(
+                fh.Li(
                     "Provide targeted feedback guidance"
                     if weak_categories
                     else "Monitor performance trends",

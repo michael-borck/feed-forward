@@ -4,7 +4,7 @@ Admin domain whitelist management routes
 
 from datetime import datetime
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app import admin_required, rt
 from app.models.config import DomainWhitelist, domain_whitelist
@@ -22,11 +22,11 @@ def admin_domains_list(session):
     all_domains = list(domain_whitelist())
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # Quick navigation
-        Div(
-            H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/admin/dashboard", icon="←"
                 ),
@@ -35,9 +35,9 @@ def admin_domains_list(session):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Admin actions
-        Div(
-            H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Approve Instructors",
                     color="indigo",
@@ -57,30 +57,30 @@ def admin_domains_list(session):
     )
 
     # Main content - Domain whitelist management
-    main_content = Div(
-        H1(
+    main_content = fh.Div(
+        fh.H1(
             "Domain Whitelist Management", cls="text-3xl font-bold text-indigo-900 mb-6"
         ),
-        P(
+        fh.P(
             "Configure which domains are allowed for instructor registration and whether they're auto-approved.",
             cls="text-gray-600 mb-8",
         ),
         # Add new domain form
-        Div(
-            H2("Add New Domain", cls="text-2xl font-bold text-indigo-900 mb-4"),
-            Form(
-                Div(
-                    Div(
-                        Label(
+        fh.Div(
+            fh.H2("Add New Domain", cls="text-2xl font-bold text-indigo-900 mb-4"),
+            fh.Form(
+                fh.Div(
+                    fh.Div(
+                        fh.Label(
                             "Domain",
                             for_="domain",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        P(
+                        fh.P(
                             "e.g. 'curtin.edu.au' (without 'http://' or '@')",
                             cls="text-sm text-gray-500 mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="domain",
                             type="text",
                             placeholder="Domain name",
@@ -89,14 +89,14 @@ def admin_domains_list(session):
                         ),
                         cls="mb-4 w-full",
                     ),
-                    Div(
-                        Div(
-                            Input(
+                    fh.Div(
+                        fh.Div(
+                            fh.Input(
                                 type="checkbox",
                                 id="auto_approve",
                                 cls="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded",
                             ),
-                            Label(
+                            fh.Label(
                                 "Auto-approve instructors from this domain",
                                 for_="auto_approve",
                                 cls="ml-2 block text-indigo-900 font-medium",
@@ -105,15 +105,15 @@ def admin_domains_list(session):
                         ),
                         cls="mb-6",
                     ),
-                    Div(
-                        Button(
+                    fh.Div(
+                        fh.Button(
                             "Add Domain",
                             type="submit",
                             cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
                         ),
                         cls="mb-4",
                     ),
-                    Span(id="domain_result", cls="block text-center"),
+                    fh.Span(id="domain_result", cls="block text-center"),
                     cls="flex flex-wrap",
                 ),
                 hx_post="/admin/domains/add",
@@ -123,35 +123,35 @@ def admin_domains_list(session):
             ),
         ),
         # Domain list
-        Div(
-            H2("Current Domains", cls="text-2xl font-bold text-indigo-900 mb-4"),
+        fh.Div(
+            fh.H2("Current Domains", cls="text-2xl font-bold text-indigo-900 mb-4"),
             # Check if there are domains
             (
-                Div(
-                    Table(
-                        Thead(
-                            Tr(
-                                Th(
+                fh.Div(
+                    fh.Table(
+                        fh.Thead(
+                            fh.Tr(
+                                fh.Th(
                                     "Domain",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Auto-approve",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Actions",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
                             ),
                             cls="bg-indigo-50",
                         ),
-                        Tbody(
+                        fh.Tbody(
                             *(
-                                Tr(
-                                    Td(domain["domain"], cls="py-4 px-6"),
-                                    Td(
-                                        Span(
+                                fh.Tr(
+                                    fh.Td(domain["domain"], cls="py-4 px-6"),
+                                    fh.Td(
+                                        fh.Span(
                                             "✅ Yes"
                                             if domain["auto_approve_instructor"]
                                             else "❌ No",
@@ -164,16 +164,16 @@ def admin_domains_list(session):
                                         ),
                                         cls="py-4 px-6",
                                     ),
-                                    Td(
-                                        Div(
-                                            Button(
+                                    fh.Td(
+                                        fh.Div(
+                                            fh.Button(
                                                 "Toggle Auto-approve",
                                                 cls="bg-amber-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-amber-700 transition-colors shadow-sm",
                                                 hx_post=f"/admin/domains/toggle/{domain['id']}",
                                                 hx_target="closest tr",
                                                 hx_swap="outerHTML",
                                             ),
-                                            Button(
+                                            fh.Button(
                                                 "Delete",
                                                 cls="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm",
                                                 hx_post=f"/admin/domains/delete/{domain['id']}",
@@ -194,8 +194,8 @@ def admin_domains_list(session):
                 )
             )
             if all_domains
-            else Div(
-                P(
+            else fh.Div(
+                fh.P(
                     "No domains in the whitelist. Add some domains to allow instructor registration.",
                     cls="text-gray-500 italic text-center py-8",
                 ),
@@ -204,7 +204,7 @@ def admin_domains_list(session):
             cls="mb-8",
         ),
         # Back button
-        Div(
+        fh.Div(
             action_button(
                 "Back to Dashboard", color="gray", href="/admin/dashboard", icon="←"
             ),
@@ -213,7 +213,7 @@ def admin_domains_list(session):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         "Domain Whitelist | FeedForward",
         dashboard_layout(
             "Domain Whitelist", sidebar_content, main_content, user_role=Role.ADMIN
@@ -227,7 +227,7 @@ def admin_domain_add(session, domain: str, auto_approve: bool = False):
     """Add domain to whitelist POST handler"""
     # Basic validation
     if not domain:
-        return Div(P("Domain name is required", cls="text-red-500"))
+        return fh.Div(fh.P("Domain name is required", cls="text-red-500"))
 
     # Clean up domain
     domain = domain.strip().lower()
@@ -238,8 +238,8 @@ def admin_domain_add(session, domain: str, auto_approve: bool = False):
     # Check if domain already exists
     for existing in domain_whitelist.select():
         if existing["domain"] == domain:
-            return Div(
-                P(
+            return fh.Div(
+                fh.P(
                     f"Domain '{domain}' already exists in the whitelist",
                     cls="text-amber-500",
                 )
@@ -268,13 +268,13 @@ def admin_domain_add(session, domain: str, auto_approve: bool = False):
         domain_whitelist.insert(new_domain)
 
         # Return success message with page reload
-        return Div(
-            P(f"Added domain '{domain}' to the whitelist", cls="text-green-500"),
-            Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        return fh.Div(
+            fh.P(f"Added domain '{domain}' to the whitelist", cls="text-green-500"),
+            fh.Script("setTimeout(function() { window.location.reload(); }, 1000);"),
         )
     except Exception as e:
         # Return error message
-        return Div(P(f"Error adding domain: {e!s}", cls="text-red-500"))
+        return fh.Div(fh.P(f"Error adding domain: {e!s}", cls="text-red-500"))
 
 
 @rt("/admin/domains/toggle/{id}")
@@ -304,10 +304,10 @@ def admin_domain_toggle(session, id: int):
         domain_whitelist.update(domain_record)
 
         # Return updated row
-        return Tr(
-            Td(domain_record["domain"], cls="py-4 px-6"),
-            Td(
-                Span(
+        return fh.Tr(
+            fh.Td(domain_record["domain"], cls="py-4 px-6"),
+            fh.Td(
+                fh.Span(
                     "✅ Yes" if domain_record["auto_approve_instructor"] else "❌ No",
                     cls="px-3 py-1 rounded-full text-sm "
                     + (
@@ -318,16 +318,16 @@ def admin_domain_toggle(session, id: int):
                 ),
                 cls="py-4 px-6",
             ),
-            Td(
-                Div(
-                    Button(
+            fh.Td(
+                fh.Div(
+                    fh.Button(
                         "Toggle Auto-approve",
                         cls="bg-amber-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-amber-700 transition-colors shadow-sm",
                         hx_post=f"/admin/domains/toggle/{domain_record['id']}",
                         hx_target="closest tr",
                         hx_swap="outerHTML",
                     ),
-                    Button(
+                    fh.Button(
                         "Delete",
                         cls="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm",
                         hx_post=f"/admin/domains/delete/{domain_record['id']}",
@@ -340,7 +340,7 @@ def admin_domain_toggle(session, id: int):
             ),
         )
     except Exception as e:
-        return Div(P(f"Error toggling domain: {e!s}", cls="text-red-500"))
+        return fh.Div(fh.P(f"Error toggling domain: {e!s}", cls="text-red-500"))
 
 
 @rt("/admin/domains/delete/{id}")
@@ -364,4 +364,4 @@ def admin_domain_delete(session, id: int):
         # Return empty (removes the row)
         return ""
     except Exception as e:
-        return Div(P(f"Error deleting domain: {e!s}", cls="text-red-500"))
+        return fh.Div(fh.P(f"Error deleting domain: {e!s}", cls="text-red-500"))

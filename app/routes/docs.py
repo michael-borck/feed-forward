@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 import markdown
-from fasthtml.common import *
+from fasthtml import common as fh
 
 
 def setup_routes(app, rt, db, User):
@@ -123,13 +123,13 @@ def setup_routes(app, rt, db, User):
 
         # Add navigation links at the top
         nav_items.append(
-            Div(
-                A(
+            fh.Div(
+                fh.A(
                     "← Back to App",
                     href="/",
                     cls="block px-3 py-2 text-green-600 hover:bg-green-50 rounded font-medium mb-2",
                 ),
-                A(
+                fh.A(
                     "← Documentation Home",
                     href="/docs",
                     cls="block px-3 py-2 text-blue-600 hover:bg-blue-50 rounded font-medium mb-4",
@@ -152,8 +152,8 @@ def setup_routes(app, rt, db, User):
                         else "⚙️"
                     )
                     links.append(
-                        Li(
-                            A(
+                        fh.Li(
+                            fh.A(
                                 f"{icon} {title}",
                                 href=f"/docs/{path}",
                                 cls=f"block w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded font-medium {'bg-blue-100 text-blue-700' if active else ''}",
@@ -162,9 +162,9 @@ def setup_routes(app, rt, db, User):
                         )
                     )
                 nav_items.append(
-                    Div(
-                        H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
-                        Ul(*links, cls="list-none block"),
+                    fh.Div(
+                        fh.H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
+                        fh.Ul(*links, cls="list-none block"),
                         cls="mb-4 pb-4 border-b border-gray-200",
                     )
                 )
@@ -176,8 +176,8 @@ def setup_routes(app, rt, db, User):
                     for title, path in subitems:
                         active = path == current_path
                         sub_links.append(
-                            Li(
-                                A(
+                            fh.Li(
+                                fh.A(
                                     title,
                                     href=f"/docs/{path}",
                                     cls=f"block px-4 py-1 text-sm hover:bg-gray-100 {'bg-blue-50 text-blue-600' if active else ''}",
@@ -185,19 +185,19 @@ def setup_routes(app, rt, db, User):
                             )
                         )
                     section_items.append(
-                        Div(
-                            H4(
+                        fh.Div(
+                            fh.H4(
                                 subsection,
                                 cls="font-medium text-gray-700 px-3 py-1 text-sm",
                             ),
-                            Ul(*sub_links, cls="list-none space-y-1 ml-4"),
+                            fh.Ul(*sub_links, cls="list-none space-y-1 ml-4"),
                             cls="mb-3",
                         )
                     )
                 nav_items.append(
-                    Div(
-                        H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
-                        Div(*section_items, cls="space-y-3"),
+                    fh.Div(
+                        fh.H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
+                        fh.Div(*section_items, cls="space-y-3"),
                         cls="mb-4",
                     )
                 )
@@ -207,8 +207,8 @@ def setup_routes(app, rt, db, User):
                 for title, path in items:
                     active = path == current_path
                     links.append(
-                        Li(
-                            A(
+                        fh.Li(
+                            fh.A(
                                 title,
                                 href=f"/docs/{path}",
                                 cls=f"block px-4 py-1 hover:bg-gray-100 {'bg-blue-50 text-blue-600' if active else ''}",
@@ -216,59 +216,59 @@ def setup_routes(app, rt, db, User):
                         )
                     )
                 nav_items.append(
-                    Div(
-                        H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
-                        Ul(*links, cls="list-none space-y-1 block"),
+                    fh.Div(
+                        fh.H3(section, cls="font-semibold text-gray-900 px-3 py-2"),
+                        fh.Ul(*links, cls="list-none space-y-1 block"),
                         cls="mb-4",
                     )
                 )
 
-        return Nav(
-            Div(*nav_items, cls="space-y-4"),
+        return fh.Nav(
+            fh.Div(*nav_items, cls="space-y-4"),
             cls="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto p-4 flex-shrink-0",
         )
 
     @rt("/docs")
     def get(session):
         """Documentation home page."""
-        return Titled(
+        return fh.Titled(
             "Documentation",
-            Div(
+            fh.Div(
                 render_doc_nav(),
-                Div(
-                    H1("FeedForward Documentation", cls="text-3xl font-bold mb-4"),
-                    P(
+                fh.Div(
+                    fh.H1("FeedForward Documentation", cls="text-3xl font-bold mb-4"),
+                    fh.P(
                         "Welcome to the FeedForward documentation. Select a topic from the navigation menu to get started.",
                         cls="text-lg text-gray-600 mb-6",
                     ),
-                    Div(
-                        H2("Quick Links", cls="text-2xl font-semibold mb-3"),
-                        Div(
-                            Card(
-                                H3("For Students", cls="text-xl font-semibold mb-2"),
-                                P("Learn how to submit work and view feedback"),
-                                A(
+                    fh.Div(
+                        fh.H2("Quick Links", cls="text-2xl font-semibold mb-3"),
+                        fh.Div(
+                            fh.Card(
+                                fh.H3("For Students", cls="text-xl font-semibold mb-2"),
+                                fh.P("Learn how to submit work and view feedback"),
+                                fh.A(
                                     "Get Started →",
                                     href="/docs/user-guides/student/getting-started",
                                     cls="text-blue-600 hover:underline",
                                 ),
                             ),
-                            Card(
-                                H3("For Instructors", cls="text-xl font-semibold mb-2"),
-                                P("Create courses, assignments, and review feedback"),
-                                A(
+                            fh.Card(
+                                fh.H3("For Instructors", cls="text-xl font-semibold mb-2"),
+                                fh.P("Create courses, assignments, and review feedback"),
+                                fh.A(
                                     "Get Started →",
                                     href="/docs/user-guides/instructor/course-management",
                                     cls="text-blue-600 hover:underline",
                                 ),
                             ),
-                            Card(
-                                H3(
+                            fh.Card(
+                                fh.H3(
                                     "For Administrators",
                                     cls="text-xl font-semibold mb-2",
                                 ),
-                                P("Configure and maintain your FeedForward instance"),
-                                A(
+                                fh.P("Configure and maintain your FeedForward instance"),
+                                fh.A(
                                     "Get Started →",
                                     href="/docs/user-guides/admin/initial-setup",
                                     cls="text-blue-600 hover:underline",
@@ -294,17 +294,17 @@ def setup_routes(app, rt, db, User):
         content = load_markdown_file(doc_path)
 
         if content is None:
-            return Titled(
+            return fh.Titled(
                 "Documentation Not Found",
-                Div(
+                fh.Div(
                     render_doc_nav(path),
-                    Div(
-                        H1("Page Not Found", cls="text-3xl font-bold mb-4"),
-                        P(
+                    fh.Div(
+                        fh.H1("Page Not Found", cls="text-3xl font-bold mb-4"),
+                        fh.P(
                             f"The documentation page '{path}' could not be found.",
                             cls="text-gray-600",
                         ),
-                        A(
+                        fh.A(
                             "← Back to Documentation",
                             href="/docs",
                             cls="text-blue-600 hover:underline",
@@ -319,18 +319,18 @@ def setup_routes(app, rt, db, User):
         title_match = re.search(r"<h1>(.*?)</h1>", content)
         title = title_match.group(1) if title_match else "Documentation"
 
-        return Titled(
+        return fh.Titled(
             title,
-            Div(
+            fh.Div(
                 render_doc_nav(path),
-                Div(
-                    Div(NotStr(content), cls="prose prose-lg max-w-none"),
+                fh.Div(
+                    fh.Div(fh.NotStr(content), cls="prose prose-lg max-w-none"),
                     cls="flex-1 p-8 overflow-y-auto",
                 ),
                 cls="flex h-screen overflow-hidden",
             ),
             # Add some CSS for better markdown rendering
-            Style("""
+            fh.Style("""
                 .prose h1 { font-size: 2.25rem; font-weight: 700; margin-bottom: 1rem; }
                 .prose h2 { font-size: 1.875rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; }
                 .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; }

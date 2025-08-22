@@ -4,20 +4,9 @@ Authentication routes (login, register, verify, password reset, etc.)
 
 from datetime import datetime
 
-from fasthtml.common import *
+from fasthtml import common as fh
 from fasthtml.common import (
-    H1,
-    H2,
-    A,
-    Button,
-    Div,
-    Form,
-    Hr,
     HttpHeader,
-    Input,
-    Label,
-    P,
-    Span,
 )
 from fastlite import NotFoundError
 
@@ -46,27 +35,27 @@ from app.utils.ui import page_container
 @rt("/register")
 def get():
     # Create the registration form content
-    registration_content = Div(
-        Div(
+    registration_content = fh.Div(
+        fh.Div(
             # Brand logo on registration form
-            Div(
-                Span("Feed", cls="text-indigo-600 font-bold"),
-                Span("Forward", cls="text-teal-500 font-bold"),
+            fh.Div(
+                fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                fh.Span("Forward", cls="text-teal-500 font-bold"),
                 cls="text-3xl mb-4 text-center",
             ),
-            H1(
+            fh.H1(
                 "Create Your Account",
                 cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
             ),
-            Div(
-                Form(
-                    Div(
-                        Label(
+            fh.Div(
+                fh.Form(
+                    fh.Div(
+                        fh.Label(
                             "Name",
                             for_="name",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="name",
                             type="text",
                             placeholder="Your full name",
@@ -75,17 +64,17 @@ def get():
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Email",
                             for_="email",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        P(
+                        fh.P(
                             "For instructors only. Some email domains are auto-approved, others require administrator approval.",
                             cls="text-sm text-gray-500 mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="email",
                             type="email",
                             placeholder="Your institutional email address",
@@ -94,17 +83,17 @@ def get():
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Password",
                             for_="password",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        P(
+                        fh.P(
                             "At least 8 characters with uppercase, lowercase, number, and special character",
                             cls="text-sm text-gray-500 mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="password",
                             type="password",
                             placeholder="Create a password",
@@ -113,13 +102,13 @@ def get():
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Confirm Password",
                             for_="confirm_password",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="confirm_password",
                             type="password",
                             placeholder="Confirm your password",
@@ -128,23 +117,23 @@ def get():
                         ),
                         cls="mb-6",
                     ),
-                    Div(
-                        Button(
+                    fh.Div(
+                        fh.Button(
                             "Sign up",
                             type="submit",
                             cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
                         ),
                         cls="mb-4",
                     ),
-                    Span(id="error", cls="text-red-500 block text-center"),
+                    fh.Span(id="error", cls="text-red-500 block text-center"),
                     hx_post="/register",
                     hx_target="#error",
                     cls="w-full",
                 ),
-                Hr(cls="my-6 border-gray-200"),
-                P(
+                fh.Hr(cls="my-6 border-gray-200"),
+                fh.P(
                     "Already have an account? ",
-                    A(
+                    fh.A(
                         "Sign in here",
                         href="/login",
                         cls="text-indigo-600 hover:underline font-medium",
@@ -229,22 +218,22 @@ def post(name: str, email: str, password: str, confirm_password: str):
                 print(f"EMAIL ERROR DETAILS: {message}")
                 # Provide a way to verify manually for development purposes
                 verify_link = f"{APP_DOMAIN}/verify?token={token}"
-                return Div(
-                    P(
+                return fh.Div(
+                    fh.P(
                         "Account reactivated but there was an issue sending the verification email.",
                         cls="text-red-500 mb-2",
                     ),
-                    P(
+                    fh.P(
                         "For development purposes, you can verify your account using this link:",
                         cls="mb-2",
                     ),
-                    A(
+                    fh.A(
                         verify_link,
                         href=verify_link,
                         cls="text-blue-500 underline break-all",
                         target="_blank",
                     ),
-                    P(
+                    fh.P(
                         "Note: "
                         + (
                             ""
@@ -303,22 +292,22 @@ def post(name: str, email: str, password: str, confirm_password: str):
             print(f"EMAIL ERROR DETAILS: {message}")
             # Provide a way to verify manually for development purposes
             verify_link = f"{APP_DOMAIN}/verify?token={token}"
-            return Div(
-                P(
+            return fh.Div(
+                fh.P(
                     "Registration successful but there was an issue sending the verification email.",
                     cls="text-red-500 mb-2",
                 ),
-                P(
+                fh.P(
                     "For development purposes, you can verify your account using this link:",
                     cls="mb-2",
                 ),
-                A(
+                fh.A(
                     verify_link,
                     href=verify_link,
                     cls="text-blue-500 underline break-all",
                     target="_blank",
                 ),
-                P(
+                fh.P(
                     "Note: "
                     + (
                         ""
@@ -334,41 +323,41 @@ def post(name: str, email: str, password: str, confirm_password: str):
 # --- Registration Confirmation Route ---
 @rt("/register/confirmation")
 def get(message: str, email: str):
-    confirmation_content = Div(
-        Div(
-            Div(
+    confirmation_content = fh.Div(
+        fh.Div(
+            fh.Div(
                 # Success icon
-                Div(Span("✅", cls="text-5xl block mb-4"), cls="text-center"),
+                fh.Div(fh.Span("✅", cls="text-5xl block mb-4"), cls="text-center"),
                 # Brand logo
-                Div(
-                    Span("Feed", cls="text-indigo-600 font-bold"),
-                    Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Div(
+                    fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                    fh.Span("Forward", cls="text-teal-500 font-bold"),
                     cls="text-3xl mb-4 text-center",
                 ),
-                H2(
+                fh.H2(
                     "Registration Complete!",
                     cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
                 ),
-                Div(
-                    P(message, cls="text-gray-600 mb-3"),
-                    P("We've sent a verification email to: ", cls="text-gray-600"),
-                    P(email, cls="font-semibold text-indigo-600 mb-6"),
+                fh.Div(
+                    fh.P(message, cls="text-gray-600 mb-3"),
+                    fh.P("We've sent a verification email to: ", cls="text-gray-600"),
+                    fh.P(email, cls="font-semibold text-indigo-600 mb-6"),
                     cls="text-center",
                 ),
-                Div(
-                    P(
+                fh.Div(
+                    fh.P(
                         "Please check your inbox and click the verification link.",
                         cls="text-gray-600 mb-6",
                     ),
                     cls="text-center",
                 ),
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         "Return to Login",
                         href="/login",
                         cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-4",
                     ),
-                    A(
+                    fh.A(
                         "Return to Home",
                         href="/",
                         cls="inline-block bg-gray-100 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors",
@@ -407,22 +396,22 @@ def get(token: str):
             users.update(user)
 
             # Success message content
-            verify_success_content = Div(
-                Div(
-                    Div(
+            verify_success_content = fh.Div(
+                fh.Div(
+                    fh.Div(
                         # Success icon
-                        Div(Span("✅", cls="text-5xl block mb-4"), cls="text-center"),
+                        fh.Div(fh.Span("✅", cls="text-5xl block mb-4"), cls="text-center"),
                         # Brand logo
-                        Div(
-                            Span("Feed", cls="text-indigo-600 font-bold"),
-                            Span("Forward", cls="text-teal-500 font-bold"),
+                        fh.Div(
+                            fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                            fh.Span("Forward", cls="text-teal-500 font-bold"),
                             cls="text-3xl mb-4 text-center",
                         ),
-                        H1(
+                        fh.H1(
                             "Email Verified Successfully!",
                             cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
                         ),
-                        P(
+                        fh.P(
                             "Your email has been verified."
                             + (
                                 " You can now log in to your account."
@@ -431,8 +420,8 @@ def get(token: str):
                             ),
                             cls="text-gray-600 mb-6 text-center",
                         ),
-                        Div(
-                            A(
+                        fh.Div(
+                            fh.A(
                                 "Login to Your Account",
                                 href="/login",
                                 cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -452,27 +441,27 @@ def get(token: str):
             )
 
     # Error message content for invalid token
-    verify_error_content = Div(
-        Div(
-            Div(
+    verify_error_content = fh.Div(
+        fh.Div(
+            fh.Div(
                 # Error icon
-                Div(Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
+                fh.Div(fh.Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
                 # Brand logo
-                Div(
-                    Span("Feed", cls="text-indigo-600 font-bold"),
-                    Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Div(
+                    fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                    fh.Span("Forward", cls="text-teal-500 font-bold"),
                     cls="text-3xl mb-4 text-center",
                 ),
-                H1(
+                fh.H1(
                     "Verification Failed",
                     cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
                 ),
-                P(
+                fh.P(
                     "The verification link is invalid or has expired.",
                     cls="text-gray-600 mb-6 text-center",
                 ),
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         "Return to Home",
                         href="/",
                         cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -494,27 +483,27 @@ def get(token: str):
 @rt("/login")
 def get():
     # Create the login form content
-    login_content = Div(
-        Div(
+    login_content = fh.Div(
+        fh.Div(
             # Brand logo on login form
-            Div(
-                Span("Feed", cls="text-indigo-600 font-bold"),
-                Span("Forward", cls="text-teal-500 font-bold"),
+            fh.Div(
+                fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                fh.Span("Forward", cls="text-teal-500 font-bold"),
                 cls="text-3xl mb-4 text-center",
             ),
-            H1(
+            fh.H1(
                 "Sign in to Your Account",
                 cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
             ),
-            Div(
-                Form(
-                    Div(
-                        Label(
+            fh.Div(
+                fh.Form(
+                    fh.Div(
+                        fh.Label(
                             "Email",
                             for_="email",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="email",
                             type="email",
                             placeholder="Your email address",
@@ -523,13 +512,13 @@ def get():
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Password",
                             for_="password",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="password",
                             type="password",
                             placeholder="Your password",
@@ -538,31 +527,31 @@ def get():
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        A(
+                    fh.Div(
+                        fh.A(
                             "Forgot password?",
                             href="/forgot-password",
                             cls="text-indigo-600 hover:underline text-sm font-medium",
                         ),
                         cls="mb-6 text-right",
                     ),
-                    Div(
-                        Button(
+                    fh.Div(
+                        fh.Button(
                             "Sign in",
                             type="submit",
                             cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
                         ),
                         cls="mb-4",
                     ),
-                    Span(id="error", cls="text-red-500 block text-center"),
+                    fh.Span(id="error", cls="text-red-500 block text-center"),
                     hx_post="/login",
                     hx_target="#error",
                     cls="w-full",
                 ),
-                Hr(cls="my-6 border-gray-200"),
-                P(
+                fh.Hr(cls="my-6 border-gray-200"),
+                fh.P(
                     "Don't have an account? ",
-                    A(
+                    fh.A(
                         "Sign up here",
                         href="/register",
                         cls="text-indigo-600 hover:underline font-medium",
@@ -652,16 +641,16 @@ def post(session, email: str, password: str):
         send_verification_email(email, token)
 
         # Return error with option to resend
-        return Div(
-            P(
+        return fh.Div(
+            fh.P(
                 "Your email is not verified yet. Please check your inbox or spam folder.",
                 cls="text-red-500 mb-2",
             ),
-            P(
+            fh.P(
                 "We've sent a new verification email to your address.",
                 cls="text-gray-600",
             ),
-            P(f"Debug info: {debug_info}", cls="text-xs text-gray-500 mt-4"),
+            fh.P(f"Debug info: {debug_info}", cls="text-xs text-gray-500 mt-4"),
             cls="text-center",
         )
 
@@ -695,31 +684,31 @@ def post(session):
 @rt("/forgot-password")
 def get():
     # Create the forgot password content
-    forgot_password_content = Div(
-        Div(
+    forgot_password_content = fh.Div(
+        fh.Div(
             # Brand logo
-            Div(
-                Span("Feed", cls="text-indigo-600 font-bold"),
-                Span("Forward", cls="text-teal-500 font-bold"),
+            fh.Div(
+                fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                fh.Span("Forward", cls="text-teal-500 font-bold"),
                 cls="text-3xl mb-4 text-center",
             ),
-            H1(
+            fh.H1(
                 "Reset Your Password",
                 cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
             ),
-            P(
+            fh.P(
                 "Enter your email address and we'll send you a link to reset your password.",
                 cls="text-gray-600 mb-6 text-center",
             ),
-            Div(
-                Form(
-                    Div(
-                        Label(
+            fh.Div(
+                fh.Form(
+                    fh.Div(
+                        fh.Label(
                             "Email",
                             for_="email",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="email",
                             type="email",
                             placeholder="Your email address",
@@ -728,23 +717,23 @@ def get():
                         ),
                         cls="mb-6",
                     ),
-                    Div(
-                        Button(
+                    fh.Div(
+                        fh.Button(
                             "Send Reset Link",
                             type="submit",
                             cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
                         ),
                         cls="mb-4",
                     ),
-                    Span(id="message", cls="text-center block"),
+                    fh.Span(id="message", cls="text-center block"),
                     hx_post="/forgot-password",
                     hx_target="#message",
                     cls="w-full",
                 ),
-                Hr(cls="my-6 border-gray-200"),
-                P(
+                fh.Hr(cls="my-6 border-gray-200"),
+                fh.P(
                     "Remember your password? ",
-                    A(
+                    fh.A(
                         "Login here",
                         href="/login",
                         cls="text-indigo-600 hover:underline font-medium",
@@ -778,8 +767,8 @@ def post(email: str):
         # Send password reset email
         success, message = send_password_reset_email(email, reset_token)
         if success:
-            return Div(
-                P(
+            return fh.Div(
+                fh.P(
                     "Password reset link sent. Please check your email.",
                     cls="text-green-500",
                 ),
@@ -790,13 +779,13 @@ def post(email: str):
             print(f"EMAIL ERROR DETAILS: {message}")
             # Provide a way to reset password manually for development purposes
             reset_link = f"{APP_DOMAIN}/reset-password?token={reset_token}"
-            return Div(
-                P("Failed to send reset link.", cls="text-red-500 mb-2"),
-                P(
+            return fh.Div(
+                fh.P("Failed to send reset link.", cls="text-red-500 mb-2"),
+                fh.P(
                     "For development purposes, you can reset your password using this link:",
                     cls="mb-2",
                 ),
-                A(
+                fh.A(
                     reset_link,
                     href=reset_link,
                     cls="text-blue-500 underline break-all",
@@ -806,8 +795,8 @@ def post(email: str):
             )
     except NotFoundError:
         # Don't reveal if the email exists
-        return Div(
-            P(
+        return fh.Div(
+            fh.P(
                 "If your email is registered, you will receive a password reset link.",
                 cls="text-green-500",
             ),
@@ -832,27 +821,27 @@ def get(token: str):
 
     if not valid_token:
         # Error message content for invalid token
-        invalid_token_content = Div(
-            Div(
-                Div(
+        invalid_token_content = fh.Div(
+            fh.Div(
+                fh.Div(
                     # Error icon
-                    Div(Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
+                    fh.Div(fh.Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
                     # Brand logo
-                    Div(
-                        Span("Feed", cls="text-indigo-600 font-bold"),
-                        Span("Forward", cls="text-teal-500 font-bold"),
+                    fh.Div(
+                        fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                        fh.Span("Forward", cls="text-teal-500 font-bold"),
                         cls="text-3xl mb-4 text-center",
                     ),
-                    H1(
+                    fh.H1(
                         "Invalid or Expired Link",
                         cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
                     ),
-                    P(
+                    fh.P(
                         "The password reset link is invalid or has expired.",
                         cls="text-gray-600 mb-6 text-center",
                     ),
-                    Div(
-                        A(
+                    fh.Div(
+                        fh.A(
                             "Request New Link",
                             href="/forgot-password",
                             cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -870,33 +859,33 @@ def get(token: str):
         return page_container("Invalid Reset Link - FeedForward", invalid_token_content)
 
     # Valid token, show password reset form
-    reset_password_content = Div(
-        Div(
+    reset_password_content = fh.Div(
+        fh.Div(
             # Brand logo
-            Div(
-                Span("Feed", cls="text-indigo-600 font-bold"),
-                Span("Forward", cls="text-teal-500 font-bold"),
+            fh.Div(
+                fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                fh.Span("Forward", cls="text-teal-500 font-bold"),
                 cls="text-3xl mb-4 text-center",
             ),
-            H1(
+            fh.H1(
                 "Set New Password",
                 cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
             ),
-            Div(
-                Form(
-                    Input(type="hidden", id="token", value=token),
-                    Input(type="hidden", id="email", value=user_email),
-                    Div(
-                        Label(
+            fh.Div(
+                fh.Form(
+                    fh.Input(type="hidden", id="token", value=token),
+                    fh.Input(type="hidden", id="email", value=user_email),
+                    fh.Div(
+                        fh.Label(
                             "New Password",
                             for_="password",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        P(
+                        fh.P(
                             "At least 8 characters with uppercase, lowercase, number, and special character",
                             cls="text-sm text-gray-500 mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="password",
                             type="password",
                             placeholder="New password",
@@ -905,13 +894,13 @@ def get(token: str):
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Confirm Password",
                             for_="confirm_password",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="confirm_password",
                             type="password",
                             placeholder="Confirm new password",
@@ -920,15 +909,15 @@ def get(token: str):
                         ),
                         cls="mb-6",
                     ),
-                    Div(
-                        Button(
+                    fh.Div(
+                        fh.Button(
                             "Reset Password",
                             type="submit",
                             cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
                         ),
                         cls="mb-4",
                     ),
-                    Span(id="error", cls="text-red-500 block text-center"),
+                    fh.Span(id="error", cls="text-red-500 block text-center"),
                     hx_post="/reset-password",
                     hx_target="#error",
                     cls="w-full",

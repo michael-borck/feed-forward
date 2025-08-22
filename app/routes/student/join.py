@@ -5,7 +5,7 @@ Student join routes for course enrollment
 import logging
 from datetime import datetime
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app import rt
 from app.models.course import enrollments
@@ -28,27 +28,27 @@ def student_join_form(token: str):
 
     if not found_user:
         # Invalid token
-        error_content = Div(
-            Div(
-                Div(
+        error_content = fh.Div(
+            fh.Div(
+                fh.Div(
                     # Error icon
-                    Div(Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
+                    fh.Div(fh.Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
                     # Brand logo
-                    Div(
-                        Span("Feed", cls="text-indigo-600 font-bold"),
-                        Span("Forward", cls="text-teal-500 font-bold"),
+                    fh.Div(
+                        fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                        fh.Span("Forward", cls="text-teal-500 font-bold"),
                         cls="text-3xl mb-4 text-center",
                     ),
-                    H1(
+                    fh.H1(
                         "Invalid Invitation Link",
                         cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
                     ),
-                    P(
+                    fh.P(
                         "The invitation link is invalid or has expired.",
                         cls="text-gray-600 mb-6 text-center",
                     ),
-                    Div(
-                        A(
+                    fh.Div(
+                        fh.A(
                             "Return to Home",
                             href="/",
                             cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -65,29 +65,29 @@ def student_join_form(token: str):
         return page_container("Invalid Invitation - FeedForward", error_content)
 
     # Valid token, show registration form
-    registration_content = Div(
-        Div(
+    registration_content = fh.Div(
+        fh.Div(
             # Brand logo on registration form
-            Div(
-                Span("Feed", cls="text-indigo-600 font-bold"),
-                Span("Forward", cls="text-teal-500 font-bold"),
+            fh.Div(
+                fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                fh.Span("Forward", cls="text-teal-500 font-bold"),
                 cls="text-3xl mb-4 text-center",
             ),
-            H1(
+            fh.H1(
                 "Complete Your Registration",
                 cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
             ),
-            Div(
-                Form(
-                    Input(type="hidden", id="token", value=token),
-                    Input(type="hidden", id="email", value=found_user.email),
-                    Div(
-                        Label(
+            fh.Div(
+                fh.Form(
+                    fh.Input(type="hidden", id="token", value=token),
+                    fh.Input(type="hidden", id="email", value=found_user.email),
+                    fh.Div(
+                        fh.Label(
                             "Email",
                             for_="display_email",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="display_email",
                             type="email",
                             value=found_user.email,
@@ -96,13 +96,13 @@ def student_join_form(token: str):
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Name",
                             for_="name",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="name",
                             type="text",
                             placeholder="Your full name",
@@ -111,17 +111,17 @@ def student_join_form(token: str):
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Password",
                             for_="password",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        P(
+                        fh.P(
                             "At least 8 characters with uppercase, lowercase, number, and special character",
                             cls="text-sm text-gray-500 mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="password",
                             type="password",
                             placeholder="Create a password",
@@ -130,13 +130,13 @@ def student_join_form(token: str):
                         ),
                         cls="mb-4",
                     ),
-                    Div(
-                        Label(
+                    fh.Div(
+                        fh.Label(
                             "Confirm Password",
                             for_="confirm_password",
                             cls="block text-indigo-900 font-medium mb-1",
                         ),
-                        Input(
+                        fh.Input(
                             id="confirm_password",
                             type="password",
                             placeholder="Confirm your password",
@@ -145,15 +145,15 @@ def student_join_form(token: str):
                         ),
                         cls="mb-6",
                     ),
-                    Div(
-                        Button(
+                    fh.Div(
+                        fh.Button(
                             "Complete Registration",
                             type="submit",
                             cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
                         ),
                         cls="mb-4",
                     ),
-                    Span(id="error", cls="text-red-500 block text-center"),
+                    fh.Span(id="error", cls="text-red-500 block text-center"),
                     hx_post="/student/join",
                     hx_target="#error",
                     cls="w-full",

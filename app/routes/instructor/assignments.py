@@ -5,8 +5,7 @@ Instructor assignment management routes
 from datetime import datetime
 from typing import Optional
 
-from fasthtml.common import *
-from starlette.responses import RedirectResponse
+from fasthtml import common as fh
 
 from app import instructor_required, rt
 from app.models.assignment import (
@@ -62,10 +61,10 @@ def instructor_assignments_list(session, course_id: int):
     course, error = get_instructor_course(course_id, user.email)
 
     if error:
-        return Div(
-            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
-            P(error, cls="text-gray-700 mb-4"),
-            A(
+        return fh.Div(
+            fh.H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            fh.P(error, cls="text-gray-700 mb-4"),
+            fh.A(
                 "Back to Courses",
                 href="/instructor/courses",
                 cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700",
@@ -88,10 +87,10 @@ def instructor_assignments_list(session, course_id: int):
     )
 
     # Create the main content
-    main_content = Div(
+    main_content = fh.Div(
         # Header with action button
-        Div(
-            H2(
+        fh.Div(
+            fh.H2(
                 f"Assignments for {course.title}",
                 cls="text-2xl font-bold text-indigo-900",
             ),
@@ -105,46 +104,46 @@ def instructor_assignments_list(session, course_id: int):
         ),
         # Assignment listing or empty state
         (
-            Div(
-                P(
+            fh.Div(
+                fh.P(
                     f"This course has {len(course_assignments)} {'assignment' if len(course_assignments) == 1 else 'assignments'}.",
                     cls="text-gray-600 mb-6",
                 ),
                 # Assignment table with actions
-                Div(
-                    Table(
-                        Thead(
-                            Tr(
-                                Th(
+                fh.Div(
+                    fh.Table(
+                        fh.Thead(
+                            fh.Tr(
+                                fh.Th(
                                     "Title",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Status",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Due Date",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Drafts",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
-                                Th(
+                                fh.Th(
                                     "Actions",
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 ),
                             ),
                             cls="bg-indigo-50",
                         ),
-                        Tbody(
+                        fh.Tbody(
                             *(
-                                Tr(
+                                fh.Tr(
                                     # Assignment title
-                                    Td(assignment.title, cls="py-4 px-6"),
+                                    fh.Td(assignment.title, cls="py-4 px-6"),
                                     # Status badge
-                                    Td(
+                                    fh.Td(
                                         status_badge(
                                             getattr(
                                                 assignment, "status", "draft"
@@ -166,30 +165,30 @@ def instructor_assignments_list(session, course_id: int):
                                         cls="py-4 px-6",
                                     ),
                                     # Due date
-                                    Td(
+                                    fh.Td(
                                         getattr(assignment, "due_date", "Not set")
                                         or "Not set",
                                         cls="py-4 px-6",
                                     ),
                                     # Max drafts allowed
-                                    Td(
+                                    fh.Td(
                                         str(getattr(assignment, "max_drafts", 1) or 1),
                                         cls="py-4 px-6",
                                     ),
                                     # Action buttons
-                                    Td(
-                                        Div(
-                                            A(
+                                    fh.Td(
+                                        fh.Div(
+                                            fh.A(
                                                 "Edit",
                                                 href=f"/instructor/assignments/{assignment.id}/edit",
                                                 cls="text-xs px-3 py-1 bg-amber-600 text-white rounded-md hover:bg-amber-700 mr-2",
                                             ),
-                                            A(
+                                            fh.A(
                                                 "Rubric",
                                                 href=f"/instructor/assignments/{assignment.id}/rubric",
                                                 cls="text-xs px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700 mr-2",
                                             ),
-                                            A(
+                                            fh.A(
                                                 "Submissions",
                                                 href=f"/instructor/assignments/{assignment.id}/submissions",
                                                 cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700",
@@ -209,13 +208,13 @@ def instructor_assignments_list(session, course_id: int):
                 cls="",
             )
             if course_assignments
-            else Div(
-                P(
+            else fh.Div(
+                fh.P(
                     "This course doesn't have any assignments yet. Create your first assignment to get started.",
                     cls="text-center text-gray-600 mb-6",
                 ),
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         "Create New Assignment",
                         href=f"/instructor/courses/{course_id}/assignments/new",
                         cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -228,10 +227,10 @@ def instructor_assignments_list(session, course_id: int):
     )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Back to Courses",
                     color="gray",
@@ -254,9 +253,9 @@ def instructor_assignments_list(session, course_id: int):
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
-        Div(
-            H3("Assignment Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Assignment Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Create Assignment",
                     color="indigo",
@@ -265,14 +264,14 @@ def instructor_assignments_list(session, course_id: int):
                 ),
                 cls="space-y-3",
             ),
-            P(
+            fh.P(
                 "Assignment Statuses:",
                 cls="text-sm text-gray-600 font-medium mt-4 mb-2",
             ),
-            P("Draft: Only visible to you", cls="text-xs text-gray-600 mb-1"),
-            P("Active: Available to students", cls="text-xs text-gray-600 mb-1"),
-            P("Closed: No new submissions", cls="text-xs text-gray-600 mb-1"),
-            P("Archived: Hidden from students", cls="text-xs text-gray-600 mb-1"),
+            fh.P("Draft: Only visible to you", cls="text-xs text-gray-600 mb-1"),
+            fh.P("Active: Available to students", cls="text-xs text-gray-600 mb-1"),
+            fh.P("Closed: No new submissions", cls="text-xs text-gray-600 mb-1"),
+            fh.P("Archived: Hidden from students", cls="text-xs text-gray-600 mb-1"),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
     )
@@ -296,20 +295,20 @@ def instructor_assignments_new(session, course_id: int):
     # Get the course with permission check
     course, error = get_instructor_course(course_id, user.email)
     if error:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Main content
-    main_content = Div(
-        H2("Create New Assignment", cls="text-2xl font-bold text-indigo-900 mb-6"),
-        Form(
+    main_content = fh.Div(
+        fh.H2("Create New Assignment", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.Form(
             # Assignment Title
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Assignment Title",
                     for_="title",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="title",
                     name="title",
@@ -320,13 +319,13 @@ def instructor_assignments_new(session, course_id: int):
                 cls="mb-4",
             ),
             # Instructions
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Instructions",
                     for_="instructions",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Textarea(
+                fh.Textarea(
                     id="instructions",
                     name="instructions",
                     placeholder="Provide clear instructions for the assignment",
@@ -337,13 +336,13 @@ def instructor_assignments_new(session, course_id: int):
                 cls="mb-4",
             ),
             # Due Date
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Due Date",
                     for_="due_date",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="datetime-local",
                     id="due_date",
                     name="due_date",
@@ -352,13 +351,13 @@ def instructor_assignments_new(session, course_id: int):
                 cls="mb-4",
             ),
             # Max Drafts
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Maximum Drafts Allowed",
                     for_="max_drafts",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="number",
                     id="max_drafts",
                     name="max_drafts",
@@ -367,22 +366,22 @@ def instructor_assignments_new(session, course_id: int):
                     max="10",
                     cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                P(
+                fh.P(
                     "Students can submit multiple drafts for feedback",
                     cls="text-sm text-gray-500 mt-1",
                 ),
                 cls="mb-6",
             ),
             # Hidden course ID
-            Input(type="hidden", name="course_id", value=str(course_id)),
+            fh.Input(type="hidden", name="course_id", value=str(course_id)),
             # Submit buttons
-            Div(
-                Button(
+            fh.Div(
+                fh.Button(
                     "Create Assignment",
                     type="submit",
                     cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
                 ),
-                A(
+                fh.A(
                     "Cancel",
                     href=f"/instructor/courses/{course_id}/assignments",
                     cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
@@ -396,10 +395,10 @@ def instructor_assignments_new(session, course_id: int):
     )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Create Assignment", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P(f"Course: {course.title}", cls="text-gray-600 mb-4"),
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Create Assignment", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.P(f"Course: {course.title}", cls="text-gray-600 mb-4"),
             action_button(
                 "Back to Assignments",
                 color="gray",
@@ -436,7 +435,7 @@ def instructor_assignments_create(
     # Verify course ownership
     course, error = get_instructor_course(course_id, user.email)
     if error:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Create the assignment
     new_assignment = Assignment(
@@ -454,11 +453,11 @@ def instructor_assignments_create(
     # Save to database
     try:
         assignment_id = assignments.insert(new_assignment)
-        return RedirectResponse(
+        return fh.RedirectResponse(
             f"/instructor/assignments/{assignment_id}/edit", status_code=303
         )
     except Exception:
-        return RedirectResponse(
+        return fh.RedirectResponse(
             f"/instructor/courses/{course_id}/assignments/new", status_code=303
         )
 
@@ -474,11 +473,11 @@ def instructor_assignment_view(session, assignment_id: int):
     try:
         assignment = assignments[assignment_id]
     except:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
     if assignment.created_by != user.email:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Get the course
     course = None
@@ -488,10 +487,10 @@ def instructor_assignment_view(session, assignment_id: int):
             break
 
     if not course:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Redirect to edit page for now
-    return RedirectResponse(
+    return fh.RedirectResponse(
         f"/instructor/assignments/{assignment_id}/edit", status_code=303
     )
 
@@ -507,11 +506,11 @@ def instructor_assignment_update_status(session, assignment_id: int, status: str
     try:
         assignment = assignments[assignment_id]
     except:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
     if assignment.created_by != user.email:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Update status
     valid_statuses = ["draft", "active", "closed", "archived"]
@@ -521,7 +520,7 @@ def instructor_assignment_update_status(session, assignment_id: int, status: str
 
     # Get course for redirect
     course_id = assignment.course_id
-    return RedirectResponse(
+    return fh.RedirectResponse(
         f"/instructor/courses/{course_id}/assignments", status_code=303
     )
 
@@ -537,11 +536,11 @@ def instructor_assignment_edit(session, assignment_id: int):
     try:
         assignment = assignments[assignment_id]
     except:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
     if assignment.created_by != user.email:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Get the course
     course = None
@@ -551,23 +550,23 @@ def instructor_assignment_edit(session, assignment_id: int):
             break
 
     if not course:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Main content
-    main_content = Div(
-        H2(
+    main_content = fh.Div(
+        fh.H2(
             f"Edit Assignment: {assignment.title}",
             cls="text-2xl font-bold text-indigo-900 mb-6",
         ),
-        Form(
+        fh.Form(
             # Assignment Title
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Assignment Title",
                     for_="title",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="text",
                     id="title",
                     name="title",
@@ -578,13 +577,13 @@ def instructor_assignment_edit(session, assignment_id: int):
                 cls="mb-4",
             ),
             # Instructions
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Instructions",
                     for_="instructions",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Textarea(
+                fh.Textarea(
                     assignment.instructions,
                     id="instructions",
                     name="instructions",
@@ -595,29 +594,29 @@ def instructor_assignment_edit(session, assignment_id: int):
                 cls="mb-4",
             ),
             # Status
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Status",
                     for_="status",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Select(
-                    Option(
+                fh.Select(
+                    fh.Option(
                         "Draft",
                         value="draft",
                         selected=getattr(assignment, "status", "draft") == "draft",
                     ),
-                    Option(
+                    fh.Option(
                         "Active",
                         value="active",
                         selected=getattr(assignment, "status", "draft") == "active",
                     ),
-                    Option(
+                    fh.Option(
                         "Closed",
                         value="closed",
                         selected=getattr(assignment, "status", "draft") == "closed",
                     ),
-                    Option(
+                    fh.Option(
                         "Archived",
                         value="archived",
                         selected=getattr(assignment, "status", "draft") == "archived",
@@ -629,13 +628,13 @@ def instructor_assignment_edit(session, assignment_id: int):
                 cls="mb-4",
             ),
             # Due Date
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Due Date",
                     for_="due_date",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="datetime-local",
                     id="due_date",
                     name="due_date",
@@ -645,13 +644,13 @@ def instructor_assignment_edit(session, assignment_id: int):
                 cls="mb-4",
             ),
             # Max Drafts
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Maximum Drafts Allowed",
                     for_="max_drafts",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Input(
+                fh.Input(
                     type="number",
                     id="max_drafts",
                     name="max_drafts",
@@ -663,13 +662,13 @@ def instructor_assignment_edit(session, assignment_id: int):
                 cls="mb-6",
             ),
             # Submit buttons
-            Div(
-                Button(
+            fh.Div(
+                fh.Button(
                     "Save Changes",
                     type="submit",
                     cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
                 ),
-                A(
+                fh.A(
                     "Cancel",
                     href=f"/instructor/courses/{assignment.course_id}/assignments",
                     cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
@@ -683,15 +682,15 @@ def instructor_assignment_edit(session, assignment_id: int):
     )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P(f"Course: {course.title}", cls="text-gray-600 mb-2"),
-            P(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.P(f"Course: {course.title}", cls="text-gray-600 mb-2"),
+            fh.P(
                 f"Created: {assignment.created_at.strftime('%B %d, %Y') if hasattr(assignment, 'created_at') and assignment.created_at else 'Unknown'}",
                 cls="text-gray-600 mb-4",
             ),
-            Div(
+            fh.Div(
                 action_button(
                     "View Rubric",
                     color="teal",
@@ -744,11 +743,11 @@ def instructor_assignment_update(
     try:
         assignment = assignments[assignment_id]
     except:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Verify ownership
     if assignment.created_by != user.email:
-        return RedirectResponse("/instructor/courses", status_code=303)
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
 
     # Update assignment
     assignment.title = title.strip()
@@ -762,7 +761,7 @@ def instructor_assignment_update(
     # Save changes
     assignments.update(assignment)
 
-    return RedirectResponse(
+    return fh.RedirectResponse(
         f"/instructor/courses/{assignment.course_id}/assignments", status_code=303
     )
 
@@ -810,10 +809,10 @@ def instructor_rubric_view(session, assignment_id: int):
     assignment, error = get_instructor_assignment(assignment_id, user.email)
 
     if error:
-        return Div(
-            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
-            P(error, cls="text-gray-700 mb-4"),
-            A(
+        return fh.Div(
+            fh.H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            fh.P(error, cls="text-gray-700 mb-4"),
+            fh.A(
                 "Back to Courses",
                 href="/instructor/courses",
                 cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700",
@@ -825,10 +824,10 @@ def instructor_rubric_view(session, assignment_id: int):
     course, course_error = get_instructor_course(assignment.course_id, user.email)
 
     if course_error:
-        return Div(
-            H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
-            P(course_error, cls="text-gray-700 mb-4"),
-            A(
+        return fh.Div(
+            fh.H2("Error", cls="text-2xl font-bold text-red-700 mb-4"),
+            fh.P(course_error, cls="text-gray-700 mb-4"),
+            fh.A(
                 "Back to Courses",
                 href="/instructor/courses",
                 cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700",
@@ -856,67 +855,67 @@ def instructor_rubric_view(session, assignment_id: int):
     # Prepare form for creating/editing rubric
     if rubric:
         # Rubric exists - show edit form
-        form_content = Div(
-            H2(
+        form_content = fh.Div(
+            fh.H2(
                 f"Manage Rubric for: {assignment.title}",
                 cls="text-2xl font-bold text-indigo-900 mb-4",
             ),
-            P(
+            fh.P(
                 "Edit the rubric categories and their weights. The weights should sum to 100%.",
                 cls="text-gray-600 mb-6",
             ),
             # Existing categories display and edit form
-            Div(
+            fh.Div(
                 # Header section with assignment info
-                Div(
-                    P(f"Assignment: {assignment.title}", cls="text-gray-600"),
-                    P(
+                fh.Div(
+                    fh.P(f"Assignment: {assignment.title}", cls="text-gray-600"),
+                    fh.P(
                         f"Status: {getattr(assignment, 'status', 'draft').capitalize()}",
                         cls="text-gray-600",
                     ),
                     cls="mb-4",
                 ),
                 # Current categories
-                H3(
+                fh.H3(
                     "Current Rubric Categories",
                     cls="text-xl font-semibold text-indigo-800 mb-3",
                 ),
                 # Category display and edit section
                 (
-                    Div(
-                        Div(
-                            Table(
-                                Thead(
-                                    Tr(
-                                        Th(
+                    fh.Div(
+                        fh.Div(
+                            fh.Table(
+                                fh.Thead(
+                                    fh.Tr(
+                                        fh.Th(
                                             "Category Name",
                                             cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                         ),
-                                        Th(
+                                        fh.Th(
                                             "Description",
                                             cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                         ),
-                                        Th(
+                                        fh.Th(
                                             "Weight (%)",
                                             cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                         ),
-                                        Th(
+                                        fh.Th(
                                             "Actions",
                                             cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                         ),
                                     ),
                                     cls="bg-indigo-50",
                                 ),
-                                Tbody(
+                                fh.Tbody(
                                     *[
-                                        Tr(
-                                            Td(
+                                        fh.Tr(
+                                            fh.Td(
                                                 category.name,
                                                 cls="py-3 px-4 border-b border-gray-100",
                                             ),
-                                            Td(
-                                                Div(
-                                                    P(
+                                            fh.Td(
+                                                fh.Div(
+                                                    fh.P(
                                                         category.description,
                                                         cls="text-gray-700 max-w-md",
                                                     ),
@@ -924,19 +923,19 @@ def instructor_rubric_view(session, assignment_id: int):
                                                 ),
                                                 cls="py-3 px-4 border-b border-gray-100",
                                             ),
-                                            Td(
+                                            fh.Td(
                                                 f"{category.weight}%",
                                                 cls="py-3 px-4 border-b border-gray-100",
                                             ),
-                                            Td(
-                                                Div(
-                                                    Button(
+                                            fh.Td(
+                                                fh.Div(
+                                                    fh.Button(
                                                         "Edit",
                                                         hx_get=f"/instructor/assignments/{assignment_id}/rubric/categories/{category.id}/edit",
                                                         hx_target="#category-edit-form",
                                                         cls="text-xs px-3 py-1 bg-amber-600 text-white rounded-md hover:bg-amber-700 mr-2",
                                                     ),
-                                                    Button(
+                                                    fh.Button(
                                                         "Delete",
                                                         hx_post=f"/instructor/assignments/{assignment_id}/rubric/categories/{category.id}/delete",
                                                         hx_confirm=f"Are you sure you want to delete the category '{category.name}'?",
@@ -959,28 +958,28 @@ def instructor_rubric_view(session, assignment_id: int):
                             cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6",
                         )
                         if categories
-                        else P(
+                        else fh.P(
                             "No rubric categories have been created yet. Use the form below to add categories to your rubric.",
                             cls="bg-amber-50 p-4 rounded-lg border border-amber-200 text-amber-800 mb-6",
                         )
                     )
                 ),
                 # Add new category section
-                Div(
-                    H3(
+                fh.Div(
+                    fh.H3(
                         "Add New Category",
                         cls="text-xl font-semibold text-indigo-800 mb-3",
                     ),
-                    Div(id="category-edit-form", cls="mb-4"),
-                    Form(
-                        Input(type="hidden", name="category_id", value=""),
-                        Div(
-                            Label(
+                    fh.Div(id="category-edit-form", cls="mb-4"),
+                    fh.Form(
+                        fh.Input(type="hidden", name="category_id", value=""),
+                        fh.Div(
+                            fh.Label(
                                 "Category Name",
                                 for_="name",
                                 cls="block text-indigo-900 font-medium mb-1",
                             ),
-                            Input(
+                            fh.Input(
                                 id="name",
                                 name="name",
                                 type="text",
@@ -990,13 +989,13 @@ def instructor_rubric_view(session, assignment_id: int):
                             ),
                             cls="mb-4",
                         ),
-                        Div(
-                            Label(
+                        fh.Div(
+                            fh.Label(
                                 "Description",
                                 for_="description",
                                 cls="block text-indigo-900 font-medium mb-1",
                             ),
-                            Textarea(
+                            fh.Textarea(
                                 id="description",
                                 name="description",
                                 rows="3",
@@ -1005,13 +1004,13 @@ def instructor_rubric_view(session, assignment_id: int):
                             ),
                             cls="mb-4",
                         ),
-                        Div(
-                            Label(
+                        fh.Div(
+                            fh.Label(
                                 "Weight (%)",
                                 for_="weight",
                                 cls="block text-indigo-900 font-medium mb-1",
                             ),
-                            Input(
+                            fh.Input(
                                 id="weight",
                                 name="weight",
                                 type="number",
@@ -1024,8 +1023,8 @@ def instructor_rubric_view(session, assignment_id: int):
                             ),
                             cls="mb-4",
                         ),
-                        Div(
-                            Button(
+                        fh.Div(
+                            fh.Button(
                                 "Add Category",
                                 type="submit",
                                 cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -1038,10 +1037,10 @@ def instructor_rubric_view(session, assignment_id: int):
                     ),
                 ),
                 # Result placeholder for form submissions
-                Div(id="rubric-result", cls="mb-6"),
+                fh.Div(id="rubric-result", cls="mb-6"),
                 # Action buttons
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         "Back to Assignment",
                         href=f"/instructor/assignments/{assignment_id}",
                         cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 mr-4",
@@ -1054,52 +1053,52 @@ def instructor_rubric_view(session, assignment_id: int):
         )
     else:
         # No rubric exists - show creation form
-        form_content = Div(
-            H2(
+        form_content = fh.Div(
+            fh.H2(
                 f"Create Rubric for: {assignment.title}",
                 cls="text-2xl font-bold text-indigo-900 mb-4",
             ),
-            P(
+            fh.P(
                 "A rubric helps provide structured feedback for students. Create a rubric by defining categories and their weights.",
                 cls="text-gray-600 mb-6",
             ),
             # Rubric creation form
-            Div(
+            fh.Div(
                 # Header section with assignment info
-                Div(
-                    P(f"Assignment: {assignment.title}", cls="text-gray-600"),
-                    P(
+                fh.Div(
+                    fh.P(f"Assignment: {assignment.title}", cls="text-gray-600"),
+                    fh.P(
                         f"Status: {getattr(assignment, 'status', 'draft').capitalize()}",
                         cls="text-gray-600",
                     ),
                     cls="mb-6",
                 ),
                 # Initialize rubric form
-                Form(
-                    H3(
+                fh.Form(
+                    fh.H3(
                         "Initialize Rubric",
                         cls="text-xl font-semibold text-indigo-800 mb-3",
                     ),
-                    P(
+                    fh.P(
                         "Create a rubric for this assignment to define evaluation criteria.",
                         cls="text-gray-600 mb-4",
                     ),
-                    Div(
-                        Button(
+                    fh.Div(
+                        fh.Button(
                             "Create Rubric",
                             type="submit",
                             cls="bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm",
                         ),
                         cls="mb-4",
                     ),
-                    Div(id="create-rubric-result", cls="mt-4"),
+                    fh.Div(id="create-rubric-result", cls="mt-4"),
                     hx_post=f"/instructor/assignments/{assignment_id}/rubric/create",
                     hx_target="#create-rubric-result",
                     cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6",
                 ),
                 # Action buttons
-                Div(
-                    A(
+                fh.Div(
+                    fh.A(
                         "Back to Assignment",
                         href=f"/instructor/assignments/{assignment_id}",
                         cls="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 mr-4",
@@ -1112,10 +1111,10 @@ def instructor_rubric_view(session, assignment_id: int):
         )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Rubric Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Rubric Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Back to Assignment",
                     color="gray",
@@ -1138,39 +1137,39 @@ def instructor_rubric_view(session, assignment_id: int):
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
-        Div(
-            H3("Rubric Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P(
+        fh.Div(
+            fh.H3("Rubric Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.P(
                 "• Create 3-5 categories for a balanced rubric",
                 cls="text-gray-600 mb-2 text-sm",
             ),
-            P("• Ensure weights add up to 100%", cls="text-gray-600 mb-2 text-sm"),
-            P(
+            fh.P("• Ensure weights add up to 100%", cls="text-gray-600 mb-2 text-sm"),
+            fh.P(
                 "• Use clear descriptions that guide students",
                 cls="text-gray-600 mb-2 text-sm",
             ),
-            P(
+            fh.P(
                 "• Consider including examples in descriptions",
                 cls="text-gray-600 text-sm",
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
-        Div(
-            H3("Template Library", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
-                Button(
+        fh.Div(
+            fh.H3("Template Library", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
+                fh.Button(
                     "Essay Rubric Template",
                     hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/essay",
                     hx_target="#rubric-result",
                     cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mb-2 w-full text-left",
                 ),
-                Button(
+                fh.Button(
                     "Research Paper Template",
                     hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/research",
                     hx_target="#rubric-result",
                     cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mb-2 w-full text-left",
                 ),
-                Button(
+                fh.Button(
                     "Presentation Template",
                     hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/presentation",
                     hx_target="#rubric-result",
@@ -1202,15 +1201,15 @@ def instructor_rubric_create(session, assignment_id: int):
     # Get the assignment with permission check
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
-        return Div(
-            P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
+        return fh.Div(
+            fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
         )
 
     # Check if rubric already exists
     for r in rubrics():
         if r.assignment_id == assignment_id:
-            return Div(
-                P("A rubric already exists for this assignment.", cls="text-amber-600"),
+            return fh.Div(
+                fh.P("A rubric already exists for this assignment.", cls="text-amber-600"),
                 cls="p-4 bg-amber-50 rounded-lg",
             )
 
@@ -1225,12 +1224,12 @@ def instructor_rubric_create(session, assignment_id: int):
     try:
         rubrics.insert(new_rubric)
         # Redirect to refresh the page
-        return RedirectResponse(
+        return fh.RedirectResponse(
             f"/instructor/assignments/{assignment_id}/rubric", status_code=303
         )
     except Exception as e:
-        return Div(
-            P(f"Error creating rubric: {e!s}", cls="text-red-600"),
+        return fh.Div(
+            fh.P(f"Error creating rubric: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg",
         )
 
@@ -1247,8 +1246,8 @@ def instructor_rubric_category_add(
     # Get the assignment with permission check
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
-        return Div(
-            P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
+        return fh.Div(
+            fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
         )
 
     # Get the rubric
@@ -1259,8 +1258,8 @@ def instructor_rubric_category_add(
             break
 
     if not rubric:
-        return Div(
-            P("No rubric exists for this assignment.", cls="text-red-600"),
+        return fh.Div(
+            fh.P("No rubric exists for this assignment.", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg",
         )
 
@@ -1270,8 +1269,8 @@ def instructor_rubric_category_add(
         if weight < 0 or weight > 100:
             raise ValueError("Weight must be between 0 and 100")
     except ValueError:
-        return Div(
-            P("Invalid weight value. Must be between 0 and 100.", cls="text-red-600"),
+        return fh.Div(
+            fh.P("Invalid weight value. Must be between 0 and 100.", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg",
         )
 
@@ -1288,11 +1287,11 @@ def instructor_rubric_category_add(
     try:
         rubric_categories.insert(new_category)
         # Redirect to refresh the page
-        return RedirectResponse(
+        return fh.RedirectResponse(
             f"/instructor/assignments/{assignment_id}/rubric", status_code=303
         )
     except Exception as e:
-        return Div(
-            P(f"Error adding category: {e!s}", cls="text-red-600"),
+        return fh.Div(
+            fh.P(f"Error adding category: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg",
         )

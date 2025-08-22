@@ -7,8 +7,7 @@ import string
 import urllib.parse
 from datetime import datetime
 
-from fasthtml.common import *
-from starlette.responses import RedirectResponse
+from fasthtml import common as fh
 
 from app import instructor_required, rt
 from app.models.course import Enrollment, courses, enrollments
@@ -93,15 +92,15 @@ def instructor_manage_students(session, request):
             if course_count > 3:
                 course_names += f" (+{course_count - 3} more)"
 
-            row = Tr(
-                Td(email, cls="py-4 px-6"),
-                Td(name, cls="py-4 px-6"),
-                Td(status_badge(status, status_color), cls="py-4 px-6"),
-                Td(str(course_count), cls="py-4 px-6 text-center"),
-                Td(course_names, cls="py-4 px-6 text-sm text-gray-600"),
-                Td(
-                    Div(
-                        Button(
+            row = fh.Tr(
+                fh.Td(email, cls="py-4 px-6"),
+                fh.Td(name, cls="py-4 px-6"),
+                fh.Td(status_badge(status, status_color), cls="py-4 px-6"),
+                fh.Td(str(course_count), cls="py-4 px-6 text-center"),
+                fh.Td(course_names, cls="py-4 px-6 text-sm text-gray-600"),
+                fh.Td(
+                    fh.Div(
+                        fh.Button(
                             "Resend",
                             hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(email)}&course_id={student_info['courses'][0].id}",
                             hx_target="#message-area",
@@ -109,7 +108,7 @@ def instructor_manage_students(session, request):
                         )
                         if not student_info["verified"]
                         else "",
-                        Button(
+                        fh.Button(
                             "Remove",
                             hx_post=f"/instructor/remove-student?email={urllib.parse.quote(email)}&course_id={student_info['courses'][0].id}",
                             hx_target="#message-area",
@@ -124,15 +123,15 @@ def instructor_manage_students(session, request):
             )
             student_rows.append(row)
 
-        main_content = Div(
-            H2("All Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
-            Div(id="message-area", cls="mb-4"),
-            Div(
-                Table(
-                    Thead(
-                        Tr(
+        main_content = fh.Div(
+            fh.H2("All Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.Div(id="message-area", cls="mb-4"),
+            fh.Div(
+                fh.Table(
+                    fh.Thead(
+                        fh.Tr(
                             *[
-                                Th(
+                                fh.Th(
                                     h,
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 )
@@ -148,7 +147,7 @@ def instructor_manage_students(session, request):
                             cls="bg-indigo-50",
                         )
                     ),
-                    Tbody(*student_rows),
+                    fh.Tbody(*student_rows),
                     cls="w-full",
                 ),
                 cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100",
@@ -156,16 +155,16 @@ def instructor_manage_students(session, request):
             cls="",
         )
     else:
-        main_content = Div(
-            H2("All Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        main_content = fh.Div(
+            fh.H2("All Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
             card(
-                Div(
-                    P(
+                fh.Div(
+                    fh.P(
                         "You don't have any students enrolled yet.",
                         cls="text-center text-gray-600 mb-6",
                     ),
-                    Div(
-                        A(
+                    fh.Div(
+                        fh.A(
                             "Invite Students",
                             href="/instructor/invite-students",
                             cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -178,10 +177,10 @@ def instructor_manage_students(session, request):
         )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Student Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Student Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/instructor/dashboard", icon="←"
                 ),
@@ -195,14 +194,14 @@ def instructor_manage_students(session, request):
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
-        Div(
-            H3("Statistics", cls="font-semibold text-indigo-900 mb-4"),
-            P(f"Total Students: {len(students_list)}", cls="text-gray-600 mb-2"),
-            P(
+        fh.Div(
+            fh.H3("Statistics", cls="font-semibold text-indigo-900 mb-4"),
+            fh.P(f"Total Students: {len(students_list)}", cls="text-gray-600 mb-2"),
+            fh.P(
                 f"Enrolled: {sum(1 for s in students_list if s['verified'])}",
                 cls="text-green-600 mb-2",
             ),
-            P(
+            fh.P(
                 f"Invited: {sum(1 for s in students_list if not s['verified'])}",
                 cls="text-yellow-600 mb-2",
             ),
@@ -280,14 +279,14 @@ def instructor_course_students(session, course_id: int):
             status_text = "Enrolled" if student["verified"] else "Invited"
 
             # Create row with actions
-            row = Tr(
-                Td(f"{idx + 1}", cls="py-4 px-6"),
-                Td(student["email"], cls="py-4 px-6"),
-                Td(student["name"], cls="py-4 px-6"),
-                Td(status_badge(status_text, status_color), cls="py-4 px-6"),
-                Td(
-                    Div(
-                        Button(
+            row = fh.Tr(
+                fh.Td(f"{idx + 1}", cls="py-4 px-6"),
+                fh.Td(student["email"], cls="py-4 px-6"),
+                fh.Td(student["name"], cls="py-4 px-6"),
+                fh.Td(status_badge(status_text, status_color), cls="py-4 px-6"),
+                fh.Td(
+                    fh.Div(
+                        fh.Button(
                             "Resend",
                             hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(student['email'])}&course_id={course_id}",
                             hx_target=f"#status-{idx}",
@@ -295,7 +294,7 @@ def instructor_course_students(session, course_id: int):
                         )
                         if not student["verified"]
                         else "",
-                        Button(
+                        fh.Button(
                             "Remove",
                             hx_post=f"/instructor/remove-student?email={urllib.parse.quote(student['email'])}&course_id={course_id}",
                             hx_target="#message-area",
@@ -313,19 +312,19 @@ def instructor_course_students(session, course_id: int):
             student_rows.append(row)
 
         # Create the student table
-        main_content = Div(
-            H2(
+        main_content = fh.Div(
+            fh.H2(
                 f"Students in {target_course.title} ({target_course.code})",
                 cls="text-2xl font-bold text-indigo-900 mb-6",
             ),
             # Add message area for delete confirmations
-            Div(id="message-area", cls="mb-4"),
-            Div(
-                Table(
-                    Thead(
-                        Tr(
+            fh.Div(id="message-area", cls="mb-4"),
+            fh.Div(
+                fh.Table(
+                    fh.Thead(
+                        fh.Tr(
                             *[
-                                Th(
+                                fh.Th(
                                     h,
                                     cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                 )
@@ -334,12 +333,12 @@ def instructor_course_students(session, course_id: int):
                             cls="bg-indigo-50",
                         )
                     ),
-                    Tbody(*student_rows),
+                    fh.Tbody(*student_rows),
                     cls="w-full",
                 ),
                 cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100",
             ),
-            Div(
+            fh.Div(
                 action_button(
                     "Invite More Students",
                     color="indigo",
@@ -352,19 +351,19 @@ def instructor_course_students(session, course_id: int):
         )
     else:
         # Show a message if no students enrolled in this course
-        main_content = Div(
-            H2(
+        main_content = fh.Div(
+            fh.H2(
                 f"Students in {target_course.title} ({target_course.code})",
                 cls="text-2xl font-bold text-indigo-900 mb-6",
             ),
             card(
-                Div(
-                    P(
+                fh.Div(
+                    fh.P(
                         "You don't have any students enrolled in this course yet.",
                         cls="text-center text-gray-600 mb-6",
                     ),
-                    Div(
-                        A(
+                    fh.Div(
+                        fh.A(
                             "Invite Students",
                             href=f"/instructor/invite-students?course_id={course_id}",
                             cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
@@ -378,10 +377,10 @@ def instructor_course_students(session, course_id: int):
         )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Course Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            Div(
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Course Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Back to Dashboard",
                     color="gray",
@@ -398,11 +397,11 @@ def instructor_course_students(session, course_id: int):
             ),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
-        Div(
-            H3("Course Details", cls="font-semibold text-indigo-900 mb-4"),
-            P(f"Title: {target_course.title}", cls="text-gray-600 mb-2"),
-            P(f"Code: {target_course.code}", cls="text-gray-600 mb-2"),
-            P(f"Students: {len(sorted_students)}", cls="text-gray-600 mb-2"),
+        fh.Div(
+            fh.H3("Course Details", cls="font-semibold text-indigo-900 mb-4"),
+            fh.P(f"Title: {target_course.title}", cls="text-gray-600 mb-2"),
+            fh.P(f"Code: {target_course.code}", cls="text-gray-600 mb-2"),
+            fh.P(f"Students: {len(sorted_students)}", cls="text-gray-600 mb-2"),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
     )
@@ -431,8 +430,8 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
             break
 
     if not course:
-        return Div(
-            P("Course not found", cls="text-red-600"), cls="p-3 bg-red-50 rounded-lg"
+        return fh.Div(
+            fh.P("Course not found", cls="text-red-600"), cls="p-3 bg-red-50 rounded-lg"
         )
 
     # Verify the enrollment exists
@@ -443,8 +442,8 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
             break
 
     if not enrollment_exists:
-        return Div(
-            P("Student not found in this course", cls="text-red-600"),
+        return fh.Div(
+            fh.P("Student not found in this course", cls="text-red-600"),
             cls="p-3 bg-red-50 rounded-lg",
         )
 
@@ -477,13 +476,13 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
             verification_token=token,
         )
 
-        return Div(
-            P(f"Invitation resent to {email}", cls="text-green-600"),
+        return fh.Div(
+            fh.P(f"Invitation resent to {email}", cls="text-green-600"),
             cls="p-3 bg-green-50 rounded-lg",
         )
     except Exception as e:
-        return Div(
-            P(f"Failed to send invitation: {e!s}", cls="text-red-600"),
+        return fh.Div(
+            fh.P(f"Failed to send invitation: {e!s}", cls="text-red-600"),
             cls="p-3 bg-red-50 rounded-lg",
         )
 
@@ -503,8 +502,8 @@ def instructor_remove_student(session, request, email: str, course_id: int):
             break
 
     if not course:
-        return Div(
-            P("Course not found", cls="text-red-600"), cls="p-3 bg-red-50 rounded-lg"
+        return fh.Div(
+            fh.P("Course not found", cls="text-red-600"), cls="p-3 bg-red-50 rounded-lg"
         )
 
     # Find and remove the enrollment
@@ -516,19 +515,19 @@ def instructor_remove_student(session, request, email: str, course_id: int):
                 enrollment_found = True
                 break
             except Exception as ex:
-                return Div(
-                    P(f"Failed to remove student: {ex!s}", cls="text-red-600"),
+                return fh.Div(
+                    fh.P(f"Failed to remove student: {ex!s}", cls="text-red-600"),
                     cls="p-3 bg-red-50 rounded-lg",
                 )
 
     if enrollment_found:
-        return Div(
-            P(f"Student {email} removed from {course.code}", cls="text-green-600"),
+        return fh.Div(
+            fh.P(f"Student {email} removed from {course.code}", cls="text-green-600"),
             cls="p-3 bg-green-50 rounded-lg",
         )
     else:
-        return Div(
-            P("Student not found in this course", cls="text-red-600"),
+        return fh.Div(
+            fh.P("Student not found in this course", cls="text-red-600"),
             cls="p-3 bg-red-50 rounded-lg",
         )
 
@@ -559,22 +558,22 @@ def instructor_invite_students_form(session, request):
 
     # If no courses, redirect to course creation
     if not instructor_courses:
-        return RedirectResponse("/instructor/courses/new", status_code=303)
+        return fh.RedirectResponse("/instructor/courses/new", status_code=303)
 
     # Main content
-    main_content = Div(
-        H2("Invite Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
-        Form(
+    main_content = fh.Div(
+        fh.H2("Invite Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.Form(
             # Course selection
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Select Course",
                     for_="course_id",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Select(
+                fh.Select(
                     *[
-                        Option(
+                        fh.Option(
                             f"{course.title} ({course.code})",
                             value=str(course.id),
                             selected=(str(course.id) == course_id)
@@ -590,13 +589,13 @@ def instructor_invite_students_form(session, request):
                 cls="mb-4",
             ),
             # Email input
-            Div(
-                Label(
+            fh.Div(
+                fh.Label(
                     "Student Emails",
                     for_="emails",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                Textarea(
+                fh.Textarea(
                     id="emails",
                     name="emails",
                     rows=6,
@@ -604,20 +603,20 @@ def instructor_invite_students_form(session, request):
                     required=True,
                     cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
-                P(
+                fh.P(
                     "Enter one email address per line. Students will receive an invitation to join your course.",
                     cls="text-sm text-gray-500 mt-1",
                 ),
                 cls="mb-6",
             ),
             # Submit buttons
-            Div(
-                Button(
+            fh.Div(
+                fh.Button(
                     "Send Invitations",
                     type="submit",
                     cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
                 ),
-                A(
+                fh.A(
                     "Cancel",
                     href="/instructor/manage-students",
                     cls="ml-4 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
@@ -631,13 +630,13 @@ def instructor_invite_students_form(session, request):
     )
 
     # Sidebar content
-    sidebar_content = Div(
-        Div(
-            H3("Invitation Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            P("• Students will receive an email invitation", cls="text-gray-600 mb-2"),
-            P("• They must verify their email to enroll", cls="text-gray-600 mb-2"),
-            P("• You can resend invitations if needed", cls="text-gray-600 mb-2"),
-            P("• Students can submit drafts once enrolled", cls="text-gray-600"),
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Invitation Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.P("• Students will receive an email invitation", cls="text-gray-600 mb-2"),
+            fh.P("• They must verify their email to enroll", cls="text-gray-600 mb-2"),
+            fh.P("• You can resend invitations if needed", cls="text-gray-600 mb-2"),
+            fh.P("• Students can submit drafts once enrolled", cls="text-gray-600"),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
     )
@@ -666,7 +665,7 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
             break
 
     if not course:
-        return RedirectResponse("/instructor/dashboard", status_code=303)
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
 
     # Parse emails
     email_list = [
@@ -743,6 +742,6 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
             failed.append((email, str(e)))
 
     # Redirect to course students page with results
-    return RedirectResponse(
+    return fh.RedirectResponse(
         f"/instructor/courses/{course_id}/students", status_code=303
     )

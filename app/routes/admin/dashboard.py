@@ -2,7 +2,7 @@
 Admin dashboard routes
 """
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app import admin_required, rt
 from app.models.user import Role, users
@@ -17,25 +17,25 @@ def admin_dashboard(session):
     user = users[session["auth"]]
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # User welcome card
-        Div(
-            H3(
+        fh.Div(
+            fh.H3(
                 "Welcome, " + user.name,
                 cls="text-xl font-semibold text-indigo-900 mb-2",
             ),
-            P("Admin Account", cls="text-gray-600 mb-4"),
-            Div(
+            fh.P("Admin Account", cls="text-gray-600 mb-4"),
+            fh.Div(
                 # System stats summary
-                Div(
-                    Div("3", cls="text-indigo-700 font-bold"),
-                    P("Total Users", cls="text-gray-600"),
+                fh.Div(
+                    fh.Div("3", cls="text-indigo-700 font-bold"),
+                    fh.P("Total Users", cls="text-gray-600"),
                     cls="flex items-center space-x-2 mb-2",
                 ),
                 # Pending approvals summary
-                Div(
-                    Div("0", cls="text-indigo-700 font-bold"),
-                    P("Pending Approvals", cls="text-gray-600"),
+                fh.Div(
+                    fh.Div("0", cls="text-indigo-700 font-bold"),
+                    fh.P("Pending Approvals", cls="text-gray-600"),
                     cls="flex items-center space-x-2",
                 ),
                 cls="space-y-2",
@@ -43,9 +43,9 @@ def admin_dashboard(session):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Quick actions section
-        Div(
-            H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Approve Instructors",
                     color="indigo",
@@ -74,36 +74,36 @@ def admin_dashboard(session):
     )
 
     # Main content
-    main_content = Div(
+    main_content = fh.Div(
         # System stats
-        Div(
-            Div(
+        fh.Div(
+            fh.Div(
                 # Users card
                 card(
-                    Div(
-                        H3("3", cls="text-4xl font-bold text-indigo-700 mb-2"),
-                        P("Total Users", cls="text-gray-600"),
-                        P("Last updated today", cls="text-xs text-gray-500 mt-2"),
+                    fh.Div(
+                        fh.H3("3", cls="text-4xl font-bold text-indigo-700 mb-2"),
+                        fh.P("Total Users", cls="text-gray-600"),
+                        fh.P("Last updated today", cls="text-xs text-gray-500 mt-2"),
                         cls="text-center p-4",
                     ),
                     padding=0,
                 ),
                 # Courses card
                 card(
-                    Div(
-                        H3("0", cls="text-4xl font-bold text-teal-700 mb-2"),
-                        P("Active Courses", cls="text-gray-600"),
-                        P("Across all instructors", cls="text-xs text-gray-500 mt-2"),
+                    fh.Div(
+                        fh.H3("0", cls="text-4xl font-bold text-teal-700 mb-2"),
+                        fh.P("Active Courses", cls="text-gray-600"),
+                        fh.P("Across all instructors", cls="text-xs text-gray-500 mt-2"),
                         cls="text-center p-4",
                     ),
                     padding=0,
                 ),
                 # System health card
                 card(
-                    Div(
-                        H3("100%", cls="text-4xl font-bold text-indigo-700 mb-2"),
-                        P("System Health", cls="text-gray-600"),
-                        P(
+                    fh.Div(
+                        fh.H3("100%", cls="text-4xl font-bold text-indigo-700 mb-2"),
+                        fh.P("System Health", cls="text-gray-600"),
+                        fh.P(
                             "All services operational",
                             cls="text-xs text-green-600 mt-2",
                         ),
@@ -115,16 +115,16 @@ def admin_dashboard(session):
             )
         ),
         # User Management
-        Div(
-            H2("User Management", cls="text-2xl font-bold text-indigo-900 mb-6"),
-            Div(
-                Div(
-                    H3(
+        fh.Div(
+            fh.H2("User Management", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.Div(
+                fh.Div(
+                    fh.H3(
                         "Instructor Approval",
                         cls="text-lg font-semibold text-indigo-800 mb-4",
                     ),
-                    P("No pending instructor approvals.", cls="text-gray-500 italic"),
-                    Div(
+                    fh.P("No pending instructor approvals.", cls="text-gray-500 italic"),
+                    fh.Div(
                         action_button(
                             "View All",
                             color="indigo",
@@ -135,12 +135,12 @@ def admin_dashboard(session):
                     ),
                     cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-4",
                 ),
-                Div(
-                    H3(
+                fh.Div(
+                    fh.H3(
                         "Recent Users", cls="text-lg font-semibold text-indigo-800 mb-4"
                     ),
-                    P("3 users registered in the system.", cls="text-gray-600 mb-2"),
-                    Div(
+                    fh.P("3 users registered in the system.", cls="text-gray-600 mb-2"),
+                    fh.Div(
                         action_button(
                             "Manage Users",
                             color="teal",
@@ -155,16 +155,16 @@ def admin_dashboard(session):
             ),
         ),
         # System Configuration
-        Div(
-            H2("System Configuration", cls="text-2xl font-bold text-indigo-900 mb-6"),
-            Div(
-                Div(
-                    H3("AI Models", cls="text-lg font-semibold text-indigo-800 mb-4"),
-                    P(
+        fh.Div(
+            fh.H2("System Configuration", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.Div(
+                fh.Div(
+                    fh.H3("AI Models", cls="text-lg font-semibold text-indigo-800 mb-4"),
+                    fh.P(
                         "Configure the AI models used for feedback generation.",
                         cls="text-gray-600 mb-2",
                     ),
-                    Div(
+                    fh.Div(
                         action_button(
                             "Configure Models",
                             color="indigo",
@@ -175,16 +175,16 @@ def admin_dashboard(session):
                     ),
                     cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-4",
                 ),
-                Div(
-                    H3(
+                fh.Div(
+                    fh.H3(
                         "Feedback Settings",
                         cls="text-lg font-semibold text-indigo-800 mb-4",
                     ),
-                    P(
+                    fh.P(
                         "Adjust global feedback settings and templates.",
                         cls="text-gray-600 mb-2",
                     ),
-                    Div(
+                    fh.Div(
                         action_button(
                             "Adjust Settings",
                             color="teal",
@@ -201,7 +201,7 @@ def admin_dashboard(session):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         "Admin Dashboard | FeedForward",
         dashboard_layout(
             "Admin Dashboard", sidebar_content, main_content, user_role=Role.ADMIN

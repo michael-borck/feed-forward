@@ -2,7 +2,7 @@
 Admin instructor management routes
 """
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app import admin_required, rt
 from app.models.course import courses, enrollments
@@ -23,11 +23,11 @@ def admin_instructors_approve_list(session):
             pending_instructors.append(instructor)
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # Quick navigation
-        Div(
-            H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/admin/dashboard", icon="←"
                 ),
@@ -36,9 +36,9 @@ def admin_instructors_approve_list(session):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Admin actions
-        Div(
-            H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Manage Users", color="teal", href="/admin/users", icon="👥"
                 ),
@@ -52,56 +52,56 @@ def admin_instructors_approve_list(session):
     )
 
     # Main content - Instructor approval list
-    main_content = Div(
-        H1("Approve Instructors", cls="text-3xl font-bold text-indigo-900 mb-6"),
-        P("Review and approve instructor account requests.", cls="text-gray-600 mb-8"),
+    main_content = fh.Div(
+        fh.H1("Approve Instructors", cls="text-3xl font-bold text-indigo-900 mb-6"),
+        fh.P("Review and approve instructor account requests.", cls="text-gray-600 mb-8"),
         # Instructor approval table
-        Div(
-            Div(
-                H2("Pending Approval", cls="text-2xl font-bold text-indigo-900 mb-4"),
+        fh.Div(
+            fh.Div(
+                fh.H2("Pending Approval", cls="text-2xl font-bold text-indigo-900 mb-4"),
                 # Check if there are pending instructors
                 (
-                    Div(
-                        Table(
-                            Thead(
-                                Tr(
-                                    Th(
+                    fh.Div(
+                        fh.Table(
+                            fh.Thead(
+                                fh.Tr(
+                                    fh.Th(
                                         "Name",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Email",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Department",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Actions",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
                                 ),
                                 cls="bg-indigo-50",
                             ),
-                            Tbody(
+                            fh.Tbody(
                                 *(
-                                    Tr(
-                                        Td(instructor.name, cls="py-4 px-6"),
-                                        Td(instructor.email, cls="py-4 px-6"),
-                                        Td(
+                                    fh.Tr(
+                                        fh.Td(instructor.name, cls="py-4 px-6"),
+                                        fh.Td(instructor.email, cls="py-4 px-6"),
+                                        fh.Td(
                                             instructor.department or "Not specified",
                                             cls="py-4 px-6",
                                         ),
-                                        Td(
-                                            Div(
-                                                Button(
+                                        fh.Td(
+                                            fh.Div(
+                                                fh.Button(
                                                     "Approve",
                                                     cls="bg-teal-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-teal-700 transition-colors shadow-sm",
                                                     hx_post=f"/admin/instructors/approve/{instructor.email}",
                                                     hx_swap="outerHTML",
                                                 ),
-                                                Button(
+                                                fh.Button(
                                                     "Reject",
                                                     cls="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm",
                                                     hx_post=f"/admin/instructors/reject/{instructor.email}",
@@ -121,18 +121,18 @@ def admin_instructors_approve_list(session):
                     )
                 )
                 if pending_instructors
-                else Div(
-                    P(
+                else fh.Div(
+                    fh.P(
                         "No pending instructor approvals at this time.",
                         cls="text-gray-500 italic text-center py-8",
                     ),
                     cls="bg-white rounded-lg shadow-md border border-gray-100 w-full",
                 ),
-                Div(cls="mb-8"),
+                fh.Div(cls="mb-8"),
             )
         ),
         # Back button
-        Div(
+        fh.Div(
             action_button(
                 "Back to Dashboard", color="gray", href="/admin/dashboard", icon="←"
             ),
@@ -141,7 +141,7 @@ def admin_instructors_approve_list(session):
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         "Approve Instructors | FeedForward",
         dashboard_layout(
             "Approve Instructors", sidebar_content, main_content, user_role=Role.ADMIN
@@ -162,14 +162,14 @@ def admin_instructor_approve(session, email: str):
         users.update(instructor)
 
         # Return success message with auto-refresh
-        return Div(
-            P("Approved successfully", cls="text-green-500"),
-            Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        return fh.Div(
+            fh.P("Approved successfully", cls="text-green-500"),
+            fh.Script("setTimeout(function() { window.location.reload(); }, 1000);"),
             cls="py-2 px-4",
         )
     except Exception:
         # Return error message
-        return Div(P("Error approving instructor", cls="text-red-500"), cls="py-2 px-4")
+        return fh.Div(fh.P("Error approving instructor", cls="text-red-500"), cls="py-2 px-4")
 
 
 @rt("/admin/instructors/reject/{email}")
@@ -181,14 +181,14 @@ def admin_instructor_reject(session, email: str):
         users.delete(email)
 
         # Return success message with auto-refresh
-        return Div(
-            P("Rejected and removed", cls="text-green-500"),
-            Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        return fh.Div(
+            fh.P("Rejected and removed", cls="text-green-500"),
+            fh.Script("setTimeout(function() { window.location.reload(); }, 1000);"),
             cls="py-2 px-4",
         )
     except Exception:
         # Return error message
-        return Div(P("Error rejecting instructor", cls="text-red-500"), cls="py-2 px-4")
+        return fh.Div(fh.P("Error rejecting instructor", cls="text-red-500"), cls="py-2 px-4")
 
 
 @rt("/admin/instructors")
@@ -224,11 +224,11 @@ def admin_instructors_list(session):
                 break
 
     # Sidebar content
-    sidebar_content = Div(
+    sidebar_content = fh.Div(
         # Quick navigation
-        Div(
-            H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
-            Div(
+        fh.Div(
+            fh.H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/admin/dashboard", icon="←"
                 ),
@@ -243,71 +243,71 @@ def admin_instructors_list(session):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         # Filter options
-        Div(
-            H3("Filter Options", cls="font-semibold text-indigo-900 mb-4"),
-            P("All active instructors", cls="text-gray-600 text-sm"),
+        fh.Div(
+            fh.H3("Filter Options", cls="font-semibold text-indigo-900 mb-4"),
+            fh.P("All active instructors", cls="text-gray-600 text-sm"),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
     )
 
     # Main content - Instructor management
-    main_content = Div(
-        H1("Manage Instructors", cls="text-3xl font-bold text-indigo-900 mb-6"),
-        P(
+    main_content = fh.Div(
+        fh.H1("Manage Instructors", cls="text-3xl font-bold text-indigo-900 mb-6"),
+        fh.P(
             "View and manage instructor accounts in the system.",
             cls="text-gray-600 mb-8",
         ),
         # Instructors table
-        Div(
-            Div(
-                H2("Active Instructors", cls="text-2xl font-bold text-indigo-900 mb-4"),
+        fh.Div(
+            fh.Div(
+                fh.H2("Active Instructors", cls="text-2xl font-bold text-indigo-900 mb-4"),
                 # Instructors table
                 (
-                    Div(
-                        Table(
-                            Thead(
-                                Tr(
-                                    Th(
+                    fh.Div(
+                        fh.Table(
+                            fh.Thead(
+                                fh.Tr(
+                                    fh.Th(
                                         "Name",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Email",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Department",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Courses",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Students",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Status",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
-                                    Th(
+                                    fh.Th(
                                         "Actions",
                                         cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
                                     ),
                                 ),
                                 cls="bg-indigo-50",
                             ),
-                            Tbody(
+                            fh.Tbody(
                                 *(
-                                    Tr(
-                                        Td(instructor.name, cls="py-4 px-6"),
-                                        Td(instructor.email, cls="py-4 px-6"),
-                                        Td(
+                                    fh.Tr(
+                                        fh.Td(instructor.name, cls="py-4 px-6"),
+                                        fh.Td(instructor.email, cls="py-4 px-6"),
+                                        fh.Td(
                                             instructor.department or "Not specified",
                                             cls="py-4 px-6",
                                         ),
-                                        Td(
+                                        fh.Td(
                                             str(
                                                 instructor_courses.get(
                                                     instructor.email, 0
@@ -315,7 +315,7 @@ def admin_instructors_list(session):
                                             ),
                                             cls="py-4 px-6",
                                         ),
-                                        Td(
+                                        fh.Td(
                                             str(
                                                 instructor_enrollments.get(
                                                     instructor.email, 0
@@ -323,8 +323,8 @@ def admin_instructors_list(session):
                                             ),
                                             cls="py-4 px-6",
                                         ),
-                                        Td(
-                                            Span(
+                                        fh.Td(
+                                            fh.Span(
                                                 "Approved"
                                                 if instructor.approved
                                                 else "Pending",
@@ -337,9 +337,9 @@ def admin_instructors_list(session):
                                             ),
                                             cls="py-4 px-6",
                                         ),
-                                        Td(
-                                            Div(
-                                                Button(
+                                        fh.Td(
+                                            fh.Div(
+                                                fh.Button(
                                                     "Remove",
                                                     cls="bg-red-600 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-700 transition-colors shadow-sm",
                                                     hx_post=f"/admin/instructors/remove/{instructor.email}",
@@ -360,20 +360,20 @@ def admin_instructors_list(session):
                     )
                 )
                 if instructor_list
-                else Div(
-                    P(
+                else fh.Div(
+                    fh.P(
                         "No instructors found in the system.",
                         cls="text-gray-500 italic text-center py-8",
                     ),
                     cls="bg-white rounded-lg shadow-md border border-gray-100 w-full",
                 ),
-                Div(cls="mb-8"),
+                fh.Div(cls="mb-8"),
             )
         ),
     )
 
     # Use the dashboard layout with our components
-    return Titled(
+    return fh.Titled(
         "Manage Instructors | FeedForward",
         dashboard_layout(
             "Manage Instructors", sidebar_content, main_content, user_role=Role.ADMIN
@@ -398,13 +398,13 @@ def admin_instructor_remove(session, email: str):
             users.delete(email)
 
         # Return success message with auto-refresh
-        return Div(
-            P("Instructor removed successfully", cls="text-green-500"),
-            Script("setTimeout(function() { window.location.reload(); }, 1000);"),
+        return fh.Div(
+            fh.P("Instructor removed successfully", cls="text-green-500"),
+            fh.Script("setTimeout(function() { window.location.reload(); }, 1000);"),
             cls="py-2 px-4",
         )
     except Exception as e:
         # Return error message
-        return Div(
-            P(f"Error removing instructor: {e!s}", cls="text-red-500"), cls="py-2 px-4"
+        return fh.Div(
+            fh.P(f"Error removing instructor: {e!s}", cls="text-red-500"), cls="py-2 px-4"
         )

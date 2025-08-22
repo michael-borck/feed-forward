@@ -5,7 +5,7 @@ This module contains reusable UI components like headers, footers, and navigatio
 that are shared across multiple pages in the application.
 """
 
-from fasthtml.common import *
+from fasthtml import common as fh
 
 from app.models.user import Role
 
@@ -18,20 +18,20 @@ def page_header(show_auth_buttons=True):
         show_auth_buttons: Whether to show sign in/sign up buttons in the header
     """
     # Branded logo/wordmark for header
-    brand_logo = Div(
-        Span("Feed", cls="text-indigo-300 font-bold"),
-        Span("Forward", cls="text-teal-300 font-bold"),
+    brand_logo = fh.Div(
+        fh.Span("Feed", cls="text-indigo-300 font-bold"),
+        fh.Span("Forward", cls="text-teal-300 font-bold"),
         cls="flex items-center text-2xl",
     )
 
     nav_buttons = (
-        Nav(
-            A(
+        fh.Nav(
+            fh.A(
                 "Sign in",
                 href="/login",
                 cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors",
             ),
-            A(
+            fh.A(
                 "Sign up",
                 href="/register",
                 cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all",
@@ -42,10 +42,10 @@ def page_header(show_auth_buttons=True):
         else ""
     )
 
-    return Header(
-        Div(
+    return fh.Header(
+        fh.Div(
             # Left side - Logo and name
-            A(
+            fh.A(
                 brand_logo,
                 href="/landing",
                 cls="flex items-center hover:opacity-90 transition-opacity",
@@ -62,36 +62,36 @@ def page_footer():
     """Return a consistent footer component for all pages"""
     current_year = "2025"  # In a real app, you'd use datetime.now().year
 
-    return Footer(
-        Div(
-            Div(
+    return fh.Footer(
+        fh.Div(
+            fh.Div(
                 # Footer logo
-                Div(
-                    Span("Feed", cls="text-indigo-600 font-bold"),
-                    Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Div(
+                    fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                    fh.Span("Forward", cls="text-teal-500 font-bold"),
                     cls="text-2xl mb-3",
                 ),
-                P(
+                fh.P(
                     "Transforming the feedback experience for students and educators.",
                     cls="text-gray-600 max-w-xs",
                 ),
                 cls="md:w-1/3",
             ),
-            Div(
+            fh.Div(
                 # Quick links
-                Div(
-                    H3("Resources", cls="font-semibold text-indigo-800 mb-3"),
-                    A(
+                fh.Div(
+                    fh.H3("Resources", cls="font-semibold text-indigo-800 mb-3"),
+                    fh.A(
                         "Documentation",
                         href="#",
                         cls="block text-gray-600 hover:text-indigo-600 mb-2",
                     ),
-                    A(
+                    fh.A(
                         "Tutorials",
                         href="#",
                         cls="block text-gray-600 hover:text-indigo-600 mb-2",
                     ),
-                    A(
+                    fh.A(
                         "FAQs",
                         href="#",
                         cls="block text-gray-600 hover:text-indigo-600",
@@ -99,19 +99,19 @@ def page_footer():
                     cls="mb-6 md:mb-0",
                 ),
                 # Legal
-                Div(
-                    H3("Legal", cls="font-semibold text-indigo-800 mb-3"),
-                    A(
+                fh.Div(
+                    fh.H3("Legal", cls="font-semibold text-indigo-800 mb-3"),
+                    fh.A(
                         "Terms",
                         href="/terms",
                         cls="block text-gray-600 hover:text-indigo-600 mb-2",
                     ),
-                    A(
+                    fh.A(
                         "Privacy",
                         href="/privacy",
                         cls="block text-gray-600 hover:text-indigo-600 mb-2",
                     ),
-                    A(
+                    fh.A(
                         "Contact",
                         href="/contact",
                         cls="block text-gray-600 hover:text-indigo-600",
@@ -121,8 +121,8 @@ def page_footer():
             ),
             cls="container mx-auto px-4 py-8 flex flex-col md:flex-row justify-between",
         ),
-        Div(
-            P(
+        fh.Div(
+            fh.P(
                 f"© {current_year} FeedForward. All rights reserved.",
                 cls="text-center text-gray-500 text-sm",
             ),
@@ -140,11 +140,11 @@ def page_container(title, content):
         title: Page title (for browser tab)
         content: The main content of the page
     """
-    return Titled(
+    return fh.Titled(
         title,
-        Div(
+        fh.Div(
             page_header(),
-            Div(
+            fh.Div(
                 content,
                 cls="container mx-auto px-4 py-16 flex justify-center bg-gray-100",
             ),
@@ -167,9 +167,9 @@ def dashboard_header(user_role, current_path=None):
     nav_links = []
 
     # Branded logo/wordmark for header
-    brand_logo = Div(
-        Span("Feed", cls="text-indigo-300 font-bold"),
-        Span("Forward", cls="text-teal-300 font-bold"),
+    brand_logo = fh.Div(
+        fh.Span("Feed", cls="text-indigo-300 font-bold"),
+        fh.Span("Forward", cls="text-teal-300 font-bold"),
         cls="flex items-center text-2xl",
     )
 
@@ -222,7 +222,7 @@ def dashboard_header(user_role, current_path=None):
         cls = "text-white px-4 py-2 mx-1 transition-colors hover:text-indigo-200"
         if is_active:
             cls = "text-white bg-indigo-700 px-4 py-2 rounded-lg mx-1 font-medium shadow-sm"
-        nav_items.append(A(label, href=href, cls=cls))
+        nav_items.append(fh.A(label, href=href, cls=cls))
 
     # User profile/avatar with logout button
     # Try to get user email initial rather than role initial
@@ -248,10 +248,10 @@ def dashboard_header(user_role, current_path=None):
         # If anything goes wrong, fallback to role first letter
         user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
 
-    user_menu = Div(
-        Div(
-            A(
-                Div(
+    user_menu = fh.Div(
+        fh.Div(
+            fh.A(
+                fh.Div(
                     user_initial,  # First letter as fallback
                     cls="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-semibold",
                 ),
@@ -259,8 +259,8 @@ def dashboard_header(user_role, current_path=None):
                 title="Profile",
                 cls="hover:opacity-80 transition-opacity",
             ),
-            Div(
-                Button(
+            fh.Div(
+                fh.Button(
                     "Logout",
                     hx_post="/logout",
                     cls="text-white hover:text-teal-200 transition-colors ml-4 font-medium",
@@ -272,33 +272,33 @@ def dashboard_header(user_role, current_path=None):
         cls="ml-6",
     )
 
-    return Header(
-        Div(
-            Div(
-                A(
+    return fh.Header(
+        fh.Div(
+            fh.Div(
+                fh.A(
                     brand_logo,
                     href="/landing",
                     cls="flex items-center hover:opacity-90 transition-opacity mr-4",
                 ),
-                Span(
+                fh.Span(
                     portal_name, cls="text-gray-300 text-sm md:text-base tracking-wide"
                 )
                 if portal_name
                 else "",
                 cls="flex items-center",
             ),
-            Div(
-                Nav(*nav_items, cls="hidden md:flex items-center"),
+            fh.Div(
+                fh.Nav(*nav_items, cls="hidden md:flex items-center"),
                 user_menu,
                 cls="flex items-center",
             ),
             cls="container mx-auto flex justify-between items-center px-4",
         ),
         # Mobile navigation (hamburger menu would be implemented with JavaScript)
-        Div(
-            Div(
+        fh.Div(
+            fh.Div(
                 *[
-                    A(label, href=href, cls="block py-2 px-4 hover:bg-indigo-800")
+                    fh.A(label, href=href, cls="block py-2 px-4 hover:bg-indigo-800")
                     for label, href, _ in nav_links
                 ],
                 cls="hidden py-2",  # Hidden by default, would be shown/hidden with JS
@@ -323,14 +323,14 @@ def dashboard_layout(
         user: Optional user object (if available)
         current_path: Current request path to determine active navigation links
     """
-    return Titled(
+    return fh.Titled(
         title,
-        Div(
+        fh.Div(
             dashboard_header(user_role, current_path),
-            Div(
-                Div(
-                    Div(sidebar, cls="w-full md:w-1/4 mb-6 md:mb-0"),
-                    Div(main_content, cls="w-full md:w-3/4"),
+            fh.Div(
+                fh.Div(
+                    fh.Div(sidebar, cls="w-full md:w-1/4 mb-6 md:mb-0"),
+                    fh.Div(main_content, cls="w-full md:w-3/4"),
                     cls="flex flex-col md:flex-row gap-8",
                 ),
                 cls="container mx-auto p-6",
@@ -354,14 +354,14 @@ def card(content, title=None, padding=6, bg_color="bg-white"):
     card_content = []
     if title:
         card_content.append(
-            Div(
-                H3(title, cls="text-lg font-bold text-indigo-900"),
+            fh.Div(
+                fh.H3(title, cls="text-lg font-bold text-indigo-900"),
                 cls="mb-4 pb-3 border-b border-gray-100",
             )
         )
     card_content.append(content)
 
-    return Div(
+    return fh.Div(
         *card_content,
         cls=f"{bg_color} p-{padding} rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100",
     )
@@ -381,9 +381,9 @@ def tabs(items, active_index=0):
             cls = "flex-1 py-3 px-4 text-center bg-indigo-600 text-white rounded-t-lg font-medium shadow-sm"
         else:
             cls = "flex-1 py-3 px-4 text-center text-gray-600 hover:bg-gray-100 transition-colors border-b border-gray-200"
-        tab_items.append(A(label, href=href, cls=cls))
+        tab_items.append(fh.A(label, href=href, cls=cls))
 
-    return Div(
+    return fh.Div(
         *tab_items, cls="bg-white rounded-lg mb-6 flex overflow-hidden shadow-sm"
     )
 
@@ -408,7 +408,7 @@ def status_badge(text, color):
     # Use mapped color or original if not in map
     mapped_color = color_map.get(color, color)
 
-    return Span(
+    return fh.Span(
         text,
         cls=f"bg-{mapped_color}-100 text-{mapped_color}-700 px-3 py-1 rounded-full text-xs font-semibold shadow-sm",
     )
@@ -424,27 +424,27 @@ def data_table(headers, rows):
     """
     # Create table headers
     header_cells = [
-        Th(
+        fh.Th(
             h,
             cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
         )
         for h in headers
     ]
-    header_row = Tr(*header_cells, cls="bg-indigo-50")
+    header_row = fh.Tr(*header_cells, cls="bg-indigo-50")
 
     # Create table rows
     table_rows = [header_row]
     for i, row_data in enumerate(rows):
-        cells = [Td(cell, cls="py-4 px-6") for cell in row_data]
+        cells = [fh.Td(cell, cls="py-4 px-6") for cell in row_data]
         row_cls = (
             "border-b border-gray-100 hover:bg-gray-50 transition-colors"
             if i < len(rows) - 1
             else "hover:bg-gray-50 transition-colors"
         )
-        table_rows.append(Tr(*cells, cls=row_cls))
+        table_rows.append(fh.Tr(*cells, cls=row_cls))
 
-    return Div(
-        Table(Thead(header_row), Tbody(*table_rows[1:]), cls="w-full"),
+    return fh.Div(
+        fh.Table(fh.Thead(header_row), fh.Tbody(*table_rows[1:]), cls="w-full"),
         cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100",
     )
 
@@ -468,7 +468,7 @@ def summary_card(content, bg_color="indigo"):
     # Use mapped color or original if not in map
     mapped_color = color_map.get(bg_color, bg_color)
 
-    return Div(
+    return fh.Div(
         content,
         cls=f"bg-{mapped_color}-50 p-6 rounded-xl mt-6 border border-{mapped_color}-200 shadow-sm",
     )
@@ -494,11 +494,11 @@ def feedback_card(title, content, color="teal"):
     # Use mapped color or original if not in map
     mapped_color = color_map.get(color, color)
 
-    return Div(
-        Div(
-            Div(cls=f"w-2 bg-{mapped_color}-500 rounded-l"),
-            Div(
-                H4(title, cls="font-semibold text-indigo-900 mb-3"),
+    return fh.Div(
+        fh.Div(
+            fh.Div(cls=f"w-2 bg-{mapped_color}-500 rounded-l"),
+            fh.Div(
+                fh.H4(title, cls="font-semibold text-indigo-900 mb-3"),
                 content,
                 cls="p-5 flex-1",
             ),
@@ -543,17 +543,17 @@ def action_button(
 
     button_content = []
     if icon:
-        button_content.append(Span(icon, cls="mr-2"))
+        button_content.append(fh.Span(icon, cls="mr-2"))
     button_content.append(text)
 
     # Add disabled styling if needed
     if disabled:
-        return Span(
+        return fh.Span(
             *button_content,
             cls=f"bg-gray-300 text-gray-500 cursor-not-allowed {padding} rounded-lg inline-flex items-center justify-center shadow-sm font-medium",
         )
     else:
-        return A(
+        return fh.A(
             *button_content,
             href=href,
             cls=f"bg-{mapped_color}-600 text-white {padding} rounded-lg inline-flex items-center justify-center hover:bg-{mapped_color}-700 transition-all shadow-sm hover:shadow font-medium",
@@ -569,15 +569,15 @@ def modal_dialog(title, content, footer=None):
         content: Dialog content
         footer: Optional dialog footer with action buttons
     """
-    return Div(
-        Div(
-            Div(
-                H3(title, cls="text-xl font-bold text-indigo-900"),
-                Button("x", cls="text-gray-500 hover:text-gray-700 text-2xl font-bold"),
+    return fh.Div(
+        fh.Div(
+            fh.Div(
+                fh.H3(title, cls="text-xl font-bold text-indigo-900"),
+                fh.Button("x", cls="text-gray-500 hover:text-gray-700 text-2xl font-bold"),
                 cls="flex justify-between items-center border-b border-gray-200 pb-4 mb-6",
             ),
-            Div(content, cls="mb-6"),
-            Div(footer if footer else "", cls="flex justify-end space-x-4"),
+            fh.Div(content, cls="mb-6"),
+            fh.Div(footer if footer else "", cls="flex justify-end space-x-4"),
             cls="bg-white p-8 rounded-xl shadow-xl max-w-2xl w-full border border-gray-100",
         ),
         cls="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm",
@@ -598,9 +598,9 @@ def sidebar_navigation(items, active_index=0):
             cls = "bg-indigo-100 p-3 rounded-lg mb-2 text-indigo-700 font-medium flex items-center"
         else:
             cls = "p-3 mb-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-all flex items-center"
-        nav_items.append(A(label, href=href, cls=cls))
+        nav_items.append(fh.A(label, href=href, cls=cls))
 
-    return Div(
+    return fh.Div(
         *nav_items, cls="bg-white p-4 rounded-xl shadow-md border border-gray-100"
     )
 
@@ -613,9 +613,9 @@ def dynamic_header(session=None):
         session: Current session object to check auth status
     """
     # Branded logo/wordmark for header
-    brand_logo = Div(
-        Span("Feed", cls="text-indigo-300 font-bold"),
-        Span("Forward", cls="text-teal-300 font-bold"),
+    brand_logo = fh.Div(
+        fh.Span("Feed", cls="text-indigo-300 font-bold"),
+        fh.Span("Forward", cls="text-teal-300 font-bold"),
         cls="flex items-center text-2xl",
     )
 
@@ -642,15 +642,15 @@ def dynamic_header(session=None):
             user_initial = user.email[0].upper() if user.email else "U"
 
             # Create authenticated nav
-            nav_buttons = Nav(
-                A(
+            nav_buttons = fh.Nav(
+                fh.A(
                     "Dashboard",
                     href=dashboard_link,
                     cls="text-white px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors mr-2",
                 ),
-                A(
-                    Div(
-                        Div(
+                fh.A(
+                    fh.Div(
+                        fh.Div(
                             user_initial,
                             cls="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-semibold",
                         ),
@@ -660,7 +660,7 @@ def dynamic_header(session=None):
                     title="Profile",
                     cls="hover:opacity-80 transition-opacity",
                 ),
-                A(
+                fh.A(
                     "Sign Out",
                     href="/logout",
                     cls="text-white px-4 py-2 hover:text-teal-200 transition-colors",
@@ -669,13 +669,13 @@ def dynamic_header(session=None):
             )
         except Exception:
             # Fallback to default buttons if there's an error
-            nav_buttons = Nav(
-                A(
+            nav_buttons = fh.Nav(
+                fh.A(
                     "Sign in",
                     href="/login",
                     cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors",
                 ),
-                A(
+                fh.A(
                     "Sign up",
                     href="/register",
                     cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all",
@@ -684,13 +684,13 @@ def dynamic_header(session=None):
             )
     else:
         # Default buttons for unauthenticated users
-        nav_buttons = Nav(
-            A(
+        nav_buttons = fh.Nav(
+            fh.A(
                 "Sign in",
                 href="/login",
                 cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors",
             ),
-            A(
+            fh.A(
                 "Sign up",
                 href="/register",
                 cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all",
@@ -698,10 +698,10 @@ def dynamic_header(session=None):
             cls="flex items-center",
         )
 
-    return Header(
-        Div(
+    return fh.Header(
+        fh.Div(
             # Left side - Logo and name
-            A(
+            fh.A(
                 brand_logo,
                 href="/landing",  # Always go to landing page, not dashboard
                 cls="flex items-center hover:opacity-90 transition-opacity",
@@ -724,25 +724,25 @@ def error_card(title, message, error_code="", error_type="Error"):
         error_code: Optional error code (e.g., 404, 403)
         error_type: Optional error type (e.g., "Not Found", "Forbidden")
     """
-    return Div(
+    return fh.Div(
         # Error code and type
-        Div(
-            Span(error_code, cls="text-6xl font-bold text-indigo-300"),
-            Span(error_type, cls="text-xl text-gray-500 ml-4"),
+        fh.Div(
+            fh.Span(error_code, cls="text-6xl font-bold text-indigo-300"),
+            fh.Span(error_type, cls="text-xl text-gray-500 ml-4"),
             cls="flex items-center justify-center mb-6",
         ),
         # Error title
-        H1(title, cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+        fh.H1(title, cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
         # Error message
-        P(message, cls="text-gray-600 mb-8 text-center"),
+        fh.P(message, cls="text-gray-600 mb-8 text-center"),
         # Action buttons
-        Div(
-            A(
+        fh.Div(
+            fh.A(
                 "Dashboard",
                 href="/",  # This will redirect to proper dashboard based on role in landing page
                 cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mr-4",
             ),
-            A(
+            fh.A(
                 "Sign Out",
                 href="/logout",
                 cls="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-600 hover:bg-indigo-50 transition-colors",
