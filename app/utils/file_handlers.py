@@ -60,7 +60,7 @@ async def extract_file_content(file: UploadFile) -> str:
         return content.strip()
 
     except Exception as e:
-        raise Exception(f"Error processing {file_ext} file: {e!s}")
+        raise Exception(f"Error processing {file_ext} file: {e!s}") from e
 
 
 def extract_pdf_content(content_bytes: bytes) -> str:
@@ -104,9 +104,9 @@ def extract_pdf_content(content_bytes: bytes) -> str:
         return full_text
 
     except pypdf.errors.PdfReadError as e:
-        raise ValueError(f"Invalid or corrupted PDF file: {e!s}")
+        raise ValueError(f"Invalid or corrupted PDF file: {e!s}") from e
     except Exception as e:
-        raise Exception(f"Error extracting PDF content: {e!s}")
+        raise Exception(f"Error extracting PDF content: {e!s}") from e
 
 
 def extract_docx_content(content_bytes: bytes) -> str:
@@ -154,8 +154,8 @@ def extract_docx_content(content_bytes: bytes) -> str:
         if "BadZipFile" in str(e):
             raise ValueError(
                 "Invalid Word document format. The file might be corrupted or not a valid DOCX file."
-            )
-        raise Exception(f"Error extracting DOCX content: {e!s}")
+            ) from e
+        raise Exception(f"Error extracting DOCX content: {e!s}") from e
 
 
 def validate_file_size(file: UploadFile, max_size_mb: int = 10) -> bool:

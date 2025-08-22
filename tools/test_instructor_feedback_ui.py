@@ -142,7 +142,7 @@ def create_test_data():
                 test_instructor["email"]
                 print(f"✅ Using existing test instructor: {test_instructor['email']}")
             else:
-                raise Exception("Could not create or find test instructor")
+                raise Exception("Could not create or find test instructor") from None
 
         # Create test course
         test_course = {
@@ -172,7 +172,7 @@ def create_test_data():
                 course_id = course.id
                 print(f"✅ Using existing test course: {test_course['title']}")
             else:
-                raise Exception("Could not create or find test course")
+                raise Exception("Could not create or find test course") from None
 
         # Create test assignment
         test_assignment = {
@@ -201,7 +201,7 @@ def create_test_data():
                 assignment_id = assignment.id
                 print(f"✅ Using existing test assignment: {test_assignment['title']}")
             else:
-                raise Exception("Could not create or find test assignment")
+                raise Exception("Could not create or find test assignment") from None
 
         # Create test rubric first
         from app.models.assignment import rubrics
@@ -220,7 +220,7 @@ def create_test_data():
                 rubric_id = rubric.id
                 print(f"✅ Using existing rubric for assignment {assignment_id}")
             else:
-                raise Exception("Could not create or find test rubric")
+                raise Exception("Could not create or find test rubric") from None
 
         # Create test rubric categories
         test_categories = [

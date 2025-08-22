@@ -94,7 +94,7 @@ class AIClient:
 
             return config
         except (json.JSONDecodeError, Exception) as e:
-            raise AIClientError(f"Failed to parse model config: {e!s}")
+            raise AIClientError(f"Failed to parse model config: {e!s}") from e
 
     def _build_litellm_model_name(
         self, ai_model: AIModel, config: dict[str, Any]
@@ -221,7 +221,7 @@ Respond ONLY with valid JSON. Be specific, constructive, and encouraging in your
             )
 
         except (json.JSONDecodeError, ValueError, KeyError) as e:
-            raise AIClientError(f"Failed to parse AI response: {e!s}")
+            raise AIClientError(f"Failed to parse AI response: {e!s}") from e
 
     async def run_single_model(
         self,
