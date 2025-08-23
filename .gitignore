@@ -55,5 +55,12 @@ docs/llms-ctx.txt
 .sesskey
 .env
 
+# Sensitive files that may exist
+*.log
+*.pem
+*.key
+config.local.*
+local_settings.py
+
 _notes
 .opencode
