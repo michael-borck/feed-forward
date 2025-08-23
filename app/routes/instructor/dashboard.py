@@ -220,13 +220,10 @@ def instructor_dashboard(session, request):
         ),
     )
 
-    return fh.Titled(
-        "Instructor Dashboard | FeedForward",
-        dashboard_layout(
-            "Instructor Dashboard",
-            sidebar_content,
-            main_content,
-            user_role="instructor",
-            current_path="/instructor/dashboard",
-        ),
+    return dashboard_layout(
+        "Instructor Dashboard",
+        sidebar_content,
+        main_content,
+        user_role="instructor",
+        current_path="/instructor/dashboard",
     )

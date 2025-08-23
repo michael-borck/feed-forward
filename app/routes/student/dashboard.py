@@ -407,13 +407,10 @@ def student_dashboard(session, request):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "Student Dashboard | FeedForward",
-        dashboard_layout(
-            "Student Dashboard",
-            sidebar_content,
-            main_content,
-            user_role=Role.STUDENT,
-            current_path="/student/dashboard",
-        ),
+    return dashboard_layout(
+        "Student Dashboard",
+        sidebar_content,
+        main_content,
+        user_role=Role.STUDENT,
+        current_path="/student/dashboard",
     )

@@ -201,9 +201,6 @@ def admin_dashboard(session):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "Admin Dashboard | FeedForward",
-        dashboard_layout(
-            "Admin Dashboard", sidebar_content, main_content, user_role=Role.ADMIN
-        ),
+    return dashboard_layout(
+        "Admin Dashboard", sidebar_content, main_content, user_role=Role.ADMIN
     )

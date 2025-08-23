@@ -283,7 +283,20 @@ def student_assignment_submit_process(
 
     # Insert the draft
     try:
-        drafts.insert(new_draft)
+        draft_id = drafts.insert(new_draft)
+
+        # Trigger AI feedback generation in background
+        try:
+            import asyncio
+
+            from app.services.feedback_generator import process_draft_submission
+
+            # Run feedback generation in background
+            # Store task reference to avoid RUF006 warning
+            feedback_task = asyncio.create_task(process_draft_submission(draft_id))  # noqa: RUF006,F841
+        except Exception as e:
+            print(f"Warning: Failed to start feedback generation for draft {draft_id}: {e}")
+            # Continue anyway - the draft was saved successfully
 
         # Redirect to the assignment view to see the submitted draft
         return fh.RedirectResponse(

@@ -137,20 +137,19 @@ def page_container(title, content):
     Create a full page with consistent header, footer and styling
 
     Args:
-        title: Page title (for browser tab)
+        title: Page title (for browser tab) - currently not used due to FastHTML limitations
         content: The main content of the page
     """
-    return fh.Titled(
-        title,
+    # Note: We're not using fh.Titled here as it renders the title as visible text
+    # FastHTML handles page titles differently - typically through the app's route decorators
+    return fh.Div(
+        page_header(),
         fh.Div(
-            page_header(),
-            fh.Div(
-                content,
-                cls="container mx-auto px-4 py-16 flex justify-center bg-gray-100",
-            ),
-            page_footer(),
-            cls="min-h-screen flex flex-col",
+            content,
+            cls="container mx-auto px-4 py-16 flex justify-center bg-gray-100",
         ),
+        page_footer(),
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -316,28 +315,26 @@ def dashboard_layout(
     Create a dashboard layout with header, sidebar, main content, and footer
 
     Args:
-        title: Page title
+        title: Page title - currently not used due to FastHTML limitations
         sidebar: Sidebar content component
         main_content: Main content area component
         user_role: Role of the current user
         user: Optional user object (if available)
         current_path: Current request path to determine active navigation links
     """
-    return fh.Titled(
-        title,
+    # Note: We're not using fh.Titled here as it renders the title as visible text
+    return fh.Div(
+        dashboard_header(user_role, current_path),
         fh.Div(
-            dashboard_header(user_role, current_path),
             fh.Div(
-                fh.Div(
-                    fh.Div(sidebar, cls="w-full md:w-1/4 mb-6 md:mb-0"),
-                    fh.Div(main_content, cls="w-full md:w-3/4"),
-                    cls="flex flex-col md:flex-row gap-8",
-                ),
-                cls="container mx-auto p-6",
+                fh.Div(sidebar, cls="w-full md:w-1/4 mb-6 md:mb-0"),
+                fh.Div(main_content, cls="w-full md:w-3/4"),
+                cls="flex flex-col md:flex-row gap-8",
             ),
-            page_footer(),
-            cls="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-indigo-50",
+            cls="container mx-auto p-6",
         ),
+        page_footer(),
+        cls="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-indigo-50",
     )
 
 
