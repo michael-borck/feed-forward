@@ -141,11 +141,8 @@ def admin_instructors_approve_list(session):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "Approve Instructors | FeedForward",
-        dashboard_layout(
-            "Approve Instructors", sidebar_content, main_content, user_role=Role.ADMIN
-        ),
+    return dashboard_layout(
+            "Approve Instructors", sidebar_content, main_content, user_role=Role.ADMIN,
     )
 
 
@@ -373,11 +370,8 @@ def admin_instructors_list(session):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "Manage Instructors | FeedForward",
-        dashboard_layout(
-            "Manage Instructors", sidebar_content, main_content, user_role=Role.ADMIN
-        ),
+    return dashboard_layout(
+            "Manage Instructors", sidebar_content, main_content, user_role=Role.ADMIN,
     )
 
 

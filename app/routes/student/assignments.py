@@ -365,15 +365,12 @@ def student_assignment_view(session, request, assignment_id: int):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        f"{assignment.title} | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             f"Assignment: {assignment.title}",
             sidebar_content,
             main_content,
             user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard highlighted in nav
-        ),
+            current_path="/student/dashboard",  # Keep dashboard highlighted in nav,
     )
 
 
@@ -626,13 +623,10 @@ def student_assignments_list(session, request):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "All Assignments | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             "All Assignments",
             sidebar_content,
             main_content,
             user_role=Role.STUDENT,
-            current_path="/student/dashboard",
-        ),
+            current_path="/student/dashboard"
     )

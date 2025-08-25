@@ -73,9 +73,13 @@ class AIClient:
                     "openai": "OPENAI_API_KEY",
                     "anthropic": "ANTHROPIC_API_KEY",
                     "google": "GOOGLE_API_KEY",
+                    "gemini": "GEMINI_API_KEY",
                     "groq": "GROQ_API_KEY",
                     "cohere": "COHERE_API_KEY",
                     "huggingface": "HUGGINGFACE_API_KEY",
+                    "ollama": "OLLAMA_API_KEY",
+                    "openrouter": "OPENROUTER_API_KEY",
+                    "custom": "CUSTOM_LLM_API_KEY",
                 }
 
                 if provider in env_var_map:
@@ -104,13 +108,20 @@ class AIClient:
             "openai": lambda model_id: f"openai/{model_id}",
             "anthropic": lambda model_id: f"anthropic/{model_id}",
             "google": lambda model_id: f"google/{model_id}",
+            "gemini": lambda model_id: f"gemini/{model_id}",
+            "groq": lambda model_id: f"groq/{model_id}",
             "cohere": lambda model_id: f"cohere/{model_id}",
             "huggingface": lambda model_id: f"huggingface/{model_id}",
+            "ollama": lambda model_id: f"ollama/{model_id}",
+            "openrouter": lambda model_id: f"openrouter/{model_id}",
+            "custom": lambda model_id: model_id,  # For custom, use model_id directly
         }
 
         provider = ai_model.provider.lower()
         if provider not in provider_mapping:
-            raise AIClientError(f"Unsupported provider: {provider}")
+            # Default to OpenAI-compatible format
+            self.logger.warning(f"Unknown provider {provider}, treating as OpenAI-compatible")
+            return ai_model.model_id
 
         return provider_mapping[provider](ai_model.model_id)
 
@@ -269,6 +280,21 @@ Respond ONLY with valid JSON. Be specific, constructive, and encouraging in your
             # Add API key if available
             if "api_key" in config:
                 call_params["api_key"] = config["api_key"]
+            
+            # Add custom base URL for Ollama or custom providers
+            if "api_base" in config:
+                call_params["api_base"] = config["api_base"]
+            elif ai_model.provider.lower() == "ollama":
+                # Use environment variable or default to localhost
+                ollama_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
+                call_params["api_base"] = ollama_base
+            elif ai_model.provider.lower() == "openrouter":
+                call_params["api_base"] = "https://openrouter.ai/api/v1"
+            elif ai_model.provider.lower() == "custom":
+                # Custom providers must specify api_base in config
+                custom_base = config.get("api_base") or os.environ.get("CUSTOM_LLM_BASE_URL")
+                if custom_base:
+                    call_params["api_base"] = custom_base
 
             # Make API call
             self.logger.info(f"Making AI call to {litellm_model} for draft {draft_id}")

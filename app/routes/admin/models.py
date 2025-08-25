@@ -228,11 +228,8 @@ def admin_models_list(session):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "AI Model Management | FeedForward",
-        dashboard_layout(
-            "AI Model Management", sidebar_content, main_content, user_role=Role.ADMIN
-        ),
+    return dashboard_layout(
+            "AI Model Management", sidebar_content, main_content, user_role=Role.ADMIN,
     )
 
 
@@ -250,8 +247,167 @@ def admin_models_list(session):
 @rt("/admin/ai-models/new")
 @admin_required
 def admin_models_new(session):
-    """Placeholder for new AI model form"""
-    return fh.Div(fh.P("AI Model creation form - To be implemented"))
+    """Create new system-wide AI model configuration"""
+    # Sidebar content
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("Create System Model", cls="font-semibold text-indigo-900 mb-4"),
+            fh.P("Configure a new AI model available to all instructors.", cls="text-gray-600 mb-4"),
+            action_button("Cancel", color="gray", href="/admin/ai-models", icon="×"),
+            cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
+        )
+    )
+
+    # Main content - Model creation form
+    main_content = fh.Div(
+        fh.H2("Configure New System AI Model", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.Form(
+            # Provider selection
+            fh.Div(
+                fh.Label(
+                    "Provider",
+                    for_="provider",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
+                fh.Select(
+                    fh.Option("Select a provider", value="", selected=True, disabled=True),
+                    fh.Option("OpenAI", value="openai"),
+                    fh.Option("Anthropic", value="anthropic"),
+                    fh.Option("Google (PaLM/Bard)", value="google"),
+                    fh.Option("Google Gemini", value="gemini"),
+                    fh.Option("Groq", value="groq"),
+                    fh.Option("Cohere", value="cohere"),
+                    fh.Option("HuggingFace", value="huggingface"),
+                    fh.Option("Ollama (Local)", value="ollama"),
+                    fh.Option("OpenRouter", value="openrouter"),
+                    fh.Option("Custom OpenAI-Compatible", value="custom"),
+                    id="provider",
+                    name="provider",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    required=True,
+                ),
+                cls="mb-4",
+            ),
+            # Model ID
+            fh.Div(
+                fh.Label(
+                    "Model ID",
+                    for_="model_id",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
+                fh.Input(
+                    type="text",
+                    id="model_id",
+                    name="model_id",
+                    placeholder="e.g., gpt-4, claude-3-opus, gemini-pro, llama-3.1-8b",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    required=True,
+                ),
+                fh.P(
+                    "The specific model identifier for your chosen provider",
+                    cls="text-sm text-gray-500 mt-1",
+                ),
+                cls="mb-4",
+            ),
+            # Model name
+            fh.Div(
+                fh.Label(
+                    "Display Name",
+                    for_="name",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
+                fh.Input(
+                    type="text",
+                    id="name",
+                    name="name",
+                    placeholder="e.g., GPT-4 Turbo, Claude 3 Opus, Gemini 1.5 Pro",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    required=True,
+                ),
+                cls="mb-4",
+            ),
+            # API Key
+            fh.Div(
+                fh.Label(
+                    "API Key",
+                    for_="api_key",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
+                fh.Input(
+                    type="password",
+                    id="api_key",
+                    name="api_key",
+                    placeholder="Your API key (will be encrypted)",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                ),
+                fh.P(
+                    "Required for cloud providers. Optional for Ollama. Get keys from provider's website.",
+                    cls="text-sm text-gray-500 mt-1",
+                ),
+                cls="mb-4",
+            ),
+            # Base URL (optional)
+            fh.Div(
+                fh.Label(
+                    "Base URL (Optional)",
+                    for_="base_url",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
+                fh.Input(
+                    type="url",
+                    id="base_url",
+                    name="base_url",
+                    placeholder="Custom API endpoint (if applicable)",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                ),
+                fh.P(
+                    "Required for Custom providers. Optional for Ollama (default: http://localhost:11434). Leave empty for others.",
+                    cls="text-sm text-gray-500 mt-1",
+                ),
+                cls="mb-6",
+            ),
+            # Make available to all instructors
+            fh.Div(
+                fh.Label(
+                    fh.Input(
+                        type="checkbox",
+                        name="active",
+                        value="true",
+                        checked=True,
+                        cls="mr-2",
+                    ),
+                    "Make this model available to all instructors",
+                    cls="inline-flex items-center text-sm font-medium text-gray-700",
+                ),
+                cls="mb-6",
+            ),
+            # Submit buttons
+            fh.Div(
+                fh.Button(
+                    "Save Model",
+                    type="submit",
+                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors mr-4",
+                ),
+                fh.A(
+                    "Cancel",
+                    href="/admin/ai-models",
+                    cls="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors inline-block",
+                ),
+                cls="flex items-center",
+            ),
+            method="post",
+            action="/admin/ai-models/create",
+            cls="bg-white p-6 rounded-xl shadow-md border border-gray-100",
+        ),
+    )
+
+    return dashboard_layout(
+        "Create System AI Model",
+        sidebar_content,
+        main_content,
+        user_role=Role.ADMIN,
+        current_path="/admin/ai-models",
+    )
 
 
 @rt("/admin/ai-models/create")

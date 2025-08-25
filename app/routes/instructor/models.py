@@ -178,15 +178,12 @@ def instructor_models_list(session, request):
         ),
     )
 
-    return fh.Titled(
-        "AI Models | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             "AI Models Management",
             sidebar_content,
             main_content,
             user_role="instructor",
-            current_path="/instructor/models",
-        ),
+            current_path="/instructor/models"
     )
 
 
@@ -222,10 +219,14 @@ def instructor_models_new(session, request):
                     fh.Option("Select a provider", value="", selected=True, disabled=True),
                     fh.Option("OpenAI", value="openai"),
                     fh.Option("Anthropic", value="anthropic"),
-                    fh.Option("Google", value="google"),
+                    fh.Option("Google (PaLM/Bard)", value="google"),
+                    fh.Option("Google Gemini", value="gemini"),
+                    fh.Option("Groq", value="groq"),
                     fh.Option("Cohere", value="cohere"),
                     fh.Option("HuggingFace", value="huggingface"),
                     fh.Option("Ollama (Local)", value="ollama"),
+                    fh.Option("OpenRouter", value="openrouter"),
+                    fh.Option("Custom OpenAI-Compatible", value="custom"),
                     id="provider",
                     name="provider",
                     cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
@@ -286,7 +287,7 @@ def instructor_models_new(session, request):
                     cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
                 fh.P(
-                    "Required for cloud providers. Leave empty for Ollama.",
+                    "Required for cloud providers. Optional for Ollama. Get keys from provider's website.",
                     cls="text-sm text-gray-500 mt-1",
                 ),
                 cls="mb-4",
@@ -306,7 +307,7 @@ def instructor_models_new(session, request):
                     cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 ),
                 fh.P(
-                    "Only needed for self-hosted models or custom endpoints",
+                    "Required for Custom providers. Optional for Ollama (default: http://localhost:11434). Leave empty for others.",
                     cls="text-sm text-gray-500 mt-1",
                 ),
                 cls="mb-6",
@@ -351,15 +352,12 @@ def instructor_models_new(session, request):
         ),
     )
 
-    return fh.Titled(
-        "New AI Model | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             "Configure New AI Model",
             sidebar_content,
             main_content,
             user_role="instructor",
-            current_path="/instructor/models",
-        ),
+            current_path="/instructor/models"
     )
 
 
@@ -630,13 +628,10 @@ def instructor_models_view(session, model_id: int):
         ),
     )
 
-    return fh.Titled(
-        f"{model.name} | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             f"Model: {model.name}",
             sidebar_content,
             main_content,
             user_role="instructor",
-            current_path="/instructor/models",
-        ),
+            current_path="/instructor/models"
     )

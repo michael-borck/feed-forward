@@ -33,10 +33,16 @@ class APIKeySetup:
             "instructions": "Get your API key from https://console.anthropic.com/settings/keys",
         },
         "google": {
-            "name": "Google (Gemini)",
+            "name": "Google (PaLM/Bard)",
             "env_var": "GOOGLE_API_KEY",
-            "test_model": "gemini/gemini-1.5-flash",
+            "test_model": "google/text-bison-001",
             "instructions": "Get your API key from https://makersuite.google.com/app/apikey",
+        },
+        "gemini": {
+            "name": "Google Gemini",
+            "env_var": "GEMINI_API_KEY",
+            "test_model": "gemini/gemini-1.5-flash",
+            "instructions": "Get your API key from https://aistudio.google.com/app/apikey",
         },
         "groq": {
             "name": "Groq",
@@ -47,9 +53,25 @@ class APIKeySetup:
         "ollama": {
             "name": "Ollama (Local)",
             "env_var": "OLLAMA_API_BASE",
+            "env_var_key": "OLLAMA_API_KEY",
             "test_model": "ollama/llama3.2",
             "instructions": "Install Ollama from https://ollama.ai and run: ollama pull llama3.2",
             "default_value": "http://localhost:11434",
+            "optional_key": True,
+        },
+        "openrouter": {
+            "name": "OpenRouter",
+            "env_var": "OPENROUTER_API_KEY",
+            "test_model": "openrouter/auto",
+            "instructions": "Get your API key from https://openrouter.ai/keys",
+        },
+        "custom": {
+            "name": "Custom OpenAI-Compatible",
+            "env_var": "CUSTOM_LLM_API_KEY",
+            "env_var_base": "CUSTOM_LLM_BASE_URL",
+            "test_model": "gpt-3.5-turbo",  # Assumes OpenAI-compatible model naming
+            "instructions": "Enter your custom endpoint URL and API key",
+            "requires_base_url": True,
         },
     }
 
@@ -65,29 +87,46 @@ class APIKeySetup:
         else:
             print(f"⚠️  No .env file found. Will create one at {self.env_path}")
 
-    async def test_api_key(self, provider: str, api_key: str) -> bool:
+    async def test_api_key(self, provider: str, api_key: str, base_url: Optional[str] = None) -> bool:
         """Test if an API key works by making a simple completion request"""
         provider_info = self.PROVIDERS[provider]
         test_model = provider_info["test_model"]
 
         try:
-            # Set the API key temporarily
+            # Set the API key/URL temporarily
             if provider == "ollama":
                 os.environ["OLLAMA_API_BASE"] = api_key
+                if provider_info.get("env_var_key"):
+                    ollama_key = input("Enter Ollama API key (optional, press Enter to skip): ").strip()
+                    if ollama_key:
+                        os.environ[provider_info["env_var_key"]] = ollama_key
+            elif provider == "custom":
+                os.environ[provider_info["env_var"]] = api_key
+                if base_url:
+                    os.environ[provider_info["env_var_base"]] = base_url
             else:
                 os.environ[provider_info["env_var"]] = api_key
 
             print(f"Testing {provider_info['name']} connection...")
 
-            # Make a simple test request
-            response = await completion(
-                model=test_model,
-                messages=[
+            # Prepare completion parameters
+            completion_params = {
+                "model": test_model,
+                "messages": [
                     {"role": "user", "content": "Say 'test successful' in 3 words"}
                 ],
-                max_tokens=10,
-                temperature=0,
-            )
+                "max_tokens": 10,
+                "temperature": 0,
+            }
+            
+            # Add base URL for custom providers
+            if provider == "custom" and base_url:
+                completion_params["api_base"] = base_url
+            elif provider == "openrouter":
+                completion_params["api_base"] = "https://openrouter.ai/api/v1"
+
+            # Make a simple test request
+            response = await completion(**completion_params)
 
             if response and response.choices:
                 print(f"✅ {provider_info['name']} API key validated successfully!")
@@ -110,7 +149,7 @@ class APIKeySetup:
                 print(f"❌ Error testing {provider_info['name']}: {error_msg}")
             return False
 
-    def save_api_key(self, provider: str, api_key: str):
+    def save_api_key(self, provider: str, api_key: str, base_url: Optional[str] = None, ollama_key: Optional[str] = None):
         """Save API key to .env file"""
         provider_info = self.PROVIDERS[provider]
         env_var = provider_info["env_var"]
@@ -120,8 +159,15 @@ class APIKeySetup:
             self.env_path.touch()
             print(f"Created new .env file at {self.env_path}")
 
-        # Save the key
+        # Save the key(s)
         set_key(str(self.env_path), env_var, api_key)
+        
+        # Save additional keys if needed
+        if provider == "ollama" and ollama_key:
+            set_key(str(self.env_path), provider_info["env_var_key"], ollama_key)
+        elif provider == "custom" and base_url:
+            set_key(str(self.env_path), provider_info["env_var_base"], base_url)
+            
         print(f"✅ Saved {provider_info['name']} configuration to .env file")
 
     def get_current_keys(self) -> dict[str, Optional[str]]:
@@ -155,34 +201,40 @@ class APIKeySetup:
             print("Choose an option:")
             print("1. Configure OpenAI")
             print("2. Configure Anthropic (Claude)")
-            print("3. Configure Google (Gemini)")
-            print("4. Configure Groq")
-            print("5. Configure Ollama (Local)")
-            print("6. Test all configured providers")
-            print("7. View current configuration")
+            print("3. Configure Google (PaLM/Bard)")
+            print("4. Configure Google Gemini")
+            print("5. Configure Groq")
+            print("6. Configure Ollama (Local)")
+            print("7. Configure OpenRouter")
+            print("8. Configure Custom OpenAI-Compatible")
+            print("9. Test all configured providers")
+            print("10. View current configuration")
             print("0. Exit")
 
-            choice = input("\nEnter your choice (0-7): ").strip()
+            choice = input("\nEnter your choice (0-10): ").strip()
 
             if choice == "0":
                 print("\n👋 Exiting setup")
                 break
 
-            elif choice in ["1", "2", "3", "4", "5"]:
+            elif choice in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                 provider_map = {
                     "1": "openai",
                     "2": "anthropic",
                     "3": "google",
-                    "4": "groq",
-                    "5": "ollama",
+                    "4": "gemini",
+                    "5": "groq",
+                    "6": "ollama",
+                    "7": "openrouter",
+                    "8": "custom",
                 }
                 provider = provider_map[choice]
                 await self.configure_provider(provider)
 
-            elif choice == "6":
+            elif choice == "9":
                 await self.test_all_configured()
 
-            elif choice == "7":
+            elif choice == "10":
                 self.show_configuration()
 
             else:
@@ -204,23 +256,33 @@ class APIKeySetup:
                 return
 
         # Get the API key/URL
+        base_url = None
+        ollama_key = None
+        
         if provider == "ollama":
             default = info.get("default_value", "")
             api_value = input(f"Enter Ollama API URL (default: {default}): ").strip()
             if not api_value:
                 api_value = default
+            ollama_key = input("Enter Ollama API key (optional, press Enter to skip): ").strip()
+        elif provider == "custom":
+            base_url = input("Enter the base URL for your OpenAI-compatible endpoint: ").strip()
+            if not base_url:
+                print("❌ Base URL is required for custom providers. Skipping.")
+                return
+            api_value = input(f"Enter your {info['name']} API key: ").strip()
         else:
             api_value = input(f"Enter your {info['name']} API key: ").strip()
 
-        if not api_value:
+        if not api_value and provider != "ollama":
             print("❌ No value entered. Skipping.")
             return
 
         # Test the API key
         print(f"\n🧪 Testing {info['name']} configuration...")
-        if await self.test_api_key(provider, api_value):
+        if await self.test_api_key(provider, api_value, base_url):
             # Save if successful
-            self.save_api_key(provider, api_value)
+            self.save_api_key(provider, api_value, base_url, ollama_key)
             print(f"✅ {info['name']} configured successfully!")
         else:
             print(f"❌ Failed to validate {info['name']} configuration")

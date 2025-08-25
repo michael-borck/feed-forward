@@ -220,15 +220,12 @@ def student_assignment_submit_form(session, request, assignment_id: int):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        f"Submit Draft - {assignment.title} | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             f"Submit Draft - {assignment.title}",
             sidebar_content,
             main_content,
             user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard active in nav
-        ),
+            current_path="/student/dashboard",  # Keep dashboard active in nav,
     )
 
 
@@ -553,15 +550,12 @@ def student_submissions_list(session, request):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "Submission History | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             "Submission History",
             sidebar_content,
             main_content,
             user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard active in nav
-        ),
+            current_path="/student/dashboard",  # Keep dashboard active in nav,
     )
 
 

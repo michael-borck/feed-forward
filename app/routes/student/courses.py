@@ -267,15 +267,12 @@ def student_course_view(session, request, course_id: int):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        f"{course.title} | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             f"Course: {course.title}",
             sidebar_content,
             main_content,
             user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard highlighted in nav
-        ),
+            current_path="/student/dashboard",  # Keep dashboard highlighted in nav,
     )
 
 
@@ -557,13 +554,10 @@ def student_course_assignments(session, request, course_id: int):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        f"Assignments - {course.title} | FeedForward",
-        dashboard_layout(
+    return dashboard_layout(
             f"Assignments - {course.title}",
             sidebar_content,
             main_content,
             user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard active in nav
-        ),
+            current_path="/student/dashboard",  # Keep dashboard active in nav,
     )

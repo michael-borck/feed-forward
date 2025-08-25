@@ -213,11 +213,8 @@ def admin_domains_list(session):
     )
 
     # Use the dashboard layout with our components
-    return fh.Titled(
-        "Domain Whitelist | FeedForward",
-        dashboard_layout(
-            "Domain Whitelist", sidebar_content, main_content, user_role=Role.ADMIN
-        ),
+    return dashboard_layout(
+            "Domain Whitelist", sidebar_content, main_content, user_role=Role.ADMIN,
     )
 
 

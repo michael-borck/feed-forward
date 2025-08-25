@@ -19,8 +19,8 @@ def page_header(show_auth_buttons=True):
     """
     # Branded logo/wordmark for header
     brand_logo = fh.Div(
-        fh.Span("Feed", cls="text-indigo-300 font-bold"),
-        fh.Span("Forward", cls="text-teal-300 font-bold"),
+        fh.Span("Feed", cls="text-blue-300 font-bold"),
+        fh.Span("Forward", cls="text-teal-400 font-bold"),
         cls="flex items-center text-2xl",
     )
 
@@ -29,12 +29,12 @@ def page_header(show_auth_buttons=True):
             fh.A(
                 "Sign in",
                 href="/login",
-                cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors",
+                cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-slate-600 transition-colors",
             ),
             fh.A(
                 "Sign up",
                 href="/register",
-                cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all",
+                cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-md transition-all",
             ),
             cls="flex items-center",
         )
@@ -54,7 +54,7 @@ def page_header(show_auth_buttons=True):
             nav_buttons,
             cls="container mx-auto flex justify-between items-center px-4",
         ),
-        cls="bg-indigo-900 text-white py-4 shadow-md",
+        cls="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4 shadow-md",
     )
 
 
@@ -67,7 +67,7 @@ def page_footer():
             fh.Div(
                 # Footer logo
                 fh.Div(
-                    fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                    fh.Span("Feed", cls="text-blue-600 font-bold"),
                     fh.Span("Forward", cls="text-teal-500 font-bold"),
                     cls="text-2xl mb-3",
                 ),
@@ -80,41 +80,41 @@ def page_footer():
             fh.Div(
                 # Quick links
                 fh.Div(
-                    fh.H3("Resources", cls="font-semibold text-indigo-800 mb-3"),
+                    fh.H3("Resources", cls="font-semibold text-slate-700 mb-3"),
                     fh.A(
                         "Documentation",
-                        href="#",
-                        cls="block text-gray-600 hover:text-indigo-600 mb-2",
+                        href="/docs",
+                        cls="block text-gray-600 hover:text-blue-600 mb-2",
                     ),
                     fh.A(
                         "Tutorials",
-                        href="#",
-                        cls="block text-gray-600 hover:text-indigo-600 mb-2",
+                        href="/docs/getting-started",
+                        cls="block text-gray-600 hover:text-blue-600 mb-2",
                     ),
                     fh.A(
                         "FAQs",
-                        href="#",
-                        cls="block text-gray-600 hover:text-indigo-600",
+                        href="/docs",
+                        cls="block text-gray-600 hover:text-blue-600",
                     ),
                     cls="mb-6 md:mb-0",
                 ),
                 # Legal
                 fh.Div(
-                    fh.H3("Legal", cls="font-semibold text-indigo-800 mb-3"),
+                    fh.H3("Legal", cls="font-semibold text-slate-700 mb-3"),
                     fh.A(
                         "Terms",
                         href="/terms",
-                        cls="block text-gray-600 hover:text-indigo-600 mb-2",
+                        cls="block text-gray-600 hover:text-blue-600 mb-2",
                     ),
                     fh.A(
                         "Privacy",
                         href="/privacy",
-                        cls="block text-gray-600 hover:text-indigo-600 mb-2",
+                        cls="block text-gray-600 hover:text-blue-600 mb-2",
                     ),
                     fh.A(
                         "Contact",
                         href="/contact",
-                        cls="block text-gray-600 hover:text-indigo-600",
+                        cls="block text-gray-600 hover:text-blue-600",
                     ),
                 ),
                 cls="md:w-1/3 flex gap-12",
@@ -167,8 +167,8 @@ def dashboard_header(user_role, current_path=None):
 
     # Branded logo/wordmark for header
     brand_logo = fh.Div(
-        fh.Span("Feed", cls="text-indigo-300 font-bold"),
-        fh.Span("Forward", cls="text-teal-300 font-bold"),
+        fh.Span("Feed", cls="text-blue-300 font-bold"),
+        fh.Span("Forward", cls="text-teal-400 font-bold"),
         cls="flex items-center text-2xl",
     )
 
@@ -218,9 +218,9 @@ def dashboard_header(user_role, current_path=None):
             if label == "Invite" and current_path == "/instructor/invite-students":
                 is_active = True
 
-        cls = "text-white px-4 py-2 mx-1 transition-colors hover:text-indigo-200"
+        cls = "text-white px-4 py-2 mx-1 transition-colors hover:text-blue-200"
         if is_active:
-            cls = "text-white bg-indigo-700 px-4 py-2 rounded-lg mx-1 font-medium shadow-sm"
+            cls = "text-white bg-blue-700 px-4 py-2 rounded-lg mx-1 font-medium shadow-sm"
         nav_items.append(fh.A(label, href=href, cls=cls))
 
     # User profile/avatar with logout button
@@ -297,14 +297,14 @@ def dashboard_header(user_role, current_path=None):
         fh.Div(
             fh.Div(
                 *[
-                    fh.A(label, href=href, cls="block py-2 px-4 hover:bg-indigo-800")
+                    fh.A(label, href=href, cls="block py-2 px-4 hover:bg-slate-700")
                     for label, href, _ in nav_links
                 ],
                 cls="hidden py-2",  # Hidden by default, would be shown/hidden with JS
             ),
             cls="md:hidden container mx-auto px-4",
         ),
-        cls="bg-indigo-900 text-white py-4 shadow-md",
+        cls="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4 shadow-md",
     )
 
 
@@ -352,7 +352,7 @@ def card(content, title=None, padding=6, bg_color="bg-white"):
     if title:
         card_content.append(
             fh.Div(
-                fh.H3(title, cls="text-lg font-bold text-indigo-900"),
+                fh.H3(title, cls="text-lg font-bold text-slate-800"),
                 cls="mb-4 pb-3 border-b border-gray-100",
             )
         )
@@ -375,7 +375,7 @@ def tabs(items, active_index=0):
     tab_items = []
     for i, (label, href) in enumerate(items):
         if i == active_index:
-            cls = "flex-1 py-3 px-4 text-center bg-indigo-600 text-white rounded-t-lg font-medium shadow-sm"
+            cls = "flex-1 py-3 px-4 text-center bg-blue-600 text-white rounded-t-lg font-medium shadow-sm"
         else:
             cls = "flex-1 py-3 px-4 text-center text-gray-600 hover:bg-gray-100 transition-colors border-b border-gray-200"
         tab_items.append(fh.A(label, href=href, cls=cls))
@@ -423,11 +423,11 @@ def data_table(headers, rows):
     header_cells = [
         fh.Th(
             h,
-            cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+            cls="text-left py-4 px-6 font-semibold text-slate-800 border-b-2 border-blue-100",
         )
         for h in headers
     ]
-    header_row = fh.Tr(*header_cells, cls="bg-indigo-50")
+    header_row = fh.Tr(*header_cells, cls="bg-blue-50")
 
     # Create table rows
     table_rows = [header_row]
@@ -495,7 +495,7 @@ def feedback_card(title, content, color="teal"):
         fh.Div(
             fh.Div(cls=f"w-2 bg-{mapped_color}-500 rounded-l"),
             fh.Div(
-                fh.H4(title, cls="font-semibold text-indigo-900 mb-3"),
+                fh.H4(title, cls="font-semibold text-slate-800 mb-3"),
                 content,
                 cls="p-5 flex-1",
             ),
@@ -569,7 +569,7 @@ def modal_dialog(title, content, footer=None):
     return fh.Div(
         fh.Div(
             fh.Div(
-                fh.H3(title, cls="text-xl font-bold text-indigo-900"),
+                fh.H3(title, cls="text-xl font-bold text-slate-800"),
                 fh.Button("x", cls="text-gray-500 hover:text-gray-700 text-2xl font-bold"),
                 cls="flex justify-between items-center border-b border-gray-200 pb-4 mb-6",
             ),
@@ -592,7 +592,7 @@ def sidebar_navigation(items, active_index=0):
     nav_items = []
     for i, (label, href) in enumerate(items):
         if i == active_index:
-            cls = "bg-indigo-100 p-3 rounded-lg mb-2 text-indigo-700 font-medium flex items-center"
+            cls = "bg-blue-100 p-3 rounded-lg mb-2 text-blue-700 font-medium flex items-center"
         else:
             cls = "p-3 mb-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-all flex items-center"
         nav_items.append(fh.A(label, href=href, cls=cls))
@@ -611,8 +611,8 @@ def dynamic_header(session=None):
     """
     # Branded logo/wordmark for header
     brand_logo = fh.Div(
-        fh.Span("Feed", cls="text-indigo-300 font-bold"),
-        fh.Span("Forward", cls="text-teal-300 font-bold"),
+        fh.Span("Feed", cls="text-blue-300 font-bold"),
+        fh.Span("Forward", cls="text-teal-400 font-bold"),
         cls="flex items-center text-2xl",
     )
 
@@ -643,7 +643,7 @@ def dynamic_header(session=None):
                 fh.A(
                     "Dashboard",
                     href=dashboard_link,
-                    cls="text-white px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors mr-2",
+                    cls="text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors mr-2",
                 ),
                 fh.A(
                     fh.Div(
@@ -670,12 +670,12 @@ def dynamic_header(session=None):
                 fh.A(
                     "Sign in",
                     href="/login",
-                    cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors",
+                    cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-slate-600 transition-colors",
                 ),
                 fh.A(
                     "Sign up",
                     href="/register",
-                    cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all",
+                    cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-md transition-all",
                 ),
                 cls="flex items-center",
             )
@@ -685,12 +685,12 @@ def dynamic_header(session=None):
             fh.A(
                 "Sign in",
                 href="/login",
-                cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-indigo-800 transition-colors",
+                cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-slate-600 transition-colors",
             ),
             fh.A(
                 "Sign up",
                 href="/register",
-                cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-sm transition-all",
+                cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-md transition-all",
             ),
             cls="flex items-center",
         )
@@ -707,7 +707,7 @@ def dynamic_header(session=None):
             nav_buttons,
             cls="container mx-auto flex justify-between items-center px-4",
         ),
-        cls="bg-indigo-900 text-white py-4 shadow-md",
+        cls="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4 shadow-md",
     )
 
 
@@ -724,12 +724,12 @@ def error_card(title, message, error_code="", error_type="Error"):
     return fh.Div(
         # Error code and type
         fh.Div(
-            fh.Span(error_code, cls="text-6xl font-bold text-indigo-300"),
+            fh.Span(error_code, cls="text-6xl font-bold text-blue-300"),
             fh.Span(error_type, cls="text-xl text-gray-500 ml-4"),
             cls="flex items-center justify-center mb-6",
         ),
         # Error title
-        fh.H1(title, cls="text-2xl font-bold text-indigo-900 mb-4 text-center"),
+        fh.H1(title, cls="text-2xl font-bold text-slate-800 mb-4 text-center"),
         # Error message
         fh.P(message, cls="text-gray-600 mb-8 text-center"),
         # Action buttons
@@ -737,12 +737,12 @@ def error_card(title, message, error_code="", error_type="Error"):
             fh.A(
                 "Dashboard",
                 href="/",  # This will redirect to proper dashboard based on role in landing page
-                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mr-4",
+                cls="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg mr-4",
             ),
             fh.A(
                 "Sign Out",
                 href="/logout",
-                cls="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-600 hover:bg-indigo-50 transition-colors",
+                cls="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors",
             ),
             cls="flex justify-center",
         ),

@@ -54,6 +54,44 @@ from app.utils.ui import dynamic_header, page_footer
 # Gray shades for neutrals
 
 
+# --- Professional Design System ---
+BRAND_COLORS = {
+    "primary": "blue-600",        # Softer than indigo
+    "primary-dark": "blue-700",
+    "primary-light": "blue-500",
+    "secondary": "teal-500",
+    "secondary-dark": "teal-600",
+    "secondary-light": "teal-400",
+    "accent": "blue-100",
+    "accent-light": "blue-50",
+    "text-primary": "slate-800",   # Much softer than indigo-900
+    "text-secondary": "gray-600",
+    "text-muted": "gray-500",
+    "success": "green-500",
+    "warning": "amber-500",        # Warmer than yellow
+    "error": "red-500",
+    "border": "gray-200",
+    "border-hover": "blue-300"
+}
+
+TYPOGRAPHY = {
+    "hero": "text-4xl md:text-6xl font-bold leading-tight",
+    "h1": "text-3xl md:text-4xl font-bold leading-tight",
+    "h2": "text-2xl md:text-3xl font-semibold leading-snug",
+    "h3": "text-xl md:text-2xl font-semibold leading-snug",
+    "body-lg": "text-lg leading-relaxed",
+    "body": "text-base leading-relaxed",
+    "body-sm": "text-sm leading-normal",
+    "caption": "text-xs leading-normal"
+}
+
+# Professional Button Styles with softer appearance
+BUTTON_STYLES = {
+    "primary": f"bg-{BRAND_COLORS['primary']} hover:bg-{BRAND_COLORS['primary-dark']} text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5",
+    "secondary": f"bg-white hover:bg-{BRAND_COLORS['accent-light']} text-{BRAND_COLORS['primary']} border-2 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']} px-8 py-4 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md",
+    "ghost": f"text-{BRAND_COLORS['primary']} hover:text-{BRAND_COLORS['primary-dark']} hover:bg-{BRAND_COLORS['accent-light']} px-4 py-2 rounded-lg transition-all font-medium"
+}
+
 # --- Root Route with Smart Redirection ---
 @rt("/")
 def root_redirect(session=None):
@@ -92,47 +130,47 @@ def landing_page(session=None):
                 Div(
                     # Logo/Wordmark
                     Div(
-                        Span("Feed", cls="text-indigo-600 font-bold"),
-                        Span("Forward", cls="text-teal-500 font-bold"),
-                        cls="text-5xl mb-2",
+                        Span("Feed", cls=f"text-{BRAND_COLORS['primary']} font-bold"),
+                        Span("Forward", cls=f"text-{BRAND_COLORS['secondary']} font-bold"),
+                        cls="text-5xl md:text-6xl mb-4",
                     ),
                     H1(
                         "Elevate Your Learning",
-                        cls="text-4xl font-bold text-gray-800 mb-3",
+                        cls=f"{TYPOGRAPHY['hero']} bg-gradient-to-r from-{BRAND_COLORS['primary']} to-{BRAND_COLORS['secondary']} bg-clip-text text-transparent mb-6",
                     ),
                     P(
                         "Transforming feedback into a path to success.",
-                        cls="text-lg text-gray-600 mb-8 max-w-xl mx-auto",
+                        cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-10 max-w-2xl mx-auto",
                     ),
                     Div(
                         A(
                             "Sign up",
                             href="/register",
-                            cls="bg-indigo-600 text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg mr-4 cursor-pointer relative z-20",
+                            cls=f"{BUTTON_STYLES['primary']} mr-6 cursor-pointer relative z-20",
                         ),
                         A(
                             "Learn More",
                             href="#features",
-                            cls="bg-white text-indigo-600 border border-indigo-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-50 transition-colors cursor-pointer relative z-20",
+                            cls=f"{BUTTON_STYLES['secondary']} cursor-pointer relative z-20",
                         ),
-                        cls="flex items-center justify-center relative z-20",
+                        cls="flex flex-col sm:flex-row items-center justify-center relative z-20 gap-4",
                     ),
                     cls="max-w-2xl mx-auto text-center",
                 ),
                 # Abstract background shapes
                 Div(
                     Div(
-                        cls="absolute top-20 right-20 w-20 h-20 rounded-full bg-indigo-200 opacity-50"
+                        cls="absolute top-20 right-20 w-20 h-20 rounded-full bg-blue-200 opacity-40"
                     ),
                     Div(
-                        cls="absolute bottom-10 left-20 w-32 h-32 rounded-full bg-teal-200 opacity-50"
+                        cls="absolute bottom-10 left-20 w-32 h-32 rounded-full bg-teal-200 opacity-40"
                     ),
                     Div(
-                        cls="absolute top-40 left-40 w-16 h-16 rounded-full bg-indigo-300 opacity-30"
+                        cls="absolute top-40 left-40 w-16 h-16 rounded-full bg-cyan-200 opacity-30"
                     ),
                     cls="absolute inset-0 overflow-hidden pointer-events-none",
                 ),
-                cls="bg-gradient-to-br from-gray-50 to-indigo-50 p-16 rounded-xl shadow-lg relative",
+                cls="bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 p-16 rounded-xl shadow-lg relative",
             ),
             cls="container mx-auto px-4 py-20 flex justify-center",
         ),
@@ -142,11 +180,11 @@ def landing_page(session=None):
                 Div(
                     H2(
                         "How FeedForward Works",
-                        cls="text-3xl font-bold text-center text-indigo-900 mb-4",
+                        cls=f"{TYPOGRAPHY['h1']} text-center text-{BRAND_COLORS['text-primary']} mb-6",
                     ),
                     P(
                         "Our platform makes iterative learning simple and effective.",
-                        cls="text-center text-gray-600 mb-12 max-w-2xl mx-auto",
+                        cls=f"{TYPOGRAPHY['body-lg']} text-center text-{BRAND_COLORS['text-secondary']} mb-16 max-w-3xl mx-auto",
                     ),
                     Div(
                         # Feature 1
@@ -154,90 +192,90 @@ def landing_page(session=None):
                             Div(
                                 Div(
                                     "1",
-                                    cls="bg-indigo-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl",
+                                    cls=f"bg-{BRAND_COLORS['primary']} text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl shadow-lg",
                                 ),
-                                cls="mb-4 flex justify-center",
+                                cls="mb-6 flex justify-center",
                             ),
                             H3(
                                 "Submit Your Work",
-                                cls="text-xl font-semibold text-indigo-900 mb-3 text-center",
+                                cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-primary']} mb-4 text-center",
                             ),
                             Div(
                                 P(
                                     "• Upload assignments effortlessly",
-                                    cls="text-gray-600 mb-1",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
                                 ),
                                 P(
                                     "• Support for multiple file formats",
-                                    cls="text-gray-600 mb-1",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
                                 ),
                                 P(
                                     "• Simple drag-and-drop interface",
-                                    cls="text-gray-600",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']}",
                                 ),
-                                cls="text-left",
+                                cls="text-left space-y-2",
                             ),
-                            cls="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-t-4 border-indigo-600",
+                            cls=f"bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']}",
                         ),
                         # Feature 2
                         Div(
                             Div(
                                 Div(
                                     "2",
-                                    cls="bg-teal-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl",
+                                    cls=f"bg-{BRAND_COLORS['secondary']} text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl shadow-lg",
                                 ),
-                                cls="mb-4 flex justify-center",
+                                cls="mb-6 flex justify-center",
                             ),
                             H3(
                                 "Receive Smart Feedback",
-                                cls="text-xl font-semibold text-indigo-900 mb-3 text-center",
+                                cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-primary']} mb-4 text-center",
                             ),
                             Div(
                                 P(
                                     "• Detailed, constructive feedback",
-                                    cls="text-gray-600 mb-1",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
                                 ),
                                 P(
                                     "• Tailored to assignment criteria",
-                                    cls="text-gray-600 mb-1",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
                                 ),
                                 P(
                                     "• Clear action items for improvement",
-                                    cls="text-gray-600",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']}",
                                 ),
-                                cls="text-left",
+                                cls="text-left space-y-2",
                             ),
-                            cls="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-t-4 border-teal-600",
+                            cls=f"bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-{BRAND_COLORS['secondary']} hover:border-{BRAND_COLORS['secondary-dark']}",
                         ),
                         # Feature 3
                         Div(
                             Div(
                                 Div(
                                     "3",
-                                    cls="bg-indigo-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl",
+                                    cls=f"bg-{BRAND_COLORS['primary']} text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl shadow-lg",
                                 ),
-                                cls="mb-4 flex justify-center",
+                                cls="mb-6 flex justify-center",
                             ),
                             H3(
                                 "Iterative Improvement",
-                                cls="text-xl font-semibold text-indigo-900 mb-3 text-center",
+                                cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-primary']} mb-4 text-center",
                             ),
                             Div(
                                 P(
                                     "• Track progress across drafts",
-                                    cls="text-gray-600 mb-1",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
                                 ),
                                 P(
                                     "• Visualize your improvement",
-                                    cls="text-gray-600 mb-1",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
                                 ),
                                 P(
                                     "• Build on feedback systematically",
-                                    cls="text-gray-600",
+                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']}",
                                 ),
-                                cls="text-left",
+                                cls="text-left space-y-2",
                             ),
-                            cls="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-t-4 border-indigo-600",
+                            cls=f"bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']}",
                         ),
                         cls="grid md:grid-cols-3 gap-8",
                     ),
@@ -253,43 +291,57 @@ def landing_page(session=None):
             Div(
                 H2(
                     "What Our Users Say",
-                    cls="text-3xl font-bold text-center text-indigo-900 mb-12",
+                    cls=f"{TYPOGRAPHY['h1']} text-center text-{BRAND_COLORS['text-primary']} mb-16",
                 ),
                 Div(
                     # Testimonial 1
                     Div(
-                        P(
-                            '"FeedForward helped me improve my writing style significantly. The feedback was actionable and specific."',
-                            cls="italic text-gray-700 mb-4",
-                        ),
                         Div(
-                            P("Sarah J.", cls="font-medium text-indigo-800"),
-                            P("Literature Student", cls="text-sm text-gray-500"),
-                            cls="flex flex-col",
+                            Div(
+                                P("🔧 Development Placeholder", cls=f"{TYPOGRAPHY['caption']} text-orange-600 bg-orange-50 px-2 py-1 rounded-full inline-block mb-3 font-medium border border-orange-200"),
+                                cls="mb-4",
+                            ),
+                            P(
+                                '"FeedForward helped me improve my writing style significantly. The feedback was actionable and specific."',
+                                cls=f"{TYPOGRAPHY['body-lg']} italic text-{BRAND_COLORS['text-secondary']} mb-6 leading-relaxed",
+                            ),
+                            Div(
+                                P("Sarah J.", cls=f"font-semibold text-{BRAND_COLORS['text-primary']} text-lg"),
+                                P("Literature Student", cls=f"{TYPOGRAPHY['body-sm']} text-{BRAND_COLORS['text-muted']}"),
+                                cls="flex flex-col",
+                            ),
+                            cls="p-8",
                         ),
-                        cls="bg-white p-6 rounded-lg shadow",
+                        cls=f"bg-white p-2 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']}",
                     ),
                     # Testimonial 2
                     Div(
-                        P(
-                            '"As an instructor, I can now provide consistent, high-quality feedback to all students, even in large classes."',
-                            cls="italic text-gray-700 mb-4",
-                        ),
                         Div(
-                            P("Dr. Thomas R.", cls="font-medium text-indigo-800"),
-                            P(
-                                "Computer Science Professor",
-                                cls="text-sm text-gray-500",
+                            Div(
+                                P("🔧 Development Placeholder", cls=f"{TYPOGRAPHY['caption']} text-orange-600 bg-orange-50 px-2 py-1 rounded-full inline-block mb-3 font-medium border border-orange-200"),
+                                cls="mb-4",
                             ),
-                            cls="flex flex-col",
+                            P(
+                                '"As an instructor, I can now provide consistent, high-quality feedback to all students, even in large classes."',
+                                cls=f"{TYPOGRAPHY['body-lg']} italic text-{BRAND_COLORS['text-secondary']} mb-6 leading-relaxed",
+                            ),
+                            Div(
+                                P("Dr. Thomas R.", cls=f"font-semibold text-{BRAND_COLORS['text-primary']} text-lg"),
+                                P(
+                                    "Computer Science Professor",
+                                    cls=f"{TYPOGRAPHY['body-sm']} text-{BRAND_COLORS['text-muted']}",
+                                ),
+                                cls="flex flex-col",
+                            ),
+                            cls="p-8",
                         ),
-                        cls="bg-white p-6 rounded-lg shadow",
+                        cls=f"bg-white p-2 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 border-{BRAND_COLORS['secondary']} hover:border-{BRAND_COLORS['secondary-dark']}",
                     ),
-                    cls="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto",
+                    cls="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto",
                 ),
-                cls="container mx-auto px-4 py-16",
+                cls="container mx-auto px-4 py-20",
             ),
-            cls="bg-gradient-to-b from-gray-100 to-indigo-50",
+            cls=f"bg-gradient-to-br from-{BRAND_COLORS['accent-light']} to-{BRAND_COLORS['accent']}",
         ),
     )
 
@@ -318,15 +370,12 @@ def landing_page(session=None):
     """)
 
     # Return the complete page with dynamic header based on auth status
-    return Titled(
-        "FeedForward: Elevate Your Learning",
-        Div(
-            dynamic_header(session),  # Dynamic header based on auth status
-            Div(landing_content, cls="flex-grow"),
-            page_footer(),
-            scroll_script,
-            cls="min-h-screen flex flex-col",
-        ),
+    return Div(
+        dynamic_header(session),  # Dynamic header based on auth status
+        Div(landing_content, cls="flex-grow"),
+        page_footer(),
+        scroll_script,
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -336,16 +385,16 @@ def privacy_page(session=None):
     """Privacy Policy page"""
     # Create a simplified privacy policy page instead of parsing markdown
     privacy_content = Div(
-        H1("FeedForward Privacy Policy", cls="text-3xl font-bold text-indigo-900 mb-6"),
+        H1("FeedForward Privacy Policy", cls="text-3xl font-bold text-slate-800 mb-6"),
         H2(
             "Data Collection and Usage",
-            cls="text-2xl font-bold text-indigo-800 mt-8 mb-4",
+            cls="text-2xl font-bold text-slate-700 mt-8 mb-4",
         ),
         P(
             "FeedForward is designed with student privacy as a core principle. We collect and process the following data to provide feedback services:",
             cls="mb-4 text-gray-700",
         ),
-        H3("Student Information", cls="text-xl font-bold text-indigo-700 mt-6 mb-3"),
+        H3("Student Information", cls="text-xl font-bold text-blue-700 mt-6 mb-3"),
         Div(
             Div(
                 "• Basic account information (name, email)",
@@ -358,7 +407,7 @@ def privacy_page(session=None):
             ),
             cls="mb-6",
         ),
-        H3("Submission Content", cls="text-xl font-bold text-indigo-700 mt-6 mb-3"),
+        H3("Submission Content", cls="text-xl font-bold text-blue-700 mt-6 mb-3"),
         Div(
             Div(
                 "• Temporary storage only: Student submitted work is stored only temporarily while feedback is being generated",
@@ -376,9 +425,9 @@ def privacy_page(session=None):
         ),
         H2(
             "Data Protection Measures",
-            cls="text-2xl font-bold text-indigo-800 mt-8 mb-4",
+            cls="text-2xl font-bold text-slate-700 mt-8 mb-4",
         ),
-        H3("Submission Privacy", cls="text-xl font-bold text-indigo-700 mt-6 mb-3"),
+        H3("Submission Privacy", cls="text-xl font-bold text-blue-700 mt-6 mb-3"),
         Div(
             Div(
                 "1. Temporary Storage: Assignment content is stored only as long as necessary to generate feedback",
@@ -398,7 +447,7 @@ def privacy_page(session=None):
             ),
             cls="mb-6",
         ),
-        H2("Student Rights", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("Student Rights", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "Students have the following rights regarding their data:",
             cls="mb-4 text-gray-700",
@@ -418,7 +467,7 @@ def privacy_page(session=None):
             ),
             cls="mb-6",
         ),
-        H2("Policy Updates", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("Policy Updates", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "This privacy policy may be updated periodically to reflect changes in our practices. Major changes will be communicated to users.",
             cls="mb-4 text-gray-700",
@@ -439,14 +488,11 @@ def privacy_page(session=None):
     )
 
     # Return the complete page with dynamic header based on auth status
-    return Titled(
-        "Privacy Policy | FeedForward",
-        Div(
-            dynamic_header(session),
-            privacy_page_content,
-            page_footer(),
-            cls="min-h-screen flex flex-col",
-        ),
+    return Div(
+        dynamic_header(session),
+        privacy_page_content,
+        page_footer(),
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -456,21 +502,21 @@ def terms_page(session=None):
     terms_content = Div(
         H1(
             "FeedForward Terms of Service",
-            cls="text-3xl font-bold text-indigo-900 mb-6",
+            cls="text-3xl font-bold text-slate-800 mb-6",
         ),
         H2(
-            "1. Acceptance of Terms", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"
+            "1. Acceptance of Terms", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"
         ),
         P(
             "By accessing or using the FeedForward platform, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this service.",
             cls="mb-4 text-gray-700",
         ),
-        H2("2. Educational Use", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("2. Educational Use", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "FeedForward is designed exclusively for educational purposes. The platform should be used by students and educators in accordance with their institution's academic policies.",
             cls="mb-4 text-gray-700",
         ),
-        H2("3. User Accounts", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("3. User Accounts", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         Div(
             Div(
                 "• Users are responsible for maintaining the confidentiality of their account credentials",
@@ -486,7 +532,7 @@ def terms_page(session=None):
             ),
             cls="mb-6",
         ),
-        H2("4. Content Ownership", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("4. Content Ownership", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         Div(
             Div(
                 "• Users retain ownership of content they submit to the platform",
@@ -502,7 +548,7 @@ def terms_page(session=None):
             ),
             cls="mb-6",
         ),
-        H2("5. Prohibited Use", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("5. Prohibited Use", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P("Users may not use FeedForward to:", cls="mb-4 text-gray-700"),
         Div(
             Div(
@@ -521,7 +567,7 @@ def terms_page(session=None):
             cls="mb-6",
         ),
         H2(
-            "6. Service Limitations", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"
+            "6. Service Limitations", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"
         ),
         Div(
             Div(
@@ -538,14 +584,14 @@ def terms_page(session=None):
             ),
             cls="mb-6",
         ),
-        H2("7. Termination", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("7. Termination", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "FeedForward reserves the right to terminate or suspend access to the service without prior notice for conduct that violates these Terms of Service.",
             cls="mb-4 text-gray-700",
         ),
         H2(
             "8. Disclaimer of Warranties",
-            cls="text-2xl font-bold text-indigo-800 mt-8 mb-4",
+            cls="text-2xl font-bold text-slate-700 mt-8 mb-4",
         ),
         P(
             'The service is provided "as is" without warranties of any kind, either express or implied. FeedForward does not warrant that the service will be uninterrupted or error-free.',
@@ -553,18 +599,18 @@ def terms_page(session=None):
         ),
         H2(
             "9. Institutional Relationships",
-            cls="text-2xl font-bold text-indigo-800 mt-8 mb-4",
+            cls="text-2xl font-bold text-slate-700 mt-8 mb-4",
         ),
         P(
             "When FeedForward is deployed by an educational institution, users may also be subject to the policies and terms of that institution.",
             cls="mb-4 text-gray-700",
         ),
-        H2("10. Changes to Terms", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("10. Changes to Terms", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "FeedForward reserves the right to modify these terms at any time. Users will be notified of significant changes.",
             cls="mb-4 text-gray-700",
         ),
-        H2("11. Governing Law", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("11. Governing Law", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "These Terms shall be governed by the laws of Australia, without regard to its conflict of law provisions.",
             cls="mb-4 text-gray-700",
@@ -586,14 +632,11 @@ def terms_page(session=None):
     )
 
     # Return the complete page with dynamic header based on auth status
-    return Titled(
-        "Terms of Service | FeedForward",
-        Div(
-            dynamic_header(session),
-            terms_page_content,
-            page_footer(),
-            cls="min-h-screen flex flex-col",
-        ),
+    return Div(
+        dynamic_header(session),
+        terms_page_content,
+        page_footer(),
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -601,22 +644,22 @@ def terms_page(session=None):
 def contact_page(session=None):
     """Contact page with developer information"""
     contact_content = Div(
-        H1("Contact Us", cls="text-3xl font-bold text-indigo-900 mb-6"),
-        H2("Project Lead", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H1("Contact Us", cls="text-3xl font-bold text-slate-800 mb-6"),
+        H2("Project Lead", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         Div(
-            P("Michael Borck", cls="text-xl font-semibold text-indigo-700 mb-1"),
+            P("Michael Borck", cls="text-xl font-semibold text-blue-700 mb-1"),
             P("Email: michael.borck@curtin.edu.au", cls="text-gray-700 mb-2"),
             P("Business AI Research Group (BARG)", cls="text-gray-700 mb-1"),
             P("Faculty of Business and Law", cls="text-gray-700 mb-1"),
             P("Curtin University", cls="text-gray-700 mb-4"),
             cls="mb-6",
         ),
-        H2("Support", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("Support", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "For questions or technical support with your institution's FeedForward installation, please contact your local administrators.",
             cls="text-gray-700 mb-4",
         ),
-        H2("Contribute", cls="text-2xl font-bold text-indigo-800 mt-8 mb-4"),
+        H2("Contribute", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "FeedForward is an open-source project. If you're interested in contributing or reporting issues, please visit our GitHub repository.",
             cls="text-gray-700 mb-4",
@@ -637,14 +680,11 @@ def contact_page(session=None):
     )
 
     # Return the complete page with dynamic header based on auth status
-    return Titled(
-        "Contact Us | FeedForward",
-        Div(
-            dynamic_header(session),
-            contact_page_content,
-            page_footer(),
-            cls="min-h-screen flex flex-col",
-        ),
+    return Div(
+        dynamic_header(session),
+        contact_page_content,
+        page_footer(),
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -663,32 +703,32 @@ def error_404_page(session=None, message: Optional[str] = None):
                 Div(
                     # Error code and type
                     Div(
-                        Span("404", cls="text-6xl font-bold text-indigo-300"),
-                        Span("Not Found", cls="text-xl text-gray-500 ml-4"),
-                        cls="flex items-center justify-center mb-6",
+                        Span("404", cls=f"text-7xl font-bold text-{BRAND_COLORS['primary']} opacity-80"),
+                        Span("Not Found", cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-secondary']} ml-6"),
+                        cls="flex items-center justify-center mb-8",
                     ),
                     # Error title
                     H1(
                         "Page Not Found",
-                        cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                        cls=f"{TYPOGRAPHY['h1']} text-{BRAND_COLORS['text-primary']} mb-6 text-center",
                     ),
                     # Error message
-                    P(error_message, cls="text-gray-600 mb-8 text-center"),
+                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-10 text-center max-w-md"),
                     # Action buttons
                     Div(
                         A(
                             "Dashboard",
                             href="/",  # This will redirect to proper dashboard based on role in landing page
-                            cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mr-4",
+                            cls=f"{BUTTON_STYLES['primary']} mr-4",
                         ),
                         A(
                             "Sign Out",
                             href="/logout",
-                            cls="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-600 hover:bg-indigo-50 transition-colors",
+                            cls=BUTTON_STYLES['secondary'],
                         ),
-                        cls="flex justify-center",
+                        cls="flex flex-col sm:flex-row justify-center gap-4",
                     ),
-                    cls="p-10 bg-white rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto",
+                    cls=f"p-12 bg-white rounded-2xl shadow-2xl border border-{BRAND_COLORS['border']} max-w-lg mx-auto",
                 ),
                 cls="container mx-auto px-4 py-16",
             ),
@@ -696,14 +736,11 @@ def error_404_page(session=None, message: Optional[str] = None):
         )
     )
 
-    return Titled(
-        "404 Page Not Found | FeedForward",
-        Div(
-            dynamic_header(session),
-            error_content,
-            page_footer(),
-            cls="min-h-screen flex flex-col",
-        ),
+    return Div(
+        dynamic_header(session),
+        error_content,
+        page_footer(),
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -719,32 +756,32 @@ def error_403_page(session=None, message: Optional[str] = None):
                 Div(
                     # Error code and type
                     Div(
-                        Span("403", cls="text-6xl font-bold text-indigo-300"),
-                        Span("Forbidden", cls="text-xl text-gray-500 ml-4"),
-                        cls="flex items-center justify-center mb-6",
+                        Span("403", cls=f"text-7xl font-bold text-{BRAND_COLORS['error']} opacity-80"),
+                        Span("Forbidden", cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-secondary']} ml-6"),
+                        cls="flex items-center justify-center mb-8",
                     ),
                     # Error title
                     H1(
                         "Access Denied",
-                        cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                        cls=f"{TYPOGRAPHY['h1']} text-{BRAND_COLORS['text-primary']} mb-6 text-center",
                     ),
                     # Error message
-                    P(error_message, cls="text-gray-600 mb-8 text-center"),
+                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-10 text-center max-w-md"),
                     # Action buttons
                     Div(
                         A(
                             "Dashboard",
                             href="/",  # This will redirect to proper dashboard based on role in landing page
-                            cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mr-4",
+                            cls=f"{BUTTON_STYLES['primary']} mr-4",
                         ),
                         A(
                             "Sign Out",
                             href="/logout",
-                            cls="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-600 hover:bg-indigo-50 transition-colors",
+                            cls=BUTTON_STYLES['secondary'],
                         ),
-                        cls="flex justify-center",
+                        cls="flex flex-col sm:flex-row justify-center gap-4",
                     ),
-                    cls="p-10 bg-white rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto",
+                    cls=f"p-12 bg-white rounded-2xl shadow-2xl border border-{BRAND_COLORS['border']} max-w-lg mx-auto",
                 ),
                 cls="container mx-auto px-4 py-16",
             ),
@@ -752,14 +789,11 @@ def error_403_page(session=None, message: Optional[str] = None):
         )
     )
 
-    return Titled(
-        "403 Access Denied | FeedForward",
-        Div(
-            dynamic_header(session),
-            error_content,
-            page_footer(),
-            cls="min-h-screen flex flex-col",
-        ),
+    return Div(
+        dynamic_header(session),
+        error_content,
+        page_footer(),
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -790,18 +824,18 @@ def profile_page(session: dict):
                     # User avatar with initial
                     Div(
                         user.email[0].upper() if user.email else "U",
-                        cls="w-24 h-24 rounded-full bg-indigo-600 text-white flex items-center justify-center text-4xl font-bold",
+                        cls="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center text-4xl font-bold",
                     ),
                     # User name and role
                     Div(
                         H1(
                             user.name or user.email,
-                            cls="text-2xl font-bold text-indigo-900 mb-1",
+                            cls="text-2xl font-bold text-slate-800 mb-1",
                         ),
                         Div(
                             Div(
                                 user.role.capitalize(),
-                                cls="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium",
+                                cls="bg-indigo-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium",
                             ),
                             cls="flex items-center",
                         ),
@@ -817,7 +851,7 @@ def profile_page(session: dict):
                 Div(
                     H2(
                         "Personal Information",
-                        cls="text-xl font-bold text-indigo-900 mb-4 pb-2 border-b border-gray-200",
+                        cls="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-gray-200",
                     ),
                     Form(
                         # Hidden input for form identification
@@ -882,7 +916,7 @@ def profile_page(session: dict):
                             Button(
                                 "Update Personal Information",
                                 type="submit",
-                                cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                                cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
                             ),
                             cls="mt-6",
                         ),
@@ -894,7 +928,7 @@ def profile_page(session: dict):
                     Div(
                         H2(
                             "Change Password",
-                            cls="text-xl font-bold text-indigo-900 mb-4 pb-2 border-b border-gray-200",
+                            cls="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-gray-200",
                         ),
                         Form(
                             # Hidden input for form identification
@@ -958,7 +992,7 @@ def profile_page(session: dict):
                                 Button(
                                     "Change Password",
                                     type="submit",
-                                    cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                                    cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
                                 ),
                                 cls="mt-6",
                             ),
@@ -971,7 +1005,7 @@ def profile_page(session: dict):
                     Div(
                         H2(
                             "Account Preferences",
-                            cls="text-xl font-bold text-indigo-900 mb-4 pb-2 border-b border-gray-200",
+                            cls="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-gray-200",
                         ),
                         Div(
                             P("Account preferences coming soon.", cls="text-gray-600"),
@@ -988,14 +1022,11 @@ def profile_page(session: dict):
     )
 
     # Create the complete profile page with dynamic header
-    return Titled(
-        "User Profile | FeedForward",
-        Div(
-            dynamic_header(session),
-            Div(profile_content, cls="flex-grow"),
-            page_footer(),
-            cls="min-h-screen flex flex-col",
-        ),
+    return Div(
+        dynamic_header(session),
+        Div(profile_content, cls="flex-grow"),
+        page_footer(),
+        cls="min-h-screen flex flex-col",
     )
 
 
@@ -1087,7 +1118,7 @@ def update_profile(session: dict, form_type: str, name: Optional[str] = None, de
                     Button(
                         "Update Personal Information",
                         type="submit",
-                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
                     ),
                     cls="mt-6",
                 ),
@@ -1188,7 +1219,7 @@ def change_password(
                     Button(
                         "Change Password",
                         type="submit",
-                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
                     ),
                     cls="mt-6",
                 ),
@@ -1267,7 +1298,7 @@ def change_password(
                     Button(
                         "Change Password",
                         type="submit",
-                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
                     ),
                     cls="mt-6",
                 ),
@@ -1346,7 +1377,7 @@ def change_password(
                     Button(
                         "Change Password",
                         type="submit",
-                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
                     ),
                     cls="mt-6",
                 ),
@@ -1428,7 +1459,7 @@ def change_password(
                     Button(
                         "Change Password",
                         type="submit",
-                        cls="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
                     ),
                     cls="mt-6",
                 ),

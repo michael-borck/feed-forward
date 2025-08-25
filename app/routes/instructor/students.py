@@ -540,7 +540,7 @@ def instructor_invite_students_form(session, request):
     user = users[session["auth"]]
 
     # Get course_id from query parameters if provided
-    course_id = request.url.params.get("course_id")
+    course_id = request.query_params.get("course_id")
 
     # Get all courses for this instructor
     instructor_courses = []
