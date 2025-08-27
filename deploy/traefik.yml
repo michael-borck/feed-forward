@@ -1,0 +1,75 @@
+# Traefik v2 configuration for FeedForward
+# This can be used as static configuration or with Docker labels
+
+# Static configuration (traefik.yml)
+api:
+  dashboard: true
+  debug: false
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entrypoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@yourdomain.com
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+---
+# Dynamic configuration (place in /etc/traefik/dynamic/feedforward.yml)
+http:
+  routers:
+    feedforward:
+      rule: Host(`feedforward.yourdomain.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: feedforward
+      middlewares:
+        - security-headers
+        - rate-limit
+
+  services:
+    feedforward:
+      loadBalancer:
+        servers:
+          - url: http://localhost:5001
+        healthCheck:
+          path: /
+          interval: 30s
+          timeout: 3s
+
+  middlewares:
+    security-headers:
+      headers:
+        customFrameOptionsValue: SAMEORIGIN
+        contentTypeNosniff: true
+        browserXssFilter: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        
+    body-size:
+      buffering:
+        maxRequestBodyBytes: 52428800  # 50MB

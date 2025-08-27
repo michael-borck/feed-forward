@@ -33,6 +33,7 @@ from app.models.feedback import (
     feedback_items,
     model_runs,
 )
+from app.models.instructor_preferences import instructor_model_prefs
 from app.services.prompt_templates import generate_feedback_prompt
 from app.utils.privacy import cleanup_draft_content
 
@@ -92,21 +93,29 @@ class FeedbackGenerator:
                 return False
 
             # Get configured AI models for this assignment
-            model_configs = self._get_model_configurations(settings.id)
-
-            if not model_configs:
-                logger.error(f"No AI models configured for assignment {assignment.id}")
+            # Use instructor's active models based on preferences
+            active_models = self._get_instructor_active_models(assignment.created_by)
+            
+            if not active_models:
+                logger.error(f"No active AI models for instructor {assignment.created_by}")
                 draft.status = "error"
                 drafts.update(draft)
                 return False
+            
+            # Create model configurations from active models
+            model_configs = []
+            for model in active_models:
+                # Use default number of runs from settings or fallback to 1
+                num_runs = getattr(settings, 'num_runs', 1)
+                model_configs.append({'model': model, 'num_runs': num_runs})
 
             # Generate feedback using each configured model
             all_runs = []
             for model_config in model_configs:
-                model = ai_models[model_config.ai_model_id]
+                model = model_config['model']  # The model is already the AIModel object
 
                 # Run the model multiple times as configured
-                for run_num in range(model_config.num_runs):
+                for run_num in range(model_config['num_runs']):
                     result = await self._run_single_model(
                         draft, assignment, settings, model, run_num + 1
                     )
@@ -533,6 +542,29 @@ class FeedbackGenerator:
             )
             aggregated_feedback.insert(agg_feedback)
 
+    def _get_instructor_active_models(self, instructor_email: str) -> list[AIModel]:
+        """Get active AI models for an instructor based on their preferences"""
+        active_model_ids = set()
+        
+        # Get instructor's model preferences
+        for pref in instructor_model_prefs():
+            if pref.instructor_email == instructor_email and pref.is_active:
+                active_model_ids.add(pref.model_id)
+        
+        # If no preferences set, use all system models as default
+        if not active_model_ids:
+            for model in ai_models():
+                if model.is_active and model.created_by == "system":
+                    active_model_ids.add(model.id)
+        
+        # Get the actual model objects
+        active_models = []
+        for model in ai_models():
+            if model.id in active_model_ids and model.is_active:
+                active_models.append(model)
+        
+        return active_models
+    
     def _get_assignment_settings(
         self, assignment_id: int
     ) -> Optional[AssignmentSettings]:

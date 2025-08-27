@@ -50,6 +50,23 @@ def basic_auth(f):
     return wrapper
 
 
+# --- General Login Required Decorator ---
+def login_required(f):
+    """Decorator to require authentication without specific role"""
+    @wraps(f)
+    def wrapper(session, *args, **kwargs):
+        try:
+            from app.models.user import users
+            # Just check if user exists in session
+            users[session["auth"]]
+        except Exception:
+            return fh.RedirectResponse("/login", status_code=303)
+        
+        return f(session, *args, **kwargs)
+    
+    return wrapper
+
+
 # --- Domain-specific role Authorization Decorator ---
 def role_required(role):
     def decorator(f):

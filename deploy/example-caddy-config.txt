@@ -1,0 +1,20 @@
+# Add this to your existing Caddy configuration on your VPS
+# Replace feedforward.yourdomain.com with your actual domain
+
+feedforward.yourdomain.com {
+    reverse_proxy localhost:5001
+    
+    # Optional: Add security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+    }
+    
+    # Optional: File upload size limit
+    request_body {
+        max_size 50MB
+    }
+    
+    encode gzip
+}

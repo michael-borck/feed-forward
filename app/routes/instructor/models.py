@@ -9,7 +9,9 @@ from fasthtml import common as fh
 
 from app import instructor_required, rt
 from app.models.config import AIModel, ai_models, model_capabilities
+from app.models.instructor_preferences import instructor_model_prefs, InstructorModelPref
 from app.models.user import users
+from datetime import datetime
 from app.utils.crypto import encrypt_sensitive_data
 from app.utils.ui import action_button, card, dashboard_layout, status_badge
 
@@ -27,6 +29,12 @@ def instructor_models_list(session, request):
     current_user = users[session["auth"]]
     instructor_id = get_instructor_id(current_user.email)
 
+    # Get instructor's model preferences
+    instructor_prefs = {}
+    for pref in instructor_model_prefs():
+        if pref.instructor_email == current_user.email:
+            instructor_prefs[pref.model_id] = pref.is_active
+    
     # Get all available models (system models + instructor's own models)
     all_models = []
     for model in ai_models():
@@ -44,6 +52,10 @@ def instructor_models_list(session, request):
                     if cap.is_primary:
                         primary_capability = cap.capability
 
+            # Check if instructor has a preference for this model
+            # If no preference exists, default to model's active status
+            is_enabled_for_instructor = instructor_prefs.get(model.id, model.active)
+            
             all_models.append(
                 {
                     "id": model.id,
@@ -55,7 +67,8 @@ def instructor_models_list(session, request):
                     "capabilities": capabilities,
                     "primary_capability": primary_capability,
                     "owner_type": model.owner_type,
-                    "active": model.active,
+                    "active": model.active,  # Model's actual status
+                    "enabled_for_instructor": is_enabled_for_instructor,  # Instructor's preference
                 }
             )
 
@@ -83,7 +96,7 @@ def instructor_models_list(session, request):
             fh.H3("Model Statistics", cls="font-semibold text-indigo-900 mb-4"),
             fh.P(f"Total Models: {len(all_models)}", cls="text-gray-600 mb-2"),
             fh.P(
-                f"Active Models: {sum(1 for m in all_models if m['active'])}",
+                f"Enabled for You: {sum(1 for m in all_models if m['enabled_for_instructor'])}",
                 cls="text-gray-600 mb-2",
             ),
             fh.P(
@@ -138,19 +151,58 @@ def instructor_models_list(session, request):
                         ),
                         # Status and actions
                         fh.Div(
+                            # Model status (only show if model is inactive)
                             fh.Div(
                                 status_badge(
-                                    "Active" if model["active"] else "Inactive",
-                                    "green" if model["active"] else "gray",
+                                    "Model Inactive",
+                                    "red",
                                 ),
+                                cls="mb-2",
+                            ) if not model["active"] else "",
+                            
+                            # Toggle switch for instructor preference
+                            fh.Div(
+                                fh.Label(
+                                    fh.Div(
+                                        fh.Span(
+                                            "Enabled for your assignments",
+                                            cls="text-sm font-medium text-gray-700"
+                                        ),
+                                        fh.Div(
+                                            fh.Input(
+                                                type="checkbox",
+                                                checked=model["enabled_for_instructor"],
+                                                cls="sr-only peer",
+                                                hx_post=f"/instructor/models/toggle/{model['id']}",
+                                                hx_trigger="change",
+                                                hx_swap="none",
+                                                disabled=not model["active"],  # Disable if model itself is inactive
+                                            ),
+                                            fh.Div(
+                                                cls="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                                                + (" opacity-50" if not model["active"] else "")
+                                            ),
+                                            cls="relative inline-flex",
+                                        ),
+                                        cls="flex items-center justify-between",
+                                    ),
+                                    cls="cursor-pointer" if model["active"] else "cursor-not-allowed",
+                                ),
+                                cls="mb-3",
+                            ),
+                            
+                            # Owner info
+                            fh.Div(
                                 fh.Span(
                                     "System Model"
                                     if model["owner_type"] == "system"
                                     else "Your Model",
-                                    cls="text-xs text-gray-500 ml-2",
+                                    cls="text-xs text-gray-500",
                                 ),
-                                cls="mb-3",
+                                cls="mb-2",
                             ),
+                            
+                            # View details link (only for instructor's own models)
                             fh.Div(
                                 fh.A(
                                     "View Details",
@@ -234,24 +286,49 @@ def instructor_models_new(session, request):
                 ),
                 cls="mb-4",
             ),
-            # Model ID
+            # Model ID with dynamic loading for Ollama
             fh.Div(
                 fh.Label(
                     "Model ID",
                     for_="model_id",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
-                fh.Input(
-                    type="text",
-                    id="model_id",
-                    name="model_id",
-                    placeholder="e.g., gpt-4, claude-3-opus, gemini-pro",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    required=True,
+                fh.Div(
+                    fh.Input(
+                        type="text",
+                        id="model_id",
+                        name="model_id",
+                        placeholder="e.g., gpt-4, claude-3-opus, llama2, mistral",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        required=True,
+                    ),
+                    id="model-id-container",
                 ),
                 fh.P(
                     "The specific model identifier for your chosen provider",
                     cls="text-sm text-gray-500 mt-1",
+                ),
+                fh.Div(
+                    fh.Button(
+                        "Fetch Available Models",
+                        type="button",
+                        hx_post="/instructor/models/fetch-ollama",
+                        hx_include="[name='base_url']",
+                        hx_target="#model-id-container",
+                        hx_swap="innerHTML",
+                        cls="mt-2 bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 hidden",
+                        id="fetch-models-btn",
+                    ),
+                    fh.Script("""
+                        document.getElementById('provider').addEventListener('change', function() {
+                            const btn = document.getElementById('fetch-models-btn');
+                            if (this.value === 'ollama') {
+                                btn.classList.remove('hidden');
+                            } else {
+                                btn.classList.add('hidden');
+                            }
+                        });
+                    """),
                 ),
                 cls="mb-4",
             ),
@@ -421,10 +498,68 @@ def instructor_models_create(
         )
 
 
+@rt("/instructor/models/fetch-ollama")
+@instructor_required  
+def fetch_ollama_models(session, base_url: str):
+    """Fetch available models from Ollama server"""
+    import requests
+    
+    try:
+        # Clean up the URL
+        ollama_url = base_url.strip().rstrip('/') + '/api/tags'
+        
+        # Try to fetch models
+        resp = requests.get(ollama_url, timeout=5, verify=True)
+        
+        if resp.status_code == 200:
+            models_data = resp.json()
+            models = models_data.get('models', [])
+            
+            if models:
+                options = [
+                    fh.Option(
+                        f"{m['name']} ({m.get('size', 'Unknown size')})",
+                        value=m['name'].replace(':latest', '')
+                    )
+                    for m in models
+                ]
+                return fh.Select(
+                    fh.Option("Select a model", value="", selected=True, disabled=True),
+                    *options,
+                    id="model_id",
+                    name="model_id",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    required=True,
+                )
+            else:
+                return fh.Div(
+                    fh.P("No models found on server", cls="text-amber-600"),
+                    fh.P("Please pull models first using: ollama pull <model-name>", cls="text-sm text-gray-500 mt-1"),
+                )
+        else:
+            return fh.Div(
+                fh.P(f"Server responded with status {resp.status_code}", cls="text-red-600"),
+            )
+    except requests.exceptions.SSLError:
+        return fh.Div(
+            fh.P("SSL Certificate error", cls="text-red-600"),
+            fh.P("For self-signed certificates, you may need to configure certificate verification", cls="text-sm text-gray-500 mt-1"),
+        )
+    except requests.exceptions.ConnectionError:
+        return fh.Div(
+            fh.P("Cannot connect to Ollama server", cls="text-red-600"),
+            fh.P("Please check the URL and ensure the server is running", cls="text-sm text-gray-500 mt-1"),
+        )
+    except Exception as e:
+        return fh.Div(
+            fh.P(f"Error: {str(e)}", cls="text-red-600"),
+        )
+
+
 @rt("/instructor/models/test")
 @instructor_required
 def instructor_models_test(
-    session, provider: str, api_key: Optional[str] = None, base_url: Optional[str] = None
+    session, provider: str, api_key: Optional[str] = None, base_url: Optional[str] = None, model_id: Optional[str] = None
 ):
     """Test AI model connection"""
     import litellm
@@ -441,14 +576,38 @@ def instructor_models_test(
     if api_key and api_key.strip():
         test_config["api_key"] = api_key.strip()
     if base_url and base_url.strip():
-        test_config["base_url"] = base_url.strip()
+        # For Ollama, use api_base instead of base_url
+        if provider == "ollama":
+            test_config["api_base"] = base_url.strip()
+        else:
+            test_config["base_url"] = base_url.strip()
     elif provider == "ollama":
-        test_config["base_url"] = "http://localhost:11434"
+        test_config["api_base"] = "http://localhost:11434"
 
     # Test the connection
     try:
-        # Simple test prompt
-        model = "ollama/llama2" if provider == "ollama" else f"{provider}/gpt-3.5-turbo"
+        # For Ollama, first try to get available models
+        if provider == "ollama" and base_url:
+            try:
+                import requests
+                # Try to fetch available models from Ollama
+                ollama_url = base_url.strip().rstrip('/') + '/api/tags'
+                resp = requests.get(ollama_url, timeout=5)
+                if resp.status_code == 200:
+                    models_data = resp.json()
+                    available_models = [m['name'] for m in models_data.get('models', [])]
+                    if available_models:
+                        # Use the first available model for testing
+                        model = f"ollama/{available_models[0].replace(':latest', '')}"
+                    else:
+                        model = "ollama/llama2"
+                else:
+                    model = "ollama/llama2"
+            except Exception:
+                model = "ollama/llama2"
+        else:
+            # Simple test prompt
+            model = "ollama/llama2" if provider == "ollama" else f"{provider}/gpt-3.5-turbo"
 
         response = litellm.completion(
             model=model,
@@ -635,3 +794,41 @@ def instructor_models_view(session, model_id: int):
             user_role="instructor",
             current_path="/instructor/models"
     )
+
+
+@rt("/instructor/models/toggle/{model_id}")
+@instructor_required
+def toggle_model_preference(session, model_id: int):
+    """Toggle a model's active status for an instructor"""
+    current_user = users[session["auth"]]
+    
+    # Check if preference already exists
+    existing_pref = None
+    for pref in instructor_model_prefs():
+        if pref.instructor_email == current_user.email and pref.model_id == model_id:
+            existing_pref = pref
+            break
+    
+    if existing_pref:
+        # Toggle existing preference
+        existing_pref.is_active = not existing_pref.is_active
+        existing_pref.updated_at = datetime.now().isoformat()
+        instructor_model_prefs.update(existing_pref)
+    else:
+        # Create new preference (default to enabled)
+        # Get next ID
+        all_prefs = list(instructor_model_prefs())
+        next_id = max([p.id for p in all_prefs], default=0) + 1
+        
+        new_pref = InstructorModelPref(
+            id=next_id,
+            instructor_email=current_user.email,
+            model_id=model_id,
+            is_active=True,
+            created_at=datetime.now().isoformat(),
+            updated_at=datetime.now().isoformat(),
+        )
+        instructor_model_prefs.insert(new_pref)
+    
+    # Return empty response (HTMX doesn't need content for this toggle)
+    return ""

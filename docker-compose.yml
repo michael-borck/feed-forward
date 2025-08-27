@@ -61,24 +61,6 @@ services:
       ollama pull llama3.2 && 
       tail -f /dev/null"
 
-  # Optional: Caddy for reverse proxy with automatic HTTPS
-  caddy:
-    image: caddy:2-alpine
-    container_name: feedforward-caddy
-    profiles: ["production"]  # Only start in production
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-    networks:
-      - feedforward-network
-    restart: unless-stopped
-    depends_on:
-      - feedforward
-
 networks:
   feedforward-network:
     driver: bridge
@@ -87,8 +69,4 @@ volumes:
   feedforward-logs:
     driver: local
   ollama-data:
-    driver: local
-  caddy-data:
-    driver: local
-  caddy-config:
     driver: local

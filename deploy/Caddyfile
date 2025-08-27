@@ -1,0 +1,40 @@
+# Caddyfile for FeedForward reverse proxy
+# Replace feedforward.yourdomain.com with your actual domain
+
+feedforward.yourdomain.com {
+    # Reverse proxy to the FeedForward container
+    reverse_proxy feedforward:5001
+    
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy strict-origin-when-cross-origin
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    }
+    
+    # Logging
+    log {
+        output file /var/log/caddy/feedforward_access.log
+        format json
+    }
+    
+    # File upload size limit (adjust as needed)
+    request_body {
+        max_size 50MB
+    }
+    
+    # Compression
+    encode gzip
+    
+    # Rate limiting (optional)
+    # rate_limit {
+    #     zone dynamic 10r/s
+    # }
+}
+
+# Redirect www to non-www (optional)
+www.feedforward.yourdomain.com {
+    redir https://feedforward.yourdomain.com{uri} permanent
+}
