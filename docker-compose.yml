@@ -47,7 +47,7 @@ services:
     container_name: feedforward-ollama
     profiles: ["with-ollama"]  # Only start if explicitly requested
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"  # Only bind to localhost, not exposed to internet
     volumes:
       - ollama-data:/root/.ollama
     networks:
