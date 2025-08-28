@@ -7,8 +7,8 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      # Persist data directory
-      - ./data:/app/data
+      # Persist data directory (using named volume for better permissions)
+      - feedforward-data:/app/data
       # Mount .env file for API keys
       - ./.env:/app/.env:ro
       # Logs volume
@@ -66,6 +66,8 @@ networks:
     driver: bridge
 
 volumes:
+  feedforward-data:
+    driver: local
   feedforward-logs:
     driver: local
   ollama-data:
