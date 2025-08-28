@@ -12,7 +12,7 @@ services:
       # Logs volume
       - feedforward-logs:/app/logs
     environment:
-      - APP_DOMAIN=${APP_DOMAIN:-http://localhost:5001}
+      - APP_DOMAIN=${APP_DOMAIN:-https://feedforward.serveur.au}
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       # Email configuration
       - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
@@ -30,8 +30,6 @@ services:
       - GROQ_API_KEY=${GROQ_API_KEY}
       - OLLAMA_API_BASE=${OLLAMA_API_BASE}
     restart: unless-stopped
-    networks:
-      - feedforward-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/"]
       interval: 30s
@@ -48,8 +46,6 @@ services:
       - "127.0.0.1:11434:11434"  # Only bind to localhost, not exposed to internet
     volumes:
       - ollama-data:/root/.ollama
-    networks:
-      - feedforward-network
     restart: unless-stopped
     # Automatically pull a model on startup
     entrypoint: ["/bin/sh", "-c"]
@@ -58,10 +54,6 @@ services:
       sleep 5 && 
       ollama pull llama3.2 && 
       tail -f /dev/null"
-
-networks:
-  feedforward-network:
-    driver: bridge
 
 volumes:
   feedforward-data:
