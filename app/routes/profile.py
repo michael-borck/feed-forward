@@ -4,6 +4,8 @@ Handles profile viewing and editing for all user types
 """
 
 
+from typing import Optional
+
 from fasthtml import common as fh
 
 from app import login_required, rt
@@ -259,7 +261,7 @@ def profile_edit(session):
         fh.Div(
             fh.H3("Edit Profile", cls="font-semibold text-slate-800 mb-4"),
             fh.P("Update your personal information.", cls="text-gray-600 mb-4"),
-            action_button("Cancel", color="gray", href="/profile", icon="×"),
+            action_button("Cancel", color="gray", href="/profile", icon="×"),  # noqa: RUF001
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )
@@ -360,7 +362,7 @@ def profile_edit(session):
 
 @rt("/profile/update")
 @login_required
-def profile_update(session, name: str, department: str = None):
+def profile_update(session, name: str, department: Optional[str] = None):
     """Handle profile update"""
     user = users[session["auth"]]
 
@@ -387,7 +389,7 @@ def change_password_form(session):
         fh.Div(
             fh.H3("Change Password", cls="font-semibold text-slate-800 mb-4"),
             fh.P("Update your account password.", cls="text-gray-600 mb-4"),
-            action_button("Cancel", color="gray", href="/profile", icon="×"),
+            action_button("Cancel", color="gray", href="/profile", icon="×"),  # noqa: RUF001
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )

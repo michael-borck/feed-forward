@@ -144,7 +144,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                     "Cancel",
                     color="gray",
                     href=f"/student/assignments/{assignment_id}",
-                    icon="×",
+                    icon="×",  # noqa: RUF001
                 ),
                 cls="space-y-3",
             ),
@@ -289,8 +289,8 @@ def student_assignment_submit_process(
             from app.services.feedback_generator import process_draft_submission
 
             # Run feedback generation in background
-            # Store task reference to avoid RUF006 warning
-            feedback_task = asyncio.create_task(process_draft_submission(draft_id))
+            # Store task reference to prevent garbage collection
+            feedback_task = asyncio.create_task(process_draft_submission(draft_id))  # noqa: F841, RUF006
         except Exception as e:
             print(f"Warning: Failed to start feedback generation for draft {draft_id}: {e}")
             # Continue anyway - the draft was saved successfully

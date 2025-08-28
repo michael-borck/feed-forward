@@ -57,7 +57,7 @@ def convert_markdown_to_html(md_content):
         elif lines_before and '{: .important' in lines_before[-1]:
             return f'<div class="callout callout-important"><span class="callout-icon">❗</span><div class="callout-content">{content}</div></div>'
         elif lines_before and '{: .note' in lines_before[-1]:
-            return f'<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-content">{content}</div></div>'
+            return f'<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-content">{content}</div></div>'  # noqa: RUF001
         else:
             return f'<blockquote>{content}</blockquote>'
 

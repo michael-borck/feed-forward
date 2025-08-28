@@ -57,7 +57,7 @@ def load_and_process_markdown(filepath: Path) -> Optional[tuple[str, str]]:
                 icon = '❗'
                 css_class = 'callout-important'
             else:  # note
-                icon = 'ℹ️'
+                icon = 'ℹ️'  # noqa: RUF001
                 css_class = 'callout-note'
             return f'<div class="callout {css_class}"><span class="callout-icon">{icon}</span><div class="callout-content">{callout_text}</div></div>'
 

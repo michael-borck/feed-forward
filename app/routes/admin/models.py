@@ -253,7 +253,7 @@ def admin_models_new(session):
         fh.Div(
             fh.H3("Create System Model", cls="font-semibold text-indigo-900 mb-4"),
             fh.P("Configure a new AI model available to all instructors.", cls="text-gray-600 mb-4"),
-            action_button("Cancel", color="gray", href="/admin/ai-models", icon="×"),
+            action_button("Cancel", color="gray", href="/admin/ai-models", icon="×"),  # noqa: RUF001
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )

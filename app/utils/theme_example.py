@@ -5,7 +5,7 @@ This shows the before/after comparison.
 
 from fasthtml import common as fh
 
-from app.utils.theme import COMPONENT_CLASSES as cls
+from app.utils.theme import COMPONENT_CLASSES as CLS
 from app.utils.theme import (
     alert,
     badge,
@@ -59,12 +59,12 @@ def new_approach():
         primary_button("Sign up"),
 
         # Option 2: Use themed classes from dictionary
-        fh.Button("Learn More", cls=cls['btn_secondary']),
+        fh.Button("Learn More", cls=CLS['btn_secondary']),
 
         # Use card component
         card(
             "Title",
-            fh.P("Content", cls=cls['text_body'])
+            fh.P("Content", cls=CLS['text_body'])
         ),
 
         # Use alert component
@@ -98,22 +98,22 @@ def themed_page():
             # Header using theme classes
             fh.Header(
                 fh.Div(
-                    fh.Span("FeedForward", cls=cls['text_h1']),
+                    fh.Span("FeedForward", cls=CLS['text_h1']),
                     fh.Nav(
-                        fh.A("Home", href="/", cls=cls['nav_link']),
-                        fh.A("About", href="/about", cls=cls['nav_link_active']),
+                        fh.A("Home", href="/", cls=CLS['nav_link']),
+                        fh.A("About", href="/about", cls=CLS['nav_link_active']),
                     ),
                     cls="container mx-auto flex justify-between items-center px-4"
                 ),
-                cls=cls['header_main']
+                cls=CLS['header_main']
             ),
 
             # Main content
             fh.Main(
                 fh.Section(
                     fh.Div(
-                        fh.H1("Welcome", cls=cls['text_hero']),
-                        fh.P("Description", cls=cls['text_body_lg']),
+                        fh.H1("Welcome", cls=CLS['text_hero']),
+                        fh.P("Description", cls=CLS['text_body_lg']),
                         fh.Div(
                             primary_button("Get Started"),
                             secondary_button("Learn More"),
@@ -121,29 +121,29 @@ def themed_page():
                         ),
                         cls="container mx-auto px-4 py-12"
                     ),
-                    cls=cls['section_gradient']
+                    cls=CLS['section_gradient']
                 ),
 
                 fh.Section(
                     fh.Div(
                         card(
                             "Feature 1",
-                            fh.P("Feature description", cls=cls['text_body']),
+                            fh.P("Feature description", cls=CLS['text_body']),
                             badge("New", type='success')
                         ),
                         cls="container mx-auto px-4 py-8"
                     ),
-                    cls=cls['section_white']
+                    cls=CLS['section_white']
                 )
             ),
 
             # Footer
             fh.Footer(
                 fh.Div(
-                    fh.P("© 2025 FeedForward", cls=cls['text_muted']),
+                    fh.P("© 2025 FeedForward", cls=CLS['text_muted']),
                     cls="container mx-auto px-4 py-8"
                 ),
-                cls=cls['footer_main']
+                cls=CLS['footer_main']
             )
         )
     )
