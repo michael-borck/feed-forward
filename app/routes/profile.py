@@ -123,18 +123,12 @@ def profile_view(session):
                     fh.Div(
                         fh.Span(
                             "✓ Verified" if user.verified else "⚠ Unverified",
-                            cls=f"px-3 py-1 rounded-full text-sm font-medium {
-                                'bg-green-100 text-green-700' if user.verified 
-                                else 'bg-amber-100 text-amber-700'
-                            }",
+                            cls=f"px-3 py-1 rounded-full text-sm font-medium {'bg-green-100 text-green-700' if user.verified else 'bg-amber-100 text-amber-700'}",
                         ),
                         (
                             fh.Span(
                                 "✓ Approved" if user.approved else "⏳ Pending Approval",
-                                cls=f"px-3 py-1 rounded-full text-sm font-medium ml-2 {
-                                    'bg-green-100 text-green-700' if user.approved 
-                                    else 'bg-gray-100 text-gray-700'
-                                }",
+                                cls=f"px-3 py-1 rounded-full text-sm font-medium ml-2 {'bg-green-100 text-green-700' if user.approved else 'bg-gray-100 text-gray-700'}",
                             )
                             if user.role == "instructor"
                             else fh.Span()
