@@ -1,7 +1,7 @@
 # Caddyfile for FeedForward reverse proxy
-# Replace feedforward.yourdomain.com with your actual domain
+# Configuration for feedforward.serveur.au
 
-feedforward.yourdomain.com {
+feedforward.serveur.au {
     # Reverse proxy to the FeedForward container
     reverse_proxy feedforward:5001
     
@@ -35,6 +35,6 @@ feedforward.yourdomain.com {
 }
 
 # Redirect www to non-www (optional)
-www.feedforward.yourdomain.com {
-    redir https://feedforward.yourdomain.com{uri} permanent
+www.feedforward.serveur.au {
+    redir https://feedforward.serveur.au{uri} permanent
 }

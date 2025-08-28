@@ -2,28 +2,30 @@ services:
   feedforward:
     build: .
     container_name: feedforward-app
-    ports:
-      - "127.0.0.1:5001:5001"  # Only bind to localhost for Caddy proxy
+    networks:
+      - feedforward-net
+    expose:
+      - "5001"  # Only expose internally to the network
     volumes:
-      # Persist data directory (using named volume for better permissions)
+      # Persist data directory
       - feedforward-data:/app/data
-      # Mount .env file for API keys
-      - ./.env:/app/.env:ro
+      # Mount production .env file
+      - ./.env.production:/app/.env:ro
       # Logs volume
       - feedforward-logs:/app/logs
     environment:
       - APP_DOMAIN=https://feedforward.serveur.au
-      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - SECRET_KEY=${SECRET_KEY}
       # Email configuration
-      - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
-      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - SMTP_FROM=${SMTP_FROM:-noreply@feedforward.local}
+      - SMTP_FROM=${SMTP_FROM}
       # Admin account
-      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-Admin123!}
-      # LLM API Keys (optional - will use mock feedback if not provided)
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      # LLM API Keys
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
@@ -37,17 +39,33 @@ services:
       retries: 3
       start_period: 40s
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: feedforward-caddy
+    networks:
+      - feedforward-net
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+      - caddy-logs:/var/log/caddy
+    restart: unless-stopped
+    depends_on:
+      - feedforward
+
   # Optional: Ollama for local LLM
   ollama:
     image: ollama/ollama:latest
     container_name: feedforward-ollama
-    profiles: ["with-ollama"]  # Only start if explicitly requested
-    ports:
-      - "127.0.0.1:11434:11434"  # Only bind to localhost, not exposed to internet
+    profiles: ["with-ollama"]
+    networks:
+      - feedforward-net
     volumes:
       - ollama-data:/root/.ollama
     restart: unless-stopped
-    # Automatically pull a model on startup
     entrypoint: ["/bin/sh", "-c"]
     command: |
       "ollama serve & 
@@ -55,10 +73,20 @@ services:
       ollama pull llama3.2 && 
       tail -f /dev/null"
 
+networks:
+  feedforward-net:
+    driver: bridge
+
 volumes:
   feedforward-data:
     driver: local
   feedforward-logs:
     driver: local
   ollama-data:
+    driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local
+  caddy-logs:
     driver: local
