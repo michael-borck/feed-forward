@@ -13,8 +13,8 @@ if os.path.exists('/app'):
     db_path = os.environ.get('DATABASE_PATH', '/app/data/users.db')
 else:
     db_path = os.environ.get('DATABASE_PATH', 'data/users.db')
-# Create directory if it doesn't exist
-os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    # Create directory only for local development
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
 db = database(db_path)
 
 

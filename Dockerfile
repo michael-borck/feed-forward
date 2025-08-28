@@ -48,11 +48,13 @@ WORKDIR /app
 # Copy application code
 COPY --chown=feedforward:feedforward . .
 
+# Ensure data directory exists with proper permissions
+RUN mkdir -p /app/data/uploads && \
+    chown -R feedforward:feedforward /app/data && \
+    chmod -R 755 /app/data
+
 # Switch to non-root user
 USER feedforward
-
-# Create data directory for SQLite
-RUN mkdir -p /app/data/uploads
 
 # Environment variables (can be overridden)
 ENV APP_DOMAIN=http://localhost:5001 \
