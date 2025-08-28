@@ -100,11 +100,15 @@ def convert_markdown_to_html(md_content):
     html = re.sub(r'href="([^"]+)\.md"', r'href="/docs/\1"', html)
     
     # Add IDs to headers for better navigation
-    html = re.sub(
-        r'<h([1-6])>(.+?)</h\1>',
-        lambda m: f'<h{m.group(1)} id="{re.sub(r"[^\w\s-]", "", m.group(2).lower()).replace(" ", "-")}">{m.group(2)}</h{m.group(1)}>',
-        html
-    )
+    def add_header_id(match):
+        level = match.group(1)
+        text = match.group(2)
+        # Clean the text for ID: remove non-word chars, then replace spaces with dashes
+        clean_text = re.sub(r"[^\w\s-]", "", text.lower())
+        header_id = clean_text.replace(" ", "-")
+        return f'<h{level} id="{header_id}">{text}</h{level}>'
+    
+    html = re.sub(r'<h([1-6])>(.+?)</h\1>', add_header_id, html)
 
     return html
 
