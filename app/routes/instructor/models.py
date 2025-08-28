@@ -3,15 +3,18 @@ Instructor AI models management routes
 """
 
 import json
+from datetime import datetime
 from typing import Optional
 
 from fasthtml import common as fh
 
 from app import instructor_required, rt
 from app.models.config import AIModel, ai_models, model_capabilities
-from app.models.instructor_preferences import instructor_model_prefs, InstructorModelPref
+from app.models.instructor_preferences import (
+    InstructorModelPref,
+    instructor_model_prefs,
+)
 from app.models.user import users
-from datetime import datetime
 from app.utils.crypto import encrypt_sensitive_data
 from app.utils.ui import action_button, card, dashboard_layout, status_badge
 
@@ -34,7 +37,7 @@ def instructor_models_list(session, request):
     for pref in instructor_model_prefs():
         if pref.instructor_email == current_user.email:
             instructor_prefs[pref.model_id] = pref.is_active
-    
+
     # Get all available models (system models + instructor's own models)
     all_models = []
     for model in ai_models():
@@ -55,7 +58,7 @@ def instructor_models_list(session, request):
             # Check if instructor has a preference for this model
             # If no preference exists, default to model's active status
             is_enabled_for_instructor = instructor_prefs.get(model.id, model.active)
-            
+
             all_models.append(
                 {
                     "id": model.id,
@@ -85,7 +88,7 @@ def instructor_models_list(session, request):
                     "New Model",
                     color="indigo",
                     href="/instructor/models/new",
-                    icon="➕",  # noqa: RUF001 - Intentional emoji icon
+                    icon="➕",
                 ),
                 cls="space-y-3",
             ),
@@ -159,7 +162,7 @@ def instructor_models_list(session, request):
                                 ),
                                 cls="mb-2",
                             ) if not model["active"] else "",
-                            
+
                             # Toggle switch for instructor preference
                             fh.Div(
                                 fh.Label(
@@ -190,7 +193,7 @@ def instructor_models_list(session, request):
                                 ),
                                 cls="mb-3",
                             ),
-                            
+
                             # Owner info
                             fh.Div(
                                 fh.Span(
@@ -201,7 +204,7 @@ def instructor_models_list(session, request):
                                 ),
                                 cls="mb-2",
                             ),
-                            
+
                             # View details link (only for instructor's own models)
                             fh.Div(
                                 fh.A(
@@ -251,7 +254,7 @@ def instructor_models_new(session, request):
         fh.Div(
             fh.H3("Create New Model", cls="font-semibold text-indigo-900 mb-4"),
             fh.P("Configure a new AI model for your courses.", cls="text-gray-600 mb-4"),
-            action_button("Cancel", color="gray", href="/instructor/models", icon="×"),  # noqa: RUF001 - Intentional multiplication sign as close button
+            action_button("Cancel", color="gray", href="/instructor/models", icon="×"),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )
@@ -499,22 +502,22 @@ def instructor_models_create(
 
 
 @rt("/instructor/models/fetch-ollama")
-@instructor_required  
+@instructor_required
 def fetch_ollama_models(session, base_url: str):
     """Fetch available models from Ollama server"""
     import requests
-    
+
     try:
         # Clean up the URL
         ollama_url = base_url.strip().rstrip('/') + '/api/tags'
-        
+
         # Try to fetch models
         resp = requests.get(ollama_url, timeout=5, verify=True)
-        
+
         if resp.status_code == 200:
             models_data = resp.json()
             models = models_data.get('models', [])
-            
+
             if models:
                 options = [
                     fh.Option(
@@ -552,7 +555,7 @@ def fetch_ollama_models(session, base_url: str):
         )
     except Exception as e:
         return fh.Div(
-            fh.P(f"Error: {str(e)}", cls="text-red-600"),
+            fh.P(f"Error: {e!s}", cls="text-red-600"),
         )
 
 
@@ -801,14 +804,14 @@ def instructor_models_view(session, model_id: int):
 def toggle_model_preference(session, model_id: int):
     """Toggle a model's active status for an instructor"""
     current_user = users[session["auth"]]
-    
+
     # Check if preference already exists
     existing_pref = None
     for pref in instructor_model_prefs():
         if pref.instructor_email == current_user.email and pref.model_id == model_id:
             existing_pref = pref
             break
-    
+
     if existing_pref:
         # Toggle existing preference
         existing_pref.is_active = not existing_pref.is_active
@@ -819,7 +822,7 @@ def toggle_model_preference(session, model_id: int):
         # Get next ID
         all_prefs = list(instructor_model_prefs())
         next_id = max([p.id for p in all_prefs], default=0) + 1
-        
+
         new_pref = InstructorModelPref(
             id=next_id,
             instructor_email=current_user.email,
@@ -829,6 +832,6 @@ def toggle_model_preference(session, model_id: int):
             updated_at=datetime.now().isoformat(),
         )
         instructor_model_prefs.insert(new_pref)
-    
+
     # Return empty response (HTMX doesn't need content for this toggle)
     return ""

@@ -9,24 +9,24 @@ MODERN_COLORS = {
     "primary": "blue-600",           # Main brand color (softer than indigo-700)
     "primary-dark": "blue-700",      # Darker variant
     "primary-light": "blue-500",     # Lighter variant
-    
+
     # Secondary colors - warm teal/cyan
     "secondary": "teal-500",         # Accent color
-    "secondary-dark": "teal-600",    
+    "secondary-dark": "teal-600",
     "secondary-light": "teal-400",
-    
+
     # Background colors - much softer
     "header-bg": "slate-800",        # Softer than indigo-900
     "header-gradient": "bg-gradient-to-r from-slate-700 to-slate-800",
     "hero-bg": "bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50",
     "section-bg": "gray-50",
-    
+
     # Text colors
     "text-primary": "gray-800",      # Main text
     "text-secondary": "gray-600",    # Secondary text
     "text-light": "gray-100",        # Light text on dark bg
     "text-muted": "gray-500",        # Muted text
-    
+
     # UI elements
     "border": "gray-200",
     "border-hover": "blue-300",
@@ -43,7 +43,7 @@ SOFT_PALETTE = {
     "hero-gradient-1": "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50",
     "hero-gradient-2": "bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50",
     "hero-gradient-3": "bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50",
-    
+
     # Soft header options
     "header-soft": "bg-gradient-to-r from-slate-600 to-slate-700",
     "header-light": "bg-white border-b border-gray-200",

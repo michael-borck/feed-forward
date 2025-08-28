@@ -5,7 +5,7 @@ Renders markdown documentation with improved formatting and UI/UX.
 
 import re
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional
 
 from fasthtml import common as fh
 from markdown2 import Markdown
@@ -14,7 +14,7 @@ from app import rt
 from app.utils.ui import dynamic_header, page_footer
 
 
-def load_and_process_markdown(filepath: Path) -> Optional[Tuple[str, str]]:
+def load_and_process_markdown(filepath: Path) -> Optional[tuple[str, str]]:
     """
     Load and process a markdown file with enhanced rendering.
     Returns tuple of (html_content, title) or None if file not found.
@@ -22,14 +22,14 @@ def load_and_process_markdown(filepath: Path) -> Optional[Tuple[str, str]]:
     try:
         with open(filepath) as f:
             content = f.read()
-        
+
         # Remove Jekyll front matter
         content = re.sub(r"^---\n.*?\n---\n", "", content, flags=re.DOTALL)
-        
+
         # Extract title before processing
         title_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
         title = title_match.group(1) if title_match else "Documentation"
-        
+
         # Pre-process Jekyll-specific syntax
         # Remove Jekyll-specific class assignments and TOC markers
         content = re.sub(r"{:\s*\.no_toc\s*(?:\.text-delta)?\s*}", "", content)
@@ -38,10 +38,10 @@ def load_and_process_markdown(filepath: Path) -> Optional[Tuple[str, str]]:
         content = re.sub(r"{:\s*\.warning\s*}", "", content)
         content = re.sub(r"{:\s*\.important\s*}", "", content)
         content = re.sub(r"{:\s*\.[^}]+}", "", content)
-        
+
         # Convert Jekyll TOC syntax
         content = re.sub(r"1\.\s+TOC\s*\n\s*{:toc}", "", content)
-        
+
         # Convert callout blocks (> text after {: .note }) to styled divs
         def replace_callout(match):
             callout_type = match.group(1) if match.group(1) else 'note'
@@ -60,7 +60,7 @@ def load_and_process_markdown(filepath: Path) -> Optional[Tuple[str, str]]:
                 icon = 'ℹ️'
                 css_class = 'callout-note'
             return f'<div class="callout {css_class}"><span class="callout-icon">{icon}</span><div class="callout-content">{callout_text}</div></div>'
-        
+
         # Process callouts that appear after blockquotes
         content = re.sub(
             r'>\s*(.+?)(?:\n>.*?)*\n*{:\s*\.(\w+)\s*}',
@@ -68,7 +68,7 @@ def load_and_process_markdown(filepath: Path) -> Optional[Tuple[str, str]]:
             content,
             flags=re.MULTILINE | re.DOTALL
         )
-        
+
         # Configure markdown2 with enhanced extras
         markdowner = Markdown(extras=[
             'fenced-code-blocks',
@@ -85,23 +85,27 @@ def load_and_process_markdown(filepath: Path) -> Optional[Tuple[str, str]]:
             'task_list',
             'wiki-tables',
         ])
-        
+
         # Convert markdown to HTML
         html = markdowner.convert(content)
-        
+
         # Post-process to fix internal links
         html = re.sub(r'href="\./([^"]+)\.md"', r'href="/docs/\1"', html)
         html = re.sub(r'href="([^"]+)\.md"', r'href="/docs/\1"', html)
-        
+
         # Add IDs to headers for navigation
-        html = re.sub(
-            r'<h([1-6])>(.+?)</h\1>',
-            lambda m: f'<h{m.group(1)} id="{re.sub(r"[^\w\s-]", "", m.group(2).lower()).replace(" ", "-")}">{m.group(2)}</h{m.group(1)}>',
-            html
-        )
-        
+        def add_header_id(match):
+            level = match.group(1)
+            text = match.group(2)
+            # Clean the text for ID: remove non-word chars, then replace spaces with dashes
+            clean_text = re.sub(r"[^\w\s-]", "", text.lower())
+            header_id = clean_text.replace(" ", "-")
+            return f'<h{level} id="{header_id}">{text}</h{level}>'
+
+        html = re.sub(r'<h([1-6])>(.+?)</h\1>', add_header_id, html)
+
         return html, title
-        
+
     except FileNotFoundError:
         return None, None
 
@@ -109,10 +113,10 @@ def load_and_process_markdown(filepath: Path) -> Optional[Tuple[str, str]]:
 def generate_toc(html_content: str) -> str:
     """Generate a table of contents from HTML headers."""
     headers = re.findall(r'<h([2-3])[^>]*id="([^"]+)"[^>]*>(.+?)</h\1>', html_content)
-    
+
     if not headers:
         return ""
-    
+
     toc_items = []
     for level, id_attr, text in headers:
         indent = "ml-4" if level == "3" else ""
@@ -127,7 +131,7 @@ def generate_toc(html_content: str) -> str:
                 cls="toc-item"
             )
         )
-    
+
     return fh.Div(
         fh.H3("On this page", cls="toc-title"),
         fh.Ul(*toc_items, cls="toc-list"),
@@ -145,7 +149,7 @@ def get_enhanced_styles():
             color: #1f2937;
             line-height: 1.75;
         }
-        
+
         .prose h1 {
             font-size: 2.5rem;
             font-weight: 800;
@@ -154,7 +158,7 @@ def get_enhanced_styles():
             border-bottom: 3px solid #e5e7eb;
             padding-bottom: 0.75rem;
         }
-        
+
         .prose h2 {
             font-size: 2rem;
             font-weight: 700;
@@ -164,7 +168,7 @@ def get_enhanced_styles():
             border-bottom: 2px solid #f3f4f6;
             padding-bottom: 0.5rem;
         }
-        
+
         .prose h3 {
             font-size: 1.5rem;
             font-weight: 600;
@@ -172,7 +176,7 @@ def get_enhanced_styles():
             margin-bottom: 1rem;
             color: #374151;
         }
-        
+
         .prose h4 {
             font-size: 1.25rem;
             font-weight: 600;
@@ -180,48 +184,48 @@ def get_enhanced_styles():
             margin-bottom: 0.75rem;
             color: #4b5563;
         }
-        
+
         .prose p {
             margin-bottom: 1.25rem;
         }
-        
+
         .prose a {
             color: #2563eb;
             text-decoration: none;
             border-bottom: 1px solid #93c5fd;
             transition: all 0.2s;
         }
-        
+
         .prose a:hover {
             color: #1d4ed8;
             border-bottom-color: #2563eb;
             background-color: #eff6ff;
         }
-        
+
         /* Lists */
         .prose ul, .prose ol {
             margin-bottom: 1.25rem;
             padding-left: 1.5rem;
         }
-        
+
         .prose ul {
             list-style-type: disc;
         }
-        
+
         .prose ol {
             list-style-type: decimal;
         }
-        
+
         .prose li {
             margin-bottom: 0.5rem;
             line-height: 1.75;
         }
-        
+
         .prose li > ul, .prose li > ol {
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
         }
-        
+
         /* Code Blocks */
         .prose code {
             background-color: #f3f4f6;
@@ -232,7 +236,7 @@ def get_enhanced_styles():
             font-family: 'Fira Code', 'Consolas', monospace;
             font-weight: 500;
         }
-        
+
         .prose pre {
             background-color: #1e293b;
             color: #e2e8f0;
@@ -244,14 +248,14 @@ def get_enhanced_styles():
             line-height: 1.625;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        
+
         .prose pre code {
             background-color: transparent;
             color: inherit;
             padding: 0;
             font-size: inherit;
         }
-        
+
         /* Tables */
         .prose table {
             width: 100%;
@@ -263,7 +267,7 @@ def get_enhanced_styles():
             border-radius: 0.5rem;
             overflow: hidden;
         }
-        
+
         .prose th {
             background-color: #f8fafc;
             font-weight: 600;
@@ -272,20 +276,20 @@ def get_enhanced_styles():
             border-bottom: 2px solid #e5e7eb;
             color: #1f2937;
         }
-        
+
         .prose td {
             padding: 0.75rem 1rem;
             border-bottom: 1px solid #f3f4f6;
         }
-        
+
         .prose tbody tr:last-child td {
             border-bottom: none;
         }
-        
+
         .prose tbody tr:hover {
             background-color: #f9fafb;
         }
-        
+
         /* Blockquotes */
         .prose blockquote {
             border-left: 4px solid #6366f1;
@@ -298,7 +302,7 @@ def get_enhanced_styles():
             padding: 1rem 1.25rem;
             border-radius: 0 0.5rem 0.5rem 0;
         }
-        
+
         /* Callout Boxes */
         .callout {
             padding: 1rem 1.25rem;
@@ -309,45 +313,45 @@ def get_enhanced_styles():
             align-items: flex-start;
             gap: 0.75rem;
         }
-        
+
         .callout-icon {
             font-size: 1.25rem;
             flex-shrink: 0;
             margin-top: 0.125rem;
         }
-        
+
         .callout-content {
             flex-grow: 1;
         }
-        
+
         .callout-content p {
             margin-bottom: 0;
         }
-        
+
         .callout-note {
             background-color: #eff6ff;
             border-left-color: #3b82f6;
             color: #1e40af;
         }
-        
+
         .callout-tip {
             background-color: #f0fdf4;
             border-left-color: #22c55e;
             color: #166534;
         }
-        
+
         .callout-warning {
             background-color: #fef3c7;
             border-left-color: #f59e0b;
             color: #92400e;
         }
-        
+
         .callout-important {
             background-color: #fef2f2;
             border-left-color: #ef4444;
             color: #991b1b;
         }
-        
+
         /* Table of Contents */
         .table-of-contents {
             background-color: #f9fafb;
@@ -356,7 +360,7 @@ def get_enhanced_styles():
             padding: 1.25rem;
             margin-bottom: 2rem;
         }
-        
+
         .toc-title {
             font-size: 1rem;
             font-weight: 600;
@@ -365,17 +369,17 @@ def get_enhanced_styles():
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        
+
         .toc-list {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-        
+
         .toc-item {
             margin-bottom: 0.5rem;
         }
-        
+
         .toc-link {
             color: #6b7280;
             text-decoration: none;
@@ -385,18 +389,18 @@ def get_enhanced_styles():
             border-left: 2px solid transparent;
             padding-left: 0.5rem;
         }
-        
+
         .toc-link:hover {
             color: #2563eb;
             border-left-color: #2563eb;
             background-color: #eff6ff;
         }
-        
+
         .toc-link.ml-4 {
             margin-left: 1.5rem;
             font-size: 0.9rem;
         }
-        
+
         /* Navigation Sidebar */
         .doc-nav {
             background-color: #ffffff;
@@ -405,7 +409,7 @@ def get_enhanced_styles():
             overflow-y: auto;
             padding: 1.5rem;
         }
-        
+
         .doc-nav h3 {
             font-size: 0.875rem;
             font-weight: 700;
@@ -415,21 +419,21 @@ def get_enhanced_styles():
             margin-bottom: 0.75rem;
             margin-top: 1.5rem;
         }
-        
+
         .doc-nav h3:first-child {
             margin-top: 0;
         }
-        
+
         .doc-nav ul {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-        
+
         .doc-nav li {
             margin-bottom: 0.25rem;
         }
-        
+
         .doc-nav a {
             display: block;
             padding: 0.5rem 0.75rem;
@@ -439,18 +443,18 @@ def get_enhanced_styles():
             transition: all 0.2s;
             font-size: 0.9rem;
         }
-        
+
         .doc-nav a:hover {
             background-color: #f3f4f6;
             color: #1f2937;
         }
-        
+
         .doc-nav a.active {
             background-color: #eff6ff;
             color: #2563eb;
             font-weight: 500;
         }
-        
+
         /* Quick Access Cards */
         .quick-access-card {
             background-color: #f9fafb;
@@ -462,37 +466,37 @@ def get_enhanced_styles():
             display: block;
             text-decoration: none;
         }
-        
+
         .quick-access-card:hover {
             background-color: #eff6ff;
             border-color: #93c5fd;
             transform: translateX(0.25rem);
         }
-        
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .prose {
                 max-width: none;
             }
-            
+
             .table-of-contents {
                 position: static;
                 width: 100%;
                 margin-bottom: 2rem;
             }
         }
-        
+
         /* Smooth Scrolling */
         html {
             scroll-behavior: smooth;
         }
-        
+
         /* Print Styles */
         @media print {
             .doc-nav, .table-of-contents, .page-footer {
                 display: none;
             }
-            
+
             .prose {
                 max-width: none;
             }
@@ -513,7 +517,7 @@ def get(session):
                     "Welcome to the FeedForward documentation. Get started quickly with our guides below.",
                     cls="text-lg text-gray-600 mb-8",
                 ),
-                
+
                 # Quick Start Section
                 fh.Div(
                     fh.H2("🚀 Quick Start", cls="text-2xl font-bold mb-4 text-gray-800"),
@@ -529,7 +533,7 @@ def get(session):
                             href="/docs/user-guides/student/getting-started",
                             cls="block"
                         ),
-                        
+
                         # Instructor Card
                         fh.A(
                             fh.Div(
@@ -541,7 +545,7 @@ def get(session):
                             href="/docs/user-guides/instructor/course-management",
                             cls="block"
                         ),
-                        
+
                         # Admin Card
                         fh.A(
                             fh.Div(
@@ -556,7 +560,7 @@ def get(session):
                         cls="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
                     ),
                 ),
-                
+
                 # Popular Topics
                 fh.Div(
                     fh.H2("📖 Popular Topics", cls="text-2xl font-bold mb-4 text-gray-800"),
@@ -609,11 +613,11 @@ def get_doc_page(session, path: str):
     """Display a specific documentation page with enhanced rendering."""
     # Sanitize path
     path = path.replace("..", "")
-    
+
     # Load the markdown file
     doc_path = Path(f"docs/{path}.md")
     html_content, title = load_and_process_markdown(doc_path)
-    
+
     if html_content is None:
         return fh.Div(
             dynamic_header(session),
@@ -651,10 +655,10 @@ def get_doc_page(session, path: str):
             page_footer(),
             cls="min-h-screen flex flex-col"
         )
-    
+
     # Generate table of contents
     toc = generate_toc(html_content)
-    
+
     return fh.Div(
         dynamic_header(session),
         fh.Div(
@@ -667,16 +671,16 @@ def get_doc_page(session, path: str):
                     fh.Span(title, cls="text-gray-600"),
                     cls="text-sm mb-4"
                 ),
-                
+
                 # Table of Contents (if headers exist)
                 toc if toc else "",
-                
+
                 # Main content
                 fh.Div(
                     fh.Div(fh.NotStr(html_content), cls="prose prose-lg max-w-none"),
                     cls="bg-white p-8 rounded-lg shadow-sm"
                 ),
-                
+
                 # Navigation buttons
                 fh.Div(
                     fh.A(
@@ -700,7 +704,7 @@ def render_doc_nav(current_path=None):
     """Enhanced documentation navigation sidebar."""
     structure = get_doc_structure()
     nav_items = []
-    
+
     # Navigation header
     nav_items.append(
         fh.Div(
@@ -725,7 +729,7 @@ def render_doc_nav(current_path=None):
             cls="border-b border-gray-200 pb-4 mb-4",
         )
     )
-    
+
     for section, items in structure.items():
         if section == "Quick Access":
             # Special styling for Quick Access
@@ -805,7 +809,7 @@ def render_doc_nav(current_path=None):
                     cls="mb-4",
                 )
             )
-    
+
     return fh.Nav(
         fh.Div(*nav_items),
         cls="doc-nav w-72 flex-shrink-0",

@@ -4,17 +4,18 @@ This shows the before/after comparison.
 """
 
 from fasthtml import common as fh
+
+from app.utils.theme import COMPONENT_CLASSES as cls
 from app.utils.theme import (
-    THEME, 
-    COMPONENT_CLASSES as cls,
-    PrimaryButton, 
-    SecondaryButton,
-    Card,
-    Alert,
-    Badge,
-    FormInput,
-    get_theme_styles
+    alert,
+    badge,
+    card,
+    form_input,
+    get_theme_styles,
+    primary_button,
+    secondary_button,
 )
+
 
 # ============= BEFORE (Current approach) =============
 def old_approach():
@@ -25,20 +26,20 @@ def old_approach():
             "Sign up",
             cls="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
         ),
-        
+
         # Hardcoded card
         fh.Div(
             fh.H3("Title", cls="text-lg font-bold text-slate-800"),
             fh.P("Content", cls="text-gray-600"),
             cls="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100"
         ),
-        
+
         # Hardcoded alert
         fh.Div(
             "Success message",
             cls="bg-green-100 text-green-700 p-3 rounded-lg"
         ),
-        
+
         # Hardcoded form input
         fh.Div(
             fh.Label("Email", cls="block text-sm font-medium text-gray-700 mb-1"),
@@ -55,32 +56,32 @@ def new_approach():
     """New approach using centralized theme."""
     return fh.Div(
         # Option 1: Use component builders
-        PrimaryButton("Sign up"),
-        
+        primary_button("Sign up"),
+
         # Option 2: Use themed classes from dictionary
         fh.Button("Learn More", cls=cls['btn_secondary']),
-        
-        # Use Card component
-        Card(
+
+        # Use card component
+        card(
             "Title",
             fh.P("Content", cls=cls['text_body'])
         ),
-        
-        # Use Alert component
-        Alert("Success message", type='success'),
-        
-        # Use Badge component
-        Badge("New", type='primary'),
-        
-        # Use FormInput component
-        FormInput(
+
+        # Use alert component
+        alert("Success message", type='success'),
+
+        # Use badge component
+        badge("New", type='primary'),
+
+        # Use form_input component
+        form_input(
             name="email",
             label="Email Address",
             type="email",
             required=True,
             placeholder="you@example.com"
         ),
-        
+
         # Include theme styles in the page
         get_theme_styles()
     )
@@ -106,7 +107,7 @@ def themed_page():
                 ),
                 cls=cls['header_main']
             ),
-            
+
             # Main content
             fh.Main(
                 fh.Section(
@@ -114,28 +115,28 @@ def themed_page():
                         fh.H1("Welcome", cls=cls['text_hero']),
                         fh.P("Description", cls=cls['text_body_lg']),
                         fh.Div(
-                            PrimaryButton("Get Started"),
-                            SecondaryButton("Learn More"),
+                            primary_button("Get Started"),
+                            secondary_button("Learn More"),
                             cls="flex gap-4 mt-4"
                         ),
                         cls="container mx-auto px-4 py-12"
                     ),
                     cls=cls['section_gradient']
                 ),
-                
+
                 fh.Section(
                     fh.Div(
-                        Card(
+                        card(
                             "Feature 1",
                             fh.P("Feature description", cls=cls['text_body']),
-                            Badge("New", type='success')
+                            badge("New", type='success')
                         ),
                         cls="container mx-auto px-4 py-8"
                     ),
                     cls=cls['section_white']
                 )
             ),
-            
+
             # Footer
             fh.Footer(
                 fh.Div(

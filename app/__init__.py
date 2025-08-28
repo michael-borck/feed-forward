@@ -61,9 +61,9 @@ def login_required(f):
             users[session["auth"]]
         except Exception:
             return fh.RedirectResponse("/login", status_code=303)
-        
+
         return f(session, *args, **kwargs)
-    
+
     return wrapper
 
 

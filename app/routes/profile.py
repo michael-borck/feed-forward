@@ -3,16 +3,13 @@ User profile management routes
 Handles profile viewing and editing for all user types
 """
 
-from datetime import datetime
 
 from fasthtml import common as fh
 
-from app import rt, login_required
+from app import login_required, rt
 from app.models.user import users
-from app.models.config import ai_models
-from app.models.instructor_preferences import instructor_model_prefs, InstructorModelPref
-from app.utils.ui import action_button, card, dashboard_layout
 from app.utils.auth import get_password_hash, verify_password
+from app.utils.ui import action_button, card, dashboard_layout
 
 
 @rt("/profile")
@@ -21,7 +18,7 @@ def profile_view(session):
     """View user profile"""
     # Get current user
     user = users[session["auth"]]
-    
+
     # Sidebar content
     sidebar_content = fh.Div(
         # Navigation
@@ -29,9 +26,9 @@ def profile_view(session):
             fh.H3("Navigation", cls="font-semibold text-slate-800 mb-4"),
             fh.Div(
                 action_button(
-                    "Dashboard", 
-                    color="gray", 
-                    href=f"/{user.role}/dashboard", 
+                    "Dashboard",
+                    color="gray",
+                    href=f"/{user.role}/dashboard",
                     icon="←"
                 ),
                 cls="space-y-3",
@@ -73,11 +70,11 @@ def profile_view(session):
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
     )
-    
+
     # Main content
     main_content = fh.Div(
         fh.H1("My Profile", cls="text-3xl font-bold text-slate-800 mb-6"),
-        
+
         # Profile Information Card
         fh.Div(
             card(
@@ -152,7 +149,7 @@ def profile_view(session):
             ),
             cls="mb-6",
         ),
-        
+
         # Role-specific information
         (
             card(
@@ -173,7 +170,7 @@ def profile_view(session):
             if user.role == "instructor"
             else fh.Div()
         ),
-        
+
         # Student-specific information
         (
             card(
@@ -213,7 +210,7 @@ def profile_view(session):
             if user.role == "student"
             else fh.Div()
         ),
-        
+
         # Security Settings
         fh.Div(
             card(
@@ -241,7 +238,7 @@ def profile_view(session):
             cls="mt-6",
         ),
     )
-    
+
     return dashboard_layout(
         "My Profile",
         sidebar_content,
@@ -256,7 +253,7 @@ def profile_view(session):
 def profile_edit(session):
     """Edit user profile form"""
     user = users[session["auth"]]
-    
+
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
@@ -266,7 +263,7 @@ def profile_edit(session):
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )
-    
+
     # Main content - Edit form
     main_content = fh.Div(
         fh.H1("Edit Profile", cls="text-3xl font-bold text-slate-800 mb-6"),
@@ -351,7 +348,7 @@ def profile_edit(session):
             action="/profile/update",
         ),
     )
-    
+
     return dashboard_layout(
         "Edit Profile",
         sidebar_content,
@@ -366,15 +363,15 @@ def profile_edit(session):
 def profile_update(session, name: str, department: str = None):
     """Handle profile update"""
     user = users[session["auth"]]
-    
+
     # Update user information
     update_data = {"name": name}
     if user.role == "instructor" and department is not None:
         update_data["department"] = department
-    
+
     # Update the user record
     users.update(user.email, update_data)
-    
+
     # Redirect back to profile with success message
     return fh.RedirectResponse("/profile", status_code=303)
 
@@ -384,7 +381,7 @@ def profile_update(session, name: str, department: str = None):
 def change_password_form(session):
     """Change password form"""
     user = users[session["auth"]]
-    
+
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
@@ -394,7 +391,7 @@ def change_password_form(session):
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
     )
-    
+
     # Main content - Password change form
     main_content = fh.Div(
         fh.H1("Change Password", cls="text-3xl font-bold text-slate-800 mb-6"),
@@ -479,7 +476,7 @@ def change_password_form(session):
         ),
         fh.Div(id="password-result"),
     )
-    
+
     return dashboard_layout(
         "Change Password",
         sidebar_content,
@@ -494,7 +491,7 @@ def change_password_form(session):
 def update_password(session, current_password: str, new_password: str, confirm_password: str):
     """Handle password update"""
     user = users[session["auth"]]
-    
+
     # Validate current password
     if not verify_password(current_password, user.password):
         return fh.Div(
@@ -504,7 +501,7 @@ def update_password(session, current_password: str, new_password: str, confirm_p
             ),
             id="password-result",
         )
-    
+
     # Validate new passwords match
     if new_password != confirm_password:
         return fh.Div(
@@ -514,11 +511,11 @@ def update_password(session, current_password: str, new_password: str, confirm_p
             ),
             id="password-result",
         )
-    
+
     # Update password
     hashed_password = get_password_hash(new_password)
     users.update(user.email, {"password": hashed_password})
-    
+
     # Return success message and redirect
     return fh.Div(
         fh.P(

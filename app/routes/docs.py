@@ -37,14 +37,14 @@ def convert_markdown_to_html(md_content):
     # Remove Jekyll-specific class assignments and TOC markers
     md_content = re.sub(r"{:\s*\.no_toc\s*(?:\.text-delta)?\s*}", "", md_content)
     md_content = re.sub(r"1\.\s+TOC\s*\n\s*{:toc}", "", md_content)
-    
+
     # Process callout blocks - convert Jekyll syntax to HTML
     md_content = re.sub(r'{:\s*\.warning\s*}', '', md_content)
     md_content = re.sub(r'{:\s*\.note\s*}', '', md_content)
     md_content = re.sub(r'{:\s*\.tip\s*}', '', md_content)
     md_content = re.sub(r'{:\s*\.important\s*}', '', md_content)
     md_content = re.sub(r'{:\s*\.[^}]+}', '', md_content)
-    
+
     # Convert blockquotes with Jekyll classes to styled divs
     def process_blockquote(match):
         content = match.group(1)
@@ -60,7 +60,7 @@ def convert_markdown_to_html(md_content):
             return f'<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-content">{content}</div></div>'
         else:
             return f'<blockquote>{content}</blockquote>'
-    
+
     # Process standard blockquotes
     md_content = re.sub(r'^>\s*(.+?)$', process_blockquote, md_content, flags=re.MULTILINE)
 
@@ -98,7 +98,7 @@ def convert_markdown_to_html(md_content):
     # Post-process to fix any internal links
     html = re.sub(r'href="\./([^"]+)\.md"', r'href="/docs/\1"', html)
     html = re.sub(r'href="([^"]+)\.md"', r'href="/docs/\1"', html)
-    
+
     # Add IDs to headers for better navigation
     def add_header_id(match):
         level = match.group(1)
@@ -107,7 +107,7 @@ def convert_markdown_to_html(md_content):
         clean_text = re.sub(r"[^\w\s-]", "", text.lower())
         header_id = clean_text.replace(" ", "-")
         return f'<h{level} id="{header_id}">{text}</h{level}>'
-    
+
     html = re.sub(r'<h([1-6])>(.+?)</h\1>', add_header_id, html)
 
     return html
@@ -374,7 +374,7 @@ def get_doc_page(session, path: str):
 
     # Extract title from content (first H1)
     title_match = re.search(r"<h1>(.*?)</h1>", content)
-    title = title_match.group(1) if title_match else "Documentation"
+    title_match.group(1) if title_match else "Documentation"
 
     return fh.Div(
         dynamic_header(session),
@@ -397,30 +397,30 @@ def get_doc_page(session, path: str):
                 line-height: 1.75;
                 font-size: 1rem;
             }
-            
+
             /* Headings */
-            .prose h1 { 
-                font-size: 2.5rem; 
-                font-weight: 700; 
+            .prose h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
                 margin-bottom: 1.5rem;
                 margin-top: 0;
                 color: #111827;
                 border-bottom: 3px solid #e5e7eb;
                 padding-bottom: 0.75rem;
             }
-            .prose h2 { 
-                font-size: 2rem; 
-                font-weight: 600; 
-                margin-top: 3rem; 
+            .prose h2 {
+                font-size: 2rem;
+                font-weight: 600;
+                margin-top: 3rem;
                 margin-bottom: 1.5rem;
                 color: #1f2937;
                 border-bottom: 2px solid #f3f4f6;
                 padding-bottom: 0.5rem;
             }
-            .prose h3 { 
-                font-size: 1.5rem; 
-                font-weight: 600; 
-                margin-top: 2rem; 
+            .prose h3 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-top: 2rem;
                 margin-bottom: 1rem;
                 color: #374151;
             }
@@ -431,35 +431,35 @@ def get_doc_page(session, path: str):
                 margin-bottom: 0.75rem;
                 color: #4b5563;
             }
-            
+
             /* Paragraphs and Text */
-            .prose p { 
-                margin-bottom: 1.25rem; 
+            .prose p {
+                margin-bottom: 1.25rem;
                 line-height: 1.75;
                 color: #374151;
             }
-            .prose strong { 
+            .prose strong {
                 font-weight: 700;
                 color: #111827;
             }
-            .prose em { 
-                font-style: italic; 
+            .prose em {
+                font-style: italic;
             }
-            
+
             /* Lists */
-            .prose ul { 
-                list-style-type: disc; 
-                padding-left: 1.5rem; 
+            .prose ul {
+                list-style-type: disc;
+                padding-left: 1.5rem;
                 margin-bottom: 1.25rem;
                 margin-top: 1.25rem;
             }
-            .prose ol { 
-                list-style-type: decimal; 
-                padding-left: 1.5rem; 
+            .prose ol {
+                list-style-type: decimal;
+                padding-left: 1.5rem;
                 margin-bottom: 1.25rem;
                 margin-top: 1.25rem;
             }
-            .prose li { 
+            .prose li {
                 margin-bottom: 0.5rem;
                 line-height: 1.75;
             }
@@ -468,49 +468,49 @@ def get_doc_page(session, path: str):
                 margin-top: 0.5rem;
                 margin-bottom: 0.5rem;
             }
-            
+
             /* Links */
-            .prose a { 
-                color: #2563eb; 
+            .prose a {
+                color: #2563eb;
                 text-decoration: none;
                 border-bottom: 1px solid #93c5fd;
                 transition: all 0.2s;
             }
-            .prose a:hover { 
+            .prose a:hover {
                 color: #1d4ed8;
                 border-bottom-color: #2563eb;
                 background-color: #eff6ff;
             }
-            
+
             /* Code */
-            .prose code { 
-                background-color: #f3f4f6; 
+            .prose code {
+                background-color: #f3f4f6;
                 color: #dc2626;
-                padding: 0.125rem 0.375rem; 
-                border-radius: 0.375rem; 
+                padding: 0.125rem 0.375rem;
+                border-radius: 0.375rem;
                 font-size: 0.875rem;
                 font-family: 'Consolas', 'Monaco', monospace;
                 font-weight: 500;
             }
-            .prose pre { 
-                background-color: #1e293b; 
-                color: #e2e8f0; 
-                padding: 1.25rem; 
-                border-radius: 0.5rem; 
-                overflow-x: auto; 
+            .prose pre {
+                background-color: #1e293b;
+                color: #e2e8f0;
+                padding: 1.25rem;
+                border-radius: 0.5rem;
+                overflow-x: auto;
                 margin-bottom: 1.5rem;
                 margin-top: 1.5rem;
                 font-size: 0.875rem;
                 line-height: 1.625;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             }
-            .prose pre code { 
-                background-color: transparent; 
+            .prose pre code {
+                background-color: transparent;
                 color: inherit;
                 padding: 0;
                 font-weight: normal;
             }
-            
+
             /* Syntax Highlighting */
             .highlight pre {
                 background-color: #1e293b !important;
@@ -524,10 +524,10 @@ def get_doc_page(session, path: str):
             .highlight .o { color: #f92672 } /* Operator */
             .highlight .p { color: #f8f8f2 } /* Punctuation */
             .highlight .s { color: #e6db74 } /* String */
-            
+
             /* Blockquotes */
-            .prose blockquote { 
-                border-left: 4px solid #6366f1; 
+            .prose blockquote {
+                border-left: 4px solid #6366f1;
                 padding: 1rem 1.25rem;
                 margin-left: 0;
                 margin-right: 0;
@@ -540,10 +540,10 @@ def get_doc_page(session, path: str):
             .prose blockquote p {
                 margin-bottom: 0;
             }
-            
+
             /* Tables */
-            .prose table { 
-                width: 100%; 
+            .prose table {
+                width: 100%;
                 border-collapse: separate;
                 border-spacing: 0;
                 margin-bottom: 1.5rem;
@@ -553,12 +553,12 @@ def get_doc_page(session, path: str):
                 border-radius: 0.5rem;
                 overflow: hidden;
             }
-            .prose th, .prose td { 
+            .prose th, .prose td {
                 padding: 0.75rem 1rem;
                 text-align: left;
             }
-            .prose th { 
-                background-color: #f8fafc; 
+            .prose th {
+                background-color: #f8fafc;
                 font-weight: 600;
                 border-bottom: 2px solid #e5e7eb;
                 color: #1f2937;
@@ -572,7 +572,7 @@ def get_doc_page(session, path: str):
             .prose tbody tr:hover {
                 background-color: #f9fafb;
             }
-            
+
             /* Callout Boxes */
             .callout {
                 padding: 1rem 1.25rem;
@@ -615,7 +615,7 @@ def get_doc_page(session, path: str):
                 border-left-color: #ef4444;
                 color: #991b1b;
             }
-            
+
             /* Table of Contents */
             .prose .toc {
                 background-color: #f9fafb;
@@ -652,7 +652,7 @@ def get_doc_page(session, path: str):
                 border-left-color: #2563eb;
                 background-color: #eff6ff;
             }
-            
+
             /* Admonitions */
             .admonition {
                 padding: 1rem 1.25rem;
@@ -667,7 +667,7 @@ def get_doc_page(session, path: str):
                 margin-bottom: 0.5rem;
                 color: #1e40af;
             }
-            
+
             /* Definition Lists */
             .prose dl {
                 margin-bottom: 1.5rem;
@@ -682,7 +682,7 @@ def get_doc_page(session, path: str):
                 margin-bottom: 0.75rem;
                 color: #4b5563;
             }
-            
+
             /* Horizontal Rules */
             .prose hr {
                 border: 0;
@@ -690,7 +690,7 @@ def get_doc_page(session, path: str):
                 background-color: #e5e7eb;
                 margin: 2rem 0;
             }
-            
+
             /* Fix navigation layout */
             nav { display: block !important; }
             nav > div { display: block !important; }
@@ -720,12 +720,12 @@ def get_doc_page(session, path: str):
                 display: block !important;
                 margin-bottom: 0.5rem !important;
             }
-            
+
             /* Spacing utilities */
             .space-y-1 > * { margin-top: 0 !important; margin-bottom: 0.25rem !important; }
             .space-y-3 > * { margin-top: 0 !important; margin-bottom: 0.75rem !important; }
             .space-y-4 > * { margin-top: 0 !important; margin-bottom: 1rem !important; }
-            
+
             /* Print styles */
             @media print {
                 .prose pre {

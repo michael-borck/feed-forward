@@ -2,12 +2,12 @@
 User model definitions
 """
 
+# Initialize database
+import os
 from enum import Enum
 
 from fasthtml.common import database
 
-# Initialize database
-import os
 # Use absolute path in Docker, relative path for local development
 if os.path.exists('/app'):
     db_path = os.environ.get('DATABASE_PATH', '/app/data/users.db')

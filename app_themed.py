@@ -9,11 +9,11 @@ from fasthtml.common import (
 from app.utils.theme import (
     THEME,
     COMPONENT_CLASSES as cls,
-    PrimaryButton,
-    SecondaryButton,
-    Card,
-    Alert,
-    Badge,
+    primary_button,
+    secondary_button,
+    card,
+    alert,
+    badge,
     get_theme_styles
 )
 from app.utils.ui import dynamic_header, page_footer
@@ -46,12 +46,12 @@ def landing_page_themed(session=None):
                     Div(
                         # Using component builders instead of raw classes
                         A(
-                            PrimaryButton("Sign up"),
+                            primary_button("Sign up"),
                             href="/register",
                             cls="mr-6"
                         ),
                         A(
-                            SecondaryButton("Learn More"),
+                            secondary_button("Learn More"),
                             href="#features"
                         ),
                         cls="flex flex-col sm:flex-row items-center justify-center gap-4",
@@ -82,8 +82,8 @@ def landing_page_themed(session=None):
                     cls=f"{cls['text_body_lg']} text-center mb-16 max-w-3xl mx-auto",
                 ),
                 Div(
-                    # Feature cards using Card component
-                    Card(
+                    # Feature cards using card component
+                    card(
                         H3("Submit Your Work", cls=f"{cls['text_h3']} text-center mb-4"),
                         Div(
                             P("• Upload assignments effortlessly", cls=cls['text_body']),
@@ -91,10 +91,10 @@ def landing_page_themed(session=None):
                             P("• Simple drag-and-drop interface", cls=cls['text_body']),
                             cls="text-left space-y-2",
                         ),
-                        Badge("Step 1", type='primary'),
+                        badge("Step 1", type='primary'),
                         cls="hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
                     ),
-                    Card(
+                    card(
                         H3("Receive Smart Feedback", cls=f"{cls['text_h3']} text-center mb-4"),
                         Div(
                             P("• Detailed, constructive feedback", cls=cls['text_body']),
@@ -102,10 +102,10 @@ def landing_page_themed(session=None):
                             P("• Clear action items for improvement", cls=cls['text_body']),
                             cls="text-left space-y-2",
                         ),
-                        Badge("Step 2", type='secondary'),
+                        badge("Step 2", type='secondary'),
                         cls="hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
                     ),
-                    Card(
+                    card(
                         H3("Iterative Improvement", cls=f"{cls['text_h3']} text-center mb-4"),
                         Div(
                             P("• Track progress across drafts", cls=cls['text_body']),
@@ -113,7 +113,7 @@ def landing_page_themed(session=None):
                             P("• Build on feedback systematically", cls=cls['text_body']),
                             cls="text-left space-y-2",
                         ),
-                        Badge("Step 3", type='primary'),
+                        badge("Step 3", type='primary'),
                         cls="hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
                     ),
                     cls="grid md:grid-cols-3 gap-8",

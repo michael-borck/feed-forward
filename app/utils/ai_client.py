@@ -280,7 +280,7 @@ Respond ONLY with valid JSON. Be specific, constructive, and encouraging in your
             # Add API key if available
             if "api_key" in config:
                 call_params["api_key"] = config["api_key"]
-            
+
             # Add custom base URL for Ollama or custom providers
             if "api_base" in config:
                 call_params["api_base"] = config["api_base"]
