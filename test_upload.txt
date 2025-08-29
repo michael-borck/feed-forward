@@ -1,0 +1,7 @@
+This is a test document for the FeedForward application.
+
+The purpose of this document is to test the file upload functionality.
+
+This document contains several paragraphs to ensure that the text extraction works properly. The system should be able to extract this content and process it for feedback generation.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.

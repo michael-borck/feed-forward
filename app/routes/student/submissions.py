@@ -170,18 +170,56 @@ def student_assignment_submit_form(session, request, assignment_id: int):
         ),
     )
 
-    # Main content - Submission form
+    # Main content - Submission form with file upload support
     main_content = fh.Div(
         fh.H2(
             f"Submit Draft {next_version} for {assignment.title}",
             cls="text-2xl font-bold text-indigo-900 mb-6",
         ),
-        # Submission form
+        # Submission form with enctype for file upload
         fh.Form(
             # Hidden fields for POST
             fh.Input(type="hidden", name="assignment_id", value=str(assignment_id)),
             fh.Input(type="hidden", name="version", value=str(next_version)),
-            # Draft content textarea
+            
+            # Submission type selector
+            fh.Div(
+                fh.Label(
+                    "Submission Type",
+                    cls="block text-lg font-semibold text-indigo-900 mb-2",
+                ),
+                fh.Div(
+                    fh.Div(
+                        fh.Input(
+                            type="radio",
+                            name="submission_type",
+                            value="text",
+                            id="type_text",
+                            checked=True,
+                            cls="mr-2",
+                            onchange="toggleSubmissionType('text')",
+                        ),
+                        fh.Label("Text Entry", for_="type_text", cls="cursor-pointer"),
+                        cls="flex items-center",
+                    ),
+                    fh.Div(
+                        fh.Input(
+                            type="radio",
+                            name="submission_type",
+                            value="file",
+                            id="type_file",
+                            cls="mr-2",
+                            onchange="toggleSubmissionType('file')",
+                        ),
+                        fh.Label("File Upload", for_="type_file", cls="cursor-pointer"),
+                        cls="flex items-center",
+                    ),
+                    cls="flex gap-6 mb-4",
+                ),
+                cls="mb-6",
+            ),
+            
+            # Text input section
             fh.Div(
                 fh.Label(
                     "Your Draft",
@@ -201,8 +239,41 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                     rows="20",
                     cls="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono",
                 ),
+                id="text_input_section",
                 cls="mb-6",
             ),
+            
+            # File upload section (initially hidden)
+            fh.Div(
+                fh.Label(
+                    "Upload Your File",
+                    for_="file_upload",
+                    cls="block text-lg font-semibold text-indigo-900 mb-2",
+                ),
+                fh.P("Select a file to upload for your submission.", cls="text-gray-600 mb-1"),
+                fh.P(
+                    "Supported formats: PDF (.pdf), Word (.docx), Text (.txt)",
+                    cls="text-gray-600 mb-1",
+                ),
+                fh.P(
+                    "Maximum file size: 10 MB",
+                    cls="text-gray-600 mb-1",
+                ),
+                fh.P(
+                    "Note: For privacy reasons, your submission file will be automatically removed from our system after feedback is generated. Please keep your own copy.",
+                    cls="text-amber-600 text-sm mb-4 font-medium",
+                ),
+                fh.Input(
+                    type="file",
+                    id="file_upload",
+                    name="file_upload",
+                    accept=".pdf,.docx,.txt",
+                    cls="w-full p-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100",
+                ),
+                id="file_upload_section",
+                cls="mb-6 hidden",
+            ),
+            
             # Submit button
             fh.Div(
                 fh.Button(
@@ -212,11 +283,33 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 ),
                 cls="text-center",
             ),
-            # Form settings
+            # Form settings with multipart for file upload
             method="post",
             action=f"/student/assignments/{assignment_id}/submit",
+            enctype="multipart/form-data",
             cls="bg-white p-6 rounded-xl shadow-md border border-gray-100",
         ),
+        # JavaScript for toggling submission type
+        fh.Script("""
+            function toggleSubmissionType(type) {
+                const textSection = document.getElementById('text_input_section');
+                const fileSection = document.getElementById('file_upload_section');
+                const contentTextarea = document.getElementById('content');
+                const fileInput = document.getElementById('file_upload');
+                
+                if (type === 'text') {
+                    textSection.classList.remove('hidden');
+                    fileSection.classList.add('hidden');
+                    contentTextarea.required = true;
+                    fileInput.required = false;
+                } else {
+                    textSection.classList.add('hidden');
+                    fileSection.classList.remove('hidden');
+                    contentTextarea.required = false;
+                    fileInput.required = true;
+                }
+            }
+        """),
     )
 
     # Use the dashboard layout with our components
@@ -231,10 +324,10 @@ def student_assignment_submit_form(session, request, assignment_id: int):
 
 @rt("/student/assignments/{assignment_id}/submit")
 @student_required
-def student_assignment_submit_process(
-    session, assignment_id: int, content: str, version: int
+async def student_assignment_submit_process(
+    session, request, assignment_id: int, version: int, submission_type: str = "text"
 ):
-    """Student assignment submission POST handler"""
+    """Student assignment submission POST handler with file upload support"""
     # Get current user
     user = users[session["auth"]]
 
@@ -250,19 +343,104 @@ def student_assignment_submit_process(
             ),
         )
 
-    # Validate content
-    if not content or content.strip() == "":
-        return fh.Div(
-            fh.P(
-                "Draft content cannot be empty.",
-                cls="text-red-600 bg-red-50 p-4 rounded-lg",
-            ),
-            fh.A(
-                "Try Again",
-                href=f"/student/assignments/{assignment_id}/submit",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
-            ),
-        )
+    # Process based on submission type
+    content = ""
+    original_filename = None
+    file_path = None
+    
+    # Parse form data
+    form_data = await request.form()
+    
+    if submission_type == "file":
+        # Handle file upload
+        file_upload = form_data.get("file_upload")
+        
+        if not file_upload or not hasattr(file_upload, 'filename'):
+            return fh.Div(
+                fh.P(
+                    "Please select a file to upload.",
+                    cls="text-red-600 bg-red-50 p-4 rounded-lg",
+                ),
+                fh.A(
+                    "Try Again",
+                    href=f"/student/assignments/{assignment_id}/submit",
+                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                ),
+            )
+        
+        # Import file handling utilities
+        from app.utils.file_handlers import extract_file_content, validate_file_size, get_safe_filename
+        
+        # Validate file size (10MB limit)
+        if not validate_file_size(file_upload, max_size_mb=10):
+            return fh.Div(
+                fh.P(
+                    "File size exceeds 10MB limit.",
+                    cls="text-red-600 bg-red-50 p-4 rounded-lg",
+                ),
+                fh.A(
+                    "Try Again",
+                    href=f"/student/assignments/{assignment_id}/submit",
+                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                ),
+            )
+        
+        try:
+            # Extract text content from file
+            content = await extract_file_content(file_upload)
+            original_filename = file_upload.filename
+            
+            # Save file to storage for record keeping (will be deleted after feedback)
+            import os
+            import hashlib
+            from pathlib import Path
+            
+            # Create storage directory if it doesn't exist
+            storage_dir = Path("data/uploads") / str(assignment_id) / user.email
+            storage_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Generate safe filename with timestamp
+            safe_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{get_safe_filename(original_filename)}"
+            file_path = storage_dir / safe_filename
+            
+            # Save file
+            file_content = await file_upload.read()
+            await file_upload.seek(0)  # Reset for potential re-read
+            
+            with open(file_path, "wb") as f:
+                f.write(file_content)
+            
+            # Calculate checksum
+            checksum = hashlib.sha256(file_content).hexdigest()
+            
+        except Exception as e:
+            return fh.Div(
+                fh.P(
+                    f"Error processing file: {str(e)}",
+                    cls="text-red-600 bg-red-50 p-4 rounded-lg",
+                ),
+                fh.A(
+                    "Try Again",
+                    href=f"/student/assignments/{assignment_id}/submit",
+                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                ),
+            )
+    else:
+        # Handle text input
+        content = form_data.get("content", "")
+        
+        if not content or content.strip() == "":
+            return fh.Div(
+                fh.P(
+                    "Draft content cannot be empty.",
+                    cls="text-red-600 bg-red-50 p-4 rounded-lg",
+                ),
+                fh.A(
+                    "Try Again",
+                    href=f"/student/assignments/{assignment_id}/submit",
+                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                ),
+            )
 
     # Calculate word count for statistics
     word_count = calculate_word_count(content)
@@ -281,6 +459,23 @@ def student_assignment_submit_process(
     # Insert the draft
     try:
         draft_id = drafts.insert(new_draft)
+        
+        # If file was uploaded, save file metadata
+        if file_path:
+            from app.models.assessment import submission_files, SubmissionFile
+            
+            submission_file = SubmissionFile(
+                draft_id=draft_id,
+                filename=safe_filename,
+                original_filename=original_filename,
+                file_path=str(file_path.relative_to("data/uploads")),
+                file_size=len(file_content),
+                mime_type=file_upload.content_type or "application/octet-stream",
+                checksum=checksum,
+                uploaded_at=datetime.now().isoformat(),
+                removed_at=None,
+            )
+            submission_files.insert(submission_file)
 
         # Trigger AI feedback generation in background
         try:
