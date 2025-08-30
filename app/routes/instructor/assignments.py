@@ -318,20 +318,40 @@ def instructor_assignments_new(session, course_id: int):
                 ),
                 cls="mb-4",
             ),
-            # Instructions
+            # Brief Instructions
             fh.Div(
                 fh.Label(
-                    "Instructions",
+                    "Brief Instructions",
                     for_="instructions",
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
                 fh.Textarea(
                     id="instructions",
                     name="instructions",
-                    placeholder="Provide clear instructions for the assignment",
-                    rows=6,
+                    placeholder="Brief overview for students (detailed specification can be uploaded below)",
+                    rows=4,
                     required=True,
                     cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                ),
+                cls="mb-4",
+            ),
+            # Assignment Specification Upload
+            fh.Div(
+                fh.Label(
+                    "Assignment Specification (Optional)",
+                    for_="spec_file",
+                    cls="block text-sm font-medium text-gray-700 mb-2",
+                ),
+                fh.P(
+                    "Upload a detailed assignment specification document (PDF or DOCX). This will be used by the AI to provide more accurate feedback.",
+                    cls="text-sm text-gray-600 mb-2",
+                ),
+                fh.Input(
+                    type="file",
+                    id="spec_file",
+                    name="spec_file",
+                    accept=".pdf,.docx",
+                    cls="w-full p-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100",
                 ),
                 cls="mb-4",
             ),
@@ -370,7 +390,64 @@ def instructor_assignments_new(session, course_id: int):
                     "Students can submit multiple drafts for feedback",
                     cls="text-sm text-gray-500 mt-1",
                 ),
-                cls="mb-6",
+                cls="mb-4",
+            ),
+            # Feedback Configuration Section
+            fh.Div(
+                fh.H3("Feedback Configuration", cls="text-lg font-semibold text-gray-700 mb-3"),
+                # Feedback Tone
+                fh.Div(
+                    fh.Label(
+                        "Feedback Tone",
+                        for_="feedback_tone",
+                        cls="block text-sm font-medium text-gray-700 mb-2",
+                    ),
+                    fh.Select(
+                        fh.Option("Encouraging", value="encouraging", selected=True),
+                        fh.Option("Neutral", value="neutral"),
+                        fh.Option("Direct", value="direct"),
+                        fh.Option("Critical", value="critical"),
+                        id="feedback_tone",
+                        name="feedback_tone",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    ),
+                    cls="mb-3",
+                ),
+                # Feedback Detail Level
+                fh.Div(
+                    fh.Label(
+                        "Detail Level",
+                        for_="feedback_detail",
+                        cls="block text-sm font-medium text-gray-700 mb-2",
+                    ),
+                    fh.Select(
+                        fh.Option("Brief", value="brief"),
+                        fh.Option("Standard", value="standard", selected=True),
+                        fh.Option("Comprehensive", value="comprehensive"),
+                        id="feedback_detail",
+                        name="feedback_detail",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    ),
+                    cls="mb-3",
+                ),
+                # Icon Theme
+                fh.Div(
+                    fh.Label(
+                        "Icon Theme",
+                        for_="icon_theme",
+                        cls="block text-sm font-medium text-gray-700 mb-2",
+                    ),
+                    fh.Select(
+                        fh.Option("Emoji 😊", value="emoji", selected=True),
+                        fh.Option("Minimal", value="minimal"),
+                        fh.Option("None", value="none"),
+                        id="icon_theme",
+                        name="icon_theme",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    ),
+                    cls="mb-3",
+                ),
+                cls="mb-6 p-4 bg-gray-50 rounded-lg",
             ),
             # Hidden course ID
             fh.Input(type="hidden", name="course_id", value=str(course_id)),
@@ -390,6 +467,7 @@ def instructor_assignments_new(session, course_id: int):
             ),
             action=f"/instructor/courses/{course_id}/assignments/new",
             method="post",
+            enctype="multipart/form-data",
             cls="bg-white p-6 rounded-xl shadow-md",
         ),
     )
@@ -420,15 +498,12 @@ def instructor_assignments_new(session, course_id: int):
 
 @rt("/instructor/courses/{course_id}/assignments/new")
 @instructor_required
-def instructor_assignments_create(
+async def instructor_assignments_create(
     session,
+    request,
     course_id: int,
-    title: str,
-    instructions: str,
-    due_date: Optional[str] = None,
-    max_drafts: int = 3,
 ):
-    """Create a new assignment"""
+    """Create a new assignment with optional specification upload"""
     # Get current user
     user = users[session["auth"]]
 
@@ -437,17 +512,76 @@ def instructor_assignments_create(
     if error:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
+    # Parse form data
+    form_data = await request.form()
+    
+    title = form_data.get("title", "").strip()
+    instructions = form_data.get("instructions", "").strip()
+    due_date = form_data.get("due_date")
+    max_drafts = int(form_data.get("max_drafts", 3))
+    
+    # Feedback configuration
+    feedback_tone = form_data.get("feedback_tone", "encouraging")
+    feedback_detail = form_data.get("feedback_detail", "standard")
+    icon_theme = form_data.get("icon_theme", "emoji")
+    
+    # Handle specification file upload
+    spec_file_path = None
+    spec_file_name = None
+    spec_content = None
+    
+    spec_file = form_data.get("spec_file")
+    if spec_file and hasattr(spec_file, 'filename') and spec_file.filename:
+        from app.utils.file_handlers import extract_file_content, get_safe_filename
+        from pathlib import Path
+        import hashlib
+        
+        try:
+            # Extract text content from specification
+            spec_content = await extract_file_content(spec_file)
+            
+            # Create storage directory
+            storage_dir = Path("data/assignment_specs") / str(course_id)
+            storage_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Generate safe filename
+            safe_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{get_safe_filename(spec_file.filename)}"
+            file_path = storage_dir / safe_filename
+            
+            # Save file
+            file_content = await spec_file.read()
+            await spec_file.seek(0)
+            
+            with open(file_path, "wb") as f:
+                f.write(file_content)
+            
+            spec_file_path = str(file_path.relative_to("data/assignment_specs"))
+            spec_file_name = spec_file.filename
+            
+        except Exception as e:
+            print(f"Warning: Failed to process specification file: {e}")
+            # Continue without specification file
+
     # Create the assignment
     new_assignment = Assignment(
         id=None,  # Will be auto-assigned
         course_id=course_id,
-        title=title.strip(),
-        instructions=instructions.strip(),
+        title=title,
+        description="",  # For backward compatibility
+        instructions=instructions,
+        spec_file_path=spec_file_path,
+        spec_file_name=spec_file_name,
+        spec_content=spec_content,
         due_date=due_date if due_date else None,
         max_drafts=max_drafts,
+        feedback_tone=feedback_tone,
+        feedback_detail=feedback_detail,
+        feedback_focus=None,  # Will add UI for this later
+        icon_theme=icon_theme,
         status="draft",
         created_by=user.email,
-        created_at=datetime.now(),
+        created_at=datetime.now().isoformat(),
+        updated_at=datetime.now().isoformat(),
     )
 
     # Save to database
@@ -456,7 +590,8 @@ def instructor_assignments_create(
         return fh.RedirectResponse(
             f"/instructor/assignments/{assignment_id}/edit", status_code=303
         )
-    except Exception:
+    except Exception as e:
+        print(f"Error creating assignment: {e}")
         return fh.RedirectResponse(
             f"/instructor/courses/{course_id}/assignments/new", status_code=303
         )

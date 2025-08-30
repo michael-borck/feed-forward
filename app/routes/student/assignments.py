@@ -3,6 +3,7 @@ Student assignment routes
 """
 
 from fasthtml import common as fh
+from starlette.responses import FileResponse
 
 from app import rt, student_required
 from app.models.assignment import assignments, rubric_categories, rubrics
@@ -197,14 +198,42 @@ def student_assignment_view(session, request, assignment_id: int):
     main_content = fh.Div(
         # Header
         fh.H2(assignment.title, cls="text-2xl font-bold text-indigo-900 mb-2"),
-        # Assignment description
+        # Assignment description and specification
         card(
             fh.Div(
                 fh.H3(
-                    "Assignment Description",
+                    "Assignment Instructions",
                     cls="text-xl font-semibold text-indigo-900 mb-4",
                 ),
-                fh.P(assignment.description, cls="text-gray-700 whitespace-pre-line"),
+                fh.P(
+                    getattr(assignment, 'instructions', assignment.description), 
+                    cls="text-gray-700 whitespace-pre-line mb-4"
+                ),
+                # Display specification link if available
+                (
+                    fh.Div(
+                        fh.H4(
+                            "Assignment Specification",
+                            cls="text-lg font-semibold text-indigo-800 mb-2 mt-6",
+                        ),
+                        fh.Div(
+                            fh.A(
+                                fh.Span("📄 ", cls="mr-2"),
+                                getattr(assignment, 'spec_file_name', 'View Specification'),
+                                href=f"/student/assignments/{assignment_id}/spec",
+                                target="_blank",
+                                cls="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium",
+                            ),
+                            fh.P(
+                                "View the detailed assignment specification document",
+                                cls="text-sm text-gray-600 mt-1",
+                            ),
+                            cls="p-3 bg-indigo-50 rounded-lg border border-indigo-200",
+                        ),
+                    )
+                    if hasattr(assignment, 'spec_file_path') and assignment.spec_file_path
+                    else ""
+                ),
                 cls="prose max-w-none",
             )
         ),
@@ -629,4 +658,58 @@ def student_assignments_list(session, request):
             main_content,
             user_role=Role.STUDENT,
             current_path="/student/dashboard"
+    )
+
+
+@rt("/student/assignments/{assignment_id}/spec")
+@student_required
+def student_assignment_spec_view(session, assignment_id: int):
+    """Serve assignment specification file to students"""
+    # Get current user
+    user = users[session["auth"]]
+    
+    # Verify access to the assignment
+    assignment, course, error = get_student_assignment(assignment_id, user.email)
+    if error:
+        return fh.Div(
+            fh.P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            fh.A(
+                "Return to Dashboard",
+                href="/student/dashboard",
+                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+            ),
+        )
+    
+    # Check if specification exists
+    if not hasattr(assignment, 'spec_file_path') or not assignment.spec_file_path:
+        return fh.Div(
+            fh.P("No specification file available for this assignment.", 
+                 cls="text-amber-600 bg-amber-50 p-4 rounded-lg"),
+            fh.A(
+                "Back to Assignment",
+                href=f"/student/assignments/{assignment_id}",
+                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+            ),
+        )
+    
+    # Serve the file
+    from pathlib import Path
+    file_path = Path("data/assignment_specs") / assignment.spec_file_path
+    
+    if not file_path.exists():
+        return fh.Div(
+            fh.P("Specification file not found.", 
+                 cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            fh.A(
+                "Back to Assignment",
+                href=f"/student/assignments/{assignment_id}",
+                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+            ),
+        )
+    
+    # Return file response
+    return FileResponse(
+        path=str(file_path),
+        filename=getattr(assignment, 'spec_file_name', 'assignment_specification.pdf'),
+        media_type='application/octet-stream'
     )
