@@ -22,29 +22,56 @@ class PromptContext:
     feedback_style: Optional[FeedbackStyle] = None
     feedback_level: str = "both"  # 'overall', 'criterion', 'both'
     word_count: Optional[int] = None
+    feedback_tone: Optional[str] = None  # From assignment config
+    feedback_detail: Optional[str] = None  # From assignment config
+    focus_areas: Optional[list] = None  # From assignment config
+    custom_prompt: Optional[str] = None  # From assignment config
 
 
 class PromptTemplate:
     """Base class for prompt templates"""
 
-    def __init__(self):
-        self.system_prompt = self._get_system_prompt()
+    def __init__(self, context: Optional[PromptContext] = None):
+        self.context = context
+        self.system_prompt = self._get_system_prompt(context)
 
-    def _get_system_prompt(self) -> str:
+    def _get_system_prompt(self, context: Optional[PromptContext] = None) -> str:
         """Get the system prompt for the AI model"""
-        return """You are an expert educational assessment assistant helping to provide constructive feedback on student assignments.
+        base_prompt = """You are an expert educational assessment assistant helping to provide constructive feedback on student assignments.
 Your role is to:
 1. Evaluate student work against specific rubric criteria
 2. Provide actionable, specific feedback for improvement
-3. Maintain an encouraging and supportive tone
-4. Focus on helping students learn and grow
+3. Focus on helping students learn and grow
+4. Adapt your tone and style based on instructor preferences
 
-Important guidelines:
+"""
+        
+        # Add tone-specific instructions
+        if context and context.feedback_tone:
+            tone_guides = {
+                "encouraging": "Maintain a warm, supportive, and encouraging tone. Emphasize strengths and frame improvements positively.",
+                "neutral": "Maintain a balanced, objective tone. Present feedback matter-of-factly without excessive praise or criticism.",
+                "direct": "Be clear and direct with feedback. Focus on what needs improvement with straightforward language.",
+                "critical": "Provide rigorous, demanding feedback. Hold work to high standards and be explicit about shortcomings."
+            }
+            base_prompt += f"Tone Guideline: {tone_guides.get(context.feedback_tone, tone_guides['encouraging'])}\n\n"
+        
+        # Add detail level instructions
+        if context and context.feedback_detail:
+            detail_guides = {
+                "brief": "Provide concise feedback with key points only. Keep explanations short and to the point.",
+                "standard": "Provide balanced feedback with moderate detail. Include examples and explanations where helpful.",
+                "comprehensive": "Provide thorough, detailed feedback. Include extensive examples, explanations, and specific suggestions."
+            }
+            base_prompt += f"Detail Level: {detail_guides.get(context.feedback_detail, detail_guides['standard'])}\n\n"
+        
+        base_prompt += """Important guidelines:
 - Be specific with examples from the student's work
 - Balance positive feedback with areas for improvement
 - Suggest concrete next steps
-- Use clear, accessible language
-- Be encouraging while maintaining academic standards"""
+- Use clear, accessible language"""
+        
+        return base_prompt
 
     def generate_prompt(self, context: PromptContext) -> str:
         """Generate a complete prompt based on the context"""
@@ -106,6 +133,30 @@ Word Count: {context.word_count or "Not specified"}"""
         # Add style-specific instructions
         if context.feedback_style:
             instructions += f"Feedback Style: {context.feedback_style.name} - {context.feedback_style.description}\n\n"
+        
+        # Add focus areas if specified
+        if context.focus_areas:
+            focus_area_names = {
+                "grammar": "Grammar and Mechanics",
+                "content": "Content and Ideas",
+                "structure": "Organization and Structure",
+                "evidence": "Evidence and Support",
+                "citations": "Citations and References",
+                "critical_thinking": "Critical Thinking",
+                "creativity": "Creativity and Originality"
+            }
+            
+            instructions += "### Priority Focus Areas\n"
+            instructions += "Pay special attention to the following aspects:\n"
+            for area in context.focus_areas:
+                area_name = focus_area_names.get(area, area)
+                instructions += f"- {area_name}\n"
+            instructions += "\n"
+        
+        # Add custom prompt if provided
+        if context.custom_prompt:
+            instructions += "### Additional Instructions from Instructor\n"
+            instructions += f"{context.custom_prompt}\n\n"
 
         # Add level-specific instructions
         if context.feedback_level == "overall":
@@ -231,11 +282,11 @@ class IterativePromptTemplate(PromptTemplate):
         return base_instructions
 
 
-def create_prompt_template(template_type: str = "standard") -> PromptTemplate:
+def create_prompt_template(template_type: str = "standard", context: Optional[PromptContext] = None) -> PromptTemplate:
     """Factory function to create appropriate prompt template"""
     if template_type == "iterative":
-        return IterativePromptTemplate()
-    return PromptTemplate()
+        return IterativePromptTemplate(context)
+    return PromptTemplate(context)
 
 
 def generate_feedback_prompt(
@@ -290,7 +341,15 @@ def generate_feedback_prompt(
     # Calculate word count
     word_count = len(student_submission.split()) if student_submission else 0
 
-    # Create context
+    # Parse assignment feedback configuration
+    focus_areas = None
+    if hasattr(assignment, 'feedback_focus') and assignment.feedback_focus:
+        try:
+            focus_areas = json.loads(assignment.feedback_focus)
+        except:
+            focus_areas = None
+    
+    # Create context with all configuration
     context = PromptContext(
         assignment=assignment,
         rubric_categories=categories,
@@ -300,11 +359,16 @@ def generate_feedback_prompt(
         feedback_style=style,
         feedback_level=feedback_level,
         word_count=word_count,
+        feedback_tone=getattr(assignment, 'feedback_tone', 'encouraging'),
+        feedback_detail=getattr(assignment, 'feedback_detail', 'standard'),
+        focus_areas=focus_areas,
+        custom_prompt=getattr(assignment, 'custom_prompt', None),
     )
 
-    # Create appropriate template
+    # Create appropriate template with context
     template = create_prompt_template(
-        "iterative" if assignment.max_drafts > 1 else "standard"
+        "iterative" if assignment.max_drafts > 1 else "standard",
+        context
     )
 
     # Generate and return prompt

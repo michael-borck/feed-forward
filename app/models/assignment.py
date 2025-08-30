@@ -27,6 +27,8 @@ if assignments not in db.t:
             "feedback_detail": str,  # 'brief', 'standard', 'comprehensive'
             "feedback_focus": str,  # JSON array of focus areas
             "icon_theme": str,  # 'emoji', 'none', 'minimal'
+            "custom_prompt": str,  # Custom instructions for AI feedback
+            "emphasis_areas": str,  # JSON array of areas to emphasize
             "created_at": str,  # ISO format timestamp
             "updated_at": str,  # ISO format timestamp
         },

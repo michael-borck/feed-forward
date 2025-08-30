@@ -2,6 +2,7 @@
 Instructor assignment management routes
 """
 
+import json
 from datetime import datetime
 from typing import Optional
 
@@ -16,7 +17,15 @@ from app.models.assignment import (
     rubric_categories,
     rubrics,
 )
+from app.models.config import (
+    AssignmentModelRun,
+    AssignmentSettings,
+    ai_models,
+    assignment_model_runs,
+    assignment_settings,
+)
 from app.models.course import courses
+from app.models.instructor_preferences import instructor_model_prefs
 from app.models.user import Role, users
 from app.utils.ui import action_button, dashboard_layout, status_badge
 
@@ -447,7 +456,186 @@ def instructor_assignments_new(session, course_id: int):
                     ),
                     cls="mb-3",
                 ),
+                # Focus Areas
+                fh.Div(
+                    fh.Label(
+                        "Focus Areas",
+                        cls="block text-sm font-medium text-gray-700 mb-2",
+                    ),
+                    fh.P(
+                        "Select areas for the AI to focus on when providing feedback:",
+                        cls="text-xs text-gray-600 mb-2",
+                    ),
+                    fh.Div(
+                        # Grammar & Mechanics
+                        fh.Div(
+                            fh.Input(
+                                type="checkbox",
+                                id="focus_grammar",
+                                name="focus_areas",
+                                value="grammar",
+                                checked=True,
+                                cls="mr-2",
+                            ),
+                            fh.Label("Grammar & Mechanics", for_="focus_grammar"),
+                            cls="flex items-center mb-2",
+                        ),
+                        # Content & Ideas
+                        fh.Div(
+                            fh.Input(
+                                type="checkbox",
+                                id="focus_content",
+                                name="focus_areas",
+                                value="content",
+                                checked=True,
+                                cls="mr-2",
+                            ),
+                            fh.Label("Content & Ideas", for_="focus_content"),
+                            cls="flex items-center mb-2",
+                        ),
+                        # Organization & Structure
+                        fh.Div(
+                            fh.Input(
+                                type="checkbox",
+                                id="focus_structure",
+                                name="focus_areas",
+                                value="structure",
+                                checked=True,
+                                cls="mr-2",
+                            ),
+                            fh.Label("Organization & Structure", for_="focus_structure"),
+                            cls="flex items-center mb-2",
+                        ),
+                        # Evidence & Support
+                        fh.Div(
+                            fh.Input(
+                                type="checkbox",
+                                id="focus_evidence",
+                                name="focus_areas",
+                                value="evidence",
+                                cls="mr-2",
+                            ),
+                            fh.Label("Evidence & Support", for_="focus_evidence"),
+                            cls="flex items-center mb-2",
+                        ),
+                        # Citations & References
+                        fh.Div(
+                            fh.Input(
+                                type="checkbox",
+                                id="focus_citations",
+                                name="focus_areas",
+                                value="citations",
+                                cls="mr-2",
+                            ),
+                            fh.Label("Citations & References", for_="focus_citations"),
+                            cls="flex items-center mb-2",
+                        ),
+                        # Critical Thinking
+                        fh.Div(
+                            fh.Input(
+                                type="checkbox",
+                                id="focus_critical",
+                                name="focus_areas",
+                                value="critical_thinking",
+                                cls="mr-2",
+                            ),
+                            fh.Label("Critical Thinking", for_="focus_critical"),
+                            cls="flex items-center mb-2",
+                        ),
+                        # Creativity
+                        fh.Div(
+                            fh.Input(
+                                type="checkbox",
+                                id="focus_creativity",
+                                name="focus_areas",
+                                value="creativity",
+                                cls="mr-2",
+                            ),
+                            fh.Label("Creativity & Originality", for_="focus_creativity"),
+                            cls="flex items-center",
+                        ),
+                        cls="grid grid-cols-2 gap-x-4",
+                    ),
+                    cls="mb-4",
+                ),
+                # Custom Prompt
+                fh.Div(
+                    fh.Label(
+                        "Custom Feedback Instructions (Optional)",
+                        for_="custom_prompt",
+                        cls="block text-sm font-medium text-gray-700 mb-2",
+                    ),
+                    fh.P(
+                        "Add specific instructions for the AI when generating feedback:",
+                        cls="text-xs text-gray-600 mb-2",
+                    ),
+                    fh.Textarea(
+                        id="custom_prompt",
+                        name="custom_prompt",
+                        placeholder="e.g., 'Focus on thesis development and argument clarity. Provide specific examples of how to improve transitions between paragraphs.'",
+                        rows=3,
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm",
+                    ),
+                    cls="mb-3",
+                ),
                 cls="mb-6 p-4 bg-gray-50 rounded-lg",
+            ),
+            # AI Model Configuration
+            fh.Div(
+                fh.H3(
+                    "AI Model Configuration",
+                    cls="text-lg font-semibold text-gray-800 mb-3",
+                ),
+                fh.P(
+                    "Select which AI models to use for generating feedback:",
+                    cls="text-sm text-gray-600 mb-4",
+                ),
+                # Model selection will be dynamically loaded
+                fh.Div(
+                    id="model-selection",
+                    hx_get="/instructor/assignments/load-models",
+                    hx_trigger="load",
+                    cls="space-y-3",
+                ),
+                # Aggregation method
+                fh.Div(
+                    fh.Label(
+                        "Aggregation Method",
+                        for_="aggregation_method",
+                        cls="block text-sm font-medium text-gray-700 mb-2 mt-4",
+                    ),
+                    fh.P(
+                        "How to combine feedback from multiple models:",
+                        cls="text-xs text-gray-600 mb-2",
+                    ),
+                    fh.Select(
+                        fh.Option("Weighted Average", value="weighted_average", selected=True),
+                        fh.Option("Best Score", value="best_score"),
+                        fh.Option("Consensus", value="consensus"),
+                        fh.Option("All Feedback", value="all_feedback"),
+                        id="aggregation_method",
+                        name="aggregation_method",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    ),
+                    cls="mb-3",
+                ),
+                # Multi-model comparison
+                fh.Div(
+                    fh.Input(
+                        type="checkbox",
+                        id="enable_comparison",
+                        name="enable_comparison",
+                        value="true",
+                        cls="mr-2",
+                    ),
+                    fh.Label(
+                        "Enable multi-model comparison (show students feedback from each model)",
+                        for_="enable_comparison",
+                        cls="text-sm text-gray-700",
+                    ),
+                    cls="flex items-center mb-3",
+                ),
+                cls="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200",
             ),
             # Hidden course ID
             fh.Input(type="hidden", name="course_id", value=str(course_id)),
@@ -514,50 +702,64 @@ async def instructor_assignments_create(
 
     # Parse form data
     form_data = await request.form()
-    
+
     title = form_data.get("title", "").strip()
     instructions = form_data.get("instructions", "").strip()
     due_date = form_data.get("due_date")
     max_drafts = int(form_data.get("max_drafts", 3))
-    
+
     # Feedback configuration
     feedback_tone = form_data.get("feedback_tone", "encouraging")
     feedback_detail = form_data.get("feedback_detail", "standard")
     icon_theme = form_data.get("icon_theme", "emoji")
-    
+
+    # Get focus areas (multiple checkboxes)
+    focus_areas = form_data.getlist("focus_areas") if hasattr(form_data, 'getlist') else []
+    if not focus_areas:  # Default focus areas if none selected
+        focus_areas = ["grammar", "content", "structure"]
+
+    # Custom prompt
+    custom_prompt = form_data.get("custom_prompt", "").strip()
+
+    # Model configuration
+    selected_models = form_data.getlist("selected_models") if hasattr(form_data, 'getlist') else []
+    # TODO: Use these for advanced configuration in Phase 2
+    # aggregation_method = form_data.get("aggregation_method", "weighted_average")
+    # enable_comparison = form_data.get("enable_comparison") == "true"
+
     # Handle specification file upload
     spec_file_path = None
     spec_file_name = None
     spec_content = None
-    
+
     spec_file = form_data.get("spec_file")
     if spec_file and hasattr(spec_file, 'filename') and spec_file.filename:
-        from app.utils.file_handlers import extract_file_content, get_safe_filename
         from pathlib import Path
-        import hashlib
-        
+
+        from app.utils.file_handlers import extract_file_content, get_safe_filename
+
         try:
             # Extract text content from specification
             spec_content = await extract_file_content(spec_file)
-            
+
             # Create storage directory
             storage_dir = Path("data/assignment_specs") / str(course_id)
             storage_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Generate safe filename
             safe_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{get_safe_filename(spec_file.filename)}"
             file_path = storage_dir / safe_filename
-            
+
             # Save file
             file_content = await spec_file.read()
             await spec_file.seek(0)
-            
+
             with open(file_path, "wb") as f:
                 f.write(file_content)
-            
+
             spec_file_path = str(file_path.relative_to("data/assignment_specs"))
             spec_file_name = spec_file.filename
-            
+
         except Exception as e:
             print(f"Warning: Failed to process specification file: {e}")
             # Continue without specification file
@@ -576,8 +778,10 @@ async def instructor_assignments_create(
         max_drafts=max_drafts,
         feedback_tone=feedback_tone,
         feedback_detail=feedback_detail,
-        feedback_focus=None,  # Will add UI for this later
+        feedback_focus=json.dumps(focus_areas),  # Store as JSON
         icon_theme=icon_theme,
+        custom_prompt=custom_prompt,
+        emphasis_areas=None,  # Reserved for future use
         status="draft",
         created_by=user.email,
         created_at=datetime.now().isoformat(),
@@ -587,6 +791,40 @@ async def instructor_assignments_create(
     # Save to database
     try:
         assignment_id = assignments.insert(new_assignment)
+
+        # Save assignment settings if models were selected
+        if selected_models:
+            # Get the first selected model as primary (for aggregation)
+            primary_model_id = int(selected_models[0])
+
+            # Create assignment settings
+            new_settings = AssignmentSettings(
+                id=None,
+                assignment_id=assignment_id,
+                primary_ai_model_id=primary_model_id,
+                feedback_level="both",  # Default to both overall and criterion feedback
+                num_runs=1,  # Default number of runs
+                aggregation_method_id=1,  # TODO: Map aggregation_method string to ID
+                feedback_style_id=1,  # TODO: Map to feedback style
+                require_review=False,
+                mark_display_option_id=1,  # Default display option
+            )
+            settings_id = assignment_settings.insert(new_settings)
+
+            # Save model configurations
+            for model_id_str in selected_models:
+                model_id = int(model_id_str)
+                # Get number of runs for this model
+                num_runs = int(form_data.get(f"model_runs_{model_id}", 1))
+
+                model_run = AssignmentModelRun(
+                    id=None,
+                    assignment_setting_id=settings_id,
+                    ai_model_id=model_id,
+                    num_runs=num_runs,
+                )
+                assignment_model_runs.insert(model_run)
+
         return fh.RedirectResponse(
             f"/instructor/assignments/{assignment_id}/edit", status_code=303
         )
@@ -1218,7 +1456,7 @@ def instructor_rubric_view(session, assignment_id: int):
                         "Choose how to create your rubric for this assignment:",
                         cls="text-gray-600 mb-6",
                     ),
-                    
+
                     # AI Generation option (if spec exists)
                     (
                         fh.Div(
@@ -1241,7 +1479,7 @@ def instructor_rubric_view(session, assignment_id: int):
                         if hasattr(assignment, 'spec_content') and assignment.spec_content
                         else ""
                     ),
-                    
+
                     # Template option
                     fh.Div(
                         fh.H4(
@@ -1275,7 +1513,7 @@ def instructor_rubric_view(session, assignment_id: int):
                         ),
                         cls="p-4 bg-indigo-50 rounded-lg border border-indigo-200 mb-4",
                     ),
-                    
+
                     # Manual creation option
                     fh.Div(
                         fh.H4(
@@ -1297,10 +1535,10 @@ def instructor_rubric_view(session, assignment_id: int):
                         ),
                         cls="p-4 bg-teal-50 rounded-lg border border-teal-200 mb-4",
                     ),
-                    
+
                     # Result div for all generation methods
                     fh.Div(id="rubric-generation-result", cls="mt-4"),
-                    
+
                     cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6",
                 ),
                 # Action buttons
@@ -1510,7 +1748,7 @@ def instructor_rubric_generate(session, assignment_id: int):
     """Generate a rubric using AI based on assignment specification"""
     # Get current user
     user = users[session["auth"]]
-    
+
     # Get the assignment with permission check
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
@@ -1518,37 +1756,37 @@ def instructor_rubric_generate(session, assignment_id: int):
             fh.P("Error: " + error, cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
-    
+
     # Check if rubric already exists
     for r in rubrics():
         if r.assignment_id == assignment_id:
             return fh.Div(
-                fh.P("A rubric already exists. Please delete it first to generate a new one.", 
+                fh.P("A rubric already exists. Please delete it first to generate a new one.",
                      cls="text-amber-600"),
                 cls="p-4 bg-amber-50 rounded-lg"
             )
-    
+
     # Generate rubric using AI
     from app.services.rubric_generator import generate_rubric_from_spec
-    
+
     success, categories, error_msg = generate_rubric_from_spec(
         assignment_title=assignment.title,
         assignment_instructions=getattr(assignment, 'instructions', assignment.description),
         spec_content=getattr(assignment, 'spec_content', None)
     )
-    
+
     if not success:
         return fh.Div(
             fh.P(f"Failed to generate rubric: {error_msg}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
-    
+
     # Display generated rubric for review
     return fh.Div(
         fh.H3("Generated Rubric Preview", cls="text-xl font-semibold text-indigo-800 mb-4"),
-        fh.P("Review the AI-generated rubric below. You can edit it after saving.", 
+        fh.P("Review the AI-generated rubric below. You can edit it after saving.",
              cls="text-gray-600 mb-4"),
-        
+
         # Preview table
         fh.Div(
             fh.Table(
@@ -1574,7 +1812,7 @@ def instructor_rubric_generate(session, assignment_id: int):
             ),
             cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6"
         ),
-        
+
         # Save button
         fh.Form(
             fh.Input(type="hidden", name="categories", value=str(categories)),
@@ -1602,7 +1840,7 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
     """Apply a rubric template"""
     # Get current user
     user = users[session["auth"]]
-    
+
     # Get the assignment with permission check
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
@@ -1610,28 +1848,28 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
             fh.P("Error: " + error, cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
-    
+
     # Check if rubric already exists
     for r in rubrics():
         if r.assignment_id == assignment_id:
             return fh.Div(
-                fh.P("A rubric already exists. Please delete it first to apply a template.", 
+                fh.P("A rubric already exists. Please delete it first to apply a template.",
                      cls="text-amber-600"),
                 cls="p-4 bg-amber-50 rounded-lg"
             )
-    
+
     # Get template
     from app.services.rubric_generator import get_rubric_template
-    
+
     categories = get_rubric_template(template_type)
-    
+
     # Display template for review
     return fh.Div(
-        fh.H3(f"{template_type.capitalize()} Rubric Template", 
+        fh.H3(f"{template_type.capitalize()} Rubric Template",
               cls="text-xl font-semibold text-indigo-800 mb-4"),
-        fh.P("Review the template below. You can edit it after saving.", 
+        fh.P("Review the template below. You can edit it after saving.",
              cls="text-gray-600 mb-4"),
-        
+
         # Preview table
         fh.Div(
             fh.Table(
@@ -1657,7 +1895,7 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
             ),
             cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6"
         ),
-        
+
         # Save button
         fh.Form(
             fh.Input(type="hidden", name="categories", value=str(categories)),
@@ -1685,7 +1923,7 @@ def instructor_rubric_save_generated(session, assignment_id: int, categories: st
     """Save a generated or template rubric"""
     # Get current user
     user = users[session["auth"]]
-    
+
     # Get the assignment with permission check
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
@@ -1693,27 +1931,27 @@ def instructor_rubric_save_generated(session, assignment_id: int, categories: st
             fh.P("Error: " + error, cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
-    
+
     # Parse categories
     import ast
     try:
         category_list = ast.literal_eval(categories)
     except Exception as e:
         return fh.Div(
-            fh.P(f"Error parsing categories: {str(e)}", cls="text-red-600"),
+            fh.P(f"Error parsing categories: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
-    
+
     # Create rubric
     new_rubric = Rubric(
         id=None,
         assignment_id=assignment_id,
         created_at=datetime.now(),
     )
-    
+
     try:
         rubric_id = rubrics.insert(new_rubric)
-        
+
         # Add categories
         for cat in category_list:
             new_category = RubricCategory(
@@ -1724,15 +1962,104 @@ def instructor_rubric_save_generated(session, assignment_id: int, categories: st
                 weight=cat['weight']
             )
             rubric_categories.insert(new_category)
-        
+
         # Redirect to refresh the page
         return fh.RedirectResponse(
             f"/instructor/assignments/{assignment_id}/rubric",
             status_code=303
         )
-        
+
     except Exception as e:
         return fh.Div(
-            fh.P(f"Error saving rubric: {str(e)}", cls="text-red-600"),
+            fh.P(f"Error saving rubric: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg"
         )
+
+
+@rt("/instructor/assignments/load-models")
+@instructor_required
+def load_models_for_assignment(session):
+    """Load available AI models for assignment configuration"""
+    current_user = users[session["auth"]]
+
+    # Get instructor's model preferences
+    instructor_prefs = {}
+    for pref in instructor_model_prefs():
+        if pref.instructor_email == current_user.email:
+            instructor_prefs[pref.model_id] = pref.is_active
+
+    # Get all available models
+    available_models = []
+    for model in ai_models():
+        # Include if system model or owned by this instructor
+        if model.active and (model.owner_type == "system" or
+            (model.owner_type == "instructor" and model.owner_id == current_user.email)):
+            # Check if instructor has enabled this model
+            is_enabled = instructor_prefs.get(model.id, model.active)
+            if is_enabled:
+                available_models.append(model)
+
+    if not available_models:
+        return fh.Div(
+            fh.P(
+                "No AI models available. Please configure models first.",
+                cls="text-amber-600 italic"
+            ),
+            fh.A(
+                "Configure Models →",
+                href="/instructor/models",
+                cls="text-indigo-600 hover:underline text-sm mt-2 inline-block"
+            )
+        )
+
+    # Create model selection checkboxes
+    model_items = []
+    for i, model in enumerate(available_models):
+        model_items.append(
+            fh.Div(
+                fh.Div(
+                    fh.Input(
+                        type="checkbox",
+                        id=f"model_{model.id}",
+                        name="selected_models",
+                        value=str(model.id),
+                        checked=(i < 3),  # Select first 3 models by default
+                        cls="mr-3",
+                    ),
+                    fh.Label(
+                        fh.Span(model.name, cls="font-medium"),
+                        fh.Span(f" ({model.provider})", cls="text-gray-500 text-sm"),
+                        for_=f"model_{model.id}",
+                        cls="flex-1",
+                    ),
+                    cls="flex items-center",
+                ),
+                # Number of runs for this model
+                fh.Div(
+                    fh.Label(
+                        "Runs:",
+                        for_=f"runs_{model.id}",
+                        cls="text-sm text-gray-600 mr-2",
+                    ),
+                    fh.Input(
+                        type="number",
+                        id=f"runs_{model.id}",
+                        name=f"model_runs_{model.id}",
+                        value="1",
+                        min="1",
+                        max="5",
+                        cls="w-16 px-2 py-1 border border-gray-300 rounded text-sm",
+                    ),
+                    cls="ml-8 mt-1 flex items-center",
+                ),
+                cls="p-3 bg-white rounded border border-gray-200 hover:border-indigo-300 transition-colors",
+            )
+        )
+
+    return fh.Div(
+        *model_items,
+        fh.P(
+            "Select models to use for feedback generation. More models provide diverse perspectives.",
+            cls="text-xs text-gray-500 mt-3 italic"
+        )
+    )

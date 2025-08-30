@@ -54,24 +54,27 @@ Enable instructors to properly configure assignments for AI feedback.
 - `app/routes/instructor/assignments.py` - Added generation routes and UI
 - `app/services/rubric_generator.py` - Created AI generation service
 
-#### 1.3 Feedback Configuration UI
-- [ ] Add feedback settings to assignment creation
-- [ ] Tone selection (Encouraging, Neutral, Direct, Critical)
-- [ ] Detail level (Brief, Standard, Comprehensive)
-- [ ] Focus areas (Grammar, Content, Structure, Citations)
-- [ ] Icon/emoji theme selection
-**Files to modify:**
-- `app/routes/instructor/assignments.py`
-- `app/models/assignment.py`
+#### 1.3 Feedback Configuration UI ✅ COMPLETED
+- [x] Add feedback settings to assignment creation
+- [x] Tone selection (Encouraging, Neutral, Direct, Critical)
+- [x] Detail level (Brief, Standard, Comprehensive)
+- [x] Focus areas (Grammar, Content, Structure, Citations, etc.)
+- [x] Icon/emoji theme selection
+- [x] Custom prompt instructions for AI
+**Files modified:**
+- `app/routes/instructor/assignments.py` - Added UI for all feedback settings
+- `app/models/assignment.py` - Added custom_prompt and emphasis_areas fields
+- `app/services/prompt_templates.py` - Integrated configuration into prompts
 
-#### 1.4 LLM Profile Configuration
-- [ ] Model selection interface (GPT-4, Claude, etc.)
-- [ ] Multi-model comparison settings
-- [ ] Aggregation method selection
-- [ ] Custom prompting per assignment
-**Files to modify:**
-- `app/routes/instructor/models.py`
-- `app/models/config.py`
+#### 1.4 LLM Profile Configuration ✅ COMPLETED
+- [x] Model selection interface (GPT-4, Claude, etc.)
+- [x] Multi-model comparison settings
+- [x] Aggregation method selection
+- [x] Custom prompting per assignment
+**Files modified:**
+- `app/routes/instructor/assignments.py` - Added model selection UI and configuration
+- `app/routes/instructor/models.py` - Existing model management interface
+- `app/models/config.py` - Database schema already supported model configs
 
 ---
 
@@ -253,11 +256,11 @@ CREATE TABLE llm_usage (
 
 ## 🔄 Progress Tracking
 
-### Week 1-2: Phase 1 Implementation
-- [ ] Assignment spec upload
-- [ ] Rubric auto-generation
-- [ ] Feedback configuration UI
-- [ ] LLM profile configuration
+### Week 1-2: Phase 1 Implementation ✅ COMPLETED
+- [x] Assignment spec upload
+- [x] Rubric auto-generation
+- [x] Feedback configuration UI
+- [x] LLM profile configuration
 
 ### Week 3-4: Phase 2 Implementation
 - [ ] Feedback visualization
