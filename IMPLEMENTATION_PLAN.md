@@ -45,14 +45,14 @@ Enable instructors to properly configure assignments for AI feedback.
 - `app/models/assignment.py` - Extended schema with spec and feedback fields
 - `app/routes/student/assignments.py` - Display spec link to students
 
-#### 1.2 Rubric Auto-Generation
-- [ ] Add "Generate from Spec" button to rubric page
-- [ ] Implement AI rubric extraction/generation
-- [ ] Allow instructor review and editing
-- [ ] Template library for common assignment types
-**Files to modify:**
-- `app/routes/instructor/assignments.py` 
-- `app/services/rubric_generator.py` (new)
+#### 1.2 Rubric Auto-Generation ✅ COMPLETED
+- [x] Add "Generate from Spec" button to rubric page
+- [x] Implement AI rubric extraction/generation
+- [x] Allow instructor review and editing before saving
+- [x] Template library for common assignment types (essay, research, presentation, code)
+**Files modified:**
+- `app/routes/instructor/assignments.py` - Added generation routes and UI
+- `app/services/rubric_generator.py` - Created AI generation service
 
 #### 1.3 Feedback Configuration UI
 - [ ] Add feedback settings to assignment creation

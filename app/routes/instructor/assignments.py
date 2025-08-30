@@ -1208,27 +1208,99 @@ def instructor_rubric_view(session, assignment_id: int):
                     ),
                     cls="mb-6",
                 ),
-                # Initialize rubric form
-                fh.Form(
+                # Initialize rubric options
+                fh.Div(
                     fh.H3(
-                        "Initialize Rubric",
+                        "Create Your Rubric",
                         cls="text-xl font-semibold text-indigo-800 mb-3",
                     ),
                     fh.P(
-                        "Create a rubric for this assignment to define evaluation criteria.",
-                        cls="text-gray-600 mb-4",
+                        "Choose how to create your rubric for this assignment:",
+                        cls="text-gray-600 mb-6",
                     ),
+                    
+                    # AI Generation option (if spec exists)
+                    (
+                        fh.Div(
+                            fh.H4(
+                                "🤖 AI-Generated Rubric",
+                                cls="text-lg font-semibold text-indigo-700 mb-2",
+                            ),
+                            fh.P(
+                                "Generate a rubric based on your assignment specification using AI.",
+                                cls="text-gray-600 mb-3",
+                            ),
+                            fh.Button(
+                                "Generate from Specification",
+                                hx_post=f"/instructor/assignments/{assignment_id}/rubric/generate",
+                                hx_target="#rubric-generation-result",
+                                cls="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-sm mb-4",
+                            ),
+                            cls="p-4 bg-purple-50 rounded-lg border border-purple-200 mb-4",
+                        )
+                        if hasattr(assignment, 'spec_content') and assignment.spec_content
+                        else ""
+                    ),
+                    
+                    # Template option
                     fh.Div(
-                        fh.Button(
-                            "Create Rubric",
-                            type="submit",
-                            cls="bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm",
+                        fh.H4(
+                            "📋 Use a Template",
+                            cls="text-lg font-semibold text-indigo-700 mb-2",
                         ),
-                        cls="mb-4",
+                        fh.P(
+                            "Start with a pre-defined rubric template for common assignment types.",
+                            cls="text-gray-600 mb-3",
+                        ),
+                        fh.Div(
+                            fh.Button(
+                                "Essay Template",
+                                hx_post=f"/instructor/assignments/{assignment_id}/rubric/template/essay",
+                                hx_target="#rubric-generation-result",
+                                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-2",
+                            ),
+                            fh.Button(
+                                "Research Template",
+                                hx_post=f"/instructor/assignments/{assignment_id}/rubric/template/research",
+                                hx_target="#rubric-generation-result",
+                                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-2",
+                            ),
+                            fh.Button(
+                                "Presentation Template",
+                                hx_post=f"/instructor/assignments/{assignment_id}/rubric/template/presentation",
+                                hx_target="#rubric-generation-result",
+                                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                            ),
+                            cls="flex flex-wrap gap-2",
+                        ),
+                        cls="p-4 bg-indigo-50 rounded-lg border border-indigo-200 mb-4",
                     ),
-                    fh.Div(id="create-rubric-result", cls="mt-4"),
-                    hx_post=f"/instructor/assignments/{assignment_id}/rubric/create",
-                    hx_target="#create-rubric-result",
+                    
+                    # Manual creation option
+                    fh.Div(
+                        fh.H4(
+                            "✏️ Create Manually",
+                            cls="text-lg font-semibold text-indigo-700 mb-2",
+                        ),
+                        fh.P(
+                            "Create an empty rubric and add categories manually.",
+                            cls="text-gray-600 mb-3",
+                        ),
+                        fh.Form(
+                            fh.Button(
+                                "Create Empty Rubric",
+                                type="submit",
+                                cls="bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm",
+                            ),
+                            hx_post=f"/instructor/assignments/{assignment_id}/rubric/create",
+                            hx_target="#rubric-generation-result",
+                        ),
+                        cls="p-4 bg-teal-50 rounded-lg border border-teal-200 mb-4",
+                    ),
+                    
+                    # Result div for all generation methods
+                    fh.Div(id="rubric-generation-result", cls="mt-4"),
+                    
                     cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6",
                 ),
                 # Action buttons
@@ -1429,4 +1501,238 @@ def instructor_rubric_category_add(
         return fh.Div(
             fh.P(f"Error adding category: {e!s}", cls="text-red-600"),
             cls="p-4 bg-red-50 rounded-lg",
+        )
+
+
+@rt("/instructor/assignments/{assignment_id}/rubric/generate")
+@instructor_required
+def instructor_rubric_generate(session, assignment_id: int):
+    """Generate a rubric using AI based on assignment specification"""
+    # Get current user
+    user = users[session["auth"]]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    if error:
+        return fh.Div(
+            fh.P("Error: " + error, cls="text-red-600"),
+            cls="p-4 bg-red-50 rounded-lg"
+        )
+    
+    # Check if rubric already exists
+    for r in rubrics():
+        if r.assignment_id == assignment_id:
+            return fh.Div(
+                fh.P("A rubric already exists. Please delete it first to generate a new one.", 
+                     cls="text-amber-600"),
+                cls="p-4 bg-amber-50 rounded-lg"
+            )
+    
+    # Generate rubric using AI
+    from app.services.rubric_generator import generate_rubric_from_spec
+    
+    success, categories, error_msg = generate_rubric_from_spec(
+        assignment_title=assignment.title,
+        assignment_instructions=getattr(assignment, 'instructions', assignment.description),
+        spec_content=getattr(assignment, 'spec_content', None)
+    )
+    
+    if not success:
+        return fh.Div(
+            fh.P(f"Failed to generate rubric: {error_msg}", cls="text-red-600"),
+            cls="p-4 bg-red-50 rounded-lg"
+        )
+    
+    # Display generated rubric for review
+    return fh.Div(
+        fh.H3("Generated Rubric Preview", cls="text-xl font-semibold text-indigo-800 mb-4"),
+        fh.P("Review the AI-generated rubric below. You can edit it after saving.", 
+             cls="text-gray-600 mb-4"),
+        
+        # Preview table
+        fh.Div(
+            fh.Table(
+                fh.Thead(
+                    fh.Tr(
+                        fh.Th("Category", cls="text-left py-3 px-4 font-semibold"),
+                        fh.Th("Description", cls="text-left py-3 px-4 font-semibold"),
+                        fh.Th("Weight", cls="text-left py-3 px-4 font-semibold"),
+                    ),
+                    cls="bg-indigo-50"
+                ),
+                fh.Tbody(
+                    *[
+                        fh.Tr(
+                            fh.Td(cat['name'], cls="py-3 px-4 border-b"),
+                            fh.Td(cat['description'], cls="py-3 px-4 border-b"),
+                            fh.Td(f"{cat['weight']}%", cls="py-3 px-4 border-b"),
+                        )
+                        for cat in categories
+                    ]
+                ),
+                cls="w-full"
+            ),
+            cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6"
+        ),
+        
+        # Save button
+        fh.Form(
+            fh.Input(type="hidden", name="categories", value=str(categories)),
+            fh.Button(
+                "Save Generated Rubric",
+                type="submit",
+                cls="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-sm mr-3"
+            ),
+            fh.Button(
+                "Cancel",
+                type="button",
+                onclick="this.closest('#rubric-generation-result').innerHTML=''",
+                cls="bg-gray-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 transition-colors shadow-sm"
+            ),
+            hx_post=f"/instructor/assignments/{assignment_id}/rubric/save-generated",
+            hx_target="#rubric-generation-result"
+        ),
+        cls="p-6 bg-green-50 rounded-lg border border-green-200"
+    )
+
+
+@rt("/instructor/assignments/{assignment_id}/rubric/template/{template_type}")
+@instructor_required
+def instructor_rubric_apply_template(session, assignment_id: int, template_type: str):
+    """Apply a rubric template"""
+    # Get current user
+    user = users[session["auth"]]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    if error:
+        return fh.Div(
+            fh.P("Error: " + error, cls="text-red-600"),
+            cls="p-4 bg-red-50 rounded-lg"
+        )
+    
+    # Check if rubric already exists
+    for r in rubrics():
+        if r.assignment_id == assignment_id:
+            return fh.Div(
+                fh.P("A rubric already exists. Please delete it first to apply a template.", 
+                     cls="text-amber-600"),
+                cls="p-4 bg-amber-50 rounded-lg"
+            )
+    
+    # Get template
+    from app.services.rubric_generator import get_rubric_template
+    
+    categories = get_rubric_template(template_type)
+    
+    # Display template for review
+    return fh.Div(
+        fh.H3(f"{template_type.capitalize()} Rubric Template", 
+              cls="text-xl font-semibold text-indigo-800 mb-4"),
+        fh.P("Review the template below. You can edit it after saving.", 
+             cls="text-gray-600 mb-4"),
+        
+        # Preview table
+        fh.Div(
+            fh.Table(
+                fh.Thead(
+                    fh.Tr(
+                        fh.Th("Category", cls="text-left py-3 px-4 font-semibold"),
+                        fh.Th("Description", cls="text-left py-3 px-4 font-semibold"),
+                        fh.Th("Weight", cls="text-left py-3 px-4 font-semibold"),
+                    ),
+                    cls="bg-indigo-50"
+                ),
+                fh.Tbody(
+                    *[
+                        fh.Tr(
+                            fh.Td(cat['name'], cls="py-3 px-4 border-b"),
+                            fh.Td(cat['description'], cls="py-3 px-4 border-b"),
+                            fh.Td(f"{cat['weight']}%", cls="py-3 px-4 border-b"),
+                        )
+                        for cat in categories
+                    ]
+                ),
+                cls="w-full"
+            ),
+            cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6"
+        ),
+        
+        # Save button
+        fh.Form(
+            fh.Input(type="hidden", name="categories", value=str(categories)),
+            fh.Button(
+                "Use This Template",
+                type="submit",
+                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-3"
+            ),
+            fh.Button(
+                "Cancel",
+                type="button",
+                onclick="this.closest('#rubric-generation-result').innerHTML=''",
+                cls="bg-gray-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 transition-colors shadow-sm"
+            ),
+            hx_post=f"/instructor/assignments/{assignment_id}/rubric/save-generated",
+            hx_target="#rubric-generation-result"
+        ),
+        cls="p-6 bg-indigo-50 rounded-lg border border-indigo-200"
+    )
+
+
+@rt("/instructor/assignments/{assignment_id}/rubric/save-generated")
+@instructor_required
+def instructor_rubric_save_generated(session, assignment_id: int, categories: str):
+    """Save a generated or template rubric"""
+    # Get current user
+    user = users[session["auth"]]
+    
+    # Get the assignment with permission check
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    if error:
+        return fh.Div(
+            fh.P("Error: " + error, cls="text-red-600"),
+            cls="p-4 bg-red-50 rounded-lg"
+        )
+    
+    # Parse categories
+    import ast
+    try:
+        category_list = ast.literal_eval(categories)
+    except Exception as e:
+        return fh.Div(
+            fh.P(f"Error parsing categories: {str(e)}", cls="text-red-600"),
+            cls="p-4 bg-red-50 rounded-lg"
+        )
+    
+    # Create rubric
+    new_rubric = Rubric(
+        id=None,
+        assignment_id=assignment_id,
+        created_at=datetime.now(),
+    )
+    
+    try:
+        rubric_id = rubrics.insert(new_rubric)
+        
+        # Add categories
+        for cat in category_list:
+            new_category = RubricCategory(
+                id=None,
+                rubric_id=rubric_id,
+                name=cat['name'],
+                description=cat['description'],
+                weight=cat['weight']
+            )
+            rubric_categories.insert(new_category)
+        
+        # Redirect to refresh the page
+        return fh.RedirectResponse(
+            f"/instructor/assignments/{assignment_id}/rubric",
+            status_code=303
+        )
+        
+    except Exception as e:
+        return fh.Div(
+            fh.P(f"Error saving rubric: {str(e)}", cls="text-red-600"),
+            cls="p-4 bg-red-50 rounded-lg"
         )
