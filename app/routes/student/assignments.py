@@ -11,8 +11,12 @@ from app.models.course import courses, enrollments
 from app.models.feedback import aggregated_feedback, drafts
 from app.models.rubric import rubric_categories, rubrics
 from app.models.user import Role, users
+from app.services.progress_analyzer import ProgressAnalyzer
 from app.utils.feedback_formatter import (
+    draft_comparison_card,
     draft_progress_indicator,
+    improvement_metrics_card,
+    next_steps_recommendations,
     overall_feedback_summary,
     rubric_category_card,
 )
@@ -221,6 +225,125 @@ def render_enhanced_feedback(draft, feedback_list, rubric_cats, all_drafts, max_
 
         cls="space-y-6"
     )
+
+
+def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignment):
+    """
+    Create progress tracking UI components using the ProgressAnalyzer.
+
+    Args:
+        drafts_list: List of student drafts
+        feedback_dict: Dictionary of feedback by draft ID
+        rubric_cats: List of rubric categories
+        assignment: Assignment object
+
+    Returns:
+        List of UI components for progress tracking
+    """
+    # Flatten feedback dictionary to list
+    all_feedback = []
+    for _draft_id, feedback_list in feedback_dict.items():
+        all_feedback.extend(feedback_list)
+
+    # Initialize analyzer
+    analyzer = ProgressAnalyzer(drafts_list, all_feedback)
+
+    ui_components = []
+
+    # 1. Overall improvement metrics
+    metrics = analyzer.get_improvement_metrics()
+    ui_components.append(improvement_metrics_card(metrics))
+
+    # 2. Draft comparison (compare last two drafts if available)
+    if len(drafts_list) >= 2:
+        latest_draft = drafts_list[-1]
+        previous_draft = drafts_list[-2]
+        comparison = analyzer.compare_drafts(previous_draft.version, latest_draft.version)
+        ui_components.append(draft_comparison_card(comparison))
+
+    # 3. Next steps recommendations
+    if drafts_list and all_feedback:
+        latest_draft = drafts_list[-1]
+        latest_feedback = feedback_dict.get(latest_draft.id, [])
+        if latest_feedback:
+            recommendations = analyzer.get_next_steps_recommendations(
+                latest_feedback[0],
+                rubric_cats
+            )
+            remaining_drafts = assignment.max_drafts - len(drafts_list)
+            if recommendations:
+                ui_components.append(
+                    next_steps_recommendations(recommendations, remaining_drafts)
+                )
+
+    # 4. Category progression chart (if we have rubric categories)
+    if rubric_cats and len(drafts_list) > 1:
+        category_progression = analyzer.get_category_progression(rubric_cats)
+        ui_components.append(create_category_progression_chart(category_progression))
+
+    return ui_components
+
+
+def create_category_progression_chart(category_progression: dict) -> fh.Div:
+    """
+    Create a visual chart showing score progression for each rubric category.
+
+    Args:
+        category_progression: Dictionary of category progressions
+
+    Returns:
+        Div element with category progression chart
+    """
+    return fh.Div(
+        fh.H3("📊 Category Score Progression", cls="text-xl font-bold text-gray-800 mb-4"),
+        fh.Div(
+            *(
+                fh.Div(
+                    fh.H4(category_name, cls="font-semibold text-gray-700 mb-2"),
+                    fh.Div(
+                        *(
+                            fh.Div(
+                                fh.Div(
+                                    cls=f"h-20 bg-{get_score_color(prog['score'])}-500 rounded-t"
+                                    if prog['has_feedback'] else "h-20 bg-gray-300 rounded-t",
+                                    style=f"height: {prog['score']}%;" if prog['has_feedback'] else "height: 20%;",
+                                ),
+                                fh.P(
+                                    f"D{prog['version']}",
+                                    cls="text-xs text-center mt-1 text-gray-600"
+                                ),
+                                fh.P(
+                                    f"{prog['score']:.0f}" if prog['has_feedback'] else "-",
+                                    cls="text-xs text-center font-semibold"
+                                ),
+                                cls="flex-1 flex flex-col justify-end"
+                            )
+                            for prog in progression_data
+                        ),
+                        cls="flex gap-2 items-end h-24"
+                    ),
+                    cls="mb-4"
+                )
+                for category_name, progression_data in category_progression.items()
+            ),
+            cls="grid grid-cols-1 md:grid-cols-2 gap-4"
+        ),
+        cls="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+    )
+
+
+def get_score_color(score: float) -> str:
+    """Helper to get color based on score."""
+    if score >= 90:
+        return "emerald"
+    elif score >= 80:
+        return "green"
+    elif score >= 70:
+        return "yellow"
+    elif score >= 60:
+        return "orange"
+    else:
+        return "red"
 
 
 def get_student_course(course_id, student_email):
@@ -573,6 +696,20 @@ def student_assignment_view(session, request, assignment_id: int):
                 cls="text-center bg-white p-8 rounded-xl shadow-md mt-4",
             ),
             cls="mb-8",
+        ),
+        # Progress Tracking Section - only show if there are multiple drafts with feedback
+        (
+            fh.Div(
+                fh.H3("📈 Progress Analysis", cls="text-xl font-semibold text-indigo-900 mt-8 mb-4"),
+                fh.Div(
+                    # Initialize progress analyzer
+                    # Create progress tracking UI
+                    *create_progress_tracking_ui(assignment_drafts, draft_feedback, rubric_cats, assignment),
+                    cls="space-y-6"
+                ),
+            )
+            if len(assignment_drafts) > 1 and any(draft_feedback.values())
+            else ""
         ),
     )
 

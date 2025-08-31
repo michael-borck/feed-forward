@@ -423,3 +423,328 @@ def draft_progress_indicator(
         ),
         cls="bg-white p-5 rounded-xl shadow-sm border border-gray-100",
     )
+
+
+def draft_comparison_card(comparison_data: dict[str, Any]) -> fh.Div:
+    """
+    Create a visual comparison card between two drafts.
+
+    Args:
+        comparison_data: Comparison data from progress analyzer
+
+    Returns:
+        Div element with draft comparison visualization
+    """
+    if 'error' in comparison_data:
+        return fh.Div(
+            fh.P(comparison_data['error'], cls="text-red-600"),
+            cls="p-4 bg-red-50 rounded-lg"
+        )
+
+    draft1 = comparison_data['draft1']
+    draft2 = comparison_data['draft2']
+    changes = comparison_data['changes']
+
+    score_change = changes['score_change']
+    change_icon = "📈" if score_change > 0 else "📉" if score_change < 0 else "➡️"
+    change_color = "text-green-600" if score_change > 0 else "text-red-600" if score_change < 0 else "text-gray-600"
+
+    return fh.Div(
+        # Header
+        fh.H3(
+            f"Draft {draft1['version']} → Draft {draft2['version']} Comparison",
+            cls="text-xl font-bold text-gray-800 mb-4"
+        ),
+
+        # Score comparison
+        fh.Div(
+            fh.Div(
+                fh.Div(
+                    fh.P("Draft " + str(draft1['version']), cls="text-sm text-gray-600 mb-1"),
+                    fh.P(f"{draft1['score']:.0f}", cls="text-3xl font-bold text-gray-700"),
+                    cls="text-center"
+                ),
+                fh.Div(
+                    fh.Span(change_icon, cls="text-3xl"),
+                    cls="flex items-center justify-center px-4"
+                ),
+                fh.Div(
+                    fh.P("Draft " + str(draft2['version']), cls="text-sm text-gray-600 mb-1"),
+                    fh.P(f"{draft2['score']:.0f}", cls="text-3xl font-bold text-indigo-700"),
+                    cls="text-center"
+                ),
+                cls="flex justify-center items-center mb-4"
+            ),
+            fh.P(
+                f"{abs(score_change):.1f} point {'improvement' if score_change > 0 else 'decrease' if score_change < 0 else 'change'} ({changes['score_change_percent']:.1f}%)",
+                cls=f"text-center {change_color} font-semibold"
+            ),
+            cls="mb-6"
+        ),
+
+        # Key changes
+        fh.Div(
+            # Improvements
+            (
+                fh.Div(
+                    fh.H4("✅ Improvements", cls="font-semibold text-green-700 mb-2"),
+                    fh.Ul(
+                        *(
+                            fh.Li(imp, cls="text-sm text-gray-700")
+                            for imp in changes['improvement_areas']
+                        ),
+                        cls="list-disc list-inside space-y-1"
+                    ) if changes['improvement_areas'] else fh.P("No significant improvements", cls="text-sm text-gray-500 italic"),
+                    cls="bg-green-50 p-3 rounded-lg"
+                )
+                if changes['improvement_areas'] or score_change > 0
+                else ""
+            ),
+
+            # Regressions
+            (
+                fh.Div(
+                    fh.H4("⚠️ Areas of Concern", cls="font-semibold text-orange-700 mb-2"),
+                    fh.Ul(
+                        *(
+                            fh.Li(reg, cls="text-sm text-gray-700")
+                            for reg in changes['regression_areas']
+                        ),
+                        cls="list-disc list-inside space-y-1"
+                    ) if changes['regression_areas'] else fh.P("No regressions noted", cls="text-sm text-gray-500 italic"),
+                    cls="bg-orange-50 p-3 rounded-lg"
+                )
+                if changes['regression_areas']
+                else ""
+            ),
+
+            # Maintained strengths
+            (
+                fh.Div(
+                    fh.H4("💪 Maintained Strengths", cls="font-semibold text-blue-700 mb-2"),
+                    fh.Ul(
+                        *(
+                            fh.Li(strength, cls="text-sm text-gray-700")
+                            for strength in changes['maintained_strengths']
+                        ),
+                        cls="list-disc list-inside space-y-1"
+                    ) if changes['maintained_strengths'] else fh.P("Building new strengths", cls="text-sm text-gray-500 italic"),
+                    cls="bg-blue-50 p-3 rounded-lg"
+                )
+                if changes['maintained_strengths']
+                else ""
+            ),
+            cls="space-y-3"
+        ),
+
+        # Word count change
+        (
+            fh.Div(
+                fh.P(
+                    f"Word count: {draft1['word_count']} → {draft2['word_count']} "
+                    f"({'+'if changes['word_count_change'] > 0 else ''}{changes['word_count_change']} words)",
+                    cls="text-sm text-gray-600 text-center mt-4"
+                ),
+            )
+            if draft1.get('word_count') or draft2.get('word_count')
+            else ""
+        ),
+
+        cls="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+    )
+
+
+def improvement_metrics_card(metrics: dict[str, Any]) -> fh.Div:
+    """
+    Create a card displaying overall improvement metrics.
+
+    Args:
+        metrics: Improvement metrics from progress analyzer
+
+    Returns:
+        Div element with metrics visualization
+    """
+    total_imp = metrics.get('total_improvement', 0)
+    imp_color = "text-green-600" if total_imp > 0 else "text-red-600" if total_imp < 0 else "text-gray-600"
+
+    return fh.Div(
+        fh.H3("📊 Progress Overview", cls="text-xl font-bold text-gray-800 mb-4"),
+
+        # Key metrics grid
+        fh.Div(
+            # Total improvement
+            fh.Div(
+                fh.Div(
+                    fh.P("Total Progress", cls="text-sm text-gray-600 mb-1"),
+                    fh.P(
+                        f"{'+' if total_imp > 0 else ''}{total_imp:.1f}",
+                        cls=f"text-2xl font-bold {imp_color}"
+                    ),
+                    fh.P("points", cls="text-xs text-gray-500"),
+                    cls="text-center"
+                ),
+                cls="bg-gray-50 p-3 rounded-lg"
+            ),
+
+            # Average per draft
+            fh.Div(
+                fh.Div(
+                    fh.P("Avg per Draft", cls="text-sm text-gray-600 mb-1"),
+                    fh.P(
+                        f"{'+' if metrics['average_improvement_per_draft'] > 0 else ''}{metrics['average_improvement_per_draft']:.1f}",
+                        cls="text-2xl font-bold text-indigo-600"
+                    ),
+                    fh.P("points", cls="text-xs text-gray-500"),
+                    cls="text-center"
+                ),
+                cls="bg-indigo-50 p-3 rounded-lg"
+            ),
+
+            # Best improvement
+            fh.Div(
+                fh.Div(
+                    fh.P("Best Jump", cls="text-sm text-gray-600 mb-1"),
+                    fh.P(
+                        f"+{metrics['best_improvement']:.1f}",
+                        cls="text-2xl font-bold text-green-600"
+                    ),
+                    fh.P("points", cls="text-xs text-gray-500"),
+                    cls="text-center"
+                ),
+                cls="bg-green-50 p-3 rounded-lg"
+            ),
+
+            # Consistency
+            fh.Div(
+                fh.Div(
+                    fh.P("Consistency", cls="text-sm text-gray-600 mb-1"),
+                    fh.P(
+                        f"{metrics['consistency_score']:.0f}%",
+                        cls="text-2xl font-bold text-blue-600"
+                    ),
+                    fh.P("score", cls="text-xs text-gray-500"),
+                    cls="text-center"
+                ),
+                cls="bg-blue-50 p-3 rounded-lg"
+            ),
+
+            cls="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4"
+        ),
+
+        # Progress bar from initial to current
+        fh.Div(
+            fh.P("Score Progress", cls="text-sm font-semibold text-gray-700 mb-2"),
+            fh.Div(
+                fh.Div(
+                    fh.Span(f"{metrics['initial_score']:.0f}", cls="text-xs text-gray-600"),
+                    fh.Span(f"{metrics['current_score']:.0f}", cls="text-xs text-gray-600"),
+                    cls="flex justify-between mb-1"
+                ),
+                score_bar(metrics['current_score'], 100, "h-3"),
+            ),
+        ),
+
+        # Draft submission info
+        fh.Div(
+            fh.P(
+                f"Submitted {metrics['drafts_submitted']} draft{'s' if metrics['drafts_submitted'] != 1 else ''}, "
+                f"{metrics['drafts_with_feedback']} with feedback",
+                cls="text-sm text-gray-600 text-center mt-3"
+            ),
+        ),
+
+        cls="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+    )
+
+
+def next_steps_recommendations(recommendations: list[dict[str, Any]], max_drafts_remaining: int) -> fh.Div:
+    """
+    Create a prioritized list of next steps for improvement.
+
+    Args:
+        recommendations: List of recommendations from progress analyzer
+        max_drafts_remaining: Number of drafts remaining
+
+    Returns:
+        Div element with next steps visualization
+    """
+    if not recommendations:
+        return fh.Div()
+
+    # Priority colors
+    priority_colors = {
+        'high': ('bg-red-100', 'text-red-800', 'border-red-200'),
+        'medium': ('bg-yellow-100', 'text-yellow-800', 'border-yellow-200'),
+        'low': ('bg-green-100', 'text-green-800', 'border-green-200')
+    }
+
+    return fh.Div(
+        fh.H3(
+            "🎯 Recommended Focus Areas for Next Draft",
+            cls="text-xl font-bold text-gray-800 mb-4"
+        ),
+
+        (
+            fh.P(
+                f"You have {max_drafts_remaining} draft{'s' if max_drafts_remaining != 1 else ''} remaining",
+                cls="text-sm text-gray-600 mb-4"
+            )
+            if max_drafts_remaining > 0
+            else fh.P(
+                "This is your final draft - make it count!",
+                cls="text-sm text-orange-600 font-semibold mb-4"
+            )
+        ),
+
+        fh.Div(
+            *(
+                fh.Div(
+                    fh.Div(
+                        fh.Div(
+                            fh.H4(
+                                rec['category'],
+                                cls="font-semibold text-gray-800"
+                            ),
+                            fh.P(
+                                rec['description'],
+                                cls="text-sm text-gray-600 mt-1"
+                            ),
+                            cls="flex-1"
+                        ),
+                        fh.Div(
+                            fh.Span(
+                                rec['priority'].upper(),
+                                cls=f"px-2 py-1 text-xs font-semibold rounded {priority_colors[rec['priority']][1]} {priority_colors[rec['priority']][0]}"
+                            ),
+                            cls="ml-4"
+                        ),
+                        cls="flex justify-between items-start mb-2"
+                    ),
+                    fh.Div(
+                        fh.Div(
+                            fh.P(
+                                f"Current: {rec['current_score']:.0f}/100",
+                                cls="text-sm text-gray-600"
+                            ),
+                            fh.P(
+                                f"Impact: +{rec['potential_impact']:.1f} potential points",
+                                cls="text-sm text-green-600 font-medium"
+                            ),
+                            cls="flex justify-between"
+                        ),
+                        score_bar(rec['current_score'], 100, "h-2"),
+                        cls="mt-2"
+                    ),
+                    fh.P(
+                        rec['action'],
+                        cls=f"text-sm mt-2 {priority_colors[rec['priority']][1]}"
+                    ),
+                    cls=f"p-4 rounded-lg border {priority_colors[rec['priority']][2]} {priority_colors[rec['priority']][0]}"
+                )
+                for rec in recommendations
+            ),
+            cls="space-y-3"
+        ),
+
+        cls="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+    )
