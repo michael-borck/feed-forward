@@ -21,7 +21,7 @@ def get_password_hash(password: str) -> str:
     Returns:
         str: The hashed password
     """
-    return pwd_context.hash(password)
+    return str(pwd_context.hash(password))
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -52,7 +52,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         passlib_result = pwd_context.verify(plain_password, hashed_password)
         print(f"Debug - passlib verify: {passlib_result}")
 
-        return passlib_result
+        return bool(passlib_result)
     except Exception as e:
         print(f"Password verification error: {e!s}")
         # Last resort - try a direct string comparison (not secure, but for emergencies)

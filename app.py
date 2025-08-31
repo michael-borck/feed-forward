@@ -14,7 +14,6 @@ from fasthtml.common import (
     P,
     Script,
     Span,
-    Titled,
     serve,
 )
 from starlette.responses import RedirectResponse

@@ -181,7 +181,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
             # Hidden fields for POST
             fh.Input(type="hidden", name="assignment_id", value=str(assignment_id)),
             fh.Input(type="hidden", name="version", value=str(next_version)),
-            
+
             # Submission type selector
             fh.Div(
                 fh.Label(
@@ -218,7 +218,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 ),
                 cls="mb-6",
             ),
-            
+
             # Text input section
             fh.Div(
                 fh.Label(
@@ -242,7 +242,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 id="text_input_section",
                 cls="mb-6",
             ),
-            
+
             # File upload section (initially hidden)
             fh.Div(
                 fh.Label(
@@ -273,7 +273,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 id="file_upload_section",
                 cls="mb-6 hidden",
             ),
-            
+
             # Submit button
             fh.Div(
                 fh.Button(
@@ -296,7 +296,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 const fileSection = document.getElementById('file_upload_section');
                 const contentTextarea = document.getElementById('content');
                 const fileInput = document.getElementById('file_upload');
-                
+
                 if (type === 'text') {
                     textSection.classList.remove('hidden');
                     fileSection.classList.add('hidden');
@@ -347,14 +347,14 @@ async def student_assignment_submit_process(
     content = ""
     original_filename = None
     file_path = None
-    
+
     # Parse form data
     form_data = await request.form()
-    
+
     if submission_type == "file":
         # Handle file upload
         file_upload = form_data.get("file_upload")
-        
+
         if not file_upload or not hasattr(file_upload, 'filename'):
             return fh.Div(
                 fh.P(
@@ -367,10 +367,14 @@ async def student_assignment_submit_process(
                     cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
                 ),
             )
-        
+
         # Import file handling utilities
-        from app.utils.file_handlers import extract_file_content, validate_file_size, get_safe_filename
-        
+        from app.utils.file_handlers import (
+            extract_file_content,
+            get_safe_filename,
+            validate_file_size,
+        )
+
         # Validate file size (10MB limit)
         if not validate_file_size(file_upload, max_size_mb=10):
             return fh.Div(
@@ -384,39 +388,38 @@ async def student_assignment_submit_process(
                     cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
                 ),
             )
-        
+
         try:
             # Extract text content from file
             content = await extract_file_content(file_upload)
             original_filename = file_upload.filename
-            
+
             # Save file to storage for record keeping (will be deleted after feedback)
-            import os
             import hashlib
             from pathlib import Path
-            
+
             # Create storage directory if it doesn't exist
             storage_dir = Path("data/uploads") / str(assignment_id) / user.email
             storage_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Generate safe filename with timestamp
             safe_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{get_safe_filename(original_filename)}"
             file_path = storage_dir / safe_filename
-            
+
             # Save file
             file_content = await file_upload.read()
             await file_upload.seek(0)  # Reset for potential re-read
-            
+
             with open(file_path, "wb") as f:
                 f.write(file_content)
-            
+
             # Calculate checksum
             checksum = hashlib.sha256(file_content).hexdigest()
-            
+
         except Exception as e:
             return fh.Div(
                 fh.P(
-                    f"Error processing file: {str(e)}",
+                    f"Error processing file: {e!s}",
                     cls="text-red-600 bg-red-50 p-4 rounded-lg",
                 ),
                 fh.A(
@@ -428,7 +431,7 @@ async def student_assignment_submit_process(
     else:
         # Handle text input
         content = form_data.get("content", "")
-        
+
         if not content or content.strip() == "":
             return fh.Div(
                 fh.P(
@@ -459,11 +462,11 @@ async def student_assignment_submit_process(
     # Insert the draft
     try:
         draft_id = drafts.insert(new_draft)
-        
+
         # If file was uploaded, save file metadata
         if file_path:
-            from app.models.assessment import submission_files, SubmissionFile
-            
+            from app.models.assessment import SubmissionFile, submission_files
+
             submission_file = SubmissionFile(
                 draft_id=draft_id,
                 filename=safe_filename,

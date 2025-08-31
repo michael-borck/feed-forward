@@ -45,7 +45,7 @@ Your role is to:
 4. Adapt your tone and style based on instructor preferences
 
 """
-        
+
         # Add tone-specific instructions
         if context and context.feedback_tone:
             tone_guides = {
@@ -55,7 +55,7 @@ Your role is to:
                 "critical": "Provide rigorous, demanding feedback. Hold work to high standards and be explicit about shortcomings."
             }
             base_prompt += f"Tone Guideline: {tone_guides.get(context.feedback_tone, tone_guides['encouraging'])}\n\n"
-        
+
         # Add detail level instructions
         if context and context.feedback_detail:
             detail_guides = {
@@ -64,13 +64,13 @@ Your role is to:
                 "comprehensive": "Provide thorough, detailed feedback. Include extensive examples, explanations, and specific suggestions."
             }
             base_prompt += f"Detail Level: {detail_guides.get(context.feedback_detail, detail_guides['standard'])}\n\n"
-        
+
         base_prompt += """Important guidelines:
 - Be specific with examples from the student's work
 - Balance positive feedback with areas for improvement
 - Suggest concrete next steps
 - Use clear, accessible language"""
-        
+
         return base_prompt
 
     def generate_prompt(self, context: PromptContext) -> str:
@@ -133,7 +133,7 @@ Word Count: {context.word_count or "Not specified"}"""
         # Add style-specific instructions
         if context.feedback_style:
             instructions += f"Feedback Style: {context.feedback_style.name} - {context.feedback_style.description}\n\n"
-        
+
         # Add focus areas if specified
         if context.focus_areas:
             focus_area_names = {
@@ -145,14 +145,14 @@ Word Count: {context.word_count or "Not specified"}"""
                 "critical_thinking": "Critical Thinking",
                 "creativity": "Creativity and Originality"
             }
-            
+
             instructions += "### Priority Focus Areas\n"
             instructions += "Pay special attention to the following aspects:\n"
             for area in context.focus_areas:
                 area_name = focus_area_names.get(area, area)
                 instructions += f"- {area_name}\n"
             instructions += "\n"
-        
+
         # Add custom prompt if provided
         if context.custom_prompt:
             instructions += "### Additional Instructions from Instructor\n"
@@ -346,9 +346,9 @@ def generate_feedback_prompt(
     if hasattr(assignment, 'feedback_focus') and assignment.feedback_focus:
         try:
             focus_areas = json.loads(assignment.feedback_focus)
-        except:
+        except (json.JSONDecodeError, TypeError, ValueError):
             focus_areas = None
-    
+
     # Create context with all configuration
     context = PromptContext(
         assignment=assignment,

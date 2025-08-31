@@ -121,9 +121,9 @@ class AIClient:
         if provider not in provider_mapping:
             # Default to OpenAI-compatible format
             self.logger.warning(f"Unknown provider {provider}, treating as OpenAI-compatible")
-            return ai_model.model_id
+            return str(ai_model.model_id)
 
-        return provider_mapping[provider](ai_model.model_id)
+        return str(provider_mapping[provider](ai_model.model_id))
 
     def _create_rubric_prompt(
         self,

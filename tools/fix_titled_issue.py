@@ -6,9 +6,10 @@ Fix the fh.Titled issue that causes titles to appear as visible text on pages
 import re
 from pathlib import Path
 
+
 def fix_titled_in_file(file_path):
     """Fix fh.Titled usage in a single file"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         content = f.read()
 
     # Pattern to match return fh.Titled(..., content)

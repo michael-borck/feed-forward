@@ -3,9 +3,9 @@ Rubric generation service using AI to extract or create rubrics from assignment 
 """
 
 import json
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Optional
 
-from app.utils.ai_client import get_ai_client
+import litellm
 
 
 def generate_rubric_from_spec(
@@ -13,43 +13,43 @@ def generate_rubric_from_spec(
     assignment_instructions: str,
     spec_content: Optional[str] = None,
     assignment_type: str = "essay"
-) -> Tuple[bool, List[Dict[str, any]], str]:
+) -> tuple[bool, list[dict[str, Any]], str]:
     """
     Generate a rubric from assignment specification using AI.
-    
+
     Args:
         assignment_title: Title of the assignment
         assignment_instructions: Brief instructions
         spec_content: Full specification text content (if uploaded)
         assignment_type: Type of assignment (essay, research, presentation, etc.)
-    
+
     Returns:
         Tuple of (success, rubric_categories, error_message)
         rubric_categories is a list of dicts with 'name', 'description', 'weight'
     """
-    
+
     # Combine all available information
     context = f"Assignment Title: {assignment_title}\n\n"
     context += f"Instructions: {assignment_instructions}\n\n"
-    
+
     if spec_content:
         context += f"Full Specification:\n{spec_content}\n\n"
-    
+
     # Create the prompt for rubric generation
     prompt = f"""
-    You are an educational assessment expert. Based on the following assignment information, 
+    You are an educational assessment expert. Based on the following assignment information,
     generate a comprehensive rubric for evaluating student submissions.
-    
+
     {context}
-    
+
     Create a rubric with 4-6 categories that cover the essential aspects of this assignment.
     Each category should have:
     - A clear, concise name (2-3 words)
     - A detailed description of what is being evaluated
     - A weight percentage (all weights should sum to 100%)
-    
+
     Focus on academic criteria relevant to the assignment type and learning objectives.
-    
+
     Return ONLY a valid JSON array of rubric categories in this exact format:
     [
         {{
@@ -59,25 +59,28 @@ def generate_rubric_from_spec(
         }},
         ...
     ]
-    
+
     Ensure the weights sum to exactly 100.
     """
-    
+
     try:
-        # Get AI client
-        ai_client = get_ai_client()
-        
-        # Generate rubric
-        response = ai_client.generate(
-            prompt=prompt,
-            system_prompt="You are an expert educator creating assessment rubrics. Return only valid JSON.",
+        # Generate rubric using litellm
+        response = litellm.completion(
+            model="gpt-3.5-turbo",  # Default model
+            messages=[
+                {"role": "system", "content": "You are an expert educator creating assessment rubrics. Return only valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=1500,
             temperature=0.7
         )
-        
+
+        # Extract the response text
+        response_text = response.choices[0].message.content
+
         # Parse the JSON response
         # Clean response - remove any markdown code blocks
-        cleaned_response = response.strip()
+        cleaned_response = response_text.strip()
         if cleaned_response.startswith("```json"):
             cleaned_response = cleaned_response[7:]
         if cleaned_response.startswith("```"):
@@ -85,56 +88,56 @@ def generate_rubric_from_spec(
         if cleaned_response.endswith("```"):
             cleaned_response = cleaned_response[:-3]
         cleaned_response = cleaned_response.strip()
-        
+
         # Parse JSON
         rubric_categories = json.loads(cleaned_response)
-        
+
         # Validate the rubric
         if not isinstance(rubric_categories, list):
             return False, [], "Invalid rubric format: expected a list of categories"
-        
+
         if len(rubric_categories) < 3:
             return False, [], "Rubric must have at least 3 categories"
-        
+
         if len(rubric_categories) > 8:
             return False, [], "Rubric should not have more than 8 categories"
-        
+
         # Validate each category and check weights
-        total_weight = 0
+        total_weight = 0.0
         for category in rubric_categories:
             if not all(key in category for key in ['name', 'description', 'weight']):
                 return False, [], "Each category must have name, description, and weight"
-            
+
             if not isinstance(category['weight'], (int, float)):
                 return False, [], f"Invalid weight for category {category['name']}"
-            
-            total_weight += category['weight']
-        
+
+            total_weight += float(category['weight'])
+
         # Adjust weights if they don't sum to 100 (allow small rounding errors)
         if abs(total_weight - 100) > 0.1:
             # Normalize weights to sum to 100
             for category in rubric_categories:
                 category['weight'] = round((category['weight'] / total_weight) * 100, 1)
-        
+
         return True, rubric_categories, ""
-        
+
     except json.JSONDecodeError as e:
-        return False, [], f"Failed to parse AI response as JSON: {str(e)}"
+        return False, [], f"Failed to parse AI response as JSON: {e!s}"
     except Exception as e:
-        return False, [], f"Error generating rubric: {str(e)}"
+        return False, [], f"Error generating rubric: {e!s}"
 
 
-def get_rubric_template(template_type: str) -> List[Dict[str, any]]:
+def get_rubric_template(template_type: str) -> list[dict[str, Any]]:
     """
     Get a pre-defined rubric template for common assignment types.
-    
+
     Args:
         template_type: Type of template (essay, research, presentation, code)
-    
+
     Returns:
         List of rubric categories with name, description, weight
     """
-    
+
     templates = {
         "essay": [
             {
@@ -245,46 +248,46 @@ def get_rubric_template(template_type: str) -> List[Dict[str, any]]:
             }
         ]
     }
-    
+
     return templates.get(template_type, templates["essay"])
 
 
-def extract_rubric_from_text(text: str) -> Tuple[bool, List[Dict[str, any]], str]:
+def extract_rubric_from_text(text: str) -> tuple[bool, list[dict[str, Any]], str]:
     """
     Try to extract an existing rubric from assignment specification text.
-    
+
     Args:
         text: The assignment specification text
-    
+
     Returns:
         Tuple of (success, rubric_categories, error_message)
     """
-    
+
     # Check if text seems to contain a rubric
     rubric_indicators = [
-        "rubric", "grading criteria", "evaluation criteria", 
+        "rubric", "grading criteria", "evaluation criteria",
         "assessment criteria", "scoring guide", "grading scale"
     ]
-    
+
     has_rubric = any(indicator in text.lower() for indicator in rubric_indicators)
-    
+
     if not has_rubric:
         return False, [], "No rubric found in specification"
-    
+
     # Use AI to extract the rubric
     prompt = f"""
     Extract the grading rubric from the following assignment specification.
     Look for sections that describe evaluation criteria, point distributions, or grading categories.
-    
+
     Text:
     {text}
-    
+
     If a rubric is found, convert it to a JSON array with categories.
     Each category should have: name, description, and weight (as a percentage).
-    
+
     If percentages/points are given, convert to percentages that sum to 100.
     If no weights are given, distribute evenly.
-    
+
     Return ONLY a valid JSON array in this format:
     [
         {{
@@ -293,22 +296,27 @@ def extract_rubric_from_text(text: str) -> Tuple[bool, List[Dict[str, any]], str
             "weight": 25
         }}
     ]
-    
+
     If no clear rubric is found, return: {{"error": "No rubric found"}}
     """
-    
+
     try:
-        ai_client = get_ai_client()
-        
-        response = ai_client.generate(
-            prompt=prompt,
-            system_prompt="You are an expert at extracting rubrics from academic documents. Return only valid JSON.",
+        # Extract rubric using litellm
+        response = litellm.completion(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert at extracting rubrics from academic documents. Return only valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=1500,
             temperature=0.3  # Lower temperature for extraction task
         )
-        
+
+        # Extract the response text
+        response_text = response.choices[0].message.content
+
         # Clean and parse response
-        cleaned_response = response.strip()
+        cleaned_response = response_text.strip()
         if cleaned_response.startswith("```json"):
             cleaned_response = cleaned_response[7:]
         if cleaned_response.startswith("```"):
@@ -316,13 +324,13 @@ def extract_rubric_from_text(text: str) -> Tuple[bool, List[Dict[str, any]], str
         if cleaned_response.endswith("```"):
             cleaned_response = cleaned_response[:-3]
         cleaned_response = cleaned_response.strip()
-        
+
         parsed = json.loads(cleaned_response)
-        
+
         # Check if it's an error response
         if isinstance(parsed, dict) and "error" in parsed:
             return False, [], parsed["error"]
-        
+
         # Validate as rubric categories
         if isinstance(parsed, list) and len(parsed) > 0:
             # Ensure weights sum to 100
@@ -330,10 +338,10 @@ def extract_rubric_from_text(text: str) -> Tuple[bool, List[Dict[str, any]], str
             if total_weight > 0 and abs(total_weight - 100) > 0.1:
                 for cat in parsed:
                     cat['weight'] = round((cat.get('weight', 100/len(parsed)) / total_weight) * 100, 1)
-            
+
             return True, parsed, ""
-        
+
         return False, [], "Could not extract valid rubric structure"
-        
+
     except Exception as e:
-        return False, [], f"Error extracting rubric: {str(e)}"
+        return False, [], f"Error extracting rubric: {e!s}"

@@ -118,7 +118,7 @@ class APIKeySetup:
                 "max_tokens": 10,
                 "temperature": 0,
             }
-            
+
             # Add base URL for custom providers
             if provider == "custom" and base_url:
                 completion_params["api_base"] = base_url
@@ -161,13 +161,13 @@ class APIKeySetup:
 
         # Save the key(s)
         set_key(str(self.env_path), env_var, api_key)
-        
+
         # Save additional keys if needed
         if provider == "ollama" and ollama_key:
             set_key(str(self.env_path), provider_info["env_var_key"], ollama_key)
         elif provider == "custom" and base_url:
             set_key(str(self.env_path), provider_info["env_var_base"], base_url)
-            
+
         print(f"✅ Saved {provider_info['name']} configuration to .env file")
 
     def get_current_keys(self) -> dict[str, Optional[str]]:
@@ -258,7 +258,7 @@ class APIKeySetup:
         # Get the API key/URL
         base_url = None
         ollama_key = None
-        
+
         if provider == "ollama":
             default = info.get("default_value", "")
             api_value = input(f"Enter Ollama API URL (default: {default}): ").strip()
