@@ -10,10 +10,10 @@ from fasthtml import common as fh
 def get_score_color(score: float) -> str:
     """
     Get color based on score.
-    
+
     Args:
         score: Score value (0-100)
-        
+
     Returns:
         Color name for styling
     """
@@ -32,10 +32,10 @@ def get_score_color(score: float) -> str:
 def get_score_icon(score: float) -> str:
     """
     Get emoji icon based on score.
-    
+
     Args:
         score: Score value (0-100)
-        
+
     Returns:
         Emoji icon
     """
@@ -54,12 +54,12 @@ def get_score_icon(score: float) -> str:
 def score_bar(score: float, max_score: float = 100, height: str = "h-2") -> fh.Div:
     """
     Create a visual score bar.
-    
+
     Args:
         score: Current score
         max_score: Maximum possible score
         height: Height class for the bar
-        
+
     Returns:
         Div element with score bar
     """
@@ -102,7 +102,7 @@ def rubric_category_card(
 ) -> fh.Div:
     """
     Create an enhanced rubric category feedback card.
-    
+
     Args:
         category_name: Name of the rubric category
         category_description: Description of what's being evaluated
@@ -110,7 +110,7 @@ def rubric_category_card(
         feedback_text: Detailed feedback text
         weight: Weight percentage of this category
         show_details: Whether to show detailed feedback
-        
+
     Returns:
         Div element with formatted feedback card
     """
@@ -195,7 +195,7 @@ def overall_feedback_summary(
 ) -> fh.Div:
     """
     Create an overall feedback summary with visual elements.
-    
+
     Args:
         overall_score: Overall assignment score
         category_scores: Dictionary of category scores and info
@@ -203,7 +203,7 @@ def overall_feedback_summary(
         improvements: List of improvement suggestions
         draft_version: Current draft number
         max_drafts: Maximum allowed drafts
-        
+
     Returns:
         Div element with overall feedback summary
     """
@@ -360,11 +360,11 @@ def draft_progress_indicator(
 ) -> fh.Div:
     """
     Create a visual progress indicator for draft improvements.
-    
+
     Args:
         drafts_data: List of draft data with scores
         current_draft: Current draft index
-        
+
     Returns:
         Div element with progress visualization
     """

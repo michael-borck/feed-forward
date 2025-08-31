@@ -28,14 +28,14 @@ from app.utils.ui import (
 def render_enhanced_feedback(draft, feedback_list, rubric_cats, all_drafts, max_drafts):
     """
     Render enhanced feedback visualization for a draft.
-    
+
     Args:
         draft: The draft object
         feedback_list: List of aggregated feedback for this draft
         rubric_cats: List of rubric categories
         all_drafts: All drafts for this assignment (for progress tracking)
         max_drafts: Maximum allowed drafts for the assignment
-    
+
     Returns:
         fh.Div element with enhanced feedback visualization
     """
