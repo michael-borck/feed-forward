@@ -6,10 +6,9 @@ from fasthtml import common as fh
 from starlette.responses import FileResponse
 
 from app import rt, student_required
-from app.models.assignment import assignments
+from app.models.assignment import assignments, rubric_categories, rubrics
 from app.models.course import courses, enrollments
 from app.models.feedback import aggregated_feedback, drafts
-from app.models.rubric import rubric_categories, rubrics
 from app.models.user import Role, users
 from app.services.progress_analyzer import ProgressAnalyzer
 from app.utils.feedback_formatter import (
