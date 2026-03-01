@@ -1,5 +1,9 @@
 # FeedForward
 
+<!-- BADGES:START -->
+[![ai](https://img.shields.io/badge/-ai-ff6f00?style=flat-square)](https://github.com/topics/ai) [![education](https://img.shields.io/badge/-education-blue?style=flat-square)](https://github.com/topics/education) [![fastapi](https://img.shields.io/badge/-fastapi-009688?style=flat-square)](https://github.com/topics/fastapi) [![feedback](https://img.shields.io/badge/-feedback-blue?style=flat-square)](https://github.com/topics/feedback) [![git](https://img.shields.io/badge/-git-blue?style=flat-square)](https://github.com/topics/git) [![python](https://img.shields.io/badge/-python-3776ab?style=flat-square)](https://github.com/topics/python) [![shell](https://img.shields.io/badge/-shell-blue?style=flat-square)](https://github.com/topics/shell) [![sqlite](https://img.shields.io/badge/-sqlite-blue?style=flat-square)](https://github.com/topics/sqlite) [![tailwindcss](https://img.shields.io/badge/-tailwindcss-blue?style=flat-square)](https://github.com/topics/tailwindcss) [![web-app](https://img.shields.io/badge/-web--app-blue?style=flat-square)](https://github.com/topics/web-app)
+<!-- BADGES:END -->
+
 FeedForward is an advanced AI-powered platform for providing formative feedback on student assignments. The system leverages multiple AI models with sophisticated aggregation methods to generate comprehensive, constructive feedback aligned with custom rubric criteria.
 
 ## 🌟 Key Features
