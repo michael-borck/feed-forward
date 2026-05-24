@@ -111,3 +111,48 @@ def test_estimate_scores_for_draft():
     assert est[1]["score"] == 60.0
     assert est[1]["confidence"] == 1.0
     assert est[2]["score"] == 80.0
+
+
+# ---- auto-match (suggest_rules_for_category / category_estimates) ----
+
+def test_suggest_matches_keywords():
+    assert [r.signal_name for r in signal_scorer.suggest_rules_for_category("Clarity")] == ["flesch_score"]
+    assert [r.signal_name for r in signal_scorer.suggest_rules_for_category("Structure & Organisation")] == [
+        "paragraph_count", "sentence_variety"]
+    assert [r.signal_name for r in signal_scorer.suggest_rules_for_category("Vocabulary")] == ["vocabulary_richness"]
+    assert [r.signal_name for r in signal_scorer.suggest_rules_for_category("Writing style")] == [
+        "passive_voice_percentage", "transition_words"]
+
+
+def test_suggest_no_match_returns_empty():
+    assert signal_scorer.suggest_rules_for_category("Argument depth") == []
+    assert signal_scorer.suggest_rules_for_category("") == []
+
+
+def test_category_estimates_auto_match():
+    from app.models.signals import Signal, signals
+
+    did = 7
+    signals.insert(Signal(draft_id=did, source="document-analyser",
+                          name="flesch_score", value=45.0, raw="", created_at="t"))
+    cats = [SimpleNamespace(id=1, name="Clarity"), SimpleNamespace(id=2, name="Argument depth")]
+    est = signal_scorer.category_estimates(did, cats)
+    assert est[1]["suggested"] is True
+    assert est[1]["score"] == 72.0  # flesch 45 -> band [30,50) -> 72
+    assert 2 not in est  # no signal maps to "Argument depth"
+
+
+def test_category_estimates_prefers_persisted():
+    from app.models.signal_rules import SignalRule, signal_rules
+    from app.models.signals import Signal, signals
+
+    did = 8
+    signals.insert(Signal(draft_id=did, source="document-analyser",
+                          name="flesch_score", value=45.0, raw="", created_at="t"))
+    signal_rules.insert(SignalRule(
+        rubric_category_id=1, signal_source="document-analyser", signal_name="flesch_score",
+        transform=json.dumps({"type": "linear", "in": [0, 100], "out": [0, 100]}),
+        weight=1.0, enabled=True))
+    est = signal_scorer.category_estimates(did, [SimpleNamespace(id=1, name="Clarity")])
+    assert est[1]["suggested"] is False
+    assert est[1]["score"] == 45.0  # persisted linear (45) overrides suggested band (72)

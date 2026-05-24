@@ -117,3 +117,82 @@ def estimate_scores_for_draft(draft_id: int) -> dict[int, dict[str, float]]:
                 "confidence": round(confidence, 2),
             }
     return estimates
+
+
+# ---------------------------------------------------------------------------
+# Auto-match: propose signal->category rules from a rubric category's name.
+# Instructors confirm / override these (ADR 012 "instructor-controlled").
+# ---------------------------------------------------------------------------
+
+# Keyword(s) in a rubric category name -> (signal_name, transform) suggestions.
+_SUGGESTIONS: list[tuple[tuple[str, ...], list[tuple[str, dict[str, Any]]]]] = [
+    (("clarity", "readab", "clear"),
+     [("flesch_score",
+       {"type": "band", "bands": [[None, 30, 55], [30, 50, 72], [50, 70, 85], [70, None, 92]]})]),
+    (("structure", "organi", "cohesion", "coheren"),
+     [("paragraph_count",
+       {"type": "band", "bands": [[None, 3, 50], [3, 5, 75], [5, None, 90]]}),
+      ("sentence_variety", {"type": "linear", "in": [0, 100], "out": [0, 100]})]),
+    (("vocab", "lexic", "word choice", "diction"),
+     [("vocabulary_richness", {"type": "linear", "in": [0, 100], "out": [0, 100]})]),
+    (("style", "writing", "grammar", "mechanic", "expression"),
+     [("passive_voice_percentage", {"type": "linear", "in": [0, 40], "out": [100, 0]}),
+      ("transition_words", {"type": "linear", "in": [0, 60], "out": [40, 100]})]),
+]
+
+
+def suggest_rules_for_category(category_name: str) -> list[Any]:
+    """Auto-matched (unsaved) rules for a rubric category, by name keywords.
+
+    Returns rule-shaped objects (``.signal_name``/``.transform``/``.weight``/
+    ``.enabled``) the scorer can consume directly; empty if nothing matches
+    (e.g. "Argument depth" — a category signals can't assess on the surface).
+    """
+    from types import SimpleNamespace
+
+    name = (category_name or "").lower()
+    for keywords, sigs in _SUGGESTIONS:
+        if any(k in name for k in keywords):
+            return [
+                SimpleNamespace(
+                    signal_source="document-analyser",
+                    signal_name=signal_name,
+                    transform=transform,
+                    weight=1.0,
+                    enabled=True,
+                )
+                for signal_name, transform in sigs
+            ]
+    return []
+
+
+def category_estimates(draft_id: int, categories: Any) -> dict[int, dict[str, Any]]:
+    """
+    Per-category estimates for a draft. Prefers persisted ``signal_rules`` for a
+    category; otherwise falls back to auto-matched suggestions.
+
+    ``categories`` is any iterable of objects with ``.id`` and ``.name``.
+    Returns ``{category_id: {"score", "confidence", "suggested"}}`` for every
+    category that produced an estimate.
+    """
+    from app.models.signal_rules import signal_rules
+    from app.models.signals import signals
+
+    signals_by_name = {s.name: s.value for s in signals() if s.draft_id == draft_id}
+
+    persisted: dict[int, list[Any]] = {}
+    for rule in signal_rules():
+        persisted.setdefault(rule.rubric_category_id, []).append(rule)
+
+    out: dict[int, dict[str, Any]] = {}
+    for category in categories:
+        is_suggested = category.id not in persisted
+        rules = persisted.get(category.id) or suggest_rules_for_category(category.name)
+        score, confidence = score_category(rules, signals_by_name)
+        if score is not None:
+            out[category.id] = {
+                "score": round(score, 1),
+                "confidence": round(confidence, 2),
+                "suggested": is_suggested,
+            }
+    return out

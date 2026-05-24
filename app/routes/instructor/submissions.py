@@ -601,6 +601,53 @@ def instructor_submission_signals(session, draft_id: int):
 
     draft_signals = get_signals_for_draft(draft_id)
 
+    # Estimated rubric scores from signals (auto-matched; instructor reviews/adjusts).
+    from app.models.assignment import rubric_categories, rubrics
+    from app.services import signal_scorer
+
+    rubric = next((r for r in rubrics() if r.assignment_id == draft.assignment_id), None)
+    categories = (
+        [c for c in rubric_categories() if c.rubric_id == rubric.id] if rubric else []
+    )
+    estimates = signal_scorer.category_estimates(draft_id, categories) if categories else {}
+
+    if categories and estimates:
+        est_rows = []
+        for cat in categories:
+            e = estimates.get(cat.id)
+            if e:
+                badge = "auto-suggested" if e["suggested"] else "instructor-set"
+                value = fh.Span(
+                    f"{e['score']:.0f} ",
+                    fh.Span(
+                        f"· {badge} · conf {e['confidence']:.2f}",
+                        cls="text-xs text-gray-400",
+                    ),
+                    cls="text-sm font-semibold text-gray-900",
+                )
+            else:
+                value = fh.Span(
+                    "— LLM only (no signal maps here)", cls="text-sm text-gray-400"
+                )
+            est_rows.append(
+                fh.Div(
+                    fh.Span(cat.name, cls="text-sm text-gray-600"),
+                    value,
+                    cls="flex items-center justify-between py-2 border-b border-gray-100 last:border-0",
+                )
+            )
+        estimates_section = fh.Div(
+            fh.H4("Estimated rubric scores", cls="font-semibold text-gray-900 mb-1"),
+            fh.P(
+                "Auto-matched from signals — review and adjust; not a mark.",
+                cls="text-xs text-gray-400 mb-2",
+            ),
+            fh.Div(*est_rows),
+            cls="bg-white p-6 rounded-lg shadow mb-6 border-l-4 border-emerald-400",
+        )
+    else:
+        estimates_section = fh.Div()
+
     by_source: dict[str, list] = {}
     for s in draft_signals:
         by_source.setdefault(s.source, []).append(s)
@@ -654,6 +701,7 @@ def instructor_submission_signals(session, draft_id: int):
             "for review, not a score (ADR 012).",
             cls="text-sm text-gray-500 mb-4",
         ),
+        estimates_section,
         body,
         fh.A(
             "Run extraction now",
