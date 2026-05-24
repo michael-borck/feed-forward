@@ -192,6 +192,14 @@ change needed there.)
 - Show estimated per-category signal scores next to LLM scores; confirm aggregation
   blends them.
 - **Exit:** a draft shows LLM score, signal score, and blended aggregate per category.
+- **✅ Landed 2026-05-24:** `signal_rules` model + `signal_scorer` (band/linear
+  transforms, weighted per-category score + confidence); auto-match signals→categories
+  by name (`suggest_rules_for_category`); read-only estimates on the instructor panel;
+  synthetic Signal Engine run (`signal_evidence.produce_signal_run`, sentinel
+  `model_id=-1`) blended into live aggregation in both paths (best-effort; auto-release
+  kept). 32 tests green. **Deferred:** A3 handler / EvidenceSource / `db_query` deepening
+  (task 13); `pending_review` + instructor approval UI (S3); confirm/override rules UI;
+  sentiment signals (await the lens semantic-tier fix release).
 
 ### S3 — Instructor review/adjust (old Phase 4.1)
 - Wire `AggregatedFeedback.status` (pending_review → approved → released) and
