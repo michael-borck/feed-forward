@@ -5,7 +5,6 @@ Instructor submission review and feedback management routes
 import builtins
 import contextlib
 from datetime import datetime
-from typing import Optional
 
 from fasthtml import common as fh
 from fastlite import NotFoundError
@@ -14,10 +13,8 @@ from app import instructor_required, rt
 from app.models.assignment import assignments
 from app.models.course import courses
 from app.models.feedback import (
-    Feedback,
     aggregated_feedback,
     drafts,
-    feedbacks,
     model_runs,
 )
 from app.models.user import Role, users
@@ -554,7 +551,7 @@ _SIGNAL_LABELS = {
     "paragraph_count": "Paragraph count",
     "avg_words_per_sentence": "Avg words / sentence",
     "flesch_score": "Flesch reading ease",
-    "flesch_kincaid_grade": "Flesch–Kincaid grade",
+    "flesch_kincaid_grade": "Flesch-Kincaid grade",
     "passive_voice_percentage": "Passive voice %",
     "sentence_variety": "Sentence variety",
     "academic_tone": "Academic tone",
@@ -740,7 +737,6 @@ def instructor_submission_signals_extract(session, draft_id: int):
 @instructor_required
 def instructor_feedback_review(session, draft_id: int):
     """Review and edit AI-generated feedback before approval"""
-    import json
 
     # Get current user
     user = users[session["auth"]]
@@ -755,11 +751,7 @@ def instructor_feedback_review(session, draft_id: int):
     except NotFoundError:
         return fh.RedirectResponse("/instructor/dashboard", status_code=303)
 
-    # Check if feedback is already approved
-    all_feedback = feedbacks()
-    existing_feedback = [f for f in all_feedback if f.draft_id == draft_id]
-    if existing_feedback and existing_feedback[0].instructor_approved:
-        return fh.RedirectResponse(f"/instructor/submissions/{draft_id}", status_code=303)
+    # Re-review is allowed; approval state lives on each AggregatedFeedback row.
 
     # Get aggregated feedback
     all_agg_feedback = aggregated_feedback()
@@ -777,84 +769,83 @@ def instructor_feedback_review(session, draft_id: int):
             cls="max-w-2xl mx-auto p-6",
         )
 
-    af = agg_feedback[0]
-    agg_scores = {}
-    if af.aggregated_scores:
-        with contextlib.suppress(builtins.BaseException):
-            agg_scores = json.loads(af.aggregated_scores)
+    # Per-category review cards: editable score + feedback, with signal estimate context.
+    from app.models.assignment import rubric_categories as _rcats
+    from app.services import signal_scorer
 
-    # Build feedback form
-    feedback_form = fh.Form(
-        # Overall Score
-        fh.Div(
-            fh.Label(
-                "Overall Score (%)",
-                for_="overall_score",
-                cls="block text-sm font-medium text-gray-700 mb-2",
-            ),
-            fh.Input(
-                type="number",
-                id="overall_score",
-                name="overall_score",
-                value=str(int(agg_scores.get("overall_score", 0))),
-                min="0",
-                max="100",
-                required=True,
-                cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-            ),
-            cls="mb-4",
-        ),
-        # Feedback Text
-        fh.Div(
-            fh.Label(
-                "Feedback",
-                for_="feedback_text",
-                cls="block text-sm font-medium text-gray-700 mb-2",
-            ),
-            fh.Textarea(
-                af.aggregated_feedback or "",
-                id="feedback_text",
-                name="feedback_text",
-                rows=10,
-                required=True,
-                cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-            ),
-            fh.P(
-                "Edit the AI-generated feedback to personalize it for the student.",
-                cls="text-sm text-gray-500 mt-1",
-            ),
-            cls="mb-6",
-        ),
-        # Approval Checkbox
-        fh.Div(
-            fh.Label(
-                cls="flex items-center",
-                children=[
-                    fh.Input(
-                        type="checkbox",
-                        name="approve",
-                        value="true",
-                        cls="mr-2",
+    cat_names = {c.id: c.name for c in _rcats()}
+    cats_for_draft = [c for c in _rcats() if any(a.category_id == c.id for a in agg_feedback)]
+    estimates = signal_scorer.category_estimates(draft_id, cats_for_draft)
+
+    category_cards = []
+    for af in agg_feedback:
+        est = estimates.get(af.category_id)
+        est_note = (
+            f"signal estimate {est['score']:.0f} (conf {est['confidence']:.2f})"
+            if est
+            else "no signal estimate"
+        )
+        status_note = "released" if af.status == "approved" else "pending review"
+        category_cards.append(
+            fh.Div(
+                fh.Div(
+                    fh.H4(
+                        cat_names.get(af.category_id, f"Category {af.category_id}"),
+                        cls="font-semibold text-gray-900",
                     ),
                     fh.Span(
-                        "Approve this feedback for student viewing",
-                        cls="text-sm text-gray-700",
+                        f"{status_note} · {est_note}", cls="text-xs text-gray-400"
                     ),
-                ],
-            ),
-            cls="mb-6",
-        ),
-        # Submit buttons
+                    cls="flex items-center justify-between mb-2",
+                ),
+                fh.Div(
+                    fh.Label(
+                        "Score (0-100)",
+                        for_=f"score_{af.id}",
+                        cls="block text-sm font-medium text-gray-700 mb-1",
+                    ),
+                    fh.Input(
+                        type="number",
+                        id=f"score_{af.id}",
+                        name=f"score_{af.id}",
+                        value=str(round(af.aggregated_score or 0)),
+                        min="0",
+                        max="100",
+                        cls="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    ),
+                    cls="mb-3",
+                ),
+                fh.Div(
+                    fh.Label(
+                        "Feedback",
+                        for_=f"feedback_{af.id}",
+                        cls="block text-sm font-medium text-gray-700 mb-1",
+                    ),
+                    fh.Textarea(
+                        af.feedback_text or "",
+                        id=f"feedback_{af.id}",
+                        name=f"feedback_{af.id}",
+                        rows=5,
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    ),
+                    cls="mb-1",
+                ),
+                cls="bg-white p-5 rounded-lg shadow mb-4",
+            )
+        )
+
+    feedback_form = fh.Form(
+        *category_cards,
         fh.Div(
             fh.Button(
-                "Save & Send to Student",
+                "Approve & release to student",
                 type="submit",
                 name="action",
                 value="approve",
                 cls="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors",
             ),
             fh.Button(
-                "Save Draft",
+                "Save draft (keep hidden)",
                 type="submit",
                 name="action",
                 value="save",
@@ -862,14 +853,13 @@ def instructor_feedback_review(session, draft_id: int):
             ),
             fh.A(
                 "Cancel",
-                href=f"/instructor/submissions/{draft_id}",
+                href=f"/instructor/submissions/{draft_id}/signals",
                 cls="ml-3 px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
             ),
             cls="flex items-center",
         ),
-        action=f"/instructor/submissions/{draft_id}/review",
+        action=f"/instructor/submissions/{draft_id}/review/save",
         method="post",
-        cls="bg-white p-6 rounded-lg shadow",
     )
 
     # Build main content
@@ -908,21 +898,12 @@ def instructor_feedback_review(session, draft_id: int):
     )
 
 
-@rt("/instructor/submissions/{draft_id}/review")
+@rt("/instructor/submissions/{draft_id}/review/save")
 @instructor_required
-def instructor_feedback_save(
-    session,
-    draft_id: int,
-    overall_score: int,
-    feedback_text: str,
-    action: str = "save",
-    approve: Optional[str] = None,
-):
-    """Save reviewed feedback"""
-    # Get current user
+async def instructor_feedback_save(session, request, draft_id: int, action: str = "save"):
+    """Save per-category reviewed feedback; 'approve' releases it to the student."""
     user = users[session["auth"]]
 
-    # Verify permissions
     try:
         draft = drafts[draft_id]
         assignment = assignments[draft.assignment_id]
@@ -932,57 +913,18 @@ def instructor_feedback_save(
     except NotFoundError:
         return fh.RedirectResponse("/instructor/dashboard", status_code=303)
 
-    # Check if feedback already exists
-    all_feedback = feedbacks()
-    existing_feedback = [f for f in all_feedback if f.draft_id == draft_id]
+    form = await request.form()
+    approving = action == "approve"
 
-    if existing_feedback:
-        # Update existing feedback
-        fb = existing_feedback[0]
-        fb.overall_score = overall_score
-        fb.general_feedback = feedback_text.strip()
-        fb.instructor_approved = action == "approve" or approve == "true"
-        fb.approved_at = datetime.now() if fb.instructor_approved else None
-        fb.approved_by = user.email if fb.instructor_approved else None
-        feedbacks.update(fb)
-    else:
-        # Create new feedback record
-        new_feedback = Feedback(
-            id=None,
-            draft_id=draft_id,
-            overall_score=overall_score,
-            general_feedback=feedback_text.strip(),
-            rubric_scores="{}",  # Empty for now
-            instructor_approved=(action == "approve" or approve == "true"),
-            approved_at=datetime.now()
-            if (action == "approve" or approve == "true")
-            else None,
-            approved_by=user.email
-            if (action == "approve" or approve == "true")
-            else None,
-            created_at=datetime.now(),
-        )
-        feedbacks.insert(new_feedback)
+    from app.services import feedback_review
 
-    # Update aggregated feedback status
-    all_agg_feedback = aggregated_feedback()
-    for af in all_agg_feedback:
-        if af.draft_id == draft_id:
-            af.status = (
-                "approved"
-                if (action == "approve" or approve == "true")
-                else "pending_review"
-            )
-            aggregated_feedback.update(af)
-            break
+    feedback_review.apply_review(draft_id, dict(form), user.email, approving)
 
-    # Redirect based on action
-    if action == "approve" or approve == "true":
+    if approving:
         return fh.RedirectResponse(
-            f"/instructor/assignments/{assignment.assignment_id}/submissions",
+            f"/instructor/assignments/{draft.assignment_id}/submissions",
             status_code=303,
         )
-    else:
-        return fh.RedirectResponse(
-            f"/instructor/submissions/{draft_id}/review", status_code=303
-        )
+    return fh.RedirectResponse(
+        f"/instructor/submissions/{draft_id}/review", status_code=303
+    )

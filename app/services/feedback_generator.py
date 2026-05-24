@@ -641,8 +641,8 @@ class FeedbackGenerator:
                 feedback_text=feedback_text,
                 edited_by_instructor=False,
                 instructor_email="",
-                release_date=datetime.now().isoformat(),
-                status="approved",
+                release_date="",
+                status="pending_review",
             )
             aggregated_feedback.insert(agg_feedback)
 

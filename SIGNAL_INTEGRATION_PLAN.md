@@ -206,6 +206,17 @@ change needed there.)
   `edited_by_instructor` into a review UI.
 - Instructor adjusts the mark with signals visible, then releases to the student.
 - **Exit:** nothing reaches the student until an instructor approves.
+- **✅ Landed 2026-05-24:** feedback now generated as `pending_review`;
+  `app/services/feedback_review.py` (release filter + `apply_review`); rebuilt
+  per-category instructor review UI (`/review` GET + `/review/save` POST) showing
+  signals + estimate, editable score/feedback, Approve&release / Save-draft;
+  student view gated to released feedback with an "awaiting review" state, and
+  `render_enhanced_feedback` rewritten for the real per-category schema. Also fixed
+  the root cause that broke **all** async POST handlers (the auth decorators were
+  sync wrappers — now async-aware in `app/__init__.py`), which also repairs student
+  submit. Verified end-to-end in the running app (pending → approve → released).
+  Note: same-path GET+POST doesn't dispatch by method in FastHTML here, so POST
+  handlers need a distinct path (or to be named `post`).
 
 ### S4 — Generalise across types
 - code → `code-analyser` (`:8004`); citations → `cite-sight` (HTTP); route everything

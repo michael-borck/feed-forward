@@ -53,8 +53,9 @@ async def test_aggregate_feedback_averages_category_scores():
     assert len(agg) == 1
     assert agg[0].category_id == cid
     assert agg[0].aggregated_score == 70.0  # mean(60, 80)
-    # Current behaviour. The refactor will flip this to "pending_review".
-    assert agg[0].status == "approved"
+    # Feedback is gated for instructor review before students see it (approval gate).
+    assert agg[0].status == "pending_review"
+    assert agg[0].release_date == ""
 
 
 async def test_aggregate_only_counts_successful_runs():

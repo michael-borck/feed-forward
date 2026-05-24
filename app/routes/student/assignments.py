@@ -8,7 +8,7 @@ from starlette.responses import FileResponse
 from app import rt, student_required
 from app.models.assignment import assignments, rubric_categories, rubrics
 from app.models.course import courses, enrollments
-from app.models.feedback import aggregated_feedback, drafts
+from app.models.feedback import drafts
 from app.models.user import Role, users
 from app.services.progress_analyzer import ProgressAnalyzer
 from app.utils.feedback_formatter import (
@@ -42,187 +42,104 @@ def render_enhanced_feedback(draft, feedback_list, rubric_cats, all_drafts, max_
     Returns:
         fh.Div element with enhanced feedback visualization
     """
-    import json
-
     if not feedback_list:
         return fh.P("No feedback available yet.", cls="text-gray-500 italic")
 
-    # Get the primary feedback (assuming first in list is aggregated)
-    primary_feedback = feedback_list[0]
+    # feedback_list = AggregatedFeedback rows (one per rubric category) for this draft.
+    by_category = {fb.category_id: fb for fb in feedback_list}
+    scores = [fb.aggregated_score for fb in feedback_list if fb.aggregated_score is not None]
+    overall_score = round(sum(scores) / len(scores), 1) if scores else 0.0
 
-    # Parse scores and feedback data
-    try:
-        # Parse the overall score
-        overall_score = getattr(primary_feedback, 'overall_score', 75.0)
-        if isinstance(overall_score, str):
-            try:
-                overall_score = float(overall_score)
-            except (ValueError, TypeError):
-                overall_score = 75.0
+    # Combined feedback text drives the strengths/improvements summary + raw view.
+    combined_text = "\n\n".join(fb.feedback_text for fb in feedback_list if fb.feedback_text)
 
-        # Parse category scores if available
-        category_scores = {}
-        if hasattr(primary_feedback, 'category_scores'):
-            if isinstance(primary_feedback.category_scores, str):
-                try:
-                    category_scores = json.loads(primary_feedback.category_scores)
-                except (json.JSONDecodeError, TypeError):
-                    category_scores = {}
-            elif isinstance(primary_feedback.category_scores, dict):
-                category_scores = primary_feedback.category_scores
+    strengths: list[str] = []
+    improvements: list[str] = []
+    current_section = None
+    for line in combined_text.split("\n"):
+        line = line.strip()
+        low = line.lower()
+        if low.startswith("strength"):
+            current_section = "strengths"
+        elif low.startswith("areas for improvement") or low.startswith("improvement"):
+            current_section = "improvements"
+        elif line.startswith(("•", "-", "*")):
+            item = line.lstrip("•-* ").strip()
+            if item and current_section == "strengths":
+                strengths.append(item)
+            elif item and current_section == "improvements":
+                improvements.append(item)
 
-        # Parse strengths and improvements
-        strengths = []
-        improvements = []
-
-        feedback_text = getattr(primary_feedback, 'feedback', '')
-        if feedback_text:
-            # Extract strengths and improvements from feedback text
-            lines = feedback_text.split('\n')
-            current_section = None
-
-            for line in lines:
-                line = line.strip()
-                if 'strength' in line.lower() or 'well done' in line.lower():
-                    current_section = 'strengths'
-                elif 'improvement' in line.lower() or 'consider' in line.lower() or 'suggestion' in line.lower():
-                    current_section = 'improvements'
-                elif line.startswith('•') or line.startswith('-') or line.startswith('*'):
-                    cleaned_line = line.lstrip('•-* ').strip()
-                    if cleaned_line:
-                        if current_section == 'strengths':
-                            strengths.append(cleaned_line)
-                        elif current_section == 'improvements':
-                            improvements.append(cleaned_line)
-
-        # If no structured feedback, use general feedback
-        if not strengths and not improvements and feedback_text:
-            # Split feedback into sentences and take first few as summary
-            sentences = [s.strip() for s in feedback_text.split('.') if s.strip()]
-            if sentences:
-                strengths = sentences[:2] if len(sentences) > 1 else sentences
-                improvements = sentences[2:4] if len(sentences) > 3 else []
-
-    except Exception:
-        # Fallback to basic display if parsing fails
-        overall_score = 75.0
-        category_scores = {}
-        strengths = []
-        improvements = []
-
-    # Build category feedback cards if we have rubric categories
+    # Category cards from the real per-category rows.
     category_cards = []
-    if rubric_cats and category_scores:
-        for cat in rubric_cats:
-            cat_name = cat.name
-            cat_score = category_scores.get(cat_name, {})
-
-            if isinstance(cat_score, dict):
-                score_value = cat_score.get('score', 75)
-                feedback_text = cat_score.get('feedback', 'No specific feedback for this category.')
-            else:
-                score_value = float(cat_score) if cat_score else 75
-                feedback_text = f"Score: {score_value}/100"
-
-            category_cards.append(
-                rubric_category_card(
-                    category_name=cat_name,
-                    category_description=cat.description,
-                    score=score_value,
-                    feedback_text=feedback_text,
-                    weight=cat.weight,
-                    show_details=True
-                )
+    for cat in rubric_cats or []:
+        fb = by_category.get(cat.id)
+        if fb is None:
+            continue
+        category_cards.append(
+            rubric_category_card(
+                category_name=cat.name,
+                category_description=cat.description,
+                score=fb.aggregated_score or 0,
+                feedback_text=fb.feedback_text or "No specific feedback for this category.",
+                weight=cat.weight,
+                show_details=True,
             )
-    elif rubric_cats:
-        # If we have rubric but no category scores, show categories with overall score
-        for cat in rubric_cats:
-            category_cards.append(
-                rubric_category_card(
-                    category_name=cat.name,
-                    category_description=cat.description,
-                    score=overall_score,  # Use overall score as fallback
-                    feedback_text="Detailed category feedback will be available soon.",
-                    weight=cat.weight,
-                    show_details=True
-                )
-            )
+        )
 
-    # Prepare draft progress data
-    drafts_data = []
-    for d in sorted(all_drafts, key=lambda x: x.version):
-        draft_score = overall_score if d.id == draft.id else 0
+    # Progress data: this draft's overall score (other drafts handled by progress UI).
+    drafts_data = [
+        {"version": d.version, "score": overall_score if d.id == draft.id else 0}
+        for d in sorted(all_drafts, key=lambda x: x.version)
+    ]
 
-        # Try to get score for other drafts
-        if d.id != draft.id:
-            for fb in feedback_list:
-                if fb.draft_id == d.id:
-                    try:
-                        draft_score = float(getattr(fb, 'overall_score', 0))
-                    except (ValueError, TypeError):
-                        draft_score = 0
-                    break
-
-        drafts_data.append({
-            'version': d.version,
-            'score': draft_score
-        })
-
-    # Build the enhanced feedback display
     return fh.Div(
-        # Overall feedback summary
         overall_feedback_summary(
             overall_score=overall_score,
-            category_scores={cat.name: {'score': category_scores.get(cat.name, {}).get('score', overall_score) if isinstance(category_scores.get(cat.name, {}), dict) else category_scores.get(cat.name, overall_score)} for cat in rubric_cats} if rubric_cats else {},
-            strengths=strengths[:3] if strengths else None,  # Limit to 3 items
-            improvements=improvements[:3] if improvements else None,  # Limit to 3 items
+            category_scores={
+                cat.name: {"score": by_category[cat.id].aggregated_score}
+                for cat in (rubric_cats or [])
+                if cat.id in by_category
+            },
+            strengths=strengths[:3] or None,
+            improvements=improvements[:3] or None,
             draft_version=draft.version,
-            max_drafts=max_drafts
+            max_drafts=max_drafts,
         ),
-
-        # Progress indicator if multiple drafts
         (
             fh.Div(
                 draft_progress_indicator(drafts_data, draft.version - 1),
-                cls="mt-6"
+                cls="mt-6",
             )
             if len(drafts_data) > 1
             else ""
         ),
-
-        # Category breakdown cards
         (
             fh.Div(
                 fh.H3(
                     "Detailed Feedback by Category",
-                    cls="text-xl font-bold text-gray-800 mb-6 mt-8"
+                    cls="text-xl font-bold text-gray-800 mb-6 mt-8",
                 ),
-                fh.Div(
-                    *category_cards,
-                    cls="grid grid-cols-1 lg:grid-cols-2 gap-6"
-                ),
+                fh.Div(*category_cards, cls="grid grid-cols-1 lg:grid-cols-2 gap-6"),
             )
             if category_cards
             else ""
         ),
-
-        # Raw feedback text (collapsible)
         fh.Details(
             fh.Summary(
-                "View Original Feedback Text",
-                cls="cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium mb-2"
+                "View Full Feedback Text",
+                cls="cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium mb-2",
             ),
             fh.Div(
                 fh.Pre(
-                    getattr(primary_feedback, 'feedback', 'No feedback text available'),
-                    cls="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 p-4 rounded-lg"
+                    combined_text or "No feedback text available",
+                    cls="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 p-4 rounded-lg",
                 ),
-                cls="mt-2"
+                cls="mt-2",
             ),
-            cls="mt-8 p-4 bg-white rounded-lg border border-gray-200"
+            cls="mt-8 p-4 bg-white rounded-lg border border-gray-200",
         ),
-
-        cls="space-y-6"
+        cls="space-y-6",
     )
 
 
@@ -451,14 +368,15 @@ def student_assignment_view(session, request, assignment_id: int):
     # Determine if student can submit a new draft
     can_submit = len(assignment_drafts) < assignment.max_drafts
 
-    # Get feedback for drafts
-    draft_feedback = {}
+    # Students only see RELEASED (instructor-approved) feedback; generated-but-
+    # unapproved feedback shows as "pending review" (the approval gate).
+    from app.services import feedback_review
 
+    draft_feedback = {}
+    draft_pending = {}
     for draft in assignment_drafts:
-        draft_feedback[draft.id] = []
-        for feedback in aggregated_feedback():
-            if feedback.draft_id == draft.id:
-                draft_feedback[draft.id].append(feedback)
+        draft_feedback[draft.id] = feedback_review.released_feedback_for_draft(draft.id)
+        draft_pending[draft.id] = feedback_review.has_pending_feedback(draft.id)
 
     # Sort drafts by version
     assignment_drafts.sort(key=lambda d: d.version)
@@ -662,7 +580,9 @@ def student_assignment_view(session, request, assignment_id: int):
                                                 cls="space-y-2",
                                             ) if draft.status == "processing"
                                             else fh.P(
-                                                "Feedback is not available yet.",
+                                                "Your feedback is being reviewed by your instructor and will appear once released."
+                                                if draft_pending.get(draft.id)
+                                                else "Feedback is not available yet.",
                                                 cls="text-gray-500 italic",
                                             ),
                                             cls="text-center p-8 bg-gray-50 rounded-lg",

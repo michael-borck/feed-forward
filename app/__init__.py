@@ -2,6 +2,7 @@
 FeedForward Application Package
 """
 
+import inspect
 import os
 import secrets
 from functools import wraps
@@ -26,10 +27,16 @@ app, rt = fh.fast_app(live=True, debug=True, hdrs=(custom_styles, tailwind_cdn))
 # This ensures proper HTML rendering
 
 
+async def _maybe_await(result):
+    """Await a handler's result only if it's a coroutine — lets these (sync)
+    decorators wrap both sync and async route handlers correctly."""
+    return await result if inspect.isawaitable(result) else result
+
+
 # --- Basic Authentication Decorator ---
 def basic_auth(f):
     @wraps(f)
-    def wrapper(session, *args, **kwargs):
+    async def wrapper(session, *args, **kwargs):
         if "auth" not in session:
             return fh.RedirectResponse("/login", status_code=303)
 
@@ -45,7 +52,7 @@ def basic_auth(f):
             del session["auth"]
             return fh.RedirectResponse("/login", status_code=303)
 
-        return f(session, *args, **kwargs)
+        return await _maybe_await(f(session, *args, **kwargs))
 
     return wrapper
 
@@ -54,7 +61,7 @@ def basic_auth(f):
 def login_required(f):
     """Decorator to require authentication without specific role"""
     @wraps(f)
-    def wrapper(session, *args, **kwargs):
+    async def wrapper(session, *args, **kwargs):
         try:
             from app.models.user import users
             # Just check if user exists in session
@@ -62,7 +69,7 @@ def login_required(f):
         except Exception:
             return fh.RedirectResponse("/login", status_code=303)
 
-        return f(session, *args, **kwargs)
+        return await _maybe_await(f(session, *args, **kwargs))
 
     return wrapper
 
@@ -71,7 +78,7 @@ def login_required(f):
 def role_required(role):
     def decorator(f):
         @wraps(f)
-        def wrapper(session, *args, **kwargs):
+        async def wrapper(session, *args, **kwargs):
             try:
                 from app.models.user import Role, users
 
@@ -88,7 +95,7 @@ def role_required(role):
             except Exception:
                 return fh.RedirectResponse("/login", status_code=303)
 
-            return f(session, *args, **kwargs)
+            return await _maybe_await(f(session, *args, **kwargs))
 
         return wrapper
 
