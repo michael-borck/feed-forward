@@ -178,6 +178,13 @@ class FeedbackGenerator:
                 drafts.update(draft)
                 return False
 
+            # Blend in signal-based evidence as a synthetic run (ADR 012, S2)
+            signal_run_id = await self._produce_signal_evidence(draft.id)
+            if signal_run_id is not None:
+                successful_runs.append(
+                    FeedbackGenerationResult(model_run_id=signal_run_id, success=True)
+                )
+
             # Aggregate feedback from successful runs
             await self._aggregate_feedback(draft, assignment, settings, successful_runs)
 
@@ -493,6 +500,29 @@ class FeedbackGenerator:
             )
             feedback_items.insert(summary_item)
 
+    async def _produce_signal_evidence(self, draft_id: int) -> Optional[int]:
+        """
+        Ensure signals are extracted, then record them as a synthetic ModelRun
+        whose CategoryScores blend into aggregation (ADR 012 §4, phase S2).
+
+        Best-effort: any failure (analyser down, no rubric, etc.) is logged and
+        skipped so signal evidence never blocks LLM feedback.
+        """
+        try:
+            from app.services import signal_evidence, signal_service
+
+            loop = asyncio.get_event_loop()
+            # Idempotent — extracts if the background pass hasn't finished yet.
+            await loop.run_in_executor(
+                None, signal_service.extract_signals_for_draft, draft_id
+            )
+            return await loop.run_in_executor(
+                None, signal_evidence.produce_signal_run, draft_id
+            )
+        except Exception as e:
+            logger.warning("Signal evidence failed for draft %s: %s", draft_id, e)
+            return None
+
     async def _aggregate_feedback(
         self,
         draft: Draft,
@@ -711,11 +741,17 @@ class FeedbackGenerator:
                 model_run.id, assignment.id, feedback_data
             )
 
-            # Aggregate (single run, so just store directly)
+            # Aggregate (mock run + optional signal evidence) (ADR 012, S2)
             mock_result = FeedbackGenerationResult(
                 model_run_id=model_run.id, success=True, feedback_data=feedback_data
             )
-            await self._aggregate_feedback(draft, assignment, settings, [mock_result])
+            runs = [mock_result]
+            signal_run_id = await self._produce_signal_evidence(draft.id)
+            if signal_run_id is not None:
+                runs.append(
+                    FeedbackGenerationResult(model_run_id=signal_run_id, success=True)
+                )
+            await self._aggregate_feedback(draft, assignment, settings, runs)
 
             draft.status = "feedback_ready"
             drafts.update(draft)
