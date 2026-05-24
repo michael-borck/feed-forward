@@ -22,9 +22,10 @@ import pytest
 def _clean_tables():
     """Wipe signal/draft rows between tests so state doesn't leak."""
     from app.models.feedback import drafts
+    from app.models.signal_rules import signal_rules
     from app.models.signals import signals
 
-    for table in (signals, drafts):
+    for table in (signals, signal_rules, drafts):
         for row in list(table()):
             table.delete(row.id)
     yield
