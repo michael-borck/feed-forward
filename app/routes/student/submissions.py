@@ -493,6 +493,14 @@ async def student_assignment_submit_process(
             print(f"Warning: Failed to start feedback generation for draft {draft_id}: {e}")
             # Continue anyway - the draft was saved successfully
 
+        # Extract lens signals in the background while content still exists (ADR 012, S1)
+        try:
+            from app.services.signal_service import queue_signal_extraction
+
+            queue_signal_extraction(draft_id)
+        except Exception as e:
+            print(f"Warning: Failed to start signal extraction for draft {draft_id}: {e}")
+
         # Redirect to the assignment view to see the submitted draft
         return fh.RedirectResponse(
             f"/student/assignments/{assignment_id}",

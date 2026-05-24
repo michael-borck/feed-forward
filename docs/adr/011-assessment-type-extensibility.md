@@ -2,7 +2,10 @@
 
 ## Status
 
-Proposed
+Proposed — **amended by [ADR 012](012-signal-based-assessment-via-lens.md) §6**: the
+handler is slimmed to a DB-free *declaration* seam, `preprocess()` metric computation is
+retired (lens computes metrics), and discovery moves from DB-at-import to in-process
+constants. The `ExternalAssessmentService` vision below is realised via lens HTTP sidecars.
 
 ## Context
 

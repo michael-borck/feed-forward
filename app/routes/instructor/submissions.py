@@ -146,6 +146,11 @@ def instructor_submissions_list(session, assignment_id: int):
                     href=f"/instructor/submissions/{draft.id}",
                     cls="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3",
                 ),
+                fh.A(
+                    "Signals",
+                    href=f"/instructor/submissions/{draft.id}/signals",
+                    cls="text-emerald-600 hover:text-emerald-800 text-sm font-medium mr-3",
+                ),
                 cls="flex items-center",
             )
 
@@ -534,6 +539,152 @@ def instructor_submission_detail(session, draft_id: int):
         main_content,
         user_role=Role.INSTRUCTOR,
         current_path=f"/instructor/submissions/{draft_id}",
+    )
+
+
+# ----------------------------------------------------------------------
+# Signal analysis (ADR 012 / SIGNAL_INTEGRATION_PLAN.md, phase S1)
+# Read-only view of deterministic lens signals for a draft. Lives on its own
+# route rather than the detail view (which references stale ModelRun fields).
+# ----------------------------------------------------------------------
+
+_SIGNAL_LABELS = {
+    "word_count": "Word count",
+    "sentence_count": "Sentence count",
+    "paragraph_count": "Paragraph count",
+    "avg_words_per_sentence": "Avg words / sentence",
+    "flesch_score": "Flesch reading ease",
+    "flesch_kincaid_grade": "Flesch–Kincaid grade",
+    "passive_voice_percentage": "Passive voice %",
+    "sentence_variety": "Sentence variety",
+    "academic_tone": "Academic tone",
+    "transition_words": "Transition words",
+    "hedging_language": "Hedging language",
+    "unique_words": "Unique words",
+    "total_words": "Total words",
+    "vocabulary_richness": "Vocabulary richness",
+}
+
+
+def _signal_row(label: str, value: float):
+    return fh.Div(
+        fh.Span(label, cls="text-sm text-gray-600"),
+        fh.Span(f"{value:.1f}", cls="text-sm font-semibold text-gray-900"),
+        cls="flex items-center justify-between py-2 border-b border-gray-100 last:border-0",
+    )
+
+
+def _verify_draft_ownership(session, draft_id: int):
+    """Return (draft, assignment) if the current instructor owns it, else None."""
+    user = users[session["auth"]]
+    try:
+        draft = drafts[draft_id]
+        assignment = assignments[draft.assignment_id]
+        course = courses[assignment.course_id]
+    except NotFoundError:
+        return None
+    if course.instructor_email != user.email:
+        return None
+    return draft, assignment
+
+
+@rt("/instructor/submissions/{draft_id}/signals")
+@instructor_required
+def instructor_submission_signals(session, draft_id: int):
+    """Read-only view of lens signals extracted for a draft (ADR 012, S1)."""
+    from app.services.signal_service import get_signals_for_draft
+
+    owned = _verify_draft_ownership(session, draft_id)
+    if owned is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+    draft, assignment = owned
+
+    draft_signals = get_signals_for_draft(draft_id)
+
+    by_source: dict[str, list] = {}
+    for s in draft_signals:
+        by_source.setdefault(s.source, []).append(s)
+
+    if draft_signals:
+        panels = []
+        for source, items in by_source.items():
+            rows = [
+                _signal_row(_SIGNAL_LABELS.get(s.name, s.name), s.value)
+                for s in sorted(items, key=lambda x: x.name)
+            ]
+            panels.append(
+                fh.Div(
+                    fh.H4(source, cls="font-semibold text-gray-900 mb-2"),
+                    fh.Div(*rows),
+                    cls="bg-white p-6 rounded-lg shadow mb-6",
+                )
+            )
+        body = fh.Div(*panels)
+    else:
+        body = fh.Div(
+            fh.P(
+                "No signals extracted yet. Signals are computed from the submission "
+                "via the document-analyser service while the draft content is still "
+                "available. If the service was offline at submission time, use the "
+                "button below to retry (only works while the draft content remains).",
+                cls="text-gray-600",
+            ),
+            cls="bg-white p-6 rounded-lg shadow mb-6",
+        )
+
+    main_content = fh.Div(
+        fh.Div(
+            fh.Div(
+                fh.H1("Signal Analysis", cls="text-2xl font-bold text-gray-900"),
+                fh.P(
+                    f"{draft.student_email} · Version {draft.version} · {assignment.title}",
+                    cls="text-gray-600",
+                ),
+                cls="flex-1",
+            ),
+            fh.A(
+                "← Back to Submissions",
+                href=f"/instructor/assignments/{draft.assignment_id}/submissions",
+                cls="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors",
+            ),
+            cls="flex items-center justify-between mb-6",
+        ),
+        fh.P(
+            "Deterministic metrics from the lens analyser family — read-only evidence "
+            "for review, not a score (ADR 012).",
+            cls="text-sm text-gray-500 mb-4",
+        ),
+        body,
+        fh.A(
+            "Run extraction now",
+            href=f"/instructor/submissions/{draft_id}/signals/extract",
+            cls="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors",
+        ),
+        cls="max-w-4xl mx-auto px-4 py-6",
+    )
+
+    return dashboard_layout(
+        "Signal Analysis | FeedForward",
+        fh.Div(),
+        main_content,
+        user_role=Role.INSTRUCTOR,
+        current_path=f"/instructor/submissions/{draft_id}/signals",
+    )
+
+
+@rt("/instructor/submissions/{draft_id}/signals/extract")
+@instructor_required
+def instructor_submission_signals_extract(session, draft_id: int):
+    """Manually (re)run signal extraction for a draft, then show the signals."""
+    from app.services.signal_service import extract_signals_for_draft
+
+    owned = _verify_draft_ownership(session, draft_id)
+    if owned is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    extract_signals_for_draft(draft_id)
+    return fh.RedirectResponse(
+        f"/instructor/submissions/{draft_id}/signals", status_code=303
     )
 
 
