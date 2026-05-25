@@ -30,6 +30,21 @@ from app.models.user import Role, users
 from app.utils.ui import action_button, dashboard_layout, status_badge
 
 
+def _fmt_date(value, fmt="%B %d, %Y"):
+    """Format a date that may be a datetime, an ISO string, or empty/None."""
+    if not value:
+        return "Unknown"
+    if isinstance(value, str):
+        try:
+            value = datetime.fromisoformat(value)
+        except ValueError:
+            return value
+    try:
+        return value.strftime(fmt)
+    except (AttributeError, ValueError):
+        return str(value)
+
+
 def get_instructor_course(course_id, instructor_email):
     """
     Get a course by ID, checking that it belongs to the instructor.
@@ -1060,7 +1075,7 @@ def instructor_assignment_edit(session, assignment_id: int):
             fh.H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-4"),
             fh.P(f"Course: {course.title}", cls="text-gray-600 mb-2"),
             fh.P(
-                f"Created: {assignment.created_at.strftime('%B %d, %Y') if hasattr(assignment, 'created_at') and assignment.created_at else 'Unknown'}",
+                f"Created: {_fmt_date(getattr(assignment, 'created_at', None))}",
                 cls="text-gray-600 mb-4",
             ),
             fh.Div(

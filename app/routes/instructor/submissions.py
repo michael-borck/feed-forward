@@ -2,8 +2,6 @@
 Instructor submission review and feedback management routes
 """
 
-import builtins
-import contextlib
 from datetime import datetime
 
 from fasthtml import common as fh
@@ -330,7 +328,6 @@ def instructor_submissions_list(session, assignment_id: int):
 @instructor_required
 def instructor_submission_detail(session, draft_id: int):
     """View detailed submission information with AI feedback breakdown"""
-    import json
 
     # Get current user
     user = users[session["auth"]]
@@ -358,78 +355,58 @@ def instructor_submission_detail(session, draft_id: int):
     all_agg_feedback = aggregated_feedback()
     agg_feedback = [af for af in all_agg_feedback if af.draft_id == draft_id]
 
-    # Build model results
-    model_results = []
-    for run in draft_runs:
-        result = {
-            "model_name": run.model_name,
-            "status": run.status,
-            "execution_time": run.execution_time,
-            "rubric_scores": {},
-            "overall_score": None,
-            "general_feedback": None,
-            "error": run.error_message,
-        }
+    # Resolve each model run's display name + overall (avg of its category scores).
+    from app.models.assignment import rubric_categories as _rubric_categories
+    from app.models.config import ai_models as _ai_models
+    from app.models.feedback import category_scores as _category_scores
 
-        if run.response:
-            try:
-                response_data = json.loads(run.response)
-                result["overall_score"] = response_data.get("overall_score")
-                result["general_feedback"] = response_data.get("general_feedback")
-                result["rubric_scores"] = response_data.get("rubric_scores", {})
-            except Exception:
-                pass
+    name_by_id = {m.id: m.name for m in _ai_models()}
+    all_category_scores = list(_category_scores())
 
-        model_results.append(result)
+    def _run_name(model_id):
+        if model_id == -1:
+            return "Signal Engine (lens)"
+        if model_id == 0:
+            return "Mock feedback"
+        return name_by_id.get(model_id, f"Model {model_id}")
 
-    # Get aggregated scores
-    agg_scores = {}
-    agg_feedback_text = None
-    if agg_feedback:
-        af = agg_feedback[0]  # Should only be one per draft
-        agg_feedback_text = af.aggregated_feedback
-        if af.aggregated_scores:
-            with contextlib.suppress(builtins.BaseException):
-                agg_scores = json.loads(af.aggregated_scores)
-
-    # Build model results table
     model_cards = []
-    for result in model_results:
-        status_color = "green" if result["status"] == "complete" else "red"
-        status_text = "Success" if result["status"] == "complete" else "Failed"
-
-        # Score display
-        score_display = "-"
-        if result["overall_score"] is not None:
-            score_display = f"{result['overall_score']:.1f}%"
-
-        card_content = fh.Div(
-            fh.Div(
-                fh.H4(result["model_name"], cls="font-semibold text-gray-900"),
-                fh.Span(
-                    status_text,
-                    cls=f"text-xs px-2 py-1 rounded-full bg-{status_color}-100 text-{status_color}-800",
-                ),
-                cls="flex items-center justify-between mb-2",
-            ),
-            fh.Div(
-                fh.P(f"Score: {score_display}", cls="text-sm text-gray-600"),
-                fh.P(
-                    f"Time: {result['execution_time']:.1f}s"
-                    if result["execution_time"]
-                    else "Time: -",
-                    cls="text-sm text-gray-600",
-                ),
-                cls="space-y-1",
-            ),
+    for run in draft_runs:
+        run_scores = [s.score for s in all_category_scores if s.model_run_id == run.id]
+        overall = round(sum(run_scores) / len(run_scores), 1) if run_scores else None
+        status_color = (
+            "green"
+            if run.status == "complete"
+            else "red"
+            if run.status == "error"
+            else "gray"
+        )
+        model_cards.append(
+            card(
+                fh.Div(
+                    fh.Div(
+                        fh.H4(_run_name(run.model_id), cls="font-semibold text-gray-900"),
+                        fh.Span(
+                            run.status,
+                            cls=f"text-xs px-2 py-1 rounded-full bg-{status_color}-100 text-{status_color}-800",
+                        ),
+                        cls="flex items-center justify-between mb-2",
+                    ),
+                    fh.P(
+                        f"Score: {overall:.0f}%" if overall is not None else "Score: —",
+                        cls="text-sm text-gray-600",
+                    ),
+                )
+            )
         )
 
-        if result["error"]:
-            card_content.children.append(
-                fh.P(f"Error: {result['error']}", cls="text-xs text-red-600 mt-2")
-            )
-
-        model_cards.append(card(card_content))
+    # Aggregated feedback per rubric category.
+    cat_name_by_id = {c.id: c.name for c in _rubric_categories()}
+    agg_overall = (
+        round(sum(a.aggregated_score for a in agg_feedback) / len(agg_feedback), 1)
+        if agg_feedback
+        else None
+    )
 
     # Build main content
     main_content = fh.Div(
@@ -443,7 +420,7 @@ def instructor_submission_detail(session, draft_id: int):
             fh.Div(
                 fh.A(
                     "← Back to Submissions",
-                    href=f"/instructor/assignments/{assignment.assignment_id}/submissions",
+                    href=f"/instructor/assignments/{draft.assignment_id}/submissions",
                     cls="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors",
                 ),
                 cls="flex items-center",
@@ -481,20 +458,34 @@ def instructor_submission_detail(session, draft_id: int):
                     fh.Div(
                         fh.P("Overall Score", cls="text-sm text-gray-600"),
                         fh.P(
-                            f"{agg_scores.get('overall_score', 0):.1f}%",
+                            f"{agg_overall:.0f}%" if agg_overall is not None else "—",
                             cls="text-2xl font-bold text-indigo-600",
                         ),
                         cls="mb-4",
                     ),
                     fh.Div(
-                        fh.H4("Feedback", cls="font-medium text-gray-800 mb-2"),
-                        fh.P(
-                            agg_feedback_text or "No feedback available.",
-                            cls="text-gray-700",
-                        ),
-                        cls="",
+                        *[
+                            fh.Div(
+                                fh.Div(
+                                    fh.Span(
+                                        cat_name_by_id.get(a.category_id, f"Category {a.category_id}"),
+                                        cls="text-sm font-medium text-gray-800",
+                                    ),
+                                    fh.Span(
+                                        f"{a.aggregated_score:.0f}%",
+                                        cls="text-sm text-gray-600",
+                                    ),
+                                    cls="flex items-center justify-between",
+                                ),
+                                fh.P(
+                                    a.feedback_text or "",
+                                    cls="text-sm text-gray-600 whitespace-pre-wrap mt-1",
+                                ),
+                                cls="py-2 border-b border-gray-100 last:border-0",
+                            )
+                            for a in agg_feedback
+                        ],
                     ),
-                    cls="",
                 )
                 if agg_feedback
                 else fh.P("No aggregated feedback available.", cls="text-gray-500")
