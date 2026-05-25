@@ -279,6 +279,11 @@ def instructor_submissions_list(session, assignment_id: int):
                     href=f"/instructor/assignments/{assignment_id}/analytics",
                     cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors ml-3",
                 ),
+                fh.A(
+                    "Signal Rules",
+                    href=f"/instructor/assignments/{assignment_id}/signal-rules",
+                    cls="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors ml-3",
+                ),
                 cls="flex items-center",
             ),
             cls="flex items-center justify-between mb-6",
@@ -927,4 +932,171 @@ async def instructor_feedback_save(session, request, draft_id: int, action: str 
         )
     return fh.RedirectResponse(
         f"/instructor/submissions/{draft_id}/review", status_code=303
+    )
+
+
+# ----------------------------------------------------------------------
+# Signal rules editor (ADR 012, S2) — confirm/override the signal -> rubric mapping.
+# ----------------------------------------------------------------------
+
+def _verify_assignment_ownership(session, assignment_id: int):
+    """Return the assignment if the current instructor owns its course, else None."""
+    user = users[session["auth"]]
+    try:
+        assignment = assignments[assignment_id]
+        course = courses[assignment.course_id]
+    except NotFoundError:
+        return None
+    if course.instructor_email != user.email:
+        return None
+    return assignment
+
+
+def _transform_summary(transform_json) -> str:
+    import json as _json
+
+    try:
+        t = _json.loads(transform_json) if isinstance(transform_json, str) else (transform_json or {})
+    except (ValueError, TypeError):
+        return ""
+    if t.get("type") == "band":
+        return "banded thresholds"
+    if t.get("type") == "linear":
+        out = t.get("out", [0, 100])
+        direction = "higher is better" if out and out[0] <= out[-1] else "lower is better"
+        return f"linear ({direction})"
+    return ""
+
+
+@rt("/instructor/assignments/{assignment_id}/signal-rules")
+@instructor_required
+def instructor_signal_rules(session, assignment_id: int):
+    """Editor for an assignment's signal -> rubric rules (confirm/override)."""
+    from app.services import signal_rules_service
+
+    assignment = _verify_assignment_ownership(session, assignment_id)
+    if assignment is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    cards = []
+    for entry in signal_rules_service.rules_view_for_assignment(assignment_id):
+        cat = entry["category"]
+        rules = entry["rules"]
+        if not rules:
+            rows = [
+                fh.P(
+                    "No signals map to this category — graded by the LLM only.",
+                    cls="text-sm text-gray-400",
+                )
+            ]
+        else:
+            rows = []
+            for r in rules:
+                sig = r["signal_name"]
+                rows.append(
+                    fh.Div(
+                        fh.Div(
+                            fh.Label(
+                                fh.Input(
+                                    type="checkbox",
+                                    name=f"en_{cat.id}_{sig}",
+                                    checked=r["enabled"],
+                                    cls="mr-2",
+                                ),
+                                _SIGNAL_LABELS.get(sig, sig),
+                                cls="text-sm text-gray-700 flex items-center",
+                            ),
+                            fh.Span(
+                                _transform_summary(r["transform"]),
+                                cls="text-xs text-gray-400 ml-3",
+                            ),
+                            cls="flex items-center",
+                        ),
+                        fh.Div(
+                            fh.Label("weight", cls="text-xs text-gray-500 mr-2"),
+                            fh.Input(
+                                type="number",
+                                step="0.1",
+                                min="0",
+                                name=f"w_{cat.id}_{sig}",
+                                value=str(r["weight"]),
+                                cls="w-20 px-2 py-1 border border-gray-300 rounded-md text-sm",
+                            ),
+                            cls="flex items-center",
+                        ),
+                        cls="flex items-center justify-between py-2 border-b border-gray-100 last:border-0",
+                    )
+                )
+        saved = any(r.get("persisted") for r in rules)
+        cards.append(
+            fh.Div(
+                fh.Div(
+                    fh.H4(cat.name, cls="font-semibold text-gray-900"),
+                    fh.Span(
+                        "saved" if saved else "auto-suggested (not yet saved)",
+                        cls="text-xs text-gray-400",
+                    ),
+                    cls="flex items-center justify-between mb-2",
+                ),
+                *rows,
+                cls="bg-white p-5 rounded-lg shadow mb-4",
+            )
+        )
+
+    form = fh.Form(
+        *cards,
+        fh.Button(
+            "Save rules",
+            type="submit",
+            cls="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors",
+        ),
+        action=f"/instructor/assignments/{assignment_id}/signal-rules/save",
+        method="post",
+    )
+
+    main_content = fh.Div(
+        fh.Div(
+            fh.Div(
+                fh.H1("Signal Rules", cls="text-2xl font-bold text-gray-900"),
+                fh.P(assignment.title, cls="text-gray-600"),
+                cls="flex-1",
+            ),
+            fh.A(
+                "← Back to Submissions",
+                href=f"/instructor/assignments/{assignment_id}/submissions",
+                cls="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors",
+            ),
+            cls="flex items-center justify-between mb-6",
+        ),
+        fh.P(
+            "Map document signals to rubric categories. Auto-matched defaults are shown — "
+            "adjust the weight, enable/disable, and save. Saved rules drive the estimated "
+            "scores instructors review (ADR 012).",
+            cls="text-sm text-gray-500 mb-4",
+        ),
+        form,
+        cls="max-w-3xl mx-auto px-4 py-6",
+    )
+    return dashboard_layout(
+        "Signal Rules | FeedForward",
+        fh.Div(),
+        main_content,
+        user_role=Role.INSTRUCTOR,
+        current_path=f"/instructor/assignments/{assignment_id}/signal-rules",
+    )
+
+
+@rt("/instructor/assignments/{assignment_id}/signal-rules/save")
+@instructor_required
+async def instructor_signal_rules_save(session, request, assignment_id: int):
+    """Persist the signal -> rubric rules (confirm/override)."""
+    from app.services import signal_rules_service
+
+    if _verify_assignment_ownership(session, assignment_id) is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    form = await request.form()
+    signal_rules_service.save_rules_for_assignment(assignment_id, dict(form))
+    return fh.RedirectResponse(
+        f"/instructor/assignments/{assignment_id}/signal-rules", status_code=303
     )

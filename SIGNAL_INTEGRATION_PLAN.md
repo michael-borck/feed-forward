@@ -198,8 +198,10 @@ change needed there.)
   synthetic Signal Engine run (`signal_evidence.produce_signal_run`, sentinel
   `model_id=-1`) blended into live aggregation in both paths (best-effort; auto-release
   kept). 32 tests green. **Deferred:** A3 handler / EvidenceSource / `db_query` deepening
-  (task 13); `pending_review` + instructor approval UI (S3); confirm/override rules UI;
-  sentiment signals (await the lens semantic-tier fix release).
+  (task 13); `pending_review` + instructor approval UI (S3, since landed);
+  confirm/override rules UI (since landed: `signal_rules_service` +
+  `/instructor/assignments/{id}/signal-rules`); sentiment signals (await the lens
+  semantic-tier fix release).
 
 ### S3 — Instructor review/adjust (old Phase 4.1)
 - Wire `AggregatedFeedback.status` (pending_review → approved → released) and
