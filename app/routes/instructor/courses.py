@@ -601,3 +601,114 @@ def instructor_course_update(
     courses.update(course)
 
     return fh.RedirectResponse("/instructor/courses", status_code=303)
+
+
+@rt("/instructor/courses/{course_id}")
+@instructor_required
+def instructor_course_detail(session, course_id: int):
+    """Course overview hub — info, stats, and links to assignments/students."""
+    from fastlite import NotFoundError
+
+    from app.models.assignment import assignments
+
+    user = users[session["auth"]]
+    try:
+        course = courses[course_id]
+    except NotFoundError:
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
+    if course.instructor_email != user.email:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    course_assignments = [a for a in assignments() if a.course_id == course_id]
+    student_count = sum(1 for e in enrollments() if e.course_id == course_id)
+
+    if course_assignments:
+        assignments_section = fh.Div(
+            *[
+                fh.Div(
+                    fh.Div(
+                        fh.A(
+                            a.title,
+                            href=f"/instructor/assignments/{a.id}",
+                            cls="font-medium text-indigo-700 hover:underline",
+                        ),
+                        status_badge(
+                            (getattr(a, "status", "draft") or "draft").capitalize(),
+                            "green" if getattr(a, "status", "") == "active" else "gray",
+                        ),
+                        cls="flex items-center justify-between",
+                    ),
+                    fh.A(
+                        "View submissions →",
+                        href=f"/instructor/assignments/{a.id}/submissions",
+                        cls="text-sm text-gray-500 hover:text-indigo-600",
+                    ),
+                    cls="py-3 border-b border-gray-100 last:border-0",
+                )
+                for a in course_assignments
+            ]
+        )
+    else:
+        assignments_section = fh.P("No assignments yet.", cls="text-gray-500 italic")
+
+    main_content = fh.Div(
+        fh.Div(
+            fh.Div(
+                fh.H1(course.title, cls="text-2xl font-bold text-gray-900"),
+                fh.P(
+                    f"{course.code} · {getattr(course, 'term', '') or ''}",
+                    cls="text-gray-600",
+                ),
+                cls="flex-1",
+            ),
+            fh.A(
+                "← Back to Courses",
+                href="/instructor/courses",
+                cls="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors",
+            ),
+            cls="flex items-center justify-between mb-6",
+        ),
+        fh.Div(
+            fh.Div(
+                fh.P(str(student_count), cls="text-3xl font-bold text-teal-700"),
+                fh.P("Students", cls="text-gray-600 text-sm"),
+                cls="bg-white p-5 rounded-lg shadow text-center",
+            ),
+            fh.Div(
+                fh.P(str(len(course_assignments)), cls="text-3xl font-bold text-indigo-700"),
+                fh.P("Assignments", cls="text-gray-600 text-sm"),
+                cls="bg-white p-5 rounded-lg shadow text-center",
+            ),
+            cls="grid grid-cols-2 gap-6 mb-6 max-w-md",
+        ),
+        fh.Div(
+            action_button(
+                "Manage Assignments",
+                color="indigo",
+                href=f"/instructor/courses/{course_id}/assignments",
+            ),
+            action_button(
+                "Manage Students",
+                color="teal",
+                href=f"/instructor/courses/{course_id}/students",
+            ),
+            action_button(
+                "Edit Course",
+                color="gray",
+                href=f"/instructor/courses/{course_id}/edit",
+            ),
+            cls="flex flex-wrap gap-3 mb-8",
+        ),
+        fh.Div(
+            fh.H2("Assignments", cls="text-xl font-bold text-gray-900 mb-3"),
+            fh.Div(assignments_section, cls="bg-white p-6 rounded-lg shadow"),
+        ),
+        cls="max-w-4xl mx-auto px-4 py-6",
+    )
+    return dashboard_layout(
+        f"{course.title} | FeedForward",
+        fh.Div(),
+        main_content,
+        user_role=Role.INSTRUCTOR,
+        current_path="/instructor/courses",
+    )

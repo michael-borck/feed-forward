@@ -183,7 +183,7 @@ def instructor_dashboard(session, request):
             fh.H2("Recent Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
             fh.Div(
                 *(
-                    fh.Div(
+                    fh.A(
                         fh.Div(
                             fh.P(
                                 f"Student submitted draft for {sub['assignment'].title}",
@@ -207,7 +207,8 @@ def instructor_dashboard(session, request):
                             if sub["draft"].status == "processing"
                             else "blue",
                         ),
-                        cls="flex justify-between items-start p-4 border-l-4 border-indigo-500 bg-white rounded-r-lg shadow-sm mb-3",
+                        href=f"/instructor/submissions/{sub['draft'].id}",
+                        cls="flex justify-between items-start p-4 border-l-4 border-indigo-500 bg-white rounded-r-lg shadow-sm mb-3 hover:shadow-md transition-shadow",
                     )
                     for sub in recent_submissions[:5]
                 )
