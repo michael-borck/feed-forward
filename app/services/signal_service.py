@@ -48,6 +48,17 @@ def _flatten_text_response(response: dict[str, Any]) -> dict[str, float]:
     return flat
 
 
+def _flatten_sentiment_response(response: dict[str, Any]) -> dict[str, float]:
+    """Pull document-level sentiment signals out of /semantic/sentiment."""
+    doc = response.get("document_sentiment") or {}
+    flat: dict[str, float] = {}
+    for name in ("positive", "negative", "neutral", "compound"):
+        value = doc.get(name)
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            flat[f"sentiment_{name}"] = float(value)
+    return flat
+
+
 def _already_extracted(draft_id: int) -> bool:
     return any(
         s.draft_id == draft_id and s.source == SOURCE for s in signals()
@@ -84,6 +95,12 @@ def extract_signals_for_draft(draft_id: int) -> bool:
         return False
 
     flat = _flatten_text_response(response)
+
+    # Best-effort sentiment signals (additive; degrades gracefully if unavailable).
+    sentiment = analyser_client.analyse_sentiment(content)
+    if sentiment:
+        flat.update(_flatten_sentiment_response(sentiment))
+
     if not flat:
         logger.warning("signal extraction: no numeric signals in response for draft %s", draft_id)
         return False

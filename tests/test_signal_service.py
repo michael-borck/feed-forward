@@ -68,6 +68,7 @@ def _make_draft(content="An essay with several words and a few ideas worth marki
 
 def test_extract_persists_signals(monkeypatch):
     monkeypatch.setattr(signal_service.analyser_client, "analyse_text", lambda text: SAMPLE)
+    monkeypatch.setattr(signal_service.analyser_client, "analyse_sentiment", lambda text: None)
     did = _make_draft()
     assert signal_service.extract_signals_for_draft(did) is True
     sigs = signal_service.get_signals_for_draft(did)
@@ -79,6 +80,7 @@ def test_extract_persists_signals(monkeypatch):
 
 def test_extract_is_idempotent(monkeypatch):
     monkeypatch.setattr(signal_service.analyser_client, "analyse_text", lambda text: SAMPLE)
+    monkeypatch.setattr(signal_service.analyser_client, "analyse_sentiment", lambda text: None)
     did = _make_draft()
     signal_service.extract_signals_for_draft(did)
     n1 = len(signal_service.get_signals_for_draft(did))
@@ -105,3 +107,45 @@ def test_extract_analyser_down_returns_false(monkeypatch):
     did = _make_draft()
     assert signal_service.extract_signals_for_draft(did) is False
     assert signal_service.get_signals_for_draft(did) == []
+
+
+# ---- sentiment signals ----
+
+SENTIMENT_RESP = {
+    "document_sentiment": {"positive": 0.9, "negative": 0.0, "neutral": 0.1, "compound": 0.85},
+    "total_sentences": 3,
+}
+
+
+def test_flatten_sentiment_response():
+    flat = signal_service._flatten_sentiment_response(SENTIMENT_RESP)
+    assert flat == {
+        "sentiment_positive": 0.9,
+        "sentiment_negative": 0.0,
+        "sentiment_neutral": 0.1,
+        "sentiment_compound": 0.85,
+    }
+
+
+def test_flatten_sentiment_empty():
+    assert signal_service._flatten_sentiment_response({}) == {}
+
+
+def test_extract_includes_sentiment(monkeypatch):
+    monkeypatch.setattr(signal_service.analyser_client, "analyse_text", lambda text: SAMPLE)
+    monkeypatch.setattr(signal_service.analyser_client, "analyse_sentiment", lambda text: SENTIMENT_RESP)
+    did = _make_draft()
+    assert signal_service.extract_signals_for_draft(did) is True
+    names = {s.name for s in signal_service.get_signals_for_draft(did)}
+    assert {"sentiment_positive", "sentiment_compound"} <= names
+    assert "flesch_score" in names  # text signals still present
+
+
+def test_extract_text_only_when_sentiment_unavailable(monkeypatch):
+    monkeypatch.setattr(signal_service.analyser_client, "analyse_text", lambda text: SAMPLE)
+    monkeypatch.setattr(signal_service.analyser_client, "analyse_sentiment", lambda text: None)
+    did = _make_draft()
+    assert signal_service.extract_signals_for_draft(did) is True
+    names = {s.name for s in signal_service.get_signals_for_draft(did)}
+    assert "flesch_score" in names
+    assert not any(n.startswith("sentiment_") for n in names)

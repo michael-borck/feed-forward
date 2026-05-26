@@ -138,6 +138,8 @@ _SUGGESTIONS: list[tuple[tuple[str, ...], list[tuple[str, dict[str, Any]]]]] = [
     (("style", "writing", "grammar", "mechanic", "expression"),
      [("passive_voice_percentage", {"type": "linear", "in": [0, 40], "out": [100, 0]}),
       ("transition_words", {"type": "linear", "in": [0, 60], "out": [40, 100]})]),
+    (("tone", "sentiment", "engagement", "voice"),
+     [("sentiment_positive", {"type": "linear", "in": [0, 1], "out": [0, 100]})]),
 ]
 
 

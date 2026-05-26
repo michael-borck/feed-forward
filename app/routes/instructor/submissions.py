@@ -556,6 +556,10 @@ _SIGNAL_LABELS = {
     "unique_words": "Unique words",
     "total_words": "Total words",
     "vocabulary_richness": "Vocabulary richness",
+    "sentiment_positive": "Positive sentiment",
+    "sentiment_negative": "Negative sentiment",
+    "sentiment_neutral": "Neutral sentiment",
+    "sentiment_compound": "Sentiment (compound)",
 }
 
 

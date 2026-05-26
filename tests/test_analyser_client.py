@@ -50,3 +50,29 @@ def test_health_down_returns_false(monkeypatch):
 
     monkeypatch.setattr(analyser_client.requests, "get", boom)
     assert analyser_client.health() is False
+
+
+def test_analyse_sentiment_empty_returns_none():
+    assert analyser_client.analyse_sentiment("") is None
+
+
+def test_analyse_sentiment_down_returns_none(monkeypatch):
+    def boom(*args, **kwargs):
+        raise requests.ConnectionError("connection refused")
+
+    monkeypatch.setattr(analyser_client.requests, "post", boom)
+    assert analyser_client.analyse_sentiment("a real essay body") is None
+
+
+def test_analyse_sentiment_success_returns_payload(monkeypatch):
+    payload = {"document_sentiment": {"positive": 0.9, "negative": 0.0, "neutral": 0.1, "compound": 0.9}}
+
+    class FakeResp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return payload
+
+    monkeypatch.setattr(analyser_client.requests, "post", lambda *a, **k: FakeResp())
+    assert analyser_client.analyse_sentiment("text") == payload

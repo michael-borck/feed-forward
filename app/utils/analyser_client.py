@@ -66,3 +66,32 @@ def analyse_text(
     except ValueError as e:  # JSON decode error
         logger.warning("document-analyser /text returned invalid JSON: %s", e)
         return None
+
+
+def analyse_sentiment(
+    text: str, timeout: float = _DEFAULT_TIMEOUT
+) -> Optional[dict[str, Any]]:
+    """
+    Document-level sentiment via document-analyser ``POST /semantic/sentiment``.
+
+    Returns the parsed JSON (with ``document_sentiment``), or ``None`` on failure.
+    The server degrades to a valid neutral result when its ``[nlp]`` extra is
+    absent, so this returns data (neutral) rather than erroring in that case.
+    """
+    if not text or not text.strip():
+        return None
+    try:
+        resp = requests.post(
+            f"{_base_url()}/semantic/sentiment",
+            json={"text": text},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        result: dict[str, Any] = resp.json()
+        return result
+    except requests.RequestException as e:
+        logger.warning("document-analyser /semantic/sentiment request failed: %s", e)
+        return None
+    except ValueError as e:  # JSON decode error
+        logger.warning("document-analyser /semantic/sentiment invalid JSON: %s", e)
+        return None

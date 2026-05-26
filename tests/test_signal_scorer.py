@@ -129,6 +129,13 @@ def test_suggest_no_match_returns_empty():
     assert signal_scorer.suggest_rules_for_category("") == []
 
 
+def test_suggest_matches_tone_to_sentiment():
+    assert [r.signal_name for r in signal_scorer.suggest_rules_for_category("Tone")] == [
+        "sentiment_positive"]
+    assert [r.signal_name for r in signal_scorer.suggest_rules_for_category("Engagement")] == [
+        "sentiment_positive"]
+
+
 def test_category_estimates_auto_match():
     from app.models.signals import Signal, signals
 

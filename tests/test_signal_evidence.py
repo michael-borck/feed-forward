@@ -39,7 +39,7 @@ def test_produce_signal_run_writes_category_scores():
     run_id = signal_evidence.produce_signal_run(10)
     assert run_id is not None
 
-    run = [r for r in model_runs() if r.id == run_id][0]
+    run = next(r for r in model_runs() if r.id == run_id)
     assert run.model_id == signal_evidence.SIGNAL_MODEL_ID
     assert run.status == "complete"
 
