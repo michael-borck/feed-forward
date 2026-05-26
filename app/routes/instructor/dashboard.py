@@ -9,6 +9,7 @@ from app.models.assignment import assignments
 from app.models.course import courses, enrollments
 from app.models.feedback import drafts
 from app.models.user import users
+from app.utils.db_query import count
 from app.utils.ui import action_button, card, dashboard_layout, status_badge
 
 
@@ -28,13 +29,13 @@ def instructor_dashboard(session, request):
     # Get enrollment counts
     course_enrollments = {}
     for course in instructor_courses:
-        enrollment_count = sum(1 for e in enrollments() if e.course_id == course.id)
+        enrollment_count = count(enrollments, course_id=course.id)
         course_enrollments[course.id] = enrollment_count
 
     # Get assignment counts
     course_assignments = {}
     for course in instructor_courses:
-        assignment_count = sum(1 for a in assignments() if a.course_id == course.id)
+        assignment_count = count(assignments, course_id=course.id)
         course_assignments[course.id] = assignment_count
 
     # Get recent submissions

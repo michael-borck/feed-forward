@@ -197,8 +197,10 @@ change needed there.)
   by name (`suggest_rules_for_category`); read-only estimates on the instructor panel;
   synthetic Signal Engine run (`signal_evidence.produce_signal_run`, sentinel
   `model_id=-1`) blended into live aggregation in both paths (best-effort; auto-release
-  kept). 32 tests green. **Deferred:** A3 handler / EvidenceSource / `db_query` deepening
-  (task 13); `pending_review` + instructor approval UI (S3, since landed);
+  kept). 32 tests green. **Deferred:** A3 handler / EvidenceSource deepening (task 13,
+  in progress — Phase D `db_query` helper since landed: `app/utils/db_query.py` +
+  ~14 call sites refactored to `by_id` / `where` / `first` / `count`);
+  `pending_review` + instructor approval UI (S3, since landed);
   confirm/override rules UI (since landed: `signal_rules_service` +
   `/instructor/assignments/{id}/signal-rules`); sentiment signals (since landed —
   document-analyser 0.5.1 sentiment fix + FeedForward extraction & "Tone" auto-match).

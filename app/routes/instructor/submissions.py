@@ -16,6 +16,7 @@ from app.models.feedback import (
     model_runs,
 )
 from app.models.user import Role, users
+from app.utils.db_query import first, where
 from app.utils.ui import card, dashboard_layout
 
 
@@ -602,10 +603,8 @@ def instructor_submission_signals(session, draft_id: int):
     from app.models.assignment import rubric_categories, rubrics
     from app.services import signal_scorer
 
-    rubric = next((r for r in rubrics() if r.assignment_id == draft.assignment_id), None)
-    categories = (
-        [c for c in rubric_categories() if c.rubric_id == rubric.id] if rubric else []
-    )
+    rubric = first(rubrics, assignment_id=draft.assignment_id)
+    categories = where(rubric_categories, rubric_id=rubric.id) if rubric else []
     estimates = signal_scorer.category_estimates(draft_id, categories) if categories else {}
 
     if categories and estimates:

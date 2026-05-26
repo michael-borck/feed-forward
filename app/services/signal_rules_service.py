@@ -13,15 +13,16 @@ from typing import Any
 from app.models.assignment import rubric_categories, rubrics
 from app.models.signal_rules import SignalRule, signal_rules
 from app.services import signal_scorer
+from app.utils.db_query import first, where
 
 SOURCE = "document-analyser"
 
 
 def _assignment_categories(assignment_id: int) -> list[Any]:
-    rubric = next((r for r in rubrics() if r.assignment_id == assignment_id), None)
+    rubric = first(rubrics, assignment_id=assignment_id)
     if rubric is None:
         return []
-    return [c for c in rubric_categories() if c.rubric_id == rubric.id]
+    return where(rubric_categories, rubric_id=rubric.id)
 
 
 def rules_view_for_assignment(assignment_id: int) -> list[dict[str, Any]]:

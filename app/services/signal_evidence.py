@@ -21,6 +21,7 @@ from app.models.feedback import (
     model_runs,
 )
 from app.services import signal_scorer
+from app.utils.db_query import by_id, first, where
 
 logger = logging.getLogger(__name__)
 
@@ -38,18 +39,15 @@ def produce_signal_run(draft_id: int) -> Optional[int]:
     """
     from app.models.assignment import rubric_categories, rubrics
 
-    try:
-        draft = drafts[draft_id]
-    except Exception:
+    draft = by_id(drafts, draft_id)
+    if draft is None:
         logger.warning("signal evidence: draft %s not found", draft_id)
         return None
 
-    rubric = next(
-        (r for r in rubrics() if r.assignment_id == draft.assignment_id), None
-    )
+    rubric = first(rubrics, assignment_id=draft.assignment_id)
     if rubric is None:
         return None
-    categories = [c for c in rubric_categories() if c.rubric_id == rubric.id]
+    categories = where(rubric_categories, rubric_id=rubric.id)
     if not categories:
         return None
 

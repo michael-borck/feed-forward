@@ -10,6 +10,7 @@ from fasthtml import common as fh
 from app import instructor_required, rt
 from app.models.course import Course, courses, enrollments
 from app.models.user import Role, users
+from app.utils.db_query import count, where
 from app.utils.ui import action_button, dashboard_layout, status_badge
 
 
@@ -534,7 +535,7 @@ def instructor_course_edit(session, course_id: int):
             fh.H3("Edit Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
             fh.P(f"Course Code: {course.code}", cls="text-gray-600 mb-2"),
             fh.P(
-                f"Students: {sum(1 for e in enrollments() if e.course_id == course.id)}",
+                f"Students: {count(enrollments, course_id=course.id)}",
                 cls="text-gray-600 mb-4",
             ),
             action_button(
@@ -619,8 +620,8 @@ def instructor_course_detail(session, course_id: int):
     if course.instructor_email != user.email:
         return fh.RedirectResponse("/instructor/dashboard", status_code=303)
 
-    course_assignments = [a for a in assignments() if a.course_id == course_id]
-    student_count = sum(1 for e in enrollments() if e.course_id == course_id)
+    course_assignments = where(assignments, course_id=course_id)
+    student_count = count(enrollments, course_id=course_id)
 
     if course_assignments:
         assignments_section = fh.Div(

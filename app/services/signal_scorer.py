@@ -16,6 +16,8 @@ import json
 import logging
 from typing import Any, Optional
 
+from app.utils.db_query import where
+
 logger = logging.getLogger(__name__)
 
 
@@ -102,7 +104,7 @@ def estimate_scores_for_draft(draft_id: int) -> dict[int, dict[str, float]]:
     from app.models.signal_rules import signal_rules
     from app.models.signals import signals
 
-    signals_by_name = {s.name: s.value for s in signals() if s.draft_id == draft_id}
+    signals_by_name = {s.name: s.value for s in where(signals, draft_id=draft_id)}
 
     rules_by_category: dict[int, list[Any]] = {}
     for rule in signal_rules():
@@ -180,7 +182,7 @@ def category_estimates(draft_id: int, categories: Any) -> dict[int, dict[str, An
     from app.models.signal_rules import signal_rules
     from app.models.signals import signals
 
-    signals_by_name = {s.name: s.value for s in signals() if s.draft_id == draft_id}
+    signals_by_name = {s.name: s.value for s in where(signals, draft_id=draft_id)}
 
     persisted: dict[int, list[Any]] = {}
     for rule in signal_rules():

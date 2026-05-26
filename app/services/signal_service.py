@@ -17,6 +17,7 @@ from typing import Any
 from app.models.feedback import drafts
 from app.models.signals import Signal, signals
 from app.utils import analyser_client
+from app.utils.db_query import by_id, count, where
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +61,7 @@ def _flatten_sentiment_response(response: dict[str, Any]) -> dict[str, float]:
 
 
 def _already_extracted(draft_id: int) -> bool:
-    return any(
-        s.draft_id == draft_id and s.source == SOURCE for s in signals()
-    )
+    return count(signals, draft_id=draft_id, source=SOURCE) > 0
 
 
 def extract_signals_for_draft(draft_id: int) -> bool:
@@ -72,9 +71,8 @@ def extract_signals_for_draft(draft_id: int) -> bool:
     Returns True if signals were stored (or already present), False on any
     failure (draft missing, no content, analyser unreachable).
     """
-    try:
-        draft = drafts[draft_id]
-    except Exception:
+    draft = by_id(drafts, draft_id)
+    if draft is None:
         logger.warning("signal extraction: draft %s not found", draft_id)
         return False
 
@@ -124,7 +122,7 @@ def extract_signals_for_draft(draft_id: int) -> bool:
 
 def get_signals_for_draft(draft_id: int) -> list[Signal]:
     """Return stored signals for a draft (read side, used by the instructor view)."""
-    return [s for s in signals() if s.draft_id == draft_id]
+    return where(signals, draft_id=draft_id)
 
 
 def queue_signal_extraction(draft_id: int) -> None:
