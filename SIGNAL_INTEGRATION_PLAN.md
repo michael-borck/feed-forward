@@ -197,12 +197,15 @@ change needed there.)
   by name (`suggest_rules_for_category`); read-only estimates on the instructor panel;
   synthetic Signal Engine run (`signal_evidence.produce_signal_run`, sentinel
   `model_id=-1`) blended into live aggregation in both paths (best-effort; auto-release
-  kept). 32 tests green. **Deferred:** A3 handler deepening (task 13, in progress —
-  Phase D `db_query` helper since landed: `app/utils/db_query.py` + ~14 call
-  sites refactored to `by_id` / `where` / `first` / `count`; Phase B
-  `EvidenceSource` seam since landed: `app/services/evidence.py` with
-  `LLMEvidenceSource` + `SignalEvidenceSource`, generator orchestration now
-  iterates evidence sources uniformly with explicit "≥1 LLM run" policy);
+  kept). 32 tests green. **Deferred:** task 13 architectural deepening since
+  landed in three phases (D `db_query` helper: `app/utils/db_query.py` +
+  ~14 call sites refactored; B `EvidenceSource` seam: `app/services/evidence.py`
+  with `LLMEvidenceSource` + `SignalEvidenceSource`, orchestration iterates
+  sources uniformly with explicit "≥1 LLM run" policy; A3 slim handler:
+  `AssessmentHandler` collapsed from 4-abstract-method ABC + 1059-LOC
+  unused concretes to a declaration dataclass with a single `evidence_sources`
+  factory, 4 handlers reduced to slim instances, generator delegates source
+  construction to the handler);
   `pending_review` + instructor approval UI (S3, since landed);
   confirm/override rules UI (since landed: `signal_rules_service` +
   `/instructor/assignments/{id}/signal-rules`); sentiment signals (since landed —

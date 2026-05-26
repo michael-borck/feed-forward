@@ -17,6 +17,7 @@ from typing import Any, Optional
 
 import litellm
 
+from app.assessment.registry import DEFAULT_HANDLER
 from app.models.assignment import Assignment, assignments, rubric_categories, rubrics
 from app.models.config import (
     AIModel,
@@ -40,11 +41,7 @@ from app.models.feedback import (
     model_runs,
 )
 from app.models.instructor_preferences import instructor_model_prefs
-from app.services.evidence import (
-    EvidenceSource,
-    LLMEvidenceSource,
-    SignalEvidenceSource,
-)
+from app.services.evidence import SignalEvidenceSource
 from app.services.prompt_templates import generate_feedback_prompt
 from app.utils.crypto import decrypt_sensitive_data
 from app.utils.privacy import cleanup_draft_content
@@ -150,14 +147,11 @@ class FeedbackGenerator:
                 drafts.update(draft)
                 return False
 
-            # Build evidence sources: one LLM source per (model, run), plus signals.
-            num_runs = getattr(settings, "num_runs", 1)
-            sources: list[EvidenceSource] = [
-                LLMEvidenceSource(self, model, run_num + 1)
-                for model in active_models
-                for run_num in range(num_runs)
-            ]
-            sources.append(SignalEvidenceSource())
+            # Evidence sources from the assessment handler — the seam between
+            # assessment-type declaration and orchestration (ADR 012, Phase A3).
+            # Default handler returns one LLMEvidenceSource per (model, run) plus
+            # one SignalEvidenceSource; type-specific handlers can override the mix.
+            sources = DEFAULT_HANDLER.evidence_sources(self, active_models, settings)
 
             # Run all sources concurrently; each writes its own model_run rows.
             all_results = await asyncio.gather(
