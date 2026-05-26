@@ -40,6 +40,11 @@ from app.models.feedback import (
     model_runs,
 )
 from app.models.instructor_preferences import instructor_model_prefs
+from app.services.evidence import (
+    EvidenceSource,
+    LLMEvidenceSource,
+    SignalEvidenceSource,
+)
 from app.services.prompt_templates import generate_feedback_prompt
 from app.utils.crypto import decrypt_sensitive_data
 from app.utils.privacy import cleanup_draft_content
@@ -145,45 +150,42 @@ class FeedbackGenerator:
                 drafts.update(draft)
                 return False
 
-            # Create model configurations from active models
-            model_configs = []
-            for model in active_models:
-                num_runs = getattr(settings, "num_runs", 1)
-                model_configs.append({"model": model, "num_runs": num_runs})
+            # Build evidence sources: one LLM source per (model, run), plus signals.
+            num_runs = getattr(settings, "num_runs", 1)
+            sources: list[EvidenceSource] = [
+                LLMEvidenceSource(self, model, run_num + 1)
+                for model in active_models
+                for run_num in range(num_runs)
+            ]
+            sources.append(SignalEvidenceSource())
 
-            # Build all run coroutines and execute concurrently
-            tasks = []
-            for model_config in model_configs:
-                model = model_config["model"]
-                for run_num in range(model_config["num_runs"]):
-                    tasks.append(
-                        self._run_single_model(
-                            draft, assignment, settings, model, run_num + 1
+            # Run all sources concurrently; each writes its own model_run rows.
+            all_results = await asyncio.gather(
+                *[s.produce(draft, assignment, settings) for s in sources],
+                return_exceptions=True,
+            )
+
+            # Collect successful runs; require ≥1 LLM run (signals are additive).
+            successful_runs: list[FeedbackGenerationResult] = []
+            llm_success_count = 0
+            for r in all_results:
+                if isinstance(r, Exception):
+                    logger.error(f"Evidence source exception: {r!s}")
+                    continue
+                if r.success and r.model_run_id is not None:
+                    successful_runs.append(
+                        FeedbackGenerationResult(
+                            model_run_id=r.model_run_id, success=True
                         )
                     )
+                    if r.kind == "llm":
+                        llm_success_count += 1
 
-            all_runs = await asyncio.gather(*tasks, return_exceptions=True)
-
-            # Separate successes from failures
-            successful_runs = []
-            for result in all_runs:
-                if isinstance(result, Exception):
-                    logger.error(f"Model run exception: {result!s}")
-                elif isinstance(result, FeedbackGenerationResult) and result.success:
-                    successful_runs.append(result)
-
-            if not successful_runs:
-                logger.error(f"No successful model runs for draft {draft_id}")
+            if llm_success_count == 0:
+                logger.error(f"No successful LLM runs for draft {draft_id}")
                 draft.status = "error"
                 drafts.update(draft)
                 return False
-
-            # Blend in signal-based evidence as a synthetic run (ADR 012, S2)
-            signal_run_id = await self._produce_signal_evidence(draft.id)
-            if signal_run_id is not None:
-                successful_runs.append(
-                    FeedbackGenerationResult(model_run_id=signal_run_id, success=True)
-                )
 
             # Aggregate feedback from successful runs
             await self._aggregate_feedback(draft, assignment, settings, successful_runs)
@@ -500,29 +502,6 @@ class FeedbackGenerator:
             )
             feedback_items.insert(summary_item)
 
-    async def _produce_signal_evidence(self, draft_id: int) -> Optional[int]:
-        """
-        Ensure signals are extracted, then record them as a synthetic ModelRun
-        whose CategoryScores blend into aggregation (ADR 012 §4, phase S2).
-
-        Best-effort: any failure (analyser down, no rubric, etc.) is logged and
-        skipped so signal evidence never blocks LLM feedback.
-        """
-        try:
-            from app.services import signal_evidence, signal_service
-
-            loop = asyncio.get_event_loop()
-            # Idempotent — extracts if the background pass hasn't finished yet.
-            await loop.run_in_executor(
-                None, signal_service.extract_signals_for_draft, draft_id
-            )
-            return await loop.run_in_executor(
-                None, signal_evidence.produce_signal_run, draft_id
-            )
-        except Exception as e:
-            logger.warning("Signal evidence failed for draft %s: %s", draft_id, e)
-            return None
-
     async def _aggregate_feedback(
         self,
         draft: Draft,
@@ -746,10 +725,14 @@ class FeedbackGenerator:
                 model_run_id=model_run.id, success=True, feedback_data=feedback_data
             )
             runs = [mock_result]
-            signal_run_id = await self._produce_signal_evidence(draft.id)
-            if signal_run_id is not None:
+            signal_result = await SignalEvidenceSource().produce(
+                draft, assignment, settings
+            )
+            if signal_result.success and signal_result.model_run_id is not None:
                 runs.append(
-                    FeedbackGenerationResult(model_run_id=signal_run_id, success=True)
+                    FeedbackGenerationResult(
+                        model_run_id=signal_result.model_run_id, success=True,
+                    )
                 )
             await self._aggregate_feedback(draft, assignment, settings, runs)
 
