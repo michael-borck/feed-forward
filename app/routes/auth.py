@@ -19,6 +19,7 @@ from app.utils.auth import (
     is_institutional_email,
     is_reset_token_valid,
     is_strong_password,
+    verify_password,
 )
 from app.utils.email import (
     APP_DOMAIN,
@@ -571,76 +572,28 @@ def get():
 
 @rt("/login")
 def post(session, email: str, password: str):
-    # EMERGENCY FIX: Allow admin login with hardcoded credentials
-    if email == "admin@example.com" and password == "Admin123!":
-        session["auth"] = "admin@example.com"
-        return HttpHeader("HX-Redirect", "/admin/dashboard")
+    """Authenticate against the user store and route to the role's dashboard.
 
-    # EMERGENCY FIX: Allow instructor login with hardcoded credentials
-    if email == "instructor@example.com" and password == "Instructor123!":
-        session["auth"] = "instructor@example.com"
-        return HttpHeader("HX-Redirect", "/instructor/dashboard")
-
-    # Michael's account with hardcoded bypass
-    if email == "michael.borck@curtin.edu.au" and (
-        password == "Curtin2024!" or password == "Password123!"
-    ):
-        session["auth"] = "michael.borck@curtin.edu.au"
-        return HttpHeader("HX-Redirect", "/instructor/dashboard")
-
+    Previous implementations carried hardcoded "EMERGENCY FIX" credential
+    bypasses (admin@example.com, instructor@example.com, Michael's account)
+    plus a per-test-account password fallback, and printed the user's role
+    and hash prefix to stdout on every attempt. All removed — bcrypt-only
+    verification, no credential-shaped strings in logs or error responses.
+    """
     try:
         user = users[email]
     except NotFoundError:
         return "Email or password are incorrect"
 
-    # Debug info
-    debug_info = f"""
-    User found: {email}
-    Role: {user.role}
-    Stored hash: {user.password[:20]}...
-    Verification status: {user.verified}
-    Approval status: {user.approved if hasattr(user, "approved") else "N/A"}
-    """
-    print(f"LOGIN DEBUG: {debug_info}")
-
-    # FOR EMERGENCY: Skip password verification and use direct comparison instead
-    # THIS IS NOT SECURE - Only for development/troubleshooting
-
-    # For our test accounts, just compare the hardcoded password directly
-    if (
-        (email == "test@example.com" and password == "Test123!")
-        or (email == "easy@example.com" and password == "Easy123!")
-        or (email == "instructor2@example.com" and password == "Test123!")
-        or (email == "newadmin@example.com" and password == "Admin123!")
-    ):
-        password_match = True
-    else:
-        # Try direct bcrypt as a last resort
-        try:
-            import bcrypt
-
-            password_match = bcrypt.checkpw(
-                password.encode("utf-8"), user.password.encode("utf-8")
-            )
-        except Exception as e:
-            print(f"Bcrypt verification error: {e}")
-            password_match = False
-
-    # First check password
-    if not password_match:
+    if not verify_password(password, user.password):
         return "Email or password are incorrect"
 
-    # Then check verification status
     if not user.verified:
-        # Re-send verification token if they try to login but aren't verified
+        # Re-issue a verification token so the user can recover from a stale one.
         token = generate_verification_token(email)
         user.verification_token = token
         users.update(user)
-
-        # Send new verification email
         send_verification_email(email, token)
-
-        # Return error with option to resend
         return fh.Div(
             fh.P(
                 "Your email is not verified yet. Please check your inbox or spam folder.",
@@ -650,26 +603,20 @@ def post(session, email: str, password: str):
                 "We've sent a new verification email to your address.",
                 cls="text-gray-600",
             ),
-            fh.P(f"Debug info: {debug_info}", cls="text-xs text-gray-500 mt-4"),
             cls="text-center",
         )
 
-    # For instructors, check if they're approved
     if user.role == Role.INSTRUCTOR and not user.approved:
-        return f"Your account is pending approval. Please contact the administrator. Debug: {debug_info}"
+        return "Your account is pending approval. Please contact the administrator."
 
-    # Store user info in session
     session["auth"] = user.email
-
-    # Redirect to appropriate dashboard based on role
     if user.role == Role.INSTRUCTOR:
         return HttpHeader("HX-Redirect", "/instructor/dashboard")
-    elif user.role == Role.STUDENT:
+    if user.role == Role.STUDENT:
         return HttpHeader("HX-Redirect", "/student/dashboard")
-    elif user.role == Role.ADMIN:
+    if user.role == Role.ADMIN:
         return HttpHeader("HX-Redirect", "/admin/dashboard")
-    else:
-        return HttpHeader("HX-Redirect", "/dashboard")
+    return HttpHeader("HX-Redirect", "/dashboard")
 
 
 # --- Logout Route ---

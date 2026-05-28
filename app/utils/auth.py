@@ -25,37 +25,24 @@ def get_password_hash(password: str) -> str:
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify a password against a hash
+    """Verify a plain password against a stored bcrypt hash.
 
-    Args:
-        plain_password: The plain text password to verify
-        hashed_password: The hashed password to compare against
-
-    Returns:
-        bool: True if the password matches the hash, False otherwise
+    Returns ``False`` on any failure (malformed hash, encoding error, empty
+    string, etc.) so callers can branch on truthiness without try/except. No
+    debug printing — the previous implementation logged hash prefixes and
+    verification booleans to stdout on every login attempt, which is a
+    credential-handling leak.
     """
-    # Try both methods to be safe
     try:
-        # First try direct bcrypt
         import bcrypt
 
-        bcrypt_result = bcrypt.checkpw(
-            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+        return bool(
+            bcrypt.checkpw(
+                plain_password.encode("utf-8"),
+                hashed_password.encode("utf-8"),
+            )
         )
-        print(f"Debug - direct bcrypt verify: {bcrypt_result}")
-
-        if bcrypt_result:
-            return True
-
-        # Fall back to passlib if bcrypt fails
-        passlib_result = pwd_context.verify(plain_password, hashed_password)
-        print(f"Debug - passlib verify: {passlib_result}")
-
-        return bool(passlib_result)
-    except Exception as e:
-        print(f"Password verification error: {e!s}")
-        # Last resort - try a direct string comparison (not secure, but for emergencies)
+    except (ValueError, TypeError):
         return False
 
 
