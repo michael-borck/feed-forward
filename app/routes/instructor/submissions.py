@@ -21,6 +21,41 @@ from app.utils.db_query import by_id, first, where
 from app.utils.mailto import student_mailto
 from app.utils.ui import card, dashboard_layout
 
+# ---- Bulk-review helpers ----------------------------------------------------
+# Two private cell builders so the submissions table can grow a "Select" column
+# only when something on the page is actually bulk-eligible. Returning a tuple
+# lets the caller splat the result into the row, dropping the column entirely
+# (no empty leading td) when bulk approve isn't on offer.
+
+
+def _bulk_th(has_bulk_eligible: bool) -> tuple:
+    if not has_bulk_eligible:
+        return ()
+    return (
+        fh.Th(
+            "",
+            cls="px-4 py-3 w-12 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+        ),
+    )
+
+
+def _bulk_td(sub: dict, has_bulk_eligible: bool) -> tuple:
+    if not has_bulk_eligible:
+        return ()
+    if sub["status"] != "needs_review":
+        return (fh.Td("", cls="px-4 py-3"),)
+    return (
+        fh.Td(
+            fh.Input(
+                type="checkbox",
+                name="draft_ids",
+                value=str(sub["draft"].id),
+                cls="h-4 w-4 rounded border-gray-300 text-indigo-600",
+            ),
+            cls="px-4 py-3 text-center",
+        ),
+    )
+
 
 @rt("/instructor/assignments/{assignment_id}/submissions")
 @instructor_required
@@ -117,6 +152,9 @@ def instructor_submissions_list(session, assignment_id: int):
     # Sort by submission date (newest first)
     submissions_data.sort(key=lambda x: x["draft"].submission_date, reverse=True)
 
+    # Any draft with feedback awaiting review can be bulk-approved.
+    has_bulk_eligible = any(s["status"] == "needs_review" for s in submissions_data)
+
     # Build submissions table
     if submissions_data:
         table_rows = []
@@ -165,6 +203,7 @@ def instructor_submissions_list(session, assignment_id: int):
 
             table_rows.append(
                 fh.Tr(
+                    *_bulk_td(sub, has_bulk_eligible),
                     fh.Td(draft.student_email, cls="px-4 py-3 text-sm"),
                     fh.Td(f"Version {draft.version}", cls="px-4 py-3 text-sm"),
                     fh.Td(f"{draft.word_count} words", cls="px-4 py-3 text-sm"),
@@ -184,6 +223,7 @@ def instructor_submissions_list(session, assignment_id: int):
             fh.Table(
                 fh.Thead(
                     fh.Tr(
+                        *_bulk_th(has_bulk_eligible),
                         fh.Th(
                             "Student",
                             cls="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
@@ -223,6 +263,29 @@ def instructor_submissions_list(session, assignment_id: int):
         submissions_table = fh.Div(
             fh.P("No submissions yet.", cls="text-gray-500 text-center py-8"),
             cls="bg-white rounded-lg shadow",
+        )
+
+    # Wrap the table in a bulk-approve form when there's something to bulk-approve.
+    # The "Approve Selected" submit sits above the table; the sidebar "Bulk
+    # Review" link anchors to the form below.
+    if has_bulk_eligible:
+        submissions_table = fh.Form(
+            fh.Div(
+                fh.Button(
+                    "Approve Selected",
+                    type="submit",
+                    cls="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors",
+                ),
+                fh.P(
+                    "Tick rows whose feedback is awaiting review, then approve to release it to students.",
+                    cls="text-sm text-gray-500 mt-2",
+                ),
+                cls="mb-4",
+            ),
+            submissions_table,
+            action=f"/instructor/assignments/{assignment_id}/submissions/bulk-approve",
+            method="post",
+            id="bulk-approve-form",
         )
 
     # Stats summary
@@ -307,7 +370,7 @@ def instructor_submissions_list(session, assignment_id: int):
             ),
             fh.A(
                 "Bulk Review",
-                href="#",
+                href="#bulk-approve-form",
                 cls="block text-indigo-600 hover:text-indigo-800 mb-2",
             ),
             fh.A(
@@ -324,6 +387,44 @@ def instructor_submissions_list(session, assignment_id: int):
         main_content,
         user_role=Role.INSTRUCTOR,
         current_path=f"/instructor/assignments/{assignment_id}/submissions",
+    )
+
+
+@rt("/instructor/assignments/{assignment_id}/submissions/bulk-approve")
+@instructor_required
+async def bulk_approve_submissions(session, request, assignment_id: int):
+    """Bulk-release pending feedback for the selected drafts (Bulk Review)."""
+    user = users[session["auth"]]
+
+    assignment = by_id(assignments, assignment_id)
+    if assignment is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+    course = by_id(courses, assignment.course_id)
+    if course is None or course.instructor_email != user.email:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    form = await request.form()
+    raw_ids = form.getlist("draft_ids")
+
+    # Restrict to drafts that actually belong to this assignment — no
+    # cross-assignment approval via crafted form payloads.
+    assignment_draft_ids = {d.id for d in where(drafts, assignment_id=assignment_id)}
+    valid_draft_ids: set[int] = set()
+    for s in raw_ids:
+        try:
+            did = int(s)
+        except (TypeError, ValueError):
+            continue
+        if did in assignment_draft_ids:
+            valid_draft_ids.add(did)
+
+    from app.services.feedback_review import bulk_approve
+
+    bulk_approve(valid_draft_ids, user.email)
+
+    return fh.RedirectResponse(
+        f"/instructor/assignments/{assignment_id}/submissions",
+        status_code=303,
     )
 
 

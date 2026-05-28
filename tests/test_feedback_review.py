@@ -71,3 +71,70 @@ def test_apply_review_ignores_bad_score():
     feedback_review.apply_review(5, {f"score_{aid}": "notanumber"}, "i@e.com", approve=False)
     af = next(a for a in aggregated_feedback() if a.id == aid)
     assert af.aggregated_score == 50.0  # unchanged on bad input
+
+
+# ---- bulk_approve ----
+
+
+def test_bulk_approve_empty_ids_is_a_noop():
+    _seed_agg(10, status="pending_review")
+    res = feedback_review.bulk_approve([], "i@e.com")
+    assert res == {"drafts_approved": 0, "rows_released": 0}
+    # Nothing was released:
+    assert feedback_review.has_pending_feedback(10) is True
+
+
+def test_bulk_approve_releases_all_pending_for_listed_drafts():
+    from app.models.feedback import aggregated_feedback
+
+    # Three drafts, each with one pending row.
+    aids = [_seed_agg(d, category_id=10 + d, status="pending_review") for d in (11, 12, 13)]
+    res = feedback_review.bulk_approve([11, 12, 13], "i@e.com")
+    assert res == {"drafts_approved": 3, "rows_released": 3}
+    for did, aid in zip([11, 12, 13], aids, strict=True):
+        af = next(a for a in aggregated_feedback() if a.id == aid)
+        assert af.status == "approved"
+        assert af.release_date != ""
+        assert af.instructor_email == "i@e.com"
+        # Bulk-approve does NOT claim edits:
+        assert not af.edited_by_instructor
+        # Visible to the student now:
+        assert len(feedback_review.released_feedback_for_draft(did)) == 1
+
+
+def test_bulk_approve_skips_already_released_rows():
+    from app.models.feedback import aggregated_feedback
+
+    already = _seed_agg(14, status="approved")
+    pending = _seed_agg(14, category_id=99, status="pending_review")
+
+    res = feedback_review.bulk_approve([14], "i@e.com")
+    assert res == {"drafts_approved": 1, "rows_released": 1}  # only the pending one
+
+    af_already = next(a for a in aggregated_feedback() if a.id == already)
+    assert af_already.release_date == ""  # not re-stamped
+    af_pending = next(a for a in aggregated_feedback() if a.id == pending)
+    assert af_pending.status == "approved"
+
+
+def test_bulk_approve_leaves_unrelated_drafts_alone():
+    from app.models.feedback import aggregated_feedback
+
+    other_aid = _seed_agg(15, status="pending_review")
+    listed_aid = _seed_agg(16, status="pending_review")
+
+    feedback_review.bulk_approve([16], "i@e.com")
+
+    other = next(a for a in aggregated_feedback() if a.id == other_aid)
+    listed = next(a for a in aggregated_feedback() if a.id == listed_aid)
+    assert other.status == "pending_review"  # not in the set, untouched
+    assert listed.status == "approved"
+
+
+def test_bulk_approve_drafts_touched_counts_unique_drafts_not_rows():
+    """One draft with two pending rows still counts as ONE draft approved."""
+    _seed_agg(17, category_id=20, status="pending_review")
+    _seed_agg(17, category_id=21, status="pending_review")
+
+    res = feedback_review.bulk_approve([17], "i@e.com")
+    assert res == {"drafts_approved": 1, "rows_released": 2}
