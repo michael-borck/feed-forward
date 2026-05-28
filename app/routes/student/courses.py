@@ -9,7 +9,17 @@ from app.models.assignment import assignments
 from app.models.course import courses, enrollments
 from app.models.feedback import drafts
 from app.models.user import Role, users
+from app.utils.assignment_filter import filter_assignments_by_status
 from app.utils.ui import action_button, dashboard_layout, status_badge
+
+# Tab styling — selected vs. unselected for the All/Active/Completed filter.
+_TAB_BASE = "inline-block px-4 py-2 rounded-md"
+_TAB_SELECTED = f"{_TAB_BASE} bg-indigo-600 text-white"
+_TAB_UNSELECTED = f"{_TAB_BASE} bg-gray-200 ml-2"
+
+
+def _tab_cls(tab_name: str, current_filter: str) -> str:
+    return _TAB_SELECTED if tab_name == current_filter else _TAB_UNSELECTED
 
 
 def get_student_course(course_id, student_email):
@@ -303,6 +313,12 @@ def student_course_assignments(session, request, course_id: int):
             # Include all assignments, not just active ones
             course_assignments.append(assignment)
 
+    # Tab filter (status summary in the sidebar stays unfiltered — it's a
+    # summary of *all* assignments). ``visible_assignments`` is what gets
+    # rendered in the main list below.
+    filter_status = (request.query_params.get("filter") or "all").lower()
+    visible_assignments = filter_assignments_by_status(course_assignments, filter_status)
+
     # Get student drafts for these assignments
     student_drafts = {}
 
@@ -390,18 +406,18 @@ def student_course_assignments(session, request, course_id: int):
                 fh.Div(
                     fh.A(
                         "All",
-                        href="#",
-                        cls="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md",
+                        href=f"/student/courses/{course_id}/assignments?filter=all",
+                        cls=_tab_cls("all", filter_status),
                     ),
                     fh.A(
                         "Active",
-                        href="#",
-                        cls="inline-block px-4 py-2 bg-gray-200 rounded-md ml-2",
+                        href=f"/student/courses/{course_id}/assignments?filter=active",
+                        cls=_tab_cls("active", filter_status),
                     ),
                     fh.A(
                         "Completed",
-                        href="#",
-                        cls="inline-block px-4 py-2 bg-gray-200 rounded-md ml-2",
+                        href=f"/student/courses/{course_id}/assignments?filter=completed",
+                        cls=_tab_cls("completed", filter_status),
                     ),
                     cls="mb-4 md:mb-0",
                 ),
@@ -540,12 +556,12 @@ def student_course_assignments(session, request, course_id: int):
                     )
                 )
                 for assignment in sorted(
-                    course_assignments,
+                    visible_assignments,
                     key=lambda a: (a.status != "active", a.due_date),
                     reverse=False,
                 )
             )
-            if course_assignments
+            if visible_assignments
             else fh.P(
                 "No assignments found for this course.",
                 cls="text-gray-500 italic p-6 bg-white rounded-xl border border-gray-200 text-center",
