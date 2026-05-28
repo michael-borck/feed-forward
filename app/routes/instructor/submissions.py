@@ -17,6 +17,7 @@ from app.models.feedback import (
 )
 from app.models.user import Role, users
 from app.utils.db_query import first, where
+from app.utils.mailto import student_mailto
 from app.utils.ui import card, dashboard_layout
 
 
@@ -521,7 +522,7 @@ def instructor_submission_detail(session, draft_id: int):
             ),
             fh.A(
                 "Email Student",
-                href="#",
+                href=student_mailto(draft.student_email, assignment.title),
                 cls="block text-indigo-600 hover:text-indigo-800",
             ),
         ),
