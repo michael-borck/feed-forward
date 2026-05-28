@@ -73,22 +73,25 @@ BRAND_COLORS = {
     "border-hover": "blue-300"
 }
 
+# Tightened in the 2026-05 design refresh (see docs/design-audit-2026-05.md).
+# These mirror app/utils/design.py TEXT/button_classes scales; this slice
+# leaves them in-file rather than migrating every reference — that's a
+# follow-up cleanup.
 TYPOGRAPHY = {
-    "hero": "text-4xl md:text-6xl font-bold leading-tight",
-    "h1": "text-3xl md:text-4xl font-bold leading-tight",
-    "h2": "text-2xl md:text-3xl font-semibold leading-snug",
-    "h3": "text-xl md:text-2xl font-semibold leading-snug",
-    "body-lg": "text-lg leading-relaxed",
-    "body": "text-base leading-relaxed",
+    "hero": "text-3xl md:text-5xl font-bold leading-tight",
+    "h1": "text-2xl md:text-3xl font-semibold leading-tight",
+    "h2": "text-xl md:text-2xl font-semibold leading-snug",
+    "h3": "text-base md:text-lg font-semibold leading-snug",
+    "body-lg": "text-base leading-normal",
+    "body": "text-base leading-normal",
     "body-sm": "text-sm leading-normal",
-    "caption": "text-xs leading-normal"
+    "caption": "text-xs leading-normal",
 }
 
-# Professional Button Styles with softer appearance
 BUTTON_STYLES = {
-    "primary": f"bg-{BRAND_COLORS['primary']} hover:bg-{BRAND_COLORS['primary-dark']} text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5",
-    "secondary": f"bg-white hover:bg-{BRAND_COLORS['accent-light']} text-{BRAND_COLORS['primary']} border-2 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']} px-8 py-4 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md",
-    "ghost": f"text-{BRAND_COLORS['primary']} hover:text-{BRAND_COLORS['primary-dark']} hover:bg-{BRAND_COLORS['accent-light']} px-4 py-2 rounded-lg transition-all font-medium"
+    "primary": f"bg-{BRAND_COLORS['primary']} hover:bg-{BRAND_COLORS['primary-dark']} text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm hover:shadow",
+    "secondary": f"bg-white hover:bg-{BRAND_COLORS['accent-light']} text-{BRAND_COLORS['primary']} border border-{BRAND_COLORS['primary']} px-5 py-2.5 rounded-lg font-medium transition-colors",
+    "ghost": f"text-{BRAND_COLORS['primary']} hover:bg-{BRAND_COLORS['accent-light']} px-4 py-2 rounded-lg transition-colors font-medium",
 }
 
 # --- Root Route with Smart Redirection ---
@@ -131,7 +134,7 @@ def landing_page(session=None):
                     Div(
                         Span("Feed", cls=f"text-{BRAND_COLORS['primary']} font-bold"),
                         Span("Forward", cls=f"text-{BRAND_COLORS['secondary']} font-bold"),
-                        cls="text-5xl md:text-6xl mb-4",
+                        cls="text-3xl md:text-5xl mb-3",
                     ),
                     H1(
                         "Elevate Your Learning",
@@ -139,7 +142,7 @@ def landing_page(session=None):
                     ),
                     P(
                         "Transforming feedback into a path to success.",
-                        cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-10 max-w-2xl mx-auto",
+                        cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 max-w-2xl mx-auto",
                     ),
                     Div(
                         A(
@@ -169,9 +172,9 @@ def landing_page(session=None):
                     ),
                     cls="absolute inset-0 overflow-hidden pointer-events-none",
                 ),
-                cls="bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 p-16 rounded-xl shadow-lg relative",
+                cls="bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 p-8 rounded-lg shadow relative",
             ),
-            cls="container mx-auto px-4 py-20 flex justify-center",
+            cls="container mx-auto px-4 py-6 flex justify-center",
         ),
         # Features Section with enhanced styling
         Div(
@@ -183,7 +186,7 @@ def landing_page(session=None):
                     ),
                     P(
                         "Our platform makes iterative learning simple and effective.",
-                        cls=f"{TYPOGRAPHY['body-lg']} text-center text-{BRAND_COLORS['text-secondary']} mb-16 max-w-3xl mx-auto",
+                        cls=f"{TYPOGRAPHY['body-lg']} text-center text-{BRAND_COLORS['text-secondary']} mb-6 max-w-3xl mx-auto",
                     ),
                     Div(
                         # Feature 1
@@ -280,7 +283,7 @@ def landing_page(session=None):
                     ),
                     cls="p-4",
                 ),
-                cls="container mx-auto px-4 py-20",
+                cls="container mx-auto px-4 py-8",
             ),
             id="features",
             cls="bg-gradient-to-b from-gray-50 to-gray-100",
@@ -290,7 +293,7 @@ def landing_page(session=None):
             Div(
                 H2(
                     "What Our Users Say",
-                    cls=f"{TYPOGRAPHY['h1']} text-center text-{BRAND_COLORS['text-primary']} mb-16",
+                    cls=f"{TYPOGRAPHY['h1']} text-center text-{BRAND_COLORS['text-primary']} mb-6",
                 ),
                 Div(
                     # Testimonial 1
@@ -338,7 +341,7 @@ def landing_page(session=None):
                     ),
                     cls="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto",
                 ),
-                cls="container mx-auto px-4 py-20",
+                cls="container mx-auto px-4 py-8",
             ),
             cls=f"bg-gradient-to-br from-{BRAND_COLORS['accent-light']} to-{BRAND_COLORS['accent']}",
         ),
@@ -712,7 +715,7 @@ def error_404_page(session=None, message: Optional[str] = None):
                         cls=f"{TYPOGRAPHY['h1']} text-{BRAND_COLORS['text-primary']} mb-6 text-center",
                     ),
                     # Error message
-                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-10 text-center max-w-md"),
+                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 text-center max-w-md"),
                     # Action buttons
                     Div(
                         A(
@@ -729,7 +732,7 @@ def error_404_page(session=None, message: Optional[str] = None):
                     ),
                     cls=f"p-12 bg-white rounded-2xl shadow-2xl border border-{BRAND_COLORS['border']} max-w-lg mx-auto",
                 ),
-                cls="container mx-auto px-4 py-16",
+                cls="container mx-auto px-4 py-8",
             ),
             cls="flex-grow bg-gradient-to-b from-gray-50 to-indigo-50 flex items-center",
         )
@@ -765,7 +768,7 @@ def error_403_page(session=None, message: Optional[str] = None):
                         cls=f"{TYPOGRAPHY['h1']} text-{BRAND_COLORS['text-primary']} mb-6 text-center",
                     ),
                     # Error message
-                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-10 text-center max-w-md"),
+                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 text-center max-w-md"),
                     # Action buttons
                     Div(
                         A(
@@ -782,7 +785,7 @@ def error_403_page(session=None, message: Optional[str] = None):
                     ),
                     cls=f"p-12 bg-white rounded-2xl shadow-2xl border border-{BRAND_COLORS['border']} max-w-lg mx-auto",
                 ),
-                cls="container mx-auto px-4 py-16",
+                cls="container mx-auto px-4 py-8",
             ),
             cls="flex-grow bg-gradient-to-b from-gray-50 to-indigo-50 flex items-center",
         )

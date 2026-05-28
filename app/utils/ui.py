@@ -8,6 +8,15 @@ that are shared across multiple pages in the application.
 from fasthtml import common as fh
 
 from app.models.user import Role
+from app.utils.design import (
+    BODY_VPAD,
+    COLOR,
+    DASHBOARD_BODY_PAD,
+    GAP,
+    RADIUS,
+    SHADOW_HOVER,
+    SHADOW_REST,
+)
 
 
 def page_header(show_auth_buttons=True):
@@ -119,14 +128,14 @@ def page_footer():
                 ),
                 cls="md:w-1/3 flex gap-12",
             ),
-            cls="container mx-auto px-4 py-8 flex flex-col md:flex-row justify-between",
+            cls="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between gap-4",
         ),
         fh.Div(
             fh.P(
                 f"© {current_year} FeedForward. All rights reserved.",
                 cls="text-center text-gray-500 text-sm",
             ),
-            cls="container mx-auto px-4 py-4 border-t border-gray-200",
+            cls="container mx-auto px-4 py-3 border-t border-gray-200",
         ),
         cls="bg-gray-50",
     )
@@ -146,7 +155,7 @@ def page_container(title, content):
         page_header(),
         fh.Div(
             content,
-            cls="container mx-auto px-4 py-16 flex justify-center bg-gray-100",
+            cls=f"container mx-auto px-4 {BODY_VPAD} flex justify-center bg-{COLOR['surface_alt']}",
         ),
         page_footer(),
         cls="min-h-screen flex flex-col",
@@ -327,40 +336,47 @@ def dashboard_layout(
         dashboard_header(user_role, current_path),
         fh.Div(
             fh.Div(
-                fh.Div(sidebar, cls="w-full md:w-1/4 mb-6 md:mb-0"),
+                fh.Div(sidebar, cls="w-full md:w-1/4 mb-4 md:mb-0"),
                 fh.Div(main_content, cls="w-full md:w-3/4"),
-                cls="flex flex-col md:flex-row gap-8",
+                cls=f"flex flex-col md:flex-row gap-{GAP['lg']}",
             ),
-            cls="container mx-auto p-6",
+            cls=f"container mx-auto {DASHBOARD_BODY_PAD}",
         ),
         page_footer(),
-        cls="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-indigo-50",
+        cls=f"min-h-screen flex flex-col bg-{COLOR['surface_alt']}",
     )
 
 
-def card(content, title=None, padding=6, bg_color="bg-white"):
+def card(content, title=None, padding=4, bg_color="bg-white"):
     """
-    Create a standard card component with consistent styling
+    Create a standard card component with consistent styling.
+
+    Default padding is ``4`` (was ``6``) and the radius/shadow now come from
+    the design tokens. Callers that need a roomier card can still pass
+    ``padding=6`` explicitly.
 
     Args:
         content: Content to display inside the card
         title: Optional card title
-        padding: Padding size (default: 6)
+        padding: Padding size (default: 4)
         bg_color: Background color class (default: bg-white)
     """
     card_content = []
     if title:
         card_content.append(
             fh.Div(
-                fh.H3(title, cls="text-lg font-bold text-slate-800"),
-                cls="mb-4 pb-3 border-b border-gray-100",
+                fh.H3(title, cls=f"text-lg font-semibold text-{COLOR['text_strong']}"),
+                cls="mb-3 pb-2 border-b border-gray-100",
             )
         )
     card_content.append(content)
 
     return fh.Div(
         *card_content,
-        cls=f"{bg_color} p-{padding} rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100",
+        cls=(
+            f"{bg_color} p-{padding} {RADIUS} {SHADOW_REST} "
+            f"hover:{SHADOW_HOVER} transition-shadow border border-{COLOR['border']}"
+        ),
     )
 
 
