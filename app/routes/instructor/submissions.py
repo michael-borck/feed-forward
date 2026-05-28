@@ -19,6 +19,7 @@ from app.models.user import Role, users
 from app.utils.csv_export import build_submissions_csv
 from app.utils.db_query import by_id, first, where
 from app.utils.mailto import student_mailto
+from app.utils.markdown_export import build_feedback_markdown
 from app.utils.ui import card, dashboard_layout
 
 # ---- Bulk-review helpers ----------------------------------------------------
@@ -329,7 +330,7 @@ def instructor_submissions_list(session, assignment_id: int):
                     f"Submissions: {assignment.title}",
                     cls="text-2xl font-bold text-gray-900",
                 ),
-                fh.P(f"Course: {course.name}", cls="text-gray-600"),
+                fh.P(f"Course: {course.title}", cls="text-gray-600"),
                 cls="flex-1",
             ),
             fh.Div(
@@ -460,6 +461,44 @@ def export_submissions_csv(session, assignment_id: int):
     return Response(
         csv_text,
         media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@rt("/instructor/submissions/{draft_id}/export")
+@instructor_required
+def export_feedback_markdown_for_draft(session, draft_id: int):
+    """Download one draft's aggregated feedback as Markdown (per-draft Export Feedback)."""
+    from starlette.responses import Response
+
+    from app.models.assignment import rubric_categories
+
+    user = users[session["auth"]]
+
+    draft = by_id(drafts, draft_id)
+    if draft is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+    assignment = by_id(assignments, draft.assignment_id)
+    if assignment is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+    course = by_id(courses, assignment.course_id)
+    if course is None or course.instructor_email != user.email:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    agg_rows = where(aggregated_feedback, draft_id=draft_id)
+    category_name_by_id = {c.id: c.name for c in rubric_categories()}
+
+    md = build_feedback_markdown(
+        draft, assignment, course.title, agg_rows, category_name_by_id,
+    )
+
+    # Use the local part of the email as a friendly filename hint; fall back
+    # to "draft" if the email is empty or weird.
+    handle = (draft.student_email or "").split("@")[0] or "draft"
+    filename = f"feedback-{handle}-{draft_id}.md"
+    return Response(
+        md,
+        media_type="text/markdown; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
