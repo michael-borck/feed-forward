@@ -16,7 +16,8 @@ from app.models.feedback import (
     model_runs,
 )
 from app.models.user import Role, users
-from app.utils.db_query import first, where
+from app.utils.csv_export import build_submissions_csv
+from app.utils.db_query import by_id, first, where
 from app.utils.mailto import student_mailto
 from app.utils.ui import card, dashboard_layout
 
@@ -301,7 +302,7 @@ def instructor_submissions_list(session, assignment_id: int):
         fh.Div(
             fh.A(
                 "Export Data",
-                href="#",
+                href=f"/instructor/assignments/{assignment_id}/submissions.csv",
                 cls="block text-indigo-600 hover:text-indigo-800 mb-2",
             ),
             fh.A(
@@ -323,6 +324,42 @@ def instructor_submissions_list(session, assignment_id: int):
         main_content,
         user_role=Role.INSTRUCTOR,
         current_path=f"/instructor/assignments/{assignment_id}/submissions",
+    )
+
+
+@rt("/instructor/assignments/{assignment_id}/submissions.csv")
+@instructor_required
+def export_submissions_csv(session, assignment_id: int):
+    """CSV download of every draft for one assignment (one row per draft)."""
+    from starlette.responses import Response
+
+    user = users[session["auth"]]
+
+    assignment = by_id(assignments, assignment_id)
+    if assignment is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+    course = by_id(courses, assignment.course_id)
+    if course is None or course.instructor_email != user.email:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    drafts_for_assignment = where(drafts, assignment_id=assignment_id)
+    all_agg = list(aggregated_feedback())
+
+    rows = []
+    for draft in drafts_for_assignment:
+        agg_for_draft = [af for af in all_agg if af.draft_id == draft.id]
+        if agg_for_draft:
+            overall = sum(af.aggregated_score for af in agg_for_draft) / len(agg_for_draft)
+        else:
+            overall = None
+        rows.append((draft, overall))
+
+    csv_text = build_submissions_csv(rows)
+    filename = f"submissions-assignment-{assignment_id}.csv"
+    return Response(
+        csv_text,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
