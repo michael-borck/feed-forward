@@ -58,7 +58,7 @@ def instructor_dashboard(session, request):
         fh.Div(
             fh.H3(
                 f"Welcome, {instructor.name or instructor.email}",
-                cls="text-xl font-semibold text-indigo-900 mb-2",
+                cls="text-xl font-semibold text-[#1a2e44] mb-2",
             ),
             fh.P("Instructor Dashboard", cls="text-gray-600 mb-4"),
             fh.Div(
@@ -72,7 +72,7 @@ def instructor_dashboard(session, request):
         ),
         # Quick stats
         fh.Div(
-            fh.H3("Quick Stats", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Quick Stats", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(
                 f"Active Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"
             ),
@@ -130,11 +130,11 @@ def instructor_dashboard(session, request):
         # Courses section
         fh.Div(
             fh.Div(
-                fh.H2("Your Courses", cls="text-2xl font-bold text-indigo-900"),
+                fh.H2("Your Courses", cls="text-2xl font-bold text-[#1a2e44]"),
                 fh.A(
                     "Manage Courses",
                     href="/instructor/courses",
-                    cls="text-indigo-600 hover:underline text-sm",
+                    cls="text-teal-600 hover:underline text-sm",
                 ),
                 cls="flex justify-between items-center mb-6",
             ),
@@ -185,7 +185,7 @@ def instructor_dashboard(session, request):
         ),
         # Recent submissions section
         fh.Div(
-            fh.H2("Recent Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.H2("Recent Submissions", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             fh.Div(
                 *(
                     fh.A(

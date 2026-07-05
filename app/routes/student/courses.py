@@ -14,7 +14,7 @@ from app.utils.ui import action_button, dashboard_layout, status_badge
 
 # Tab styling — selected vs. unselected for the All/Active/Completed filter.
 _TAB_BASE = "inline-block px-4 py-2 rounded-md"
-_TAB_SELECTED = f"{_TAB_BASE} bg-indigo-600 text-white"
+_TAB_SELECTED = f"{_TAB_BASE} bg-[#1a2e44] text-[#faf8f2]"
 _TAB_UNSELECTED = f"{_TAB_BASE} bg-gray-200 ml-2"
 
 
@@ -72,7 +72,7 @@ def student_course_view(session, request, course_id: int):
             fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -96,7 +96,7 @@ def student_course_view(session, request, course_id: int):
     sidebar_content = fh.Div(
         # Course info card
         fh.Div(
-            fh.H3(course.title, cls="text-xl font-semibold text-indigo-900 mb-2"),
+            fh.H3(course.title, cls="text-xl font-semibold text-[#1a2e44] mb-2"),
             fh.P(f"Course Code: {course.code}", cls="text-gray-600 mb-1"),
             fh.P(
                 f"Term: {getattr(course, 'term', 'Current')}", cls="text-gray-600 mb-1"
@@ -123,9 +123,7 @@ def student_course_view(session, request, course_id: int):
         ),
         # Course stats
         fh.Div(
-            fh.H3(
-                "Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"
-            ),
+            fh.H3("Course Statistics", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Assignments: {len(course_assignments)}", cls="text-gray-600 mb-2"),
             fh.P(f"Submitted Drafts: {len(student_drafts)}", cls="text-gray-600 mb-2"),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
@@ -134,10 +132,10 @@ def student_course_view(session, request, course_id: int):
 
     # Main content
     main_content = fh.Div(
-        fh.H2(f"Course: {course.title}", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2(f"Course: {course.title}", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         # Assignments section
         fh.Div(
-            fh.H3("Active Assignments", cls="text-xl font-bold text-indigo-900 mb-4"),
+            fh.H3("Active Assignments", cls="text-xl font-bold text-[#1a2e44] mb-4"),
             (
                 fh.Div(
                     *(
@@ -234,7 +232,7 @@ def student_course_view(session, request, course_id: int):
         ),
         # Recent activity for this course
         fh.Div(
-            fh.H3("Recent Activity", cls="text-xl font-bold text-indigo-900 mb-4"),
+            fh.H3("Recent Activity", cls="text-xl font-bold text-[#1a2e44] mb-4"),
             (
                 fh.Div(
                     *(
@@ -305,7 +303,7 @@ def student_course_assignments(session, request, course_id: int):
             fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -340,7 +338,7 @@ def student_course_assignments(session, request, course_id: int):
     sidebar_content = fh.Div(
         # Course info card
         fh.Div(
-            fh.H3(course.title, cls="text-xl font-semibold text-indigo-900 mb-2"),
+            fh.H3(course.title, cls="text-xl font-semibold text-[#1a2e44] mb-2"),
             fh.P(f"Course Code: {course.code}", cls="text-gray-600 mb-1"),
             fh.P(
                 f"Term: {getattr(course, 'term', 'Current')}", cls="text-gray-600 mb-1"
@@ -363,9 +361,7 @@ def student_course_assignments(session, request, course_id: int):
         ),
         # Assignment status summary
         fh.Div(
-            fh.H3(
-                "Assignment Status", cls="text-xl font-semibold text-indigo-900 mb-4"
-            ),
+            fh.H3("Assignment Status", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 fh.Div(
                     fh.Div(
@@ -407,7 +403,7 @@ def student_course_assignments(session, request, course_id: int):
     main_content = fh.Div(
         fh.H2(
             f"Assignments for {course.title}",
-            cls="text-2xl font-bold text-indigo-900 mb-6",
+            cls="text-2xl font-bold text-[#1a2e44] mb-6",
         ),
         # Filter controls (to be implemented later)
         fh.Div(

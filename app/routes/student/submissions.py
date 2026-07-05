@@ -93,7 +93,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
             fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -114,7 +114,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
             fh.A(
                 "View Assignment",
                 href=f"/student/assignments/{assignment_id}",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -132,7 +132,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
         # Assignment info card
         fh.Div(
             fh.H3(
-                "Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"
+                "Assignment Details", cls="text-xl font-semibold text-[#1a2e44] mb-2"
             ),
             fh.P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
             fh.P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
@@ -154,7 +154,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
         ),
         # Submission tips
         fh.Div(
-            fh.H3("Submission Tips", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Submission Tips", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(
                 "• Each submission counts as one draft",
                 cls="text-gray-600 mb-2 text-sm",
@@ -178,7 +178,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
     main_content = fh.Div(
         fh.H2(
             f"Submit Draft {next_version} for {assignment.title}",
-            cls="text-2xl font-bold text-indigo-900 mb-6",
+            cls="text-2xl font-bold text-[#1a2e44] mb-6",
         ),
         # Submission form with enctype for file upload
         fh.Form(
@@ -189,7 +189,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
             fh.Div(
                 fh.Label(
                     "Submission Type",
-                    cls="block text-lg font-semibold text-indigo-900 mb-2",
+                    cls="block text-lg font-semibold text-[#1a2e44] mb-2",
                 ),
                 fh.Div(
                     fh.Div(
@@ -226,7 +226,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 fh.Label(
                     "Your Draft",
                     for_="content",
-                    cls="block text-lg font-semibold text-indigo-900 mb-2",
+                    cls="block text-lg font-semibold text-[#1a2e44] mb-2",
                 ),
                 fh.P("Enter or paste your draft text below.", cls="text-gray-600 mb-1"),
                 fh.P(
@@ -239,7 +239,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                     value=previous_content,
                     placeholder="Enter your draft here...",
                     rows="20",
-                    cls="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono",
+                    cls="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600 font-mono",
                 ),
                 id="text_input_section",
                 cls="mb-6",
@@ -249,7 +249,7 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 fh.Label(
                     "Upload Your File",
                     for_="file_upload",
-                    cls="block text-lg font-semibold text-indigo-900 mb-2",
+                    cls="block text-lg font-semibold text-[#1a2e44] mb-2",
                 ),
                 fh.P(
                     "Select a file to upload for your submission.",
@@ -342,7 +342,7 @@ async def student_assignment_submit_process(
             fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -367,7 +367,7 @@ async def student_assignment_submit_process(
                 fh.A(
                     "Try Again",
                     href=f"/student/assignments/{assignment_id}/submit",
-                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                    cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
                 ),
             )
 
@@ -388,7 +388,7 @@ async def student_assignment_submit_process(
                 fh.A(
                     "Try Again",
                     href=f"/student/assignments/{assignment_id}/submit",
-                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                    cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
                 ),
             )
 
@@ -428,7 +428,7 @@ async def student_assignment_submit_process(
                 fh.A(
                     "Try Again",
                     href=f"/student/assignments/{assignment_id}/submit",
-                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                    cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
                 ),
             )
     else:
@@ -444,7 +444,7 @@ async def student_assignment_submit_process(
                 fh.A(
                     "Try Again",
                     href=f"/student/assignments/{assignment_id}/submit",
-                    cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                    cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
                 ),
             )
 
@@ -523,7 +523,7 @@ async def student_assignment_submit_process(
             fh.A(
                 "Try Again",
                 href=f"/student/assignments/{assignment_id}/submit",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -579,7 +579,7 @@ def student_submissions_list(session, request):
         fh.Div(
             fh.H3(
                 "Submission Management",
-                cls="text-xl font-semibold text-indigo-900 mb-2",
+                cls="text-xl font-semibold text-[#1a2e44] mb-2",
             ),
             fh.P(
                 "This page allows you to view and manage all your submissions across courses.",
@@ -613,7 +613,7 @@ def student_submissions_list(session, request):
         fh.Div(
             fh.H3(
                 "Submission Statistics",
-                cls="text-xl font-semibold text-indigo-900 mb-4",
+                cls="text-xl font-semibold text-[#1a2e44] mb-4",
             ),
             fh.P(f"Total Submissions: {len(student_drafts)}", cls="text-gray-600 mb-2"),
             fh.P(f"Active Assignments: {len(draft_groups)}", cls="text-gray-600 mb-2"),
@@ -630,7 +630,7 @@ def student_submissions_list(session, request):
                 "View Hidden Submissions",
                 hx_get="/student/submissions/hidden",
                 hx_target="#main-content",
-                cls="text-sm text-indigo-600 hover:underline block mt-4",
+                cls="text-sm text-teal-600 hover:underline block mt-4",
             ),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
@@ -640,7 +640,7 @@ def student_submissions_list(session, request):
     main_content = fh.Div(
         fh.H2(
             "Your Submission History",
-            cls="text-2xl font-bold text-indigo-900 mb-6",
+            cls="text-2xl font-bold text-[#1a2e44] mb-6",
             id="main-content",
         ),
         # If no submissions yet
@@ -675,23 +675,23 @@ def student_submissions_list(session, request):
                             fh.Tr(
                                 fh.Th(
                                     "Draft",
-                                    cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                    cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Date",
-                                    cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                    cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Status",
-                                    cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                    cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Words",
-                                    cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                    cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Actions",
-                                    cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                    cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                                 ),
                             )
                         ),
@@ -732,7 +732,7 @@ def student_submissions_list(session, request):
                                             fh.A(
                                                 "View",
                                                 href=f"/student/assignments/{assignment_id}#draft-{draft.id}",
-                                                cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
+                                                cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
                                             ),
                                             fh.Button(
                                                 "Hide",
@@ -854,7 +854,7 @@ def student_submissions_hidden(session, request):
 
     # Return the hidden submissions view
     return fh.Div(
-        fh.H2("Hidden Submissions", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("Hidden Submissions", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         # Show button to go back
         fh.Div(
             fh.Button(
@@ -882,23 +882,23 @@ def student_submissions_hidden(session, request):
                         fh.Tr(
                             fh.Th(
                                 "Assignment",
-                                cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                             ),
                             fh.Th(
                                 "Draft",
-                                cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                             ),
                             fh.Th(
                                 "Date",
-                                cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                             ),
                             fh.Th(
                                 "Status",
-                                cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                             ),
                             fh.Th(
                                 "Actions",
-                                cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b border-indigo-100",
+                                cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b border-indigo-100",
                             ),
                         )
                     ),
@@ -947,13 +947,13 @@ def student_submissions_hidden(session, request):
                                         fh.A(
                                             "View",
                                             href=f"/student/assignments/{draft.assignment_id}#draft-{draft.id}",
-                                            cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
+                                            cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
                                         ),
                                         fh.Button(
                                             "Unhide",
                                             hx_post=f"/student/submissions/unhide/{draft.id}",
                                             hx_target="#main-content",
-                                            cls="text-xs px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700",
+                                            cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30]",
                                         ),
                                         cls="flex",
                                     ),

@@ -306,7 +306,7 @@ def instructor_assignment_analytics(session, assignment_id: int):
                 fh.A(
                     "View Submissions",
                     href=f"/instructor/assignments/{assignment_id}/submissions",
-                    cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors ml-3",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors ml-3",
                 ),
                 cls="flex items-center",
             ),

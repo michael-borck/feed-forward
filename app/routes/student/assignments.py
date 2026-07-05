@@ -422,7 +422,7 @@ def student_assignment_view(session, request, assignment_id: int):
             fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -473,7 +473,7 @@ def student_assignment_view(session, request, assignment_id: int):
         # Assignment info card
         fh.Div(
             fh.H3(
-                "Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"
+                "Assignment Details", cls="text-xl font-semibold text-[#1a2e44] mb-2"
             ),
             fh.P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
             fh.P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
@@ -502,7 +502,7 @@ def student_assignment_view(session, request, assignment_id: int):
             fh.Div(
                 fh.H3(
                     "Rubric Categories",
-                    cls="text-xl font-semibold text-indigo-900 mb-3",
+                    cls="text-xl font-semibold text-[#1a2e44] mb-3",
                 ),
                 fh.Div(
                     *(
@@ -529,13 +529,13 @@ def student_assignment_view(session, request, assignment_id: int):
     # Main content
     main_content = fh.Div(
         # Header
-        fh.H2(assignment.title, cls="text-2xl font-bold text-indigo-900 mb-2"),
+        fh.H2(assignment.title, cls="text-2xl font-bold text-[#1a2e44] mb-2"),
         # Assignment description and specification
         card(
             fh.Div(
                 fh.H3(
                     "Assignment Instructions",
-                    cls="text-xl font-semibold text-indigo-900 mb-4",
+                    cls="text-xl font-semibold text-[#1a2e44] mb-4",
                 ),
                 fh.P(
                     getattr(assignment, "instructions", assignment.description),
@@ -556,7 +556,7 @@ def student_assignment_view(session, request, assignment_id: int):
                                 ),
                                 href=f"/student/assignments/{assignment_id}/spec",
                                 target="_blank",
-                                cls="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium",
+                                cls="inline-flex items-center text-teal-600 hover:text-teal-700 font-medium",
                             ),
                             fh.P(
                                 "View the detailed assignment specification document",
@@ -574,7 +574,7 @@ def student_assignment_view(session, request, assignment_id: int):
         ),
         # Draft history and selection
         fh.Div(
-            fh.H3("Your Drafts", cls="text-xl font-semibold text-indigo-900 mt-8 mb-4"),
+            fh.H3("Your Drafts", cls="text-xl font-semibold text-[#1a2e44] mt-8 mb-4"),
             (
                 fh.Div(
                     tabs(
@@ -593,7 +593,7 @@ def student_assignment_view(session, request, assignment_id: int):
                                     fh.Div(
                                         fh.H4(
                                             f"Draft {draft.version}",
-                                            cls="text-lg font-bold text-indigo-900 mb-2",
+                                            cls="text-lg font-bold text-[#1a2e44] mb-2",
                                         ),
                                         fh.P(
                                             f"Submitted: {draft.submission_date}",
@@ -648,7 +648,7 @@ def student_assignment_view(session, request, assignment_id: int):
                                     fh.Div(
                                         fh.H5(
                                             "AI Feedback Analysis",
-                                            cls="text-lg font-semibold text-indigo-900 mb-4",
+                                            cls="text-lg font-semibold text-[#1a2e44] mb-4",
                                         ),
                                         (
                                             render_enhanced_feedback(
@@ -703,7 +703,7 @@ def student_assignment_view(session, request, assignment_id: int):
                     fh.A(
                         "Submit Your First Draft",
                         href=f"/student/assignments/{assignment_id}/submit",
-                        cls="inline-block bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm mt-4",
+                        cls="inline-block bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm mt-4",
                     ),
                     cls="text-center",
                 ),
@@ -793,7 +793,7 @@ def student_assignments_list(session, request):
         # User welcome card
         fh.Div(
             fh.H3(
-                "Assignment Options", cls="text-xl font-semibold text-indigo-900 mb-4"
+                "Assignment Options", cls="text-xl font-semibold text-[#1a2e44] mb-4"
             ),
             fh.Div(
                 action_button(
@@ -805,7 +805,7 @@ def student_assignments_list(session, request):
         ),
         # Courses filter
         fh.Div(
-            fh.H3("Filter by Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3("Filter by Course", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 *(
                     fh.Div(
@@ -825,7 +825,7 @@ def student_assignments_list(session, request):
 
     # Main content - assignment table
     main_content = fh.Div(
-        fh.H2("All Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("All Assignments", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         # Assignments table
         fh.Div(
             fh.Div(
@@ -834,27 +834,27 @@ def student_assignments_list(session, request):
                         fh.Tr(
                             fh.Th(
                                 "Assignment",
-                                cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                             ),
                             fh.Th(
                                 "Course",
-                                cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                             ),
                             fh.Th(
                                 "Due Date",
-                                cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                             ),
                             fh.Th(
                                 "Status",
-                                cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                             ),
                             fh.Th(
                                 "Progress",
-                                cls="text-center py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                cls="text-center py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                             ),
                             fh.Th(
                                 "Actions",
-                                cls="text-center py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                cls="text-center py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                             ),
                             cls="",
                         )
@@ -1019,7 +1019,7 @@ def student_assignment_spec_view(session, assignment_id: int):
             fh.A(
                 "Return to Dashboard",
                 href="/student/dashboard",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -1033,7 +1033,7 @@ def student_assignment_spec_view(session, assignment_id: int):
             fh.A(
                 "Back to Assignment",
                 href=f"/student/assignments/{assignment_id}",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 
@@ -1051,7 +1051,7 @@ def student_assignment_spec_view(session, assignment_id: int):
             fh.A(
                 "Back to Assignment",
                 href=f"/student/assignments/{assignment_id}",
-                cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
+                cls="mt-4 inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg",
             ),
         )
 

@@ -33,7 +33,7 @@ def _signal_services_card():
             fh.A(
                 "Details →",
                 href="/admin/signal-services",
-                cls="text-xs text-indigo-600 hover:text-indigo-800 mt-2 inline-block",
+                cls="text-xs text-teal-600 hover:text-teal-700 mt-2 inline-block",
             ),
             cls="text-center p-4",
         ),
@@ -54,7 +54,7 @@ def admin_dashboard(session):
         fh.Div(
             fh.H3(
                 "Welcome, " + user.name,
-                cls="text-xl font-semibold text-indigo-900 mb-2",
+                cls="text-xl font-semibold text-[#1a2e44] mb-2",
             ),
             fh.P("Admin Account", cls="text-gray-600 mb-4"),
             fh.Div(
@@ -76,7 +76,7 @@ def admin_dashboard(session):
         ),
         # Quick actions section
         fh.Div(
-            fh.H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Actions", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Approve Instructors",
@@ -142,7 +142,7 @@ def admin_dashboard(session):
         ),
         # User Management
         fh.Div(
-            fh.H2("User Management", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.H2("User Management", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             fh.Div(
                 fh.Div(
                     fh.H3(
@@ -184,9 +184,7 @@ def admin_dashboard(session):
         ),
         # System Configuration
         fh.Div(
-            fh.H2(
-                "System Configuration", cls="text-2xl font-bold text-indigo-900 mb-6"
-            ),
+            fh.H2("System Configuration", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             fh.Div(
                 fh.Div(
                     fh.H3(

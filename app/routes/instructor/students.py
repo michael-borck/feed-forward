@@ -104,7 +104,7 @@ def instructor_manage_students(session, request):
                             "Resend",
                             hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(email)}&course_id={student_info['courses'][0].id}",
                             hx_target="#message-area",
-                            cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
+                            cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
                         )
                         if not student_info["verified"]
                         else "",
@@ -124,7 +124,7 @@ def instructor_manage_students(session, request):
             student_rows.append(row)
 
         main_content = fh.Div(
-            fh.H2("All Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.H2("All Students", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             fh.Div(id="message-area", cls="mb-4"),
             fh.Div(
                 fh.Table(
@@ -133,7 +133,7 @@ def instructor_manage_students(session, request):
                             *[
                                 fh.Th(
                                     h,
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 )
                                 for h in [
                                     "Email",
@@ -156,7 +156,7 @@ def instructor_manage_students(session, request):
         )
     else:
         main_content = fh.Div(
-            fh.H2("All Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.H2("All Students", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             card(
                 fh.Div(
                     fh.P(
@@ -167,7 +167,7 @@ def instructor_manage_students(session, request):
                         fh.A(
                             "Invite Students",
                             href="/instructor/invite-students",
-                            cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                            cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                         ),
                         cls="text-center",
                     ),
@@ -180,7 +180,7 @@ def instructor_manage_students(session, request):
     sidebar_content = fh.Div(
         fh.Div(
             fh.H3(
-                "Student Management", cls="text-xl font-semibold text-indigo-900 mb-4"
+                "Student Management", cls="text-xl font-semibold text-[#1a2e44] mb-4"
             ),
             fh.Div(
                 action_button(
@@ -197,7 +197,7 @@ def instructor_manage_students(session, request):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         fh.Div(
-            fh.H3("Statistics", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Statistics", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Total Students: {len(students_list)}", cls="text-gray-600 mb-2"),
             fh.P(
                 f"Enrolled: {sum(1 for s in students_list if s['verified'])}",
@@ -292,7 +292,7 @@ def instructor_course_students(session, course_id: int):
                             "Resend",
                             hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(student['email'])}&course_id={course_id}",
                             hx_target=f"#status-{idx}",
-                            cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
+                            cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
                         )
                         if not student["verified"]
                         else "",
@@ -317,7 +317,7 @@ def instructor_course_students(session, course_id: int):
         main_content = fh.Div(
             fh.H2(
                 f"Students in {target_course.title} ({target_course.code})",
-                cls="text-2xl font-bold text-indigo-900 mb-6",
+                cls="text-2xl font-bold text-[#1a2e44] mb-6",
             ),
             # Add message area for delete confirmations
             fh.Div(id="message-area", cls="mb-4"),
@@ -328,7 +328,7 @@ def instructor_course_students(session, course_id: int):
                             *[
                                 fh.Th(
                                     h,
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 )
                                 for h in ["#", "Email", "Name", "Status", "Actions"]
                             ],
@@ -356,7 +356,7 @@ def instructor_course_students(session, course_id: int):
         main_content = fh.Div(
             fh.H2(
                 f"Students in {target_course.title} ({target_course.code})",
-                cls="text-2xl font-bold text-indigo-900 mb-6",
+                cls="text-2xl font-bold text-[#1a2e44] mb-6",
             ),
             card(
                 fh.Div(
@@ -368,7 +368,7 @@ def instructor_course_students(session, course_id: int):
                         fh.A(
                             "Invite Students",
                             href=f"/instructor/invite-students?course_id={course_id}",
-                            cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                            cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                         ),
                         cls="text-center",
                     ),
@@ -381,7 +381,7 @@ def instructor_course_students(session, course_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Course Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3("Course Actions", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Back to Dashboard",
@@ -400,7 +400,7 @@ def instructor_course_students(session, course_id: int):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         fh.Div(
-            fh.H3("Course Details", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Course Details", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Title: {target_course.title}", cls="text-gray-600 mb-2"),
             fh.P(f"Code: {target_course.code}", cls="text-gray-600 mb-2"),
             fh.P(f"Students: {len(sorted_students)}", cls="text-gray-600 mb-2"),
@@ -564,7 +564,7 @@ def instructor_invite_students_form(session, request):
 
     # Main content
     main_content = fh.Div(
-        fh.H2("Invite Students", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("Invite Students", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         fh.Form(
             # Course selection
             fh.Div(
@@ -586,7 +586,7 @@ def instructor_invite_students_form(session, request):
                     ],
                     id="course_id",
                     name="course_id",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -603,7 +603,7 @@ def instructor_invite_students_form(session, request):
                     rows=6,
                     placeholder="Enter one email per line\nexample1@email.com\nexample2@email.com",
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 fh.P(
                     "Enter one email address per line. Students will receive an invitation to join your course.",
@@ -616,7 +616,7 @@ def instructor_invite_students_form(session, request):
                 fh.Button(
                     "Send Invitations",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors",
                 ),
                 fh.A(
                     "Cancel",
@@ -634,7 +634,7 @@ def instructor_invite_students_form(session, request):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Invitation Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3("Invitation Tips", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(
                 "• Students will receive an email invitation", cls="text-gray-600 mb-2"
             ),

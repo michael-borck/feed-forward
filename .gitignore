@@ -65,3 +65,7 @@ local_settings.py
 _notes
 .opencode
 .pytest_cache/
+
+# macOS AppleDouble sidecars (external drive)
+._*
+.DS_Store

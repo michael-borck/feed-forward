@@ -35,13 +35,13 @@ def student_join_form(token: str):
                     fh.Div(fh.Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
                     # Brand logo
                     fh.Div(
-                        fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                        fh.Span("Feed", cls="text-teal-600 font-bold"),
                         fh.Span("Forward", cls="text-emerald-600 font-bold"),
                         cls="text-3xl mb-4 text-center",
                     ),
                     fh.H1(
                         "Invalid Invitation Link",
-                        cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                        cls="text-2xl font-bold text-[#1a2e44] mb-4 text-center",
                     ),
                     fh.P(
                         "The invitation link is invalid or has expired.",
@@ -51,7 +51,7 @@ def student_join_form(token: str):
                         fh.A(
                             "Return to Home",
                             href="/",
-                            cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                            cls="inline-block bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                         ),
                         cls="text-center",
                     ),
@@ -69,13 +69,13 @@ def student_join_form(token: str):
         fh.Div(
             # Brand logo on registration form
             fh.Div(
-                fh.Span("Feed", cls="text-indigo-600 font-bold"),
+                fh.Span("Feed", cls="text-teal-600 font-bold"),
                 fh.Span("Forward", cls="text-emerald-600 font-bold"),
                 cls="text-3xl mb-4 text-center",
             ),
             fh.H1(
                 "Complete Your Registration",
-                cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
+                cls="text-2xl font-bold text-[#1a2e44] mb-6 text-center",
             ),
             fh.Div(
                 fh.Form(
@@ -85,7 +85,7 @@ def student_join_form(token: str):
                         fh.Label(
                             "Email",
                             for_="display_email",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-[#1a2e44] font-medium mb-1",
                         ),
                         fh.Input(
                             id="display_email",
@@ -100,14 +100,14 @@ def student_join_form(token: str):
                         fh.Label(
                             "Name",
                             for_="name",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-[#1a2e44] font-medium mb-1",
                         ),
                         fh.Input(
                             id="name",
                             type="text",
                             placeholder="Your full name",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-4",
                     ),
@@ -115,7 +115,7 @@ def student_join_form(token: str):
                         fh.Label(
                             "Password",
                             for_="password",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-[#1a2e44] font-medium mb-1",
                         ),
                         fh.P(
                             "At least 8 characters with uppercase, lowercase, number, and special character",
@@ -126,7 +126,7 @@ def student_join_form(token: str):
                             type="password",
                             placeholder="Create a password",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-4",
                     ),
@@ -134,14 +134,14 @@ def student_join_form(token: str):
                         fh.Label(
                             "Confirm Password",
                             for_="confirm_password",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-[#1a2e44] font-medium mb-1",
                         ),
                         fh.Input(
                             id="confirm_password",
                             type="password",
                             placeholder="Confirm your password",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-6",
                     ),
@@ -149,7 +149,7 @@ def student_join_form(token: str):
                         fh.Button(
                             "Complete Registration",
                             type="submit",
-                            cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
+                            cls="w-full bg-[#1a2e44] text-[#faf8f2] py-3 rounded-lg hover:bg-[#0f1e30] focus:outline-none focus:ring-2 focus:ring-teal-600 transition-colors font-medium shadow-sm",
                         ),
                         cls="mb-4",
                     ),

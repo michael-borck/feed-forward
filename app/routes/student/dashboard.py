@@ -30,7 +30,7 @@ def generate_recent_feedback(student_drafts):
     # Main content
     if not visible_drafts:
         return fh.Div(
-            fh.H2("Recent Feedback", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.H2("Recent Feedback", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             fh.P(
                 "No recent feedback.",
                 cls="text-gray-500 italic bg-white p-6 rounded-xl border border-gray-200 text-center",
@@ -63,7 +63,7 @@ def generate_recent_feedback(student_drafts):
         )
 
     return fh.Div(
-        fh.H2("Recent Feedback", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("Recent Feedback", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         fh.Div(*feedback_items),
         cls="mb-8",
     )
@@ -73,7 +73,7 @@ def generate_assignments_sidebar(student_assignments, student_drafts):
     """Generate the assignments sidebar component for student dashboard"""
     if not student_assignments:
         return fh.Div(
-            fh.H3("Active Assignments", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Active Assignments", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P("No active assignments.", cls="text-gray-500 italic text-sm"),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
@@ -125,12 +125,12 @@ def generate_assignments_sidebar(student_assignments, student_drafts):
 
     # Create the full sidebar component
     return fh.Div(
-        fh.H3("Active Assignments", cls="font-semibold text-indigo-900 mb-4"),
+        fh.H3("Active Assignments", cls="font-semibold text-[#1a2e44] mb-4"),
         fh.Div(*assignment_items),
         fh.A(
             "View All Assignments",
             href="/student/assignments",
-            cls="text-sm text-indigo-600 hover:underline block mt-2",
+            cls="text-sm text-teal-600 hover:underline block mt-2",
         ),
         cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
     )
@@ -184,9 +184,7 @@ def student_dashboard(session, request):
 
     # Create each part of the sidebar separately
     welcome_card = fh.Div(
-        fh.H3(
-            "Welcome, " + user.name, cls="text-xl font-semibold text-indigo-900 mb-2"
-        ),
+        fh.H3("Welcome, " + user.name, cls="text-xl font-semibold text-[#1a2e44] mb-2"),
         fh.P("Student Account", cls="text-gray-600 mb-4"),
         fh.Div(
             # Active assignments summary
@@ -208,7 +206,7 @@ def student_dashboard(session, request):
 
     # Active courses section
     courses_card = fh.Div(
-        fh.H3("Your Courses", cls="font-semibold text-indigo-900 mb-4"),
+        fh.H3("Your Courses", cls="font-semibold text-[#1a2e44] mb-4"),
         fh.Div(
             *(
                 fh.Div(
@@ -282,7 +280,7 @@ def student_dashboard(session, request):
         ),
         # Courses section
         fh.Div(
-            fh.H2("Your Courses", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.H2("Your Courses", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             (
                 fh.Div(
                     *(
@@ -347,9 +345,7 @@ def student_dashboard(session, request):
         ),
         # Upcoming assignments section
         fh.Div(
-            fh.H2(
-                "Upcoming Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"
-            ),
+            fh.H2("Upcoming Assignments", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
             fh.Div(
                 *(
                     fh.Div(

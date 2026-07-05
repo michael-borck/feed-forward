@@ -51,7 +51,7 @@ def _bulk_td(sub: dict, has_bulk_eligible: bool) -> tuple:
                 type="checkbox",
                 name="draft_ids",
                 value=str(sub["draft"].id),
-                cls="h-4 w-4 rounded border-gray-300 text-indigo-600",
+                cls="h-4 w-4 rounded border-gray-300 text-teal-600",
             ),
             cls="px-4 py-3 text-center",
         ),
@@ -181,7 +181,7 @@ def instructor_submissions_list(session, assignment_id: int):
                 fh.A(
                     "View Details",
                     href=f"/instructor/submissions/{draft.id}",
-                    cls="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3",
+                    cls="text-teal-600 hover:text-teal-700 text-sm font-medium mr-3",
                 ),
                 fh.A(
                     "Signals",
@@ -342,7 +342,7 @@ def instructor_submissions_list(session, assignment_id: int):
                 fh.A(
                     "Analytics",
                     href=f"/instructor/assignments/{assignment_id}/analytics",
-                    cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors ml-3",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors ml-3",
                 ),
                 fh.A(
                     "Signal Rules",
@@ -367,17 +367,17 @@ def instructor_submissions_list(session, assignment_id: int):
             fh.A(
                 "Export Data",
                 href=f"/instructor/assignments/{assignment_id}/submissions.csv",
-                cls="block text-indigo-600 hover:text-indigo-800 mb-2",
+                cls="block text-teal-600 hover:text-teal-700 mb-2",
             ),
             fh.A(
                 "Bulk Review",
                 href="#bulk-approve-form",
-                cls="block text-indigo-600 hover:text-indigo-800 mb-2",
+                cls="block text-teal-600 hover:text-teal-700 mb-2",
             ),
             fh.A(
                 "Assignment Settings",
                 href=f"/instructor/assignments/{assignment_id}/edit",
-                cls="block text-indigo-600 hover:text-indigo-800",
+                cls="block text-teal-600 hover:text-teal-700",
             ),
         ),
     )
@@ -652,7 +652,7 @@ def instructor_submission_detail(session, draft_id: int):
                         fh.P("Overall Score", cls="text-sm text-gray-600"),
                         fh.P(
                             f"{agg_overall:.0f}%" if agg_overall is not None else "—",
-                            cls="text-2xl font-bold text-indigo-600",
+                            cls="text-2xl font-bold text-teal-600",
                         ),
                         cls="mb-4",
                     ),
@@ -692,7 +692,7 @@ def instructor_submission_detail(session, draft_id: int):
             fh.A(
                 "Review & Edit Feedback",
                 href=f"/instructor/submissions/{draft_id}/review",
-                cls="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors",
+                cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors",
             ),
             cls="flex justify-end",
         ),
@@ -706,17 +706,17 @@ def instructor_submission_detail(session, draft_id: int):
             fh.A(
                 "View Student Work",
                 href=f"/instructor/submissions/{draft_id}/edit",
-                cls="block text-indigo-600 hover:text-indigo-800 mb-2",
+                cls="block text-teal-600 hover:text-teal-700 mb-2",
             ),
             fh.A(
                 "Export Feedback",
                 href=f"/instructor/submissions/{draft_id}/export",
-                cls="block text-indigo-600 hover:text-indigo-800 mb-2",
+                cls="block text-teal-600 hover:text-teal-700 mb-2",
             ),
             fh.A(
                 "Email Student",
                 href=student_mailto(draft.student_email, assignment.title),
-                cls="block text-indigo-600 hover:text-indigo-800",
+                cls="block text-teal-600 hover:text-teal-700",
             ),
         ),
     )
@@ -928,7 +928,7 @@ def instructor_submission_signals(session, draft_id: int):
         fh.A(
             "Run extraction now",
             href=f"/instructor/submissions/{draft_id}/signals/extract",
-            cls="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors",
+            cls="inline-block bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors",
         ),
         cls="max-w-4xl mx-auto px-4 py-6",
     )
@@ -989,7 +989,7 @@ def instructor_feedback_review(session, draft_id: int):
             fh.A(
                 "← Back to Submission",
                 href=f"/instructor/submissions/{draft_id}",
-                cls="text-indigo-600 hover:text-indigo-800",
+                cls="text-teal-600 hover:text-teal-700",
             ),
             cls="max-w-2xl mx-auto p-6",
         )
@@ -1036,7 +1036,7 @@ def instructor_feedback_review(session, draft_id: int):
                         value=str(round(af.aggregated_score or 0)),
                         min="0",
                         max="100",
-                        cls="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        cls="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     ),
                     cls="mb-3",
                 ),
@@ -1051,7 +1051,7 @@ def instructor_feedback_review(session, draft_id: int):
                         id=f"feedback_{af.id}",
                         name=f"feedback_{af.id}",
                         rows=5,
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     ),
                     cls="mb-1",
                 ),
@@ -1277,7 +1277,7 @@ def instructor_signal_rules(session, assignment_id: int):
         fh.Button(
             "Save rules",
             type="submit",
-            cls="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors",
+            cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors",
         ),
         action=f"/instructor/assignments/{assignment_id}/signal-rules/save",
         method="post",
@@ -1306,7 +1306,7 @@ def instructor_signal_rules(session, assignment_id: int):
         fh.A(
             "How well calibrated are these rules? →",
             href=f"/instructor/assignments/{assignment_id}/signal-calibration",
-            cls="text-sm text-indigo-600 hover:text-indigo-800 inline-block mb-4",
+            cls="text-sm text-teal-600 hover:text-teal-700 inline-block mb-4",
         ),
         form,
         cls="max-w-3xl mx-auto px-4 py-6",

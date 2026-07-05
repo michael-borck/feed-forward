@@ -26,7 +26,7 @@ def admin_instructors_approve_list(session):
     sidebar_content = fh.Div(
         # Quick navigation
         fh.Div(
-            fh.H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Navigation", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/admin/dashboard", icon="←"
@@ -37,7 +37,7 @@ def admin_instructors_approve_list(session):
         ),
         # Admin actions
         fh.Div(
-            fh.H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Actions", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Manage Users", color="teal", href="/admin/users", icon="👥"
@@ -53,16 +53,14 @@ def admin_instructors_approve_list(session):
 
     # Main content - Instructor approval list
     main_content = fh.Div(
-        fh.H1("Approve Instructors", cls="text-3xl font-bold text-indigo-900 mb-6"),
+        fh.H1("Approve Instructors", cls="text-3xl font-bold text-[#1a2e44] mb-6"),
         fh.P(
             "Review and approve instructor account requests.", cls="text-gray-600 mb-8"
         ),
         # Instructor approval table
         fh.Div(
             fh.Div(
-                fh.H2(
-                    "Pending Approval", cls="text-2xl font-bold text-indigo-900 mb-4"
-                ),
+                fh.H2("Pending Approval", cls="text-2xl font-bold text-[#1a2e44] mb-4"),
                 # Check if there are pending instructors
                 (
                     fh.Div(
@@ -71,19 +69,19 @@ def admin_instructors_approve_list(session):
                                 fh.Tr(
                                     fh.Th(
                                         "Name",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Email",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Department",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Actions",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                 ),
                                 cls="bg-indigo-50",
@@ -101,7 +99,7 @@ def admin_instructors_approve_list(session):
                                             fh.Div(
                                                 fh.Button(
                                                     "Approve",
-                                                    cls="bg-teal-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-teal-700 transition-colors shadow-sm",
+                                                    cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg mr-2 hover:bg-[#0f1e30] transition-colors shadow-sm",
                                                     hx_post=f"/admin/instructors/approve/{instructor.email}",
                                                     hx_swap="outerHTML",
                                                 ),
@@ -235,7 +233,7 @@ def admin_instructors_list(session):
     sidebar_content = fh.Div(
         # Quick navigation
         fh.Div(
-            fh.H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Navigation", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/admin/dashboard", icon="←"
@@ -252,7 +250,7 @@ def admin_instructors_list(session):
         ),
         # Filter options
         fh.Div(
-            fh.H3("Filter Options", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Filter Options", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P("All active instructors", cls="text-gray-600 text-sm"),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
@@ -260,7 +258,7 @@ def admin_instructors_list(session):
 
     # Main content - Instructor management
     main_content = fh.Div(
-        fh.H1("Manage Instructors", cls="text-3xl font-bold text-indigo-900 mb-6"),
+        fh.H1("Manage Instructors", cls="text-3xl font-bold text-[#1a2e44] mb-6"),
         fh.P(
             "View and manage instructor accounts in the system.",
             cls="text-gray-600 mb-8",
@@ -269,7 +267,7 @@ def admin_instructors_list(session):
         fh.Div(
             fh.Div(
                 fh.H2(
-                    "Active Instructors", cls="text-2xl font-bold text-indigo-900 mb-4"
+                    "Active Instructors", cls="text-2xl font-bold text-[#1a2e44] mb-4"
                 ),
                 # Instructors table
                 (
@@ -279,31 +277,31 @@ def admin_instructors_list(session):
                                 fh.Tr(
                                     fh.Th(
                                         "Name",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Email",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Department",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Courses",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Students",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Status",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Actions",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                 ),
                                 cls="bg-indigo-50",

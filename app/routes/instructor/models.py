@@ -79,7 +79,7 @@ def instructor_models_list(session, request):
     sidebar_content = fh.Div(
         # Navigation
         fh.Div(
-            fh.H3("Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Navigation", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/instructor/dashboard", icon="←"
@@ -96,7 +96,7 @@ def instructor_models_list(session, request):
         ),
         # Model stats
         fh.Div(
-            fh.H3("Model Statistics", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Model Statistics", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Total Models: {len(all_models)}", cls="text-gray-600 mb-2"),
             fh.P(
                 f"Enabled for You: {sum(1 for m in all_models if m['enabled_for_instructor'])}",
@@ -112,7 +112,7 @@ def instructor_models_list(session, request):
 
     # Main content
     main_content = fh.Div(
-        fh.H2("AI Models Management", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("AI Models Management", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         # Models grid
         fh.Div(
             *(
@@ -217,7 +217,7 @@ def instructor_models_list(session, request):
                                 fh.A(
                                     "View Details",
                                     href=f"/instructor/models/view/{model['id']}",
-                                    cls="text-indigo-600 hover:underline text-sm",
+                                    cls="text-teal-600 hover:underline text-sm",
                                 ),
                                 cls="text-center",
                             )
@@ -259,7 +259,7 @@ def instructor_models_new(session, request):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Create New Model", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Create New Model", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(
                 "Configure a new AI model for your courses.", cls="text-gray-600 mb-4"
             ),
@@ -270,7 +270,7 @@ def instructor_models_new(session, request):
 
     # Main content - Model creation form
     main_content = fh.Div(
-        fh.H2("Configure New AI Model", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("Configure New AI Model", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         fh.Form(
             # Provider selection
             fh.Div(
@@ -295,7 +295,7 @@ def instructor_models_new(session, request):
                     fh.Option("Custom OpenAI-Compatible", value="custom"),
                     id="provider",
                     name="provider",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     required=True,
                 ),
                 cls="mb-4",
@@ -313,7 +313,7 @@ def instructor_models_new(session, request):
                         id="model_id",
                         name="model_id",
                         placeholder="e.g., gpt-4, claude-3-opus, llama2, mistral",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                         required=True,
                     ),
                     id="model-id-container",
@@ -358,7 +358,7 @@ def instructor_models_new(session, request):
                     id="name",
                     name="name",
                     placeholder="e.g., GPT-4 Turbo, Claude 3 Opus",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     required=True,
                 ),
                 cls="mb-4",
@@ -375,7 +375,7 @@ def instructor_models_new(session, request):
                     id="api_key",
                     name="api_key",
                     placeholder="Your API key (will be encrypted)",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 fh.P(
                     "Required for cloud providers. Optional for Ollama. Get keys from provider's website.",
@@ -395,7 +395,7 @@ def instructor_models_new(session, request):
                     id="base_url",
                     name="base_url",
                     placeholder="Custom API endpoint (if applicable)",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 fh.P(
                     "Required for Custom providers. Optional for Ollama (default: http://localhost:11434). Leave empty for others.",
@@ -428,7 +428,7 @@ def instructor_models_new(session, request):
                 fh.Button(
                     "Create Model",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors",
                 ),
                 fh.A(
                     "Cancel",
@@ -544,7 +544,7 @@ def fetch_ollama_models(session, base_url: str):
                     *options,
                     id="model_id",
                     name="model_id",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     required=True,
                 )
             else:
@@ -708,7 +708,7 @@ def instructor_models_view(session, model_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Model Details", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Model Details", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Provider: {model.provider}", cls="text-gray-600 mb-2"),
             fh.P(f"Model ID: {model.model_id}", cls="text-gray-600 mb-2"),
             fh.P(
@@ -724,7 +724,7 @@ def instructor_models_view(session, model_id: int):
 
     # Main content
     main_content = fh.Div(
-        fh.H2(f"Model: {model.name}", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2(f"Model: {model.name}", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         # Model configuration form
         fh.Form(
             # Status toggle
@@ -755,7 +755,7 @@ def instructor_models_view(session, model_id: int):
                     id="name",
                     name="name",
                     value=model.name,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     required=True,
                 ),
                 cls="mb-4",
@@ -774,7 +774,7 @@ def instructor_models_view(session, model_id: int):
                     placeholder="Enter new API key to update"
                     if has_api_key
                     else "Enter API key",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 fh.P(
                     "API key is configured. Enter new key to update."
@@ -797,7 +797,7 @@ def instructor_models_view(session, model_id: int):
                     name="base_url",
                     value=base_url,
                     placeholder="Custom API endpoint (if applicable)",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-6",
             ),
@@ -808,7 +808,7 @@ def instructor_models_view(session, model_id: int):
                 fh.Button(
                     "Save Changes",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors",
                 ),
                 fh.Button(
                     "Delete Model",

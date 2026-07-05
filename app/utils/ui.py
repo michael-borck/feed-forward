@@ -129,13 +129,14 @@ def page_container(title, content):
     )
 
 
-def dashboard_header(user_role, current_path=None):
+def dashboard_header(user_role, current_path=None, user=None):
     """
     Return a dashboard header with role-specific navigation
 
     Args:
         user_role: Role of the current user (student, instructor, admin)
         current_path: Current request path to determine active link
+        user: Optional user object — used for the avatar initial
     """
     # Portal name based on role
     portal_name = ""
@@ -201,29 +202,12 @@ def dashboard_header(user_role, current_path=None):
             )
         nav_items.append(fh.A(label, href=href, cls=cls))
 
-    # User profile/avatar with logout button
-    # Try to get user email initial rather than role initial
-    user_initial = "U"  # Default fallback
-
-    # For dashboard, we usually have a session, so try to get the actual user
-    try:
-        import inspect
-
-        from app.models.user import users
-
-        # Check if we're in a function with a session parameter to get the user
-        frame = inspect.currentframe()
-        args, _, _, values = inspect.getargvalues(frame)
-
-        if "session" in args and values["session"] and "auth" in values["session"]:
-            user_email = users[values["session"]["auth"]].email
-            user_initial = user_email[0].upper() if user_email else "U"
-        else:
-            # Fallback to role first letter if we can't get email
-            user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
-    except Exception:
-        # If anything goes wrong, fallback to role first letter
-        user_initial = user_role.name[0] if isinstance(user_role, Role) else "U"
+    # Avatar initial: user's email first letter, falling back to the role's
+    user_initial = "U"
+    if user is not None and getattr(user, "email", ""):
+        user_initial = user.email[0].upper()
+    elif isinstance(user_role, Role):
+        user_initial = user_role.name[0]
 
     user_menu = fh.Div(
         fh.Div(
@@ -313,7 +297,7 @@ def dashboard_layout(
     """
     # Note: We're not using fh.Titled here as it renders the title as visible text
     return fh.Div(
-        dashboard_header(user_role, current_path),
+        dashboard_header(user_role, current_path, user=user),
         fh.Div(
             fh.Div(
                 fh.Div(sidebar, cls="w-full md:w-1/4 mb-4 md:mb-0"),

@@ -13,7 +13,7 @@ def get():
     """Display the Terms of Service"""
     tos_content = fh.Div(
         fh.Container(
-            fh.H1("Terms of Service", cls="text-3xl font-bold text-indigo-900 mb-8"),
+            fh.H1("Terms of Service", cls="text-3xl font-bold text-[#1a2e44] mb-8"),
             fh.Section(
                 fh.H2(
                     "1. Introduction", cls="text-2xl font-semibold text-indigo-800 mb-4"
@@ -129,7 +129,7 @@ def get():
     """Display the Privacy Policy"""
     privacy_content = fh.Div(
         fh.Container(
-            fh.H1("Privacy Policy", cls="text-3xl font-bold text-indigo-900 mb-8"),
+            fh.H1("Privacy Policy", cls="text-3xl font-bold text-[#1a2e44] mb-8"),
             fh.Section(
                 fh.H2(
                     "Data Collection and Usage",

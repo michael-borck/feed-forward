@@ -25,7 +25,7 @@ def admin_domains_list(session):
     sidebar_content = fh.Div(
         # Quick navigation
         fh.Div(
-            fh.H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Navigation", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/admin/dashboard", icon="←"
@@ -36,7 +36,7 @@ def admin_domains_list(session):
         ),
         # Admin actions
         fh.Div(
-            fh.H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Actions", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Approve Instructors",
@@ -59,7 +59,7 @@ def admin_domains_list(session):
     # Main content - Domain whitelist management
     main_content = fh.Div(
         fh.H1(
-            "Domain Whitelist Management", cls="text-3xl font-bold text-indigo-900 mb-6"
+            "Domain Whitelist Management", cls="text-3xl font-bold text-[#1a2e44] mb-6"
         ),
         fh.P(
             "Configure which domains are allowed for instructor registration and whether they're auto-approved.",
@@ -67,14 +67,14 @@ def admin_domains_list(session):
         ),
         # Add new domain form
         fh.Div(
-            fh.H2("Add New Domain", cls="text-2xl font-bold text-indigo-900 mb-4"),
+            fh.H2("Add New Domain", cls="text-2xl font-bold text-[#1a2e44] mb-4"),
             fh.Form(
                 fh.Div(
                     fh.Div(
                         fh.Label(
                             "Domain",
                             for_="domain",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-[#1a2e44] font-medium mb-1",
                         ),
                         fh.P(
                             "e.g. 'curtin.edu.au' (without 'http://' or '@')",
@@ -85,7 +85,7 @@ def admin_domains_list(session):
                             type="text",
                             placeholder="Domain name",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-4 w-full",
                     ),
@@ -94,12 +94,12 @@ def admin_domains_list(session):
                             fh.Input(
                                 type="checkbox",
                                 id="auto_approve",
-                                cls="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded",
+                                cls="h-4 w-4 text-teal-600 focus:ring-teal-600 border-gray-300 rounded",
                             ),
                             fh.Label(
                                 "Auto-approve instructors from this domain",
                                 for_="auto_approve",
-                                cls="ml-2 block text-indigo-900 font-medium",
+                                cls="ml-2 block text-[#1a2e44] font-medium",
                             ),
                             cls="flex items-center",
                         ),
@@ -109,7 +109,7 @@ def admin_domains_list(session):
                         fh.Button(
                             "Add Domain",
                             type="submit",
-                            cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                            cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                         ),
                         cls="mb-4",
                     ),
@@ -124,7 +124,7 @@ def admin_domains_list(session):
         ),
         # Domain list
         fh.Div(
-            fh.H2("Current Domains", cls="text-2xl font-bold text-indigo-900 mb-4"),
+            fh.H2("Current Domains", cls="text-2xl font-bold text-[#1a2e44] mb-4"),
             # Check if there are domains
             (
                 fh.Div(
@@ -133,15 +133,15 @@ def admin_domains_list(session):
                             fh.Tr(
                                 fh.Th(
                                     "Domain",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Auto-approve",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Actions",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                             ),
                             cls="bg-indigo-50",

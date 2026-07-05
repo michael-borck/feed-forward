@@ -23,7 +23,7 @@ def admin_models_list(session):
     sidebar_content = fh.Div(
         # Quick navigation
         fh.Div(
-            fh.H3("Admin Navigation", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Navigation", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/admin/dashboard", icon="←"
@@ -34,7 +34,7 @@ def admin_models_list(session):
         ),
         # Admin actions
         fh.Div(
-            fh.H3("Admin Actions", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Admin Actions", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Add New Model",
@@ -51,7 +51,7 @@ def admin_models_list(session):
         ),
         # Model stats section
         fh.Div(
-            fh.H3("AI Model Stats", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("AI Model Stats", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 fh.Div(
                     fh.P(f"Total Models: {len(model_list)}", cls="text-gray-700 mb-1"),
@@ -76,14 +76,14 @@ def admin_models_list(session):
 
     # Main content - AI Model management
     main_content = fh.Div(
-        fh.H1("AI Model Management", cls="text-3xl font-bold text-indigo-900 mb-6"),
+        fh.H1("AI Model Management", cls="text-3xl font-bold text-[#1a2e44] mb-6"),
         fh.P(
             "Configure AI models available for feedback generation.",
             cls="text-gray-600 mb-8",
         ),
         # AI Model list
         fh.Div(
-            fh.H2("Available Models", cls="text-2xl font-bold text-indigo-900 mb-4"),
+            fh.H2("Available Models", cls="text-2xl font-bold text-[#1a2e44] mb-4"),
             fh.Div(
                 # Explanatory info
                 fh.Div(
@@ -120,27 +120,27 @@ def admin_models_list(session):
                                 fh.Tr(
                                     fh.Th(
                                         "Name",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Provider",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Model ID",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Owner",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Status",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                     fh.Th(
                                         "Actions",
-                                        cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                        cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                     ),
                                 ),
                                 cls="bg-indigo-50",
@@ -183,7 +183,7 @@ def admin_models_list(session):
                                             fh.Div(
                                                 fh.A(
                                                     "Edit",
-                                                    cls="bg-teal-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-teal-700 transition-colors shadow-sm",
+                                                    cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg mr-2 hover:bg-[#0f1e30] transition-colors shadow-sm",
                                                     href=f"/admin/ai-models/edit/{model.id}",
                                                 ),
                                                 fh.Button(
@@ -254,7 +254,7 @@ def admin_models_new(session):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Create System Model", cls="font-semibold text-indigo-900 mb-4"),
+            fh.H3("Create System Model", cls="font-semibold text-[#1a2e44] mb-4"),
             fh.P(
                 "Configure a new AI model available to all instructors.",
                 cls="text-gray-600 mb-4",
@@ -268,7 +268,7 @@ def admin_models_new(session):
     main_content = fh.Div(
         fh.H2(
             "Configure New System AI Model",
-            cls="text-2xl font-bold text-indigo-900 mb-6",
+            cls="text-2xl font-bold text-[#1a2e44] mb-6",
         ),
         fh.Form(
             # Provider selection
@@ -294,7 +294,7 @@ def admin_models_new(session):
                     fh.Option("Custom OpenAI-Compatible", value="custom"),
                     id="provider",
                     name="provider",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     required=True,
                 ),
                 cls="mb-4",
@@ -311,7 +311,7 @@ def admin_models_new(session):
                     id="model_id",
                     name="model_id",
                     placeholder="e.g., gpt-4, claude-3-opus, gemini-pro, llama-3.1-8b",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     required=True,
                 ),
                 fh.P(
@@ -332,7 +332,7 @@ def admin_models_new(session):
                     id="name",
                     name="name",
                     placeholder="e.g., GPT-4 Turbo, Claude 3 Opus, Gemini 1.5 Pro",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     required=True,
                 ),
                 cls="mb-4",
@@ -349,7 +349,7 @@ def admin_models_new(session):
                     id="api_key",
                     name="api_key",
                     placeholder="Your API key (will be encrypted)",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 fh.P(
                     "Required for cloud providers. Optional for Ollama. Get keys from provider's website.",
@@ -369,7 +369,7 @@ def admin_models_new(session):
                     id="base_url",
                     name="base_url",
                     placeholder="Custom API endpoint (if applicable)",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 fh.P(
                     "Required for Custom providers. Optional for Ollama (default: http://localhost:11434). Leave empty for others.",
@@ -397,7 +397,7 @@ def admin_models_new(session):
                 fh.Button(
                     "Save Model",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors mr-4",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors mr-4",
                 ),
                 fh.A(
                     "Cancel",

@@ -48,7 +48,7 @@ def instructor_courses_list(session, request):
     main_content = fh.Div(
         # Header with action button
         fh.Div(
-            fh.H2("Course Management", cls="text-2xl font-bold text-indigo-900"),
+            fh.H2("Course Management", cls="text-2xl font-bold text-[#1a2e44]"),
             action_button(
                 "Create New Course",
                 color="indigo",
@@ -71,27 +71,27 @@ def instructor_courses_list(session, request):
                             fh.Tr(
                                 fh.Th(
                                     "Course Title",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Code",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Term",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Status",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Students",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Actions",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                             ),
                             cls="bg-indigo-50",
@@ -133,7 +133,7 @@ def instructor_courses_list(session, request):
                                             fh.A(
                                                 "Students",
                                                 href=f"/instructor/courses/{course.id}/students",
-                                                cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mr-2",
+                                                cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
                                             ),
                                             fh.A(
                                                 "Edit",
@@ -143,7 +143,7 @@ def instructor_courses_list(session, request):
                                             fh.A(
                                                 "Assignments",
                                                 href=f"/instructor/courses/{course.id}/assignments",
-                                                cls="text-xs px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700",
+                                                cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30]",
                                             ),
                                             cls="flex",
                                         ),
@@ -169,7 +169,7 @@ def instructor_courses_list(session, request):
                     fh.A(
                         "Create New Course",
                         href="/instructor/courses/new",
-                        cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                        cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                     ),
                     cls="text-center",
                 ),
@@ -181,9 +181,7 @@ def instructor_courses_list(session, request):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3(
-                "Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"
-            ),
+            fh.H3("Course Management", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/instructor/dashboard", icon="←"
@@ -205,9 +203,7 @@ def instructor_courses_list(session, request):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         fh.Div(
-            fh.H3(
-                "Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"
-            ),
+            fh.H3("Course Statistics", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Total Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
             fh.P(
                 f"Active Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'active')}",
@@ -244,7 +240,7 @@ def instructor_courses_new(session):
 
     # Main content
     main_content = fh.Div(
-        fh.H2("Create New Course", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("Create New Course", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         # Course creation form
         fh.Form(
             # Course Title
@@ -260,7 +256,7 @@ def instructor_courses_new(session):
                     name="title",
                     placeholder="e.g., Introduction to Computer Science",
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -277,7 +273,7 @@ def instructor_courses_new(session):
                     name="code",
                     placeholder="e.g., CS101",
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -293,7 +289,7 @@ def instructor_courses_new(session):
                     id="term",
                     name="term",
                     placeholder="e.g., Fall 2024",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -309,7 +305,7 @@ def instructor_courses_new(session):
                     name="description",
                     placeholder="Brief description of the course",
                     rows=4,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-6",
             ),
@@ -318,7 +314,7 @@ def instructor_courses_new(session):
                 fh.Button(
                     "Create Course",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors",
                 ),
                 fh.A(
                     "Cancel",
@@ -336,7 +332,7 @@ def instructor_courses_new(session):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Create Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3("Create Course", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(
                 "Fill in the course details to create a new course.",
                 cls="text-gray-600 mb-4",
@@ -415,7 +411,7 @@ def instructor_course_edit(session, course_id: int):
     main_content = fh.Div(
         fh.H2(
             f"Edit Course: {course.title}",
-            cls="text-2xl font-bold text-indigo-900 mb-6",
+            cls="text-2xl font-bold text-[#1a2e44] mb-6",
         ),
         # Course edit form
         fh.Form(
@@ -432,7 +428,7 @@ def instructor_course_edit(session, course_id: int):
                     name="title",
                     value=course.title,
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -449,7 +445,7 @@ def instructor_course_edit(session, course_id: int):
                     name="code",
                     value=course.code,
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -465,7 +461,7 @@ def instructor_course_edit(session, course_id: int):
                     id="term",
                     name="term",
                     value=getattr(course, "term", "Current") or "Current",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -494,7 +490,7 @@ def instructor_course_edit(session, course_id: int):
                     ),
                     id="status",
                     name="status",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -510,7 +506,7 @@ def instructor_course_edit(session, course_id: int):
                     id="description",
                     name="description",
                     rows=4,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-6",
             ),
@@ -519,7 +515,7 @@ def instructor_course_edit(session, course_id: int):
                 fh.Button(
                     "Save Changes",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors",
                 ),
                 fh.A(
                     "Cancel",
@@ -537,7 +533,7 @@ def instructor_course_edit(session, course_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Edit Course", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3("Edit Course", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Course Code: {course.code}", cls="text-gray-600 mb-2"),
             fh.P(
                 f"Students: {count(enrollments, course_id=course.id)}",
@@ -647,7 +643,7 @@ def instructor_course_detail(session, course_id: int):
                     fh.A(
                         "View submissions →",
                         href=f"/instructor/assignments/{a.id}/submissions",
-                        cls="text-sm text-gray-500 hover:text-indigo-600",
+                        cls="text-sm text-gray-500 hover:text-teal-600",
                     ),
                     cls="py-3 border-b border-gray-100 last:border-0",
                 )

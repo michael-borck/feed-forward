@@ -91,7 +91,7 @@ def instructor_assignments_list(session, course_id: int):
             fh.A(
                 "Back to Courses",
                 href="/instructor/courses",
-                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700",
+                cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg hover:bg-[#0f1e30]",
             ),
             cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center",
         )
@@ -116,7 +116,7 @@ def instructor_assignments_list(session, course_id: int):
         fh.Div(
             fh.H2(
                 f"Assignments for {course.title}",
-                cls="text-2xl font-bold text-indigo-900",
+                cls="text-2xl font-bold text-[#1a2e44]",
             ),
             action_button(
                 "Create New Assignment",
@@ -140,23 +140,23 @@ def instructor_assignments_list(session, course_id: int):
                             fh.Tr(
                                 fh.Th(
                                     "Title",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Status",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Due Date",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Drafts",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                                 fh.Th(
                                     "Actions",
-                                    cls="text-left py-4 px-6 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                    cls="text-left py-4 px-6 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                 ),
                             ),
                             cls="bg-indigo-50",
@@ -210,12 +210,12 @@ def instructor_assignments_list(session, course_id: int):
                                             fh.A(
                                                 "Rubric",
                                                 href=f"/instructor/assignments/{assignment.id}/rubric",
-                                                cls="text-xs px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700 mr-2",
+                                                cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
                                             ),
                                             fh.A(
                                                 "Submissions",
                                                 href=f"/instructor/assignments/{assignment.id}/submissions",
-                                                cls="text-xs px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700",
+                                                cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30]",
                                             ),
                                             cls="flex",
                                         ),
@@ -241,7 +241,7 @@ def instructor_assignments_list(session, course_id: int):
                     fh.A(
                         "Create New Assignment",
                         href=f"/instructor/courses/{course_id}/assignments/new",
-                        cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                        cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                     ),
                     cls="text-center",
                 ),
@@ -253,9 +253,7 @@ def instructor_assignments_list(session, course_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3(
-                "Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"
-            ),
+            fh.H3("Course Management", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Back to Courses",
@@ -281,7 +279,7 @@ def instructor_assignments_list(session, course_id: int):
         ),
         fh.Div(
             fh.H3(
-                "Assignment Actions", cls="text-xl font-semibold text-indigo-900 mb-4"
+                "Assignment Actions", cls="text-xl font-semibold text-[#1a2e44] mb-4"
             ),
             fh.Div(
                 action_button(
@@ -327,7 +325,7 @@ def instructor_assignments_new(session, course_id: int):
 
     # Main content
     main_content = fh.Div(
-        fh.H2("Create New Assignment", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2("Create New Assignment", cls="text-2xl font-bold text-[#1a2e44] mb-6"),
         fh.Form(
             # Assignment Title
             fh.Div(
@@ -342,7 +340,7 @@ def instructor_assignments_new(session, course_id: int):
                     name="title",
                     placeholder="e.g., Essay on Climate Change",
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -359,7 +357,7 @@ def instructor_assignments_new(session, course_id: int):
                     placeholder="Brief overview for students (detailed specification can be uploaded below)",
                     rows=4,
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -394,7 +392,7 @@ def instructor_assignments_new(session, course_id: int):
                     type="datetime-local",
                     id="due_date",
                     name="due_date",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -412,7 +410,7 @@ def instructor_assignments_new(session, course_id: int):
                     value="3",
                     min="1",
                     max="10",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 fh.P(
                     "Students can submit multiple drafts for feedback",
@@ -440,7 +438,7 @@ def instructor_assignments_new(session, course_id: int):
                         fh.Option("Critical", value="critical"),
                         id="feedback_tone",
                         name="feedback_tone",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     ),
                     cls="mb-3",
                 ),
@@ -457,7 +455,7 @@ def instructor_assignments_new(session, course_id: int):
                         fh.Option("Comprehensive", value="comprehensive"),
                         id="feedback_detail",
                         name="feedback_detail",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     ),
                     cls="mb-3",
                 ),
@@ -474,7 +472,7 @@ def instructor_assignments_new(session, course_id: int):
                         fh.Option("None", value="none"),
                         id="icon_theme",
                         name="icon_theme",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     ),
                     cls="mb-3",
                 ),
@@ -600,7 +598,7 @@ def instructor_assignments_new(session, course_id: int):
                         name="custom_prompt",
                         placeholder="e.g., 'Focus on thesis development and argument clarity. Provide specific examples of how to improve transitions between paragraphs.'",
                         rows=3,
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600 text-sm",
                     ),
                     cls="mb-3",
                 ),
@@ -643,7 +641,7 @@ def instructor_assignments_new(session, course_id: int):
                         fh.Option("All Feedback", value="all_feedback"),
                         id="aggregation_method",
                         name="aggregation_method",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                     ),
                     cls="mb-3",
                 ),
@@ -672,7 +670,7 @@ def instructor_assignments_new(session, course_id: int):
                 fh.Button(
                     "Create Assignment",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors",
                 ),
                 fh.A(
                     "Cancel",
@@ -691,9 +689,7 @@ def instructor_assignments_new(session, course_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3(
-                "Create Assignment", cls="text-xl font-semibold text-indigo-900 mb-4"
-            ),
+            fh.H3("Create Assignment", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(f"Course: {course.title}", cls="text-gray-600 mb-4"),
             action_button(
                 "Back to Assignments",
@@ -966,7 +962,7 @@ def instructor_assignment_edit(session, assignment_id: int):
     main_content = fh.Div(
         fh.H2(
             f"Edit Assignment: {assignment.title}",
-            cls="text-2xl font-bold text-indigo-900 mb-6",
+            cls="text-2xl font-bold text-[#1a2e44] mb-6",
         ),
         fh.Form(
             # Assignment Title
@@ -982,7 +978,7 @@ def instructor_assignment_edit(session, assignment_id: int):
                     name="title",
                     value=assignment.title,
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -999,7 +995,7 @@ def instructor_assignment_edit(session, assignment_id: int):
                     name="instructions",
                     rows=6,
                     required=True,
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -1033,7 +1029,7 @@ def instructor_assignment_edit(session, assignment_id: int):
                     ),
                     id="status",
                     name="status",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -1049,7 +1045,7 @@ def instructor_assignment_edit(session, assignment_id: int):
                     id="due_date",
                     name="due_date",
                     value=getattr(assignment, "due_date", "") or "",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-4",
             ),
@@ -1067,7 +1063,7 @@ def instructor_assignment_edit(session, assignment_id: int):
                     value=str(getattr(assignment, "max_drafts", 3) or 3),
                     min="1",
                     max="10",
-                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-600",
                 ),
                 cls="mb-6",
             ),
@@ -1076,7 +1072,7 @@ def instructor_assignment_edit(session, assignment_id: int):
                 fh.Button(
                     "Save Changes",
                     type="submit",
-                    cls="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors",
+                    cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-2 rounded-md hover:bg-[#0f1e30] transition-colors",
                 ),
                 fh.A(
                     "Cancel",
@@ -1095,7 +1091,7 @@ def instructor_assignment_edit(session, assignment_id: int):
     sidebar_content = fh.Div(
         fh.Div(
             fh.H3(
-                "Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-4"
+                "Assignment Details", cls="text-xl font-semibold text-[#1a2e44] mb-4"
             ),
             fh.P(f"Course: {course.title}", cls="text-gray-600 mb-2"),
             fh.P(
@@ -1227,7 +1223,7 @@ def instructor_rubric_view(session, assignment_id: int):
             fh.A(
                 "Back to Courses",
                 href="/instructor/courses",
-                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700",
+                cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg hover:bg-[#0f1e30]",
             ),
             cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center",
         )
@@ -1242,7 +1238,7 @@ def instructor_rubric_view(session, assignment_id: int):
             fh.A(
                 "Back to Courses",
                 href="/instructor/courses",
-                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700",
+                cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg hover:bg-[#0f1e30]",
             ),
             cls="p-8 bg-red-50 rounded-xl shadow-md border-2 border-red-200 text-center",
         )
@@ -1270,7 +1266,7 @@ def instructor_rubric_view(session, assignment_id: int):
         form_content = fh.Div(
             fh.H2(
                 f"Manage Rubric for: {assignment.title}",
-                cls="text-2xl font-bold text-indigo-900 mb-4",
+                cls="text-2xl font-bold text-[#1a2e44] mb-4",
             ),
             fh.P(
                 "Edit the rubric categories and their weights. The weights should sum to 100%.",
@@ -1301,19 +1297,19 @@ def instructor_rubric_view(session, assignment_id: int):
                                     fh.Tr(
                                         fh.Th(
                                             "Category Name",
-                                            cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                            cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                         ),
                                         fh.Th(
                                             "Description",
-                                            cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                            cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                         ),
                                         fh.Th(
                                             "Weight (%)",
-                                            cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                            cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                         ),
                                         fh.Th(
                                             "Actions",
-                                            cls="text-left py-3 px-4 font-semibold text-indigo-900 border-b-2 border-indigo-100",
+                                            cls="text-left py-3 px-4 font-semibold text-[#1a2e44] border-b-2 border-indigo-100",
                                         ),
                                     ),
                                     cls="bg-indigo-50",
@@ -1389,7 +1385,7 @@ def instructor_rubric_view(session, assignment_id: int):
                             fh.Label(
                                 "Category Name",
                                 for_="name",
-                                cls="block text-indigo-900 font-medium mb-1",
+                                cls="block text-[#1a2e44] font-medium mb-1",
                             ),
                             fh.Input(
                                 id="name",
@@ -1397,7 +1393,7 @@ def instructor_rubric_view(session, assignment_id: int):
                                 type="text",
                                 placeholder="e.g. Content",
                                 required=True,
-                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                             ),
                             cls="mb-4",
                         ),
@@ -1405,14 +1401,14 @@ def instructor_rubric_view(session, assignment_id: int):
                             fh.Label(
                                 "Description",
                                 for_="description",
-                                cls="block text-indigo-900 font-medium mb-1",
+                                cls="block text-[#1a2e44] font-medium mb-1",
                             ),
                             fh.Textarea(
                                 id="description",
                                 name="description",
                                 rows="3",
                                 placeholder="Describe what this category evaluates...",
-                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                             ),
                             cls="mb-4",
                         ),
@@ -1420,7 +1416,7 @@ def instructor_rubric_view(session, assignment_id: int):
                             fh.Label(
                                 "Weight (%)",
                                 for_="weight",
-                                cls="block text-indigo-900 font-medium mb-1",
+                                cls="block text-[#1a2e44] font-medium mb-1",
                             ),
                             fh.Input(
                                 id="weight",
@@ -1431,7 +1427,7 @@ def instructor_rubric_view(session, assignment_id: int):
                                 step="0.1",
                                 placeholder="e.g. 25",
                                 required=True,
-                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                                cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                             ),
                             cls="mb-4",
                         ),
@@ -1439,7 +1435,7 @@ def instructor_rubric_view(session, assignment_id: int):
                             fh.Button(
                                 "Add Category",
                                 type="submit",
-                                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                                cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                             ),
                             cls="mb-4",
                         ),
@@ -1468,7 +1464,7 @@ def instructor_rubric_view(session, assignment_id: int):
         form_content = fh.Div(
             fh.H2(
                 f"Create Rubric for: {assignment.title}",
-                cls="text-2xl font-bold text-indigo-900 mb-4",
+                cls="text-2xl font-bold text-[#1a2e44] mb-4",
             ),
             fh.P(
                 "A rubric helps provide structured feedback for students. Create a rubric by defining categories and their weights.",
@@ -1533,19 +1529,19 @@ def instructor_rubric_view(session, assignment_id: int):
                                 "Essay Template",
                                 hx_post=f"/instructor/assignments/{assignment_id}/rubric/template/essay",
                                 hx_target="#rubric-generation-result",
-                                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-2",
+                                cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm mr-2",
                             ),
                             fh.Button(
                                 "Research Template",
                                 hx_post=f"/instructor/assignments/{assignment_id}/rubric/template/research",
                                 hx_target="#rubric-generation-result",
-                                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-2",
+                                cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm mr-2",
                             ),
                             fh.Button(
                                 "Presentation Template",
                                 hx_post=f"/instructor/assignments/{assignment_id}/rubric/template/presentation",
                                 hx_target="#rubric-generation-result",
-                                cls="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                                cls="bg-[#1a2e44] text-[#faf8f2] px-4 py-2 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                             ),
                             cls="flex flex-wrap gap-2",
                         ),
@@ -1565,7 +1561,7 @@ def instructor_rubric_view(session, assignment_id: int):
                             fh.Button(
                                 "Create Empty Rubric",
                                 type="submit",
-                                cls="bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-sm",
+                                cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm",
                             ),
                             hx_post=f"/instructor/assignments/{assignment_id}/rubric/create",
                             hx_target="#rubric-generation-result",
@@ -1593,9 +1589,7 @@ def instructor_rubric_view(session, assignment_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3(
-                "Rubric Management", cls="text-xl font-semibold text-indigo-900 mb-4"
-            ),
+            fh.H3("Rubric Management", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 action_button(
                     "Back to Assignment",
@@ -1620,7 +1614,7 @@ def instructor_rubric_view(session, assignment_id: int):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         fh.Div(
-            fh.H3("Rubric Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3("Rubric Tips", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(
                 "• Create 3-5 categories for a balanced rubric",
                 cls="text-gray-600 mb-2 text-sm",
@@ -1637,25 +1631,25 @@ def instructor_rubric_view(session, assignment_id: int):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         fh.Div(
-            fh.H3("Template Library", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3("Template Library", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.Div(
                 fh.Button(
                     "Essay Rubric Template",
                     hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/essay",
                     hx_target="#rubric-result",
-                    cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mb-2 w-full text-left",
+                    cls="text-sm px-4 py-2 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mb-2 w-full text-left",
                 ),
                 fh.Button(
                     "Research Paper Template",
                     hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/research",
                     hx_target="#rubric-result",
-                    cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 mb-2 w-full text-left",
+                    cls="text-sm px-4 py-2 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mb-2 w-full text-left",
                 ),
                 fh.Button(
                     "Presentation Template",
                     hx_get=f"/instructor/assignments/{assignment_id}/rubric/template/presentation",
                     hx_target="#rubric-result",
-                    cls="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 w-full text-left",
+                    cls="text-sm px-4 py-2 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] w-full text-left",
                 ),
                 cls="space-y-2",
             ),
@@ -1955,7 +1949,7 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
             fh.Button(
                 "Use This Template",
                 type="submit",
-                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-3",
+                cls="bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded-lg font-medium hover:bg-[#0f1e30] transition-colors shadow-sm mr-3",
             ),
             fh.Button(
                 "Cancel",
@@ -2065,7 +2059,7 @@ def load_models_for_assignment(session):
             fh.A(
                 "Configure Models →",
                 href="/instructor/models",
-                cls="text-indigo-600 hover:underline text-sm mt-2 inline-block",
+                cls="text-teal-600 hover:underline text-sm mt-2 inline-block",
             ),
         )
 
