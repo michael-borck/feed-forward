@@ -841,7 +841,10 @@ async def instructor_assignments_create(
                 aggregation_method_id=1,  # TODO: Map aggregation_method string to ID
                 feedback_style_id=1,  # TODO: Map to feedback style
                 require_review=False,
-                mark_display_option_id=1,  # Default display option
+                # Numeric scores are off by default — students see the
+                # bullseye icon display unless the instructor opts in to
+                # numeric (mark_display_options id 1).
+                mark_display_option_id=3,
             )
             settings_id = assignment_settings.insert(new_settings)
 

@@ -7,13 +7,18 @@ from starlette.responses import FileResponse
 
 from app import rt, student_required
 from app.models.assignment import assignments, rubric_categories, rubrics
+from app.models.config import assignment_settings, mark_display_options
 from app.models.course import courses, enrollments
 from app.models.feedback import drafts
 from app.models.user import Role, users
 from app.services.progress_analyzer import ProgressAnalyzer
+from app.utils.design import COLOR, RADIUS, TEXT
 from app.utils.feedback_formatter import (
+    DEFAULT_DISPLAY,
+    DISPLAY_NUMERIC,
     draft_comparison_card,
     draft_progress_indicator,
+    get_score_color,
     improvement_metrics_card,
     next_steps_recommendations,
     overall_feedback_summary,
@@ -21,11 +26,30 @@ from app.utils.feedback_formatter import (
 )
 from app.utils.ui import (
     action_button,
+    bullseye_progress,
     card,
     dashboard_layout,
     status_badge,
     tabs,
 )
+
+
+def resolve_mark_display(assignment_id: int) -> str:
+    """
+    Resolve how performance is shown to students for this assignment:
+    'numeric' | 'hidden' | 'icon'. Numeric scores are off by default —
+    unset/unknown settings fall back to the bullseye icon display.
+    """
+    try:
+        for setting in assignment_settings():
+            if setting.assignment_id == assignment_id:
+                option = mark_display_options[setting.mark_display_option_id]
+                if option.display_type in ("numeric", "hidden", "icon"):
+                    return option.display_type
+                break
+    except Exception:
+        pass
+    return DEFAULT_DISPLAY
 
 
 def _overall_score(feedback_list):
@@ -37,7 +61,13 @@ def _overall_score(feedback_list):
 
 
 def render_enhanced_feedback(
-    draft, feedback_list, rubric_cats, all_drafts, max_drafts, all_feedback=None
+    draft,
+    feedback_list,
+    rubric_cats,
+    all_drafts,
+    max_drafts,
+    all_feedback=None,
+    display=DEFAULT_DISPLAY,
 ):
     """
     Render enhanced feedback visualization for a draft.
@@ -50,12 +80,16 @@ def render_enhanced_feedback(
         max_drafts: Maximum allowed drafts for the assignment
         all_feedback: Optional {draft_id: feedback rows} for every draft, so the
             progress chart can show real historical scores
+        display: Mark display mode ('numeric' | 'hidden' | 'icon')
 
     Returns:
         fh.Div element with enhanced feedback visualization
     """
     if not feedback_list:
-        return fh.P("No feedback available yet.", cls="text-gray-500 italic")
+        return fh.P(
+            "No feedback available yet.",
+            cls=f"text-{COLOR['text_muted']} italic",
+        )
 
     # feedback_list = AggregatedFeedback rows (one per rubric category) for this draft.
     by_category = {fb.category_id: fb for fb in feedback_list}
@@ -98,6 +132,7 @@ def render_enhanced_feedback(
                 or "No specific feedback for this category.",
                 weight=cat.weight,
                 show_details=True,
+                display=display,
             )
         )
 
@@ -125,10 +160,11 @@ def render_enhanced_feedback(
             improvements=improvements[:3] or None,
             draft_version=draft.version,
             max_drafts=max_drafts,
+            display=display,
         ),
         (
             fh.Div(
-                draft_progress_indicator(drafts_data, draft.version - 1),
+                draft_progress_indicator(drafts_data, draft.version - 1, display),
                 cls="mt-6",
             )
             if len(drafts_data) > 1
@@ -137,8 +173,8 @@ def render_enhanced_feedback(
         (
             fh.Div(
                 fh.H3(
-                    "Detailed Feedback by Category",
-                    cls="text-xl font-bold text-gray-800 mb-6 mt-8",
+                    "Feedback by category",
+                    cls=f"{TEXT['h2']} text-{COLOR['text_strong']} mb-6 mt-8",
                 ),
                 fh.Div(*category_cards, cls="grid grid-cols-1 lg:grid-cols-2 gap-6"),
             )
@@ -147,23 +183,34 @@ def render_enhanced_feedback(
         ),
         fh.Details(
             fh.Summary(
-                "View Full Feedback Text",
-                cls="cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium mb-2",
+                "View full feedback text",
+                cls=(
+                    f"cursor-pointer text-{COLOR['accent']} hover:underline "
+                    "font-medium mb-2"
+                ),
             ),
             fh.Div(
                 fh.Pre(
                     combined_text or "No feedback text available",
-                    cls="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 p-4 rounded-lg",
+                    cls=(
+                        f"whitespace-pre-wrap text-sm text-{COLOR['text_body']} "
+                        f"bg-{COLOR['surface_alt']} p-4 {RADIUS}"
+                    ),
                 ),
                 cls="mt-2",
             ),
-            cls="mt-8 p-4 bg-white rounded-lg border border-gray-200",
+            cls=(
+                f"mt-8 p-4 bg-{COLOR['surface']} {RADIUS} "
+                f"border border-{COLOR['border']}"
+            ),
         ),
         cls="space-y-6",
     )
 
 
-def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignment):
+def create_progress_tracking_ui(
+    drafts_list, feedback_dict, rubric_cats, assignment, display=DEFAULT_DISPLAY
+):
     """
     Create progress tracking UI components using the ProgressAnalyzer.
 
@@ -172,6 +219,7 @@ def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignm
         feedback_dict: Dictionary of feedback by draft ID
         rubric_cats: List of rubric categories
         assignment: Assignment object
+        display: Mark display mode ('numeric' | 'hidden' | 'icon')
 
     Returns:
         List of UI components for progress tracking
@@ -188,7 +236,7 @@ def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignm
 
     # 1. Overall improvement metrics
     metrics = analyzer.get_improvement_metrics()
-    ui_components.append(improvement_metrics_card(metrics))
+    ui_components.append(improvement_metrics_card(metrics, display))
 
     # 2. Draft comparison (compare last two drafts if available)
     if len(drafts_list) >= 2:
@@ -197,7 +245,7 @@ def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignm
         comparison = analyzer.compare_drafts(
             previous_draft.version, latest_draft.version
         )
-        ui_components.append(draft_comparison_card(comparison))
+        ui_components.append(draft_comparison_card(comparison, display))
 
     # 3. Next steps recommendations
     if drafts_list and all_feedback:
@@ -210,61 +258,83 @@ def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignm
             remaining_drafts = assignment.max_drafts - len(drafts_list)
             if recommendations:
                 ui_components.append(
-                    next_steps_recommendations(recommendations, remaining_drafts)
+                    next_steps_recommendations(
+                        recommendations, remaining_drafts, display
+                    )
                 )
 
     # 4. Category progression chart (if we have rubric categories)
     if rubric_cats and len(drafts_list) > 1:
         category_progression = analyzer.get_category_progression(rubric_cats)
-        ui_components.append(create_category_progression_chart(category_progression))
+        ui_components.append(
+            create_category_progression_chart(category_progression, display)
+        )
 
     return ui_components
 
 
-def create_category_progression_chart(category_progression: dict) -> fh.Div:
+def create_category_progression_chart(
+    category_progression: dict, display=DEFAULT_DISPLAY
+) -> fh.Div:
     """
-    Create a visual chart showing score progression for each rubric category.
-
-    Args:
-        category_progression: Dictionary of category progressions
-
-    Returns:
-        Div element with category progression chart
+    Progression per rubric category across drafts. Numeric mode: ink bars
+    with values. Icon/hidden modes: a row of mini dartboards per category —
+    the dart moving toward the bullseye as the category improves.
     """
+
+    def _numeric_column(prog):
+        return fh.Div(
+            fh.Div(
+                cls=f"h-20 bg-{get_score_color(prog['score'])}-600 rounded-t"
+                if prog["has_feedback"]
+                else "h-20 bg-slate-200 rounded-t",
+                style=f"height: {prog['score']}%;"
+                if prog["has_feedback"]
+                else "height: 20%;",
+            ),
+            fh.P(
+                f"D{prog['version']}",
+                cls=f"text-xs text-center mt-1 text-{COLOR['text_muted']}",
+            ),
+            fh.P(
+                f"{prog['score']:.0f}" if prog["has_feedback"] else "-",
+                cls=f"text-xs text-center font-semibold {TEXT['numeric']}",
+            ),
+            cls="flex-1 flex flex-col justify-end",
+        )
+
+    def _icon_column(prog):
+        return fh.Div(
+            (
+                bullseye_progress(prog["score"] / 100, size=32)
+                if prog["has_feedback"]
+                else fh.Span("-", cls=f"text-{COLOR['text_muted']} text-lg")
+            ),
+            fh.P(
+                f"D{prog['version']}",
+                cls=f"text-xs text-center mt-1 text-{COLOR['text_muted']}",
+            ),
+            cls="flex-1 flex flex-col items-center justify-end",
+        )
+
+    column = _numeric_column if display == DISPLAY_NUMERIC else _icon_column
+
     return fh.Div(
         fh.H3(
-            "📊 Category Score Progression", cls="text-xl font-bold text-gray-800 mb-4"
+            "Category progression",
+            cls=f"{TEXT['h3']} text-{COLOR['text_strong']} mb-4",
         ),
         fh.Div(
             *(
                 fh.Div(
-                    fh.H4(category_name, cls="font-semibold text-gray-700 mb-2"),
+                    fh.H4(
+                        category_name,
+                        cls=f"font-serif font-semibold text-{COLOR['text_body']} mb-2",
+                    ),
                     fh.Div(
-                        *(
-                            fh.Div(
-                                fh.Div(
-                                    cls=f"h-20 bg-{get_score_color(prog['score'])}-500 rounded-t"
-                                    if prog["has_feedback"]
-                                    else "h-20 bg-gray-300 rounded-t",
-                                    style=f"height: {prog['score']}%;"
-                                    if prog["has_feedback"]
-                                    else "height: 20%;",
-                                ),
-                                fh.P(
-                                    f"D{prog['version']}",
-                                    cls="text-xs text-center mt-1 text-gray-600",
-                                ),
-                                fh.P(
-                                    f"{prog['score']:.0f}"
-                                    if prog["has_feedback"]
-                                    else "-",
-                                    cls="text-xs text-center font-semibold",
-                                ),
-                                cls="flex-1 flex flex-col justify-end",
-                            )
-                            for prog in progression_data
-                        ),
-                        cls="flex gap-2 items-end h-24",
+                        *(column(prog) for prog in progression_data),
+                        cls="flex gap-2 items-end"
+                        + (" h-24" if display == DISPLAY_NUMERIC else ""),
                     ),
                     cls="mb-4",
                 )
@@ -272,22 +342,8 @@ def create_category_progression_chart(category_progression: dict) -> fh.Div:
             ),
             cls="grid grid-cols-1 md:grid-cols-2 gap-4",
         ),
-        cls="bg-white p-6 rounded-xl shadow-sm border border-gray-100",
+        cls=f"bg-{COLOR['surface']} p-6 {RADIUS} border border-{COLOR['border']}",
     )
-
-
-def get_score_color(score: float) -> str:
-    """Helper to get color based on score."""
-    if score >= 90:
-        return "emerald"
-    elif score >= 80:
-        return "green"
-    elif score >= 70:
-        return "yellow"
-    elif score >= 60:
-        return "orange"
-    else:
-        return "red"
 
 
 def get_student_course(course_id, student_email):
@@ -369,6 +425,9 @@ def student_assignment_view(session, request, assignment_id: int):
                 cls="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg",
             ),
         )
+
+    # How performance is shown to this student (numeric scores off by default)
+    mark_display = resolve_mark_display(assignment_id)
 
     # Get rubric information
     assignment_rubric = None
@@ -599,6 +658,7 @@ def student_assignment_view(session, request, assignment_id: int):
                                                 assignment_drafts,
                                                 assignment.max_drafts,
                                                 all_feedback=draft_feedback,
+                                                display=mark_display,
                                             )
                                         )
                                         if draft_feedback.get(draft.id)
@@ -655,14 +715,16 @@ def student_assignment_view(session, request, assignment_id: int):
         (
             fh.Div(
                 fh.H3(
-                    "📈 Progress Analysis",
-                    cls="text-xl font-semibold text-indigo-900 mt-8 mb-4",
+                    "Progress analysis",
+                    cls=f"{TEXT['h2']} text-{COLOR['text_strong']} mt-8 mb-4",
                 ),
                 fh.Div(
-                    # Initialize progress analyzer
-                    # Create progress tracking UI
                     *create_progress_tracking_ui(
-                        assignment_drafts, draft_feedback, rubric_cats, assignment
+                        assignment_drafts,
+                        draft_feedback,
+                        rubric_cats,
+                        assignment,
+                        display=mark_display,
                     ),
                     cls="space-y-6",
                 ),
