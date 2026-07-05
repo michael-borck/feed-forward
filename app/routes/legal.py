@@ -88,7 +88,7 @@ def get():
                     cls="text-2xl font-semibold text-indigo-800 mb-4",
                 ),
                 fh.P(
-                    "Student submissions are temporarily stored only for feedback generation and are automatically removed after feedback is provided. Students retain ownership of their submitted work.",
+                    "Student submissions are retained so students and instructors can track progress across drafts. Students retain ownership of their submitted work and can hide individual drafts from their own view.",
                     cls="mb-6 text-gray-700 leading-relaxed",
                 ),
             ),
@@ -163,7 +163,7 @@ def get():
                 fh.Div(
                     fh.P(
                         fh.Strong("Temporary storage only:"),
-                        " Student submitted work is stored only temporarily while feedback is being generated",
+                        " Student submitted work is retained to support multi-draft progress tracking",
                         cls="mb-3 text-gray-700",
                     ),
                     fh.P(

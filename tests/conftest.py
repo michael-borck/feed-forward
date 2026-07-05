@@ -54,3 +54,14 @@ def _clean_tables():
         for row in list(table()):
             table.delete(row.id)
     yield
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter():
+    """Auth rate limiting is per-IP; the test client shares one IP, so
+    clear the in-memory buckets between tests."""
+    from app.utils import rate_limit
+
+    rate_limit._BUCKETS.clear()
+    yield
+    rate_limit._BUCKETS.clear()

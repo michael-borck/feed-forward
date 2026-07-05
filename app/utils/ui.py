@@ -151,7 +151,7 @@ def dashboard_header(user_role, current_path=None, user=None):
             ("My Submissions", "/student/assignments", False),
             ("Feedback History", "/student/feedback", False),
             ("Profile", "/profile", False),
-            ("Help", "#", False),
+            ("Help", "/docs", False),
         ]
     elif user_role == Role.INSTRUCTOR:
         portal_name = "Instructor Portal"

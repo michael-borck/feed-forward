@@ -47,7 +47,6 @@ from app.models.instructor_preferences import instructor_model_prefs
 from app.services.evidence import SignalEvidenceSource
 from app.services.prompt_templates import generate_feedback_prompt
 from app.utils.crypto import decrypt_sensitive_data
-from app.utils.privacy import cleanup_draft_content
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -216,10 +215,6 @@ class FeedbackGenerator:
             # Update draft status
             draft.status = "feedback_ready"
             drafts.update(draft)
-
-            # Clean up draft content for privacy
-            if not draft.content_preserved:
-                cleanup_draft_content(draft)
 
             logger.info(f"Successfully generated feedback for draft {draft_id}")
             return True
@@ -766,9 +761,6 @@ class FeedbackGenerator:
 
             draft.status = "feedback_ready"
             drafts.update(draft)
-
-            if not draft.content_preserved:
-                cleanup_draft_content(draft)
 
             logger.info(f"Mock feedback generated successfully for draft {draft.id}")
             return True

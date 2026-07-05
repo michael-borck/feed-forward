@@ -7,6 +7,7 @@ import os
 import pathlib
 import secrets
 import smtplib
+import threading
 from email.message import EmailMessage
 
 from dotenv import load_dotenv
@@ -72,6 +73,16 @@ if env_app_domain and env_file_app_domain and env_app_domain != env_file_app_dom
 APP_DOMAIN = os.environ.get("APP_DOMAIN", "https://feedforward.serveur.au:5001")
 
 # Email sending is done via SMTP only
+
+
+def send_email_async(send_fn, *args) -> None:
+    """Fire-and-forget email send on a daemon thread.
+
+    Account emails (verification, password reset) are sent out-of-band so
+    request timing never reveals whether an address exists, and requests
+    don't block on SMTP. Failures are logged by the send function itself.
+    """
+    threading.Thread(target=send_fn, args=args, daemon=True).start()
 
 
 def send_verification_email(user_email: str, token: str) -> tuple[bool, str]:
@@ -224,58 +235,6 @@ The FeedForward Team
 
     # We always use SMTP
     return send_with_smtp(user_email, subject, content)
-
-
-def send_student_invitation_email(
-    student_email: str, instructor_name: str, course_name: str, token: str
-) -> tuple[bool, str]:
-    """
-    Send an invitation email to a student to join a course
-
-    Args:
-        student_email: The student's email address
-        instructor_name: The name of the instructor
-        course_name: The name of the course
-        token: The invitation token
-
-    Returns:
-        tuple: (success, message)
-            - success: True if the email was sent successfully, False otherwise
-            - message: Success message or error details
-    """
-    invitation_link = f"{APP_DOMAIN}/student/join?token={token}"
-    subject = f"Invitation to join '{course_name}' on FeedForward"
-    content = f"""
-Hello,
-
-You have been invited by {instructor_name} to join the course '{course_name}' on FeedForward.
-
-FeedForward is a platform that provides AI-powered feedback on your assignments, helping you improve your work through iterative feedback.
-
-Please click the following link to accept the invitation and create your account:
-{invitation_link}
-
-Best regards,
-The FeedForward Team
-"""
-
-    # Log debugging information
-    print(
-        f"INVITING: Email to {student_email} for course '{course_name}' from {instructor_name}"
-    )
-    logger.info(f"Sending invitation email to {student_email}")
-
-    # For development, we'll simulate email sending and return success
-    # In a development environment, we want to bypass actual email sending
-    # but still provide the links for testing
-    if APP_DOMAIN.startswith(
-        ("http://localhost", "http://127.0.0.1", "https://localhost")
-    ):
-        print(f"DEV MODE: Simulating email to {student_email}")
-        return True, "Email simulated in development mode"
-
-    # We always use SMTP
-    return send_with_smtp(student_email, subject, content)
 
 
 def generate_verification_token(email: str) -> str:

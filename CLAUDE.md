@@ -4,7 +4,7 @@
 
 FeedForward is a web-based platform for AI-assisted formative assessment. Students submit drafts and receive multi-model AI feedback aligned with instructor rubrics. Built for Curtin University.
 
-**Core principles**: Privacy-first (temporary content storage), iterative improvement (multi-draft), AI-powered (multi-LLM), instructor-controlled.
+**Core principles**: Iterative improvement (multi-draft, content retained for progress tracking), AI-powered (multi-LLM), instructor-controlled, student-controlled draft visibility. The app never emails students — instructors distribute invite links through their own channels.
 
 ## Tech Stack
 

@@ -12,8 +12,15 @@ from fasthtml import common as fh
 from app import instructor_required, rt
 from app.models.course import Enrollment, courses, enrollments
 from app.models.user import Role, User, users
-from app.utils.email import generate_verification_token, send_student_invitation_email
+from app.utils.email import APP_DOMAIN, generate_verification_token
 from app.utils.ui import action_button, card, dashboard_layout, status_badge
+
+
+def student_join_link(token: str) -> str:
+    """Join link for a student invitation. FeedForward never emails
+    students - instructors share these links through their own channel
+    (LMS announcement, unit email, etc.)."""
+    return f"{APP_DOMAIN}/student/join?token={token}"
 
 
 def generate_invitation_token(length=40):
@@ -101,7 +108,7 @@ def instructor_manage_students(session, request):
                 fh.Td(
                     fh.Div(
                         fh.Button(
-                            "Resend",
+                            "Get link",
                             hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(email)}&course_id={student_info['courses'][0].id}",
                             hx_target="#message-area",
                             cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
@@ -289,7 +296,7 @@ def instructor_course_students(session, course_id: int):
                 fh.Td(
                     fh.Div(
                         fh.Button(
-                            "Resend",
+                            "Get link",
                             hx_post=f"/instructor/resend-invitation?email={urllib.parse.quote(student['email'])}&course_id={course_id}",
                             hx_target=f"#status-{idx}",
                             cls="text-xs px-3 py-1 bg-[#1a2e44] text-[#faf8f2] rounded-md hover:bg-[#0f1e30] mr-2",
@@ -469,23 +476,26 @@ def instructor_resend_invitation(session, request, email: str, course_id: int):
             )
             users.insert(new_student)
 
-        # Send invitation email
-        send_student_invitation_email(
-            student_email=email,
-            instructor_name=user.name or user.email,
-            course_name=course.title,
-            course_code=course.code,
-            verification_token=token,
-        )
-
+        # FeedForward doesn't email students — hand the instructor the link.
+        link = student_join_link(token)
         return fh.Div(
-            fh.P(f"Invitation resent to {email}", cls="text-green-600"),
-            cls="p-3 bg-green-50 rounded-lg",
+            fh.P(f"Invite link for {email}:", cls="text-sm text-slate-700 mb-1"),
+            fh.Input(
+                value=link,
+                readonly=True,
+                onclick="this.select()",
+                cls="w-full p-2 text-xs bg-white border border-slate-300 rounded font-mono",
+            ),
+            fh.P(
+                "Share it through your usual channel (LMS, class email).",
+                cls="text-xs text-slate-500 mt-1",
+            ),
+            cls="p-3 bg-teal-50 rounded border border-teal-200",
         )
     except Exception as e:
         return fh.Div(
-            fh.P(f"Failed to send invitation: {e!s}", cls="text-red-600"),
-            cls="p-3 bg-red-50 rounded-lg",
+            fh.P(f"Failed to create invite link: {e!s}", cls="text-red-600"),
+            cls="p-3 bg-red-50 rounded",
         )
 
 
@@ -636,10 +646,17 @@ def instructor_invite_students_form(session, request):
         fh.Div(
             fh.H3("Invitation Tips", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
             fh.P(
-                "• Students will receive an email invitation", cls="text-gray-600 mb-2"
+                "• You get a join link per student to share yourself",
+                cls="text-gray-600 mb-2",
             ),
-            fh.P("• They must verify their email to enroll", cls="text-gray-600 mb-2"),
-            fh.P("• You can resend invitations if needed", cls="text-gray-600 mb-2"),
+            fh.P(
+                "• FeedForward doesn't email students — use your LMS or cohort email",
+                cls="text-gray-600 mb-2",
+            ),
+            fh.P(
+                "• Fetch a link again anytime from the course page",
+                cls="text-gray-600 mb-2",
+            ),
             fh.P("• Students can submit drafts once enrolled", cls="text-gray-600"),
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
@@ -732,20 +749,106 @@ def instructor_invite_students_process(session, course_id: int, emails: str):
             )
             enrollments.insert(new_enrollment)
 
-            # Send invitation email
-            send_student_invitation_email(
-                student_email=email,
-                instructor_name=user.name or user.email,
-                course_name=course.title,
-                course_code=course.code,
-                verification_token=token,
-            )
-
-            invited.append(email)
+            # No email is sent — the instructor distributes the join link.
+            invited.append((email, student_join_link(token)))
         except Exception as e:
             failed.append((email, str(e)))
 
-    # Redirect to course students page with results
-    return fh.RedirectResponse(
-        f"/instructor/courses/{course_id}/students", status_code=303
+    # Results page: FeedForward never emails students, so hand the
+    # instructor every join link to distribute via their own channel.
+    copy_all = "\n".join(f"{email}: {link}" for email, link in invited)
+    link_rows = [
+        fh.Div(
+            fh.Span(email, cls="text-sm font-medium text-[#1a2e44] w-64 shrink-0"),
+            fh.Input(
+                value=link,
+                readonly=True,
+                onclick="this.select()",
+                cls="flex-1 p-2 text-xs bg-white border border-slate-300 rounded font-mono",
+            ),
+            cls="flex items-center gap-3 py-2 border-t border-slate-300",
+        )
+        for email, link in invited
+    ]
+    main_content = fh.Div(
+        fh.H2(
+            f"Invite links for {course.title} ({course.code})",
+            cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-2",
+        ),
+        fh.P(
+            "FeedForward doesn't email students. Copy these join links and "
+            "share them through your usual channel — an LMS announcement or "
+            "your normal cohort email works well.",
+            cls="text-slate-700 mb-6 max-w-2xl",
+        ),
+        (
+            fh.Div(
+                fh.Div(
+                    "Copy all",
+                    cls="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
+                ),
+                fh.Textarea(
+                    copy_all,
+                    readonly=True,
+                    onclick="this.select()",
+                    rows=min(len(invited) + 1, 8),
+                    cls="w-full p-3 text-xs bg-white border border-slate-300 rounded font-mono",
+                ),
+                fh.Div(*link_rows, cls="mt-4"),
+                cls="bg-[#fdfcf8] p-5 rounded border border-slate-300 mb-6",
+            )
+            if invited
+            else fh.P(
+                "No new invitations were created.", cls="text-slate-500 italic mb-6"
+            )
+        ),
+        (
+            fh.P(
+                f"Already enrolled ({len(already_enrolled)}): "
+                + ", ".join(already_enrolled),
+                cls="text-sm text-slate-500 mb-2",
+            )
+            if already_enrolled
+            else ""
+        ),
+        (
+            fh.Div(
+                fh.P("Failed:", cls="text-sm font-medium text-red-700"),
+                *[
+                    fh.P(f"{email} — {reason}", cls="text-sm text-red-700")
+                    for email, reason in failed
+                ],
+                cls="mb-2",
+            )
+            if failed
+            else ""
+        ),
+        fh.A(
+            "Continue to course students →",
+            href=f"/instructor/courses/{course_id}/students",
+            cls="inline-block text-teal-600 font-medium hover:underline mt-2",
+        ),
+    )
+    sidebar_content = fh.Div(
+        fh.Div(
+            fh.H3("What students do", cls="text-xl font-semibold text-[#1a2e44] mb-4"),
+            fh.P("• Open the join link you share", cls="text-gray-600 mb-2"),
+            fh.P(
+                "• Set a password to activate their account",
+                cls="text-gray-600 mb-2",
+            ),
+            fh.P(
+                "• Links are unique per student — don't swap them",
+                cls="text-gray-600",
+            ),
+            cls="mb-6 p-4 bg-white rounded border border-slate-300",
+        ),
+    )
+    return dashboard_layout(
+        "Invite Links | FeedForward",
+        sidebar_content,
+        main_content,
+        user_role=Role.INSTRUCTOR,
+        user=user,
+        current_path="/instructor/invite-students",
     )

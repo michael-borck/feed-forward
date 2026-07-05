@@ -13,7 +13,6 @@ import threading
 from typing import Optional
 
 from app.services.feedback_generator import process_draft_submission
-from app.utils.privacy import remove_student_content_after_delay
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -110,7 +109,6 @@ async def _process_draft_with_tracking(draft_id: int):
 
         if success:
             logger.info(f"Successfully processed draft {draft_id}")
-            _schedule_content_removal(draft_id)
         else:
             logger.error(f"Failed to process draft {draft_id}")
 
@@ -135,18 +133,6 @@ def _process_draft_in_thread(draft_id: int):
     finally:
         active_tasks.pop(draft_id, None)
 
-
-def _schedule_content_removal(draft_id: int, delay_days: int = 7):
-    """Schedule content removal for privacy protection after feedback is ready."""
-    try:
-        remove_student_content_after_delay(draft_id, delay_days)
-    except Exception as e:
-        logger.error(f"Failed to schedule content removal for draft {draft_id}: {e!s}")
-
-
-# ------------------------------------------------------------------
-# Status & retry
-# ------------------------------------------------------------------
 
 
 def get_task_status(draft_id: int) -> Optional[str]:

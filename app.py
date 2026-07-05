@@ -231,7 +231,7 @@ def privacy_page(session=None):
         H3("Submission Content", cls="text-xl font-bold text-blue-700 mt-6 mb-3"),
         Div(
             Div(
-                "• Temporary storage only: Student submitted work is stored only temporarily while feedback is being generated",
+                "• Retention for progress: submitted drafts are retained so students and instructors can track improvement across drafts; students can hide drafts from their own view",
                 cls="ml-6 mb-2 text-gray-700",
             ),
             Div(

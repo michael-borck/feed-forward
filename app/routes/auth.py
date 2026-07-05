@@ -33,9 +33,11 @@ from app.utils.auth import (
 from app.utils.email import (
     APP_DOMAIN,
     generate_verification_token,
+    send_email_async,
     send_password_reset_email,
     send_verification_email,
 )
+from app.utils.rate_limit import RATE_LIMIT_MESSAGE, client_ip, rate_limited
 
 # Import UI components
 from app.utils.ui import page_container
@@ -162,7 +164,10 @@ def get():
 
 
 @rt("/register")
-def post(name: str, email: str, password: str, confirm_password: str):
+def post(request, name: str, email: str, password: str, confirm_password: str):
+    if rate_limited(f"register:{client_ip(request)}", 5, 900):
+        return RATE_LIMIT_MESSAGE
+
     # Validate inputs
     if not name or not email or not password or not confirm_password:
         return "All fields are required"
@@ -207,7 +212,11 @@ def post(name: str, email: str, password: str, confirm_password: str):
             users.update(existing_user)
 
             # Send verification email
-            success, message = send_verification_email(email, token)
+            if _IS_PROD:
+                send_email_async(send_verification_email, email, token)
+                success, message = True, ""
+            else:
+                success, message = send_verification_email(email, token)
 
             # Redirect to confirmation page
             if success:
@@ -285,7 +294,11 @@ def post(name: str, email: str, password: str, confirm_password: str):
         users.insert(new_user)
 
         # Send verification email
-        success, message = send_verification_email(email, token)
+        if _IS_PROD:
+            send_email_async(send_verification_email, email, token)
+            success, message = True, ""
+        else:
+            success, message = send_verification_email(email, token)
 
         # Redirect to a confirmation page instead of showing a message in-place
         if success:
@@ -602,7 +615,7 @@ def get():
 
 
 @rt("/login")
-def post(session, email: str, password: str):
+def post(session, request, email: str, password: str):
     """Authenticate against the user store and route to the role's dashboard.
 
     Previous implementations carried hardcoded "EMERGENCY FIX" credential
@@ -611,6 +624,9 @@ def post(session, email: str, password: str):
     and hash prefix to stdout on every attempt. All removed — bcrypt-only
     verification, no credential-shaped strings in logs or error responses.
     """
+    if rate_limited(f"login:{client_ip(request)}", 10, 300):
+        return RATE_LIMIT_MESSAGE
+
     try:
         user = users[email]
     except NotFoundError:
@@ -624,7 +640,7 @@ def post(session, email: str, password: str):
         token = generate_verification_token(email)
         user.verification_token = token
         users.update(user)
-        send_verification_email(email, token)
+        send_email_async(send_verification_email, email, token)
         return fh.Div(
             fh.P(
                 "Your email is not verified yet. Please check your inbox or spam folder.",
@@ -731,7 +747,10 @@ def get():
 
 
 @rt("/forgot-password")
-def post(email: str):
+def post(request, email: str):
+    if rate_limited(f"forgot:{client_ip(request)}", 5, 900):
+        return RATE_LIMIT_MESSAGE
+
     try:
         user = users[email]
 
@@ -744,7 +763,11 @@ def post(email: str):
         users.update(user)
 
         # Send password reset email
-        success, message = send_password_reset_email(email, reset_token)
+        if _IS_PROD:
+            send_email_async(send_password_reset_email, email, reset_token)
+            success, message = True, ""
+        else:
+            success, message = send_password_reset_email(email, reset_token)
         if success:
             return fh.Div(
                 fh.P(

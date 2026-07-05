@@ -21,22 +21,30 @@ same pass (commit references in git history); four need product decisions.
 | Low | Non-constant-time token comparison | `secrets.compare_digest` for verification and reset tokens |
 | Low | Docs path traversal defence was `path.replace("..", "")` | `Path.resolve().is_relative_to(docs_root)` containment check |
 
-## Open — needs a product decision
+## Resolved by product decision (2026-07-06)
 
-1. **Privacy deletion never runs (High).** The "privacy-by-design" draft
-   content removal (`app/utils/privacy.py`) only logs; `cleanup_draft_content`
-   has no callers. Student submissions are retained indefinitely, contradicting
-   the platform's stated model. Needs a real scheduled job (cron/task queue)
-   and a decision on retention windows.
-2. **Open instructor registration (Low).** `is_institutional_email` treats any
-   unrecognized domain as an instructor pending approval. If registration
-   should be whitelist-only, unknown domains should be rejected outright.
+1. **Privacy deletion** — decided: FeedForward *retains* draft content so
+   students and instructors can track progress across drafts (students can
+   hide drafts from their own view). The deletion machinery — including an
+   active wipe in `feedback_generator` that erased draft text the moment
+   feedback was ready — was removed, and the "temporary storage" claims in
+   the privacy policy, terms, README, and docs were corrected.
+2. **Open instructor registration** — policy kept (any domain may register,
+   pending admin approval), now mitigated with per-IP rate limiting on
+   register (5/15 min), login (10/5 min), and forgot-password (5/15 min) —
+   `app/utils/rate_limit.py`.
+4. **Timing side-channel in forgot-password** — fixed: account emails
+   (verification, reset) are sent on a background thread in production
+   (`send_email_async`), so response timing no longer depends on account
+   existence. Relatedly, the app no longer emails students at all:
+   invitations are join links the instructor distributes via their own
+   channel (LMS, cohort email).
+
+## Still open
+
 3. **Token storage (Low).** Verification/reset tokens are stored in plaintext
    in SQLite and verification tokens never expire. Hardened comparison is in;
    hashing-at-rest and expiry are follow-ups.
-4. **Timing side-channel in forgot-password (Low).** Responses are now
-   identical, but the found-path still does token generation + synchronous
-   SMTP; sending out-of-band would close the timing signal.
 
 Verified clean: no raw SQL (fastlite throughout), uploads parsed in-memory
 (no user-controlled write paths), instructor/student route ownership checks
