@@ -134,7 +134,6 @@ def _process_draft_in_thread(draft_id: int):
         active_tasks.pop(draft_id, None)
 
 
-
 def get_task_status(draft_id: int) -> Optional[str]:
     """
     Get the status of a feedback generation task.
