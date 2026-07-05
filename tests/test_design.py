@@ -49,8 +49,24 @@ def test_density_tokens_are_tight():
 
 
 def test_single_radius_value():
-    assert design.RADIUS == "rounded-lg"
+    # Editorial direction (2026-07): one small radius everywhere.
+    assert design.RADIUS == "rounded"
     assert design.RADIUS_PILL == "rounded-full"
+
+
+def test_editorial_has_no_shadows():
+    """Editorial depth comes from hairlines, never shadows."""
+    assert design.SHADOW_REST == "shadow-none"
+    assert design.SHADOW_HOVER == "shadow-none"
+    assert "shadow" not in design.button_classes()
+
+
+def test_editorial_serif_display_and_label_token():
+    """Headings are serif (Fraunces); the small-caps label is a core token."""
+    for key in ("hero", "h1", "h2", "h3"):
+        assert "font-serif" in design.TEXT[key], key
+    assert "uppercase" in design.TEXT["label"]
+    assert "tracking-" in design.TEXT["label"]
 
 
 # ---- button_classes composition ----
@@ -58,18 +74,18 @@ def test_single_radius_value():
 
 def test_button_classes_primary_default():
     out = design.button_classes()
-    # Base + medium size + primary intent
+    # Base + medium size + primary intent (editorial: small-caps rectangle)
     assert "inline-flex" in out
-    assert "px-4 py-2" in out
+    assert "px-5 py-2.5" in out
     assert f"bg-{design.COLOR['primary']}" in out
-    assert "text-white" in out
+    assert "uppercase" in out
     assert design.RADIUS in out
 
 
 def test_button_classes_secondary_uses_border_not_fill():
     out = design.button_classes(intent="secondary")
     assert f"border-{design.COLOR['primary']}" in out
-    assert "bg-white" in out
+    assert "bg-transparent" in out
 
 
 def test_button_classes_ghost_has_no_background_at_rest():
@@ -85,8 +101,8 @@ def test_button_classes_danger_uses_red():
 def test_button_classes_size_sm_smaller_than_md():
     sm = design.button_classes(size="sm")
     md = design.button_classes(size="md")
-    assert "px-3" in sm and "py-1.5" in sm and "text-sm" in sm
-    assert "px-4" in md and "py-2" in md
+    assert "px-3" in sm and "py-1.5" in sm
+    assert "px-5" in md and "py-2.5" in md
 
 
 def test_button_classes_unknown_intent_falls_back_to_primary():

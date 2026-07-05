@@ -17,6 +17,11 @@ FeedForward is a web-based platform for AI-assisted formative assessment. Studen
 
 ## Quick Reference Commands
 
+> **Local dev note:** if the working copy lives on the external (exFAT) drive,
+> keep the virtualenv on the internal disk — AppleDouble `._*` sidecar files
+> corrupt wheel installs inside `.venv` on the external volume:
+> `export UV_PROJECT_ENVIRONMENT="$HOME/.venvs/feed-forward"` before `uv sync`.
+
 ```bash
 # Run the app
 python app.py                      # Dev server on http://localhost:5001
