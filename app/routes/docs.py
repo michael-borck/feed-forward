@@ -354,11 +354,14 @@ def get(session):
 @rt("/docs/{path:path}")
 def get_doc_page(session, path: str):
     """Display a specific documentation page."""
-    # Sanitize path to prevent directory traversal
-    path = path.replace("..", "")
-
-    # Load the markdown file
+    # Resolve and require the target to stay inside docs/ (traversal defence)
+    docs_root = Path("docs").resolve()
     doc_path = Path(f"docs/{path}.md")
+    try:
+        if not doc_path.resolve().is_relative_to(docs_root):
+            return fh.RedirectResponse("/error/404", status_code=303)
+    except (OSError, ValueError):
+        return fh.RedirectResponse("/error/404", status_code=303)
     content = load_markdown_file(doc_path)
 
     if content is None:

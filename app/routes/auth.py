@@ -2,7 +2,16 @@
 Authentication routes (login, register, verify, password reset, etc.)
 """
 
+import logging
+import os
+import secrets
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+# Production hides dev conveniences (manual verification/reset links shown
+# when SMTP is unavailable) — see docker-compose.prod.yml.
+_IS_PROD = os.environ.get("FEEDFORWARD_ENV", "dev") == "production"
 
 from fasthtml import common as fh
 from fasthtml.common import (
@@ -246,7 +255,10 @@ def post(name: str, email: str, password: str, confirm_password: str):
                     cls="text-center",
                 )
         else:
-            return "User already exists"
+            return (
+                "Check your email to continue. If you already have an "
+                "account, use Sign in instead."
+            )
     except NotFoundError:
         # Generate verification token
         token = generate_verification_token(email)
@@ -290,7 +302,16 @@ def post(name: str, email: str, password: str, confirm_password: str):
             )
         else:
             # For security, don't expose the exact error to the user
-            print(f"EMAIL ERROR DETAILS: {message}")
+            logger.error("Email send failed: %s", message)
+            if _IS_PROD:
+                return fh.Div(
+                    fh.P(
+                        "We could not send the email just now. Please try "
+                        "again later or contact support.",
+                        cls="text-red-700",
+                    ),
+                    cls="text-center",
+                )
             # Provide a way to verify manually for development purposes
             verify_link = f"{APP_DOMAIN}/verify?token={token}"
             return fh.Div(
@@ -382,15 +403,11 @@ def get(token: str):
     # Import UI components
 
     # Debug print
-    import logging
-
-    logging.basicConfig(level=logging.DEBUG)
-    logging.debug(f"Verifying token: {token}")
-
-    # Look for a user with the matching token
+    # Look for a user with the matching token (constant-time comparison)
     for user in users():
-        logging.debug(f"Checking user: {user.email}, token: {user.verification_token}")
-        if user.verification_token == token:
+        if user.verification_token and secrets.compare_digest(
+            user.verification_token, token
+        ):
             user.verified = True
             # Clear the token after successful verification
             user.verification_token = ""
@@ -623,6 +640,7 @@ def post(session, email: str, password: str):
     if user.role == Role.INSTRUCTOR and not user.approved:
         return "Your account is pending approval. Please contact the administrator."
 
+    session.clear()  # rotate session state on login (fixation defence)
     session["auth"] = user.email
     if user.role == Role.INSTRUCTOR:
         return HttpHeader("HX-Redirect", "/instructor/dashboard")
@@ -730,14 +748,23 @@ def post(email: str):
         if success:
             return fh.Div(
                 fh.P(
-                    "Password reset link sent. Please check your email.",
+                    "If your email is registered, you will receive a password reset link.",
                     cls="text-green-500",
                 ),
                 cls="text-center",
             )
         else:
             # For security, don't expose the exact error to the user
-            print(f"EMAIL ERROR DETAILS: {message}")
+            logger.error("Email send failed: %s", message)
+            if _IS_PROD:
+                return fh.Div(
+                    fh.P(
+                        "We could not send the email just now. Please try "
+                        "again later or contact support.",
+                        cls="text-red-700",
+                    ),
+                    cls="text-center",
+                )
             # Provide a way to reset password manually for development purposes
             reset_link = f"{APP_DOMAIN}/reset-password?token={reset_token}"
             return fh.Div(
@@ -775,7 +802,11 @@ def get(token: str):
     user_email = ""
 
     for user in users():
-        if user.reset_token == token and is_reset_token_valid(user.reset_token_expiry):
+        if (
+            user.reset_token
+            and secrets.compare_digest(user.reset_token, token)
+            and is_reset_token_valid(user.reset_token_expiry)
+        ):
             valid_token = True
             user_email = user.email
             break
@@ -907,9 +938,9 @@ def post(token: str, email: str, password: str, confirm_password: str):
         user = users[email]
 
         # Validate token
-        if user.reset_token != token or not is_reset_token_valid(
-            user.reset_token_expiry
-        ):
+        if not (
+            user.reset_token and secrets.compare_digest(user.reset_token, token)
+        ) or not is_reset_token_valid(user.reset_token_expiry):
             return "Invalid or expired reset token"
 
         # Update password

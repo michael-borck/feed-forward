@@ -149,9 +149,18 @@ def init_db():
                 f"Error creating assessment type {type_config['display_name']}: {e!s}"
             )
 
-    # Create admin user if it doesn't exist
+    # Create admin user if it doesn't exist. A known default admin password
+    # is a backdoor in production — require ADMIN_PASSWORD there; the
+    # convenience default only applies in dev.
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@example.com")
-    admin_password = os.environ.get("ADMIN_PASSWORD", "Admin123!")
+    admin_password = os.environ.get("ADMIN_PASSWORD", "")
+    if not admin_password:
+        if os.environ.get("FEEDFORWARD_ENV", "dev") == "production":
+            raise RuntimeError(
+                "ADMIN_PASSWORD must be set to seed the admin account in "
+                "production — refusing to use a known default password."
+            )
+        admin_password = "Admin123!"  # dev only
 
     try:
         # Check if admin exists

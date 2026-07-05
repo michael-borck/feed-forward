@@ -61,15 +61,23 @@ favicon = fh.Link(
     ),
 )
 
+# Production is signalled by FEEDFORWARD_ENV=production (set in the prod
+# compose file). Debug mode and live-reload leak stack traces and source on
+# errors, so they are dev-only; session cookies tighten in production too.
+_IS_PROD = os.environ.get("FEEDFORWARD_ENV", "dev") == "production"
+
 app, rt = fh.fast_app(
-    live=True,
-    debug=True,
+    live=not _IS_PROD,
+    debug=not _IS_PROD,
     hdrs=(custom_styles, inter_font, tailwind_cdn, tailwind_config, favicon),
     # Pin Pico (FastHTML's base stylesheet) to its light theme: the Editorial
     # design is paper-light everywhere, and without this any element that
     # lacks explicit Tailwind colours (bare inputs, page gutters) flips to
     # Pico's dark palette for dark-mode users.
     htmlkw={"data-theme": "light"},
+    same_site="lax",
+    sess_https_only=_IS_PROD,
+    max_age=7 * 24 * 3600,  # sessions expire after a week, not a year
 )
 
 # We'll use explicit route handlers for error pages instead of exception handlers
@@ -108,15 +116,17 @@ def basic_auth(f):
 
 # --- General Login Required Decorator ---
 def login_required(f):
-    """Decorator to require authentication without specific role"""
+    """Decorator to require an authenticated, verified user (no role check)"""
 
     @wraps(f)
     async def wrapper(session, *args, **kwargs):
         try:
             from app.models.user import users
 
-            # Just check if user exists in session
-            users[session["auth"]]
+            user = users[session["auth"]]
+            if not user.verified:
+                del session["auth"]
+                return fh.RedirectResponse("/login", status_code=303)
         except Exception:
             return fh.RedirectResponse("/login", status_code=303)
 
@@ -134,6 +144,13 @@ def role_required(role):
                 from app.models.user import Role, users
 
                 user = users[session["auth"]]
+                # Sessions for unverified (or unapproved instructor) accounts
+                # must not reach role-gated pages.
+                if not user.verified or (
+                    user.role == Role.INSTRUCTOR and not user.approved
+                ):
+                    del session["auth"]
+                    return fh.RedirectResponse("/login", status_code=303)
                 if user.role != role:
                     # Redirect to access-denied page with role information
                     error_message = (

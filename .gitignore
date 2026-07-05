@@ -69,3 +69,6 @@ _notes
 # macOS AppleDouble sidecars (external drive)
 ._*
 .DS_Store
+
+# Real production env stays out of the public repo (use .env.production.example)
+.env.production

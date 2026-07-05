@@ -15,7 +15,22 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "development-key-please-change-in-production")
+_DEV_DEFAULT = "development-key-please-change-in-production"
+SECRET_KEY = os.environ.get("SECRET_KEY", _DEV_DEFAULT)
+
+# Stored LLM API keys are encrypted with a key derived from SECRET_KEY.
+# Running production on the public default would make every stored key
+# decryptable by anyone with the repo — refuse to start.
+if os.environ.get("FEEDFORWARD_ENV", "dev") == "production" and SECRET_KEY in (
+    _DEV_DEFAULT,
+    "",
+    "your-production-secret-key-here",
+):
+    raise RuntimeError(
+        "SECRET_KEY must be set to a real secret in production "
+        "(FEEDFORWARD_ENV=production). Refusing to start with the "
+        "development default."
+    )
 
 
 def get_encryption_key():
