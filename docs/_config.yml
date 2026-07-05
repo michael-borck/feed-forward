@@ -116,6 +116,7 @@ kramdown:
 
 # Exclude from Jekyll build
 exclude:
+  - "archive/"  # contains Jinja-style {% elif %} that breaks Liquid parsing
   - "*.py"
   - "*.pyc"
   - "requirements.txt"
