@@ -950,7 +950,7 @@ def student_assignment_spec_view(session, assignment_id: int):
     user = users[session["auth"]]
 
     # Verify access to the assignment
-    assignment, course, error = get_student_assignment(assignment_id, user.email)
+    assignment, _course, error = get_student_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
             fh.P(error, cls="text-red-600 bg-red-50 p-4 rounded-lg"),

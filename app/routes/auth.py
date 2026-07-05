@@ -407,7 +407,9 @@ def get(token: str):
                         # Brand logo
                         fh.Div(
                             fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
-                            fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
+                            fh.Span(
+                                "Forward", cls="font-serif font-bold text-teal-600"
+                            ),
                             cls="text-3xl mb-4 text-center",
                         ),
                         fh.H1(

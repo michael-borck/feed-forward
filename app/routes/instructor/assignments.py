@@ -726,7 +726,7 @@ async def instructor_assignments_create(
     user = users[session["auth"]]
 
     # Verify course ownership
-    course, error = get_instructor_course(course_id, user.email)
+    _course, error = get_instructor_course(course_id, user.email)
     if error:
         return fh.RedirectResponse("/instructor/courses", status_code=303)
 
@@ -1678,7 +1678,7 @@ def instructor_rubric_create(session, assignment_id: int):
     user = users[session["auth"]]
 
     # Get the assignment with permission check
-    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    _assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
             fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
@@ -1729,7 +1729,7 @@ def instructor_rubric_category_add(
     user = users[session["auth"]]
 
     # Get the assignment with permission check
-    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    _assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
             fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
@@ -1889,7 +1889,7 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
     user = users[session["auth"]]
 
     # Get the assignment with permission check
-    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    _assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
             fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
@@ -1975,7 +1975,7 @@ def instructor_rubric_save_generated(session, assignment_id: int, categories: st
     user = users[session["auth"]]
 
     # Get the assignment with permission check
-    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    _assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
             fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"

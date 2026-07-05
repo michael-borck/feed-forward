@@ -168,7 +168,7 @@ async def main():
         print("❌ Assignment/rubric test failed")
         return
 
-    assignment, categories = assignment_data
+    assignment, _categories = assignment_data
 
     # Test 3: Create Test Draft
     try:
