@@ -65,9 +65,7 @@ def apply_review(
     return updated
 
 
-def bulk_approve(
-    draft_ids: Iterable[int], instructor_email: str
-) -> dict[str, int]:
+def bulk_approve(draft_ids: Iterable[int], instructor_email: str) -> dict[str, int]:
     """Release any non-released ``aggregated_feedback`` rows for the listed drafts.
 
     Differs from ``apply_review`` in that it does NOT set ``edited_by_instructor``

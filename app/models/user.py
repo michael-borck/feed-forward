@@ -9,10 +9,10 @@ from enum import Enum
 from fasthtml.common import database
 
 # Use absolute path in Docker, relative path for local development
-if os.path.exists('/app'):
-    db_path = os.environ.get('DATABASE_PATH', '/app/data/users.db')
+if os.path.exists("/app"):
+    db_path = os.environ.get("DATABASE_PATH", "/app/data/users.db")
 else:
-    db_path = os.environ.get('DATABASE_PATH', 'data/users.db')
+    db_path = os.environ.get("DATABASE_PATH", "data/users.db")
     # Create directory only for local development
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
 db = database(db_path)

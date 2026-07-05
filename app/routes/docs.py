@@ -39,30 +39,32 @@ def convert_markdown_to_html(md_content):
     md_content = re.sub(r"1\.\s+TOC\s*\n\s*{:toc}", "", md_content)
 
     # Process callout blocks - convert Jekyll syntax to HTML
-    md_content = re.sub(r'{:\s*\.warning\s*}', '', md_content)
-    md_content = re.sub(r'{:\s*\.note\s*}', '', md_content)
-    md_content = re.sub(r'{:\s*\.tip\s*}', '', md_content)
-    md_content = re.sub(r'{:\s*\.important\s*}', '', md_content)
-    md_content = re.sub(r'{:\s*\.[^}]+}', '', md_content)
+    md_content = re.sub(r"{:\s*\.warning\s*}", "", md_content)
+    md_content = re.sub(r"{:\s*\.note\s*}", "", md_content)
+    md_content = re.sub(r"{:\s*\.tip\s*}", "", md_content)
+    md_content = re.sub(r"{:\s*\.important\s*}", "", md_content)
+    md_content = re.sub(r"{:\s*\.[^}]+}", "", md_content)
 
     # Convert blockquotes with Jekyll classes to styled divs
     def process_blockquote(match):
         content = match.group(1)
         # Check what came before to determine type
-        lines_before = md_content[:match.start()].split('\n')
-        if lines_before and '{: .warning' in lines_before[-1]:
+        lines_before = md_content[: match.start()].split("\n")
+        if lines_before and "{: .warning" in lines_before[-1]:
             return f'<div class="callout callout-warning"><span class="callout-icon">⚠️</span><div class="callout-content">{content}</div></div>'
-        elif lines_before and '{: .tip' in lines_before[-1]:
+        elif lines_before and "{: .tip" in lines_before[-1]:
             return f'<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-content">{content}</div></div>'
-        elif lines_before and '{: .important' in lines_before[-1]:
+        elif lines_before and "{: .important" in lines_before[-1]:
             return f'<div class="callout callout-important"><span class="callout-icon">❗</span><div class="callout-content">{content}</div></div>'
-        elif lines_before and '{: .note' in lines_before[-1]:
+        elif lines_before and "{: .note" in lines_before[-1]:
             return f'<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-content">{content}</div></div>'  # noqa: RUF001
         else:
-            return f'<blockquote>{content}</blockquote>'
+            return f"<blockquote>{content}</blockquote>"
 
     # Process standard blockquotes
-    md_content = re.sub(r'^>\s*(.+?)$', process_blockquote, md_content, flags=re.MULTILINE)
+    md_content = re.sub(
+        r"^>\s*(.+?)$", process_blockquote, md_content, flags=re.MULTILINE
+    )
 
     # Configure markdown extensions for better rendering
     md = markdown.Markdown(
@@ -79,17 +81,17 @@ def convert_markdown_to_html(md_content):
             "markdown.extensions.admonition",
         ],
         extension_configs={
-            'codehilite': {
-                'css_class': 'highlight',
-                'linenums': False,
-                'guess_lang': True,
+            "codehilite": {
+                "css_class": "highlight",
+                "linenums": False,
+                "guess_lang": True,
             },
-            'toc': {
-                'permalink': True,
-                'permalink_class': 'toc-link',
-                'toc_depth': 3,
-            }
-        }
+            "toc": {
+                "permalink": True,
+                "permalink_class": "toc-link",
+                "toc_depth": 3,
+            },
+        },
     )
 
     # Convert markdown to HTML
@@ -108,7 +110,7 @@ def convert_markdown_to_html(md_content):
         header_id = clean_text.replace(" ", "-")
         return f'<h{level} id="{header_id}">{text}</h{level}>'
 
-    html = re.sub(r'<h([1-6])>(.+?)</h\1>', add_header_id, html)
+    html = re.sub(r"<h([1-6])>(.+?)</h\1>", add_header_id, html)
 
     return html
 
@@ -298,7 +300,10 @@ def get(session):
                     fh.Div(
                         fh.Div(
                             fh.H3("For Students", cls="text-xl font-semibold mb-2"),
-                            fh.P("Learn how to submit work and view feedback", cls="text-gray-600 mb-3"),
+                            fh.P(
+                                "Learn how to submit work and view feedback",
+                                cls="text-gray-600 mb-3",
+                            ),
                             fh.A(
                                 "Get Started →",
                                 href="/docs/user-guides/student/getting-started",
@@ -308,7 +313,10 @@ def get(session):
                         ),
                         fh.Div(
                             fh.H3("For Instructors", cls="text-xl font-semibold mb-2"),
-                            fh.P("Create courses, assignments, and review feedback", cls="text-gray-600 mb-3"),
+                            fh.P(
+                                "Create courses, assignments, and review feedback",
+                                cls="text-gray-600 mb-3",
+                            ),
                             fh.A(
                                 "Get Started →",
                                 href="/docs/user-guides/instructor/course-management",
@@ -317,8 +325,13 @@ def get(session):
                             cls="bg-white p-6 rounded-lg shadow-md border border-gray-100",
                         ),
                         fh.Div(
-                            fh.H3("For Administrators", cls="text-xl font-semibold mb-2"),
-                            fh.P("Configure and maintain your FeedForward instance", cls="text-gray-600 mb-3"),
+                            fh.H3(
+                                "For Administrators", cls="text-xl font-semibold mb-2"
+                            ),
+                            fh.P(
+                                "Configure and maintain your FeedForward instance",
+                                cls="text-gray-600 mb-3",
+                            ),
                             fh.A(
                                 "Get Started →",
                                 href="/docs/user-guides/admin/initial-setup",

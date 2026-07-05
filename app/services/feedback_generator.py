@@ -17,7 +17,10 @@ from typing import Any, Optional
 
 import litellm
 
-from app.assessment.registry import DEFAULT_HANDLER
+from app.assessment.registry import (
+    get_assessment_handler,
+    type_code_for_assignment,
+)
 from app.models.assignment import Assignment, assignments, rubric_categories, rubrics
 from app.models.config import (
     AIModel,
@@ -88,6 +91,31 @@ class FeedbackGenerationResult:
     error_message: Optional[str] = None
 
 
+def _extract_usage(response: Any) -> dict[str, Any]:
+    """Pull token counts + estimated cost from a LiteLLM completion response.
+
+    LiteLLM normalises usage to ``prompt_tokens`` / ``completion_tokens`` across
+    providers and computes cost from its model price map. Both can be absent
+    (some providers/proxies omit usage; cost lookup fails for unknown models) —
+    return zeros rather than raising, so cost tracking never breaks feedback.
+    """
+    usage = getattr(response, "usage", None)
+    input_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
+    output_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
+
+    cost = 0.0
+    try:
+        cost = float(litellm.completion_cost(completion_response=response) or 0.0)
+    except Exception:  # unknown model, missing price map, etc. — non-fatal
+        cost = 0.0
+
+    return {
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "cost_usd": cost,
+    }
+
+
 class FeedbackGenerator:
     """Service for generating AI feedback on student submissions"""
 
@@ -149,9 +177,10 @@ class FeedbackGenerator:
 
             # Evidence sources from the assessment handler — the seam between
             # assessment-type declaration and orchestration (ADR 012, Phase A3).
-            # Default handler returns one LLMEvidenceSource per (model, run) plus
-            # one SignalEvidenceSource; type-specific handlers can override the mix.
-            sources = DEFAULT_HANDLER.evidence_sources(self, active_models, settings)
+            # Handlers return one LLMEvidenceSource per (model, run) plus one
+            # SignalEvidenceSource; type-specific handlers can override the mix.
+            handler = get_assessment_handler(type_code_for_assignment(assignment.id))
+            sources = handler.evidence_sources(self, active_models, settings)
 
             # Run all sources concurrently; each writes its own model_run rows.
             all_results = await asyncio.gather(
@@ -246,16 +275,19 @@ class FeedbackGenerator:
             api_config = self._get_model_config(model)
 
             # Call the AI model
-            response = await self._call_ai_model(
+            response, usage = await self._call_ai_model(
                 model=model, prompt=prompt, api_config=api_config
             )
 
             # Parse the response
             feedback_data = self._parse_ai_response(response)
 
-            # Store raw response
+            # Store raw response + usage (cost tracking)
             model_run.raw_response = response
             model_run.status = "complete"
+            model_run.input_tokens = usage["input_tokens"]
+            model_run.output_tokens = usage["output_tokens"]
+            model_run.cost_usd = usage["cost_usd"]
             model_runs.update(model_run)
 
             # Store structured feedback
@@ -330,8 +362,13 @@ class FeedbackGenerator:
 
     async def _call_ai_model(
         self, model: AIModel, prompt: str, api_config: dict
-    ) -> str:
-        """Call the AI model using LiteLLM with retries."""
+    ) -> tuple[str, dict[str, Any]]:
+        """Call the AI model using LiteLLM with retries.
+
+        Returns ``(content, usage)`` where usage is
+        ``{input_tokens, output_tokens, cost_usd}`` (zeros if the provider
+        didn't report usage).
+        """
 
         model_string = self._build_litellm_model_name(model)
 
@@ -376,7 +413,7 @@ class FeedbackGenerator:
                 content = response.choices[0].message.content
                 if content is None:
                     raise ValueError("Empty response from AI model")
-                return str(content)
+                return str(content), _extract_usage(response)
 
             except Exception as e:
                 if attempt < self.max_retries - 1:
@@ -631,9 +668,7 @@ class FeedbackGenerator:
 
         if method_name == "Weighted Average":
             if confidences and sum(confidences) > 0:
-                weighted_sum = sum(
-                    s * c for s, c in zip(scores, confidences)
-                )
+                weighted_sum = sum(s * c for s, c in zip(scores, confidences))
                 return weighted_sum / sum(confidences)
             return statistics.mean(scores)
 
@@ -710,9 +745,7 @@ class FeedbackGenerator:
 
             # Store structured feedback
             feedback_data = mock_response["feedback"]
-            await self._store_model_feedback(
-                model_run.id, assignment.id, feedback_data
-            )
+            await self._store_model_feedback(model_run.id, assignment.id, feedback_data)
 
             # Aggregate (mock run + optional signal evidence) (ADR 012, S2)
             mock_result = FeedbackGenerationResult(
@@ -725,7 +758,8 @@ class FeedbackGenerator:
             if signal_result.success and signal_result.model_run_id is not None:
                 runs.append(
                     FeedbackGenerationResult(
-                        model_run_id=signal_result.model_run_id, success=True,
+                        model_run_id=signal_result.model_run_id,
+                        success=True,
                     )
                 )
             await self._aggregate_feedback(draft, assignment, settings, runs)
@@ -736,9 +770,7 @@ class FeedbackGenerator:
             if not draft.content_preserved:
                 cleanup_draft_content(draft)
 
-            logger.info(
-                f"Mock feedback generated successfully for draft {draft.id}"
-            )
+            logger.info(f"Mock feedback generated successfully for draft {draft.id}")
             return True
 
         except Exception as e:

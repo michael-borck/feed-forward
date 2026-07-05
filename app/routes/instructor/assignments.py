@@ -253,7 +253,9 @@ def instructor_assignments_list(session, course_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.Div(
                 action_button(
                     "Back to Courses",
@@ -278,7 +280,9 @@ def instructor_assignments_list(session, course_id: int):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         fh.Div(
-            fh.H3("Assignment Actions", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Assignment Actions", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.Div(
                 action_button(
                     "Create Assignment",
@@ -309,7 +313,7 @@ def instructor_assignments_list(session, course_id: int):
     )
 
 
-@rt("/instructor/courses/{course_id}/assignments/new")
+@rt("/instructor/courses/{course_id}/assignments/new", methods=["get"])
 @instructor_required
 def instructor_assignments_new(session, course_id: int):
     """Create new assignment page"""
@@ -418,7 +422,10 @@ def instructor_assignments_new(session, course_id: int):
             ),
             # Feedback Configuration Section
             fh.Div(
-                fh.H3("Feedback Configuration", cls="text-lg font-semibold text-gray-700 mb-3"),
+                fh.H3(
+                    "Feedback Configuration",
+                    cls="text-lg font-semibold text-gray-700 mb-3",
+                ),
                 # Feedback Tone
                 fh.Div(
                     fh.Label(
@@ -518,7 +525,9 @@ def instructor_assignments_new(session, course_id: int):
                                 checked=True,
                                 cls="mr-2",
                             ),
-                            fh.Label("Organization & Structure", for_="focus_structure"),
+                            fh.Label(
+                                "Organization & Structure", for_="focus_structure"
+                            ),
                             cls="flex items-center mb-2",
                         ),
                         # Evidence & Support
@@ -566,7 +575,9 @@ def instructor_assignments_new(session, course_id: int):
                                 value="creativity",
                                 cls="mr-2",
                             ),
-                            fh.Label("Creativity & Originality", for_="focus_creativity"),
+                            fh.Label(
+                                "Creativity & Originality", for_="focus_creativity"
+                            ),
                             cls="flex items-center",
                         ),
                         cls="grid grid-cols-2 gap-x-4",
@@ -624,7 +635,9 @@ def instructor_assignments_new(session, course_id: int):
                         cls="text-xs text-gray-600 mb-2",
                     ),
                     fh.Select(
-                        fh.Option("Weighted Average", value="weighted_average", selected=True),
+                        fh.Option(
+                            "Weighted Average", value="weighted_average", selected=True
+                        ),
                         fh.Option("Best Score", value="best_score"),
                         fh.Option("Consensus", value="consensus"),
                         fh.Option("All Feedback", value="all_feedback"),
@@ -678,7 +691,9 @@ def instructor_assignments_new(session, course_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Create Assignment", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Create Assignment", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.P(f"Course: {course.title}", cls="text-gray-600 mb-4"),
             action_button(
                 "Back to Assignments",
@@ -699,7 +714,7 @@ def instructor_assignments_new(session, course_id: int):
     )
 
 
-@rt("/instructor/courses/{course_id}/assignments/new")
+@rt("/instructor/courses/{course_id}/assignments/new", methods=["post"])
 @instructor_required
 async def instructor_assignments_create(
     session,
@@ -729,7 +744,9 @@ async def instructor_assignments_create(
     icon_theme = form_data.get("icon_theme", "emoji")
 
     # Get focus areas (multiple checkboxes)
-    focus_areas = form_data.getlist("focus_areas") if hasattr(form_data, 'getlist') else []
+    focus_areas = (
+        form_data.getlist("focus_areas") if hasattr(form_data, "getlist") else []
+    )
     if not focus_areas:  # Default focus areas if none selected
         focus_areas = ["grammar", "content", "structure"]
 
@@ -737,7 +754,9 @@ async def instructor_assignments_create(
     custom_prompt = form_data.get("custom_prompt", "").strip()
 
     # Model configuration
-    selected_models = form_data.getlist("selected_models") if hasattr(form_data, 'getlist') else []
+    selected_models = (
+        form_data.getlist("selected_models") if hasattr(form_data, "getlist") else []
+    )
     # TODO: Use these for advanced configuration in Phase 2
     # aggregation_method = form_data.get("aggregation_method", "weighted_average")
     # enable_comparison = form_data.get("enable_comparison") == "true"
@@ -748,7 +767,7 @@ async def instructor_assignments_create(
     spec_content = None
 
     spec_file = form_data.get("spec_file")
-    if spec_file and hasattr(spec_file, 'filename') and spec_file.filename:
+    if spec_file and hasattr(spec_file, "filename") and spec_file.filename:
         from pathlib import Path
 
         from app.utils.file_handlers import extract_file_content, get_safe_filename
@@ -913,7 +932,7 @@ def instructor_assignment_update_status(session, assignment_id: int, status: str
     )
 
 
-@rt("/instructor/assignments/{assignment_id}/edit")
+@rt("/instructor/assignments/{assignment_id}/edit", methods=["get"])
 @instructor_required
 def instructor_assignment_edit(session, assignment_id: int):
     """Edit assignment page"""
@@ -1072,7 +1091,9 @@ def instructor_assignment_edit(session, assignment_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.P(f"Course: {course.title}", cls="text-gray-600 mb-2"),
             fh.P(
                 f"Created: {_fmt_date(getattr(assignment, 'created_at', None))}",
@@ -1112,7 +1133,7 @@ def instructor_assignment_edit(session, assignment_id: int):
     )
 
 
-@rt("/instructor/assignments/{assignment_id}/edit")
+@rt("/instructor/assignments/{assignment_id}/edit", methods=["post"])
 @instructor_required
 def instructor_assignment_update(
     session,
@@ -1471,7 +1492,6 @@ def instructor_rubric_view(session, assignment_id: int):
                         "Choose how to create your rubric for this assignment:",
                         cls="text-gray-600 mb-6",
                     ),
-
                     # AI Generation option (if spec exists)
                     (
                         fh.Div(
@@ -1491,10 +1511,10 @@ def instructor_rubric_view(session, assignment_id: int):
                             ),
                             cls="p-4 bg-purple-50 rounded-lg border border-purple-200 mb-4",
                         )
-                        if hasattr(assignment, 'spec_content') and assignment.spec_content
+                        if hasattr(assignment, "spec_content")
+                        and assignment.spec_content
                         else ""
                     ),
-
                     # Template option
                     fh.Div(
                         fh.H4(
@@ -1528,7 +1548,6 @@ def instructor_rubric_view(session, assignment_id: int):
                         ),
                         cls="p-4 bg-indigo-50 rounded-lg border border-indigo-200 mb-4",
                     ),
-
                     # Manual creation option
                     fh.Div(
                         fh.H4(
@@ -1550,10 +1569,8 @@ def instructor_rubric_view(session, assignment_id: int):
                         ),
                         cls="p-4 bg-teal-50 rounded-lg border border-teal-200 mb-4",
                     ),
-
                     # Result div for all generation methods
                     fh.Div(id="rubric-generation-result", cls="mt-4"),
-
                     cls="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6",
                 ),
                 # Action buttons
@@ -1573,7 +1590,9 @@ def instructor_rubric_view(session, assignment_id: int):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Rubric Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Rubric Management", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.Div(
                 action_button(
                     "Back to Assignment",
@@ -1669,7 +1688,9 @@ def instructor_rubric_create(session, assignment_id: int):
     for r in rubrics():
         if r.assignment_id == assignment_id:
             return fh.Div(
-                fh.P("A rubric already exists for this assignment.", cls="text-amber-600"),
+                fh.P(
+                    "A rubric already exists for this assignment.", cls="text-amber-600"
+                ),
                 cls="p-4 bg-amber-50 rounded-lg",
             )
 
@@ -1697,7 +1718,11 @@ def instructor_rubric_create(session, assignment_id: int):
 @rt("/instructor/assignments/{assignment_id}/rubric/categories/add")
 @instructor_required
 def instructor_rubric_category_add(
-    session, assignment_id: int, name: str, description: Optional[str] = None, weight: float = 0
+    session,
+    assignment_id: int,
+    name: str,
+    description: Optional[str] = None,
+    weight: float = 0,
 ):
     """Add a new category to a rubric"""
     # Get current user
@@ -1730,7 +1755,9 @@ def instructor_rubric_category_add(
             raise ValueError("Weight must be between 0 and 100")
     except ValueError:
         return fh.Div(
-            fh.P("Invalid weight value. Must be between 0 and 100.", cls="text-red-600"),
+            fh.P(
+                "Invalid weight value. Must be between 0 and 100.", cls="text-red-600"
+            ),
             cls="p-4 bg-red-50 rounded-lg",
         )
 
@@ -1768,17 +1795,18 @@ def instructor_rubric_generate(session, assignment_id: int):
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
-            fh.P("Error: " + error, cls="text-red-600"),
-            cls="p-4 bg-red-50 rounded-lg"
+            fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
         )
 
     # Check if rubric already exists
     for r in rubrics():
         if r.assignment_id == assignment_id:
             return fh.Div(
-                fh.P("A rubric already exists. Please delete it first to generate a new one.",
-                     cls="text-amber-600"),
-                cls="p-4 bg-amber-50 rounded-lg"
+                fh.P(
+                    "A rubric already exists. Please delete it first to generate a new one.",
+                    cls="text-amber-600",
+                ),
+                cls="p-4 bg-amber-50 rounded-lg",
             )
 
     # Generate rubric using AI
@@ -1786,22 +1814,27 @@ def instructor_rubric_generate(session, assignment_id: int):
 
     success, categories, error_msg = generate_rubric_from_spec(
         assignment_title=assignment.title,
-        assignment_instructions=getattr(assignment, 'instructions', assignment.description),
-        spec_content=getattr(assignment, 'spec_content', None)
+        assignment_instructions=getattr(
+            assignment, "instructions", assignment.description
+        ),
+        spec_content=getattr(assignment, "spec_content", None),
     )
 
     if not success:
         return fh.Div(
             fh.P(f"Failed to generate rubric: {error_msg}", cls="text-red-600"),
-            cls="p-4 bg-red-50 rounded-lg"
+            cls="p-4 bg-red-50 rounded-lg",
         )
 
     # Display generated rubric for review
     return fh.Div(
-        fh.H3("Generated Rubric Preview", cls="text-xl font-semibold text-indigo-800 mb-4"),
-        fh.P("Review the AI-generated rubric below. You can edit it after saving.",
-             cls="text-gray-600 mb-4"),
-
+        fh.H3(
+            "Generated Rubric Preview", cls="text-xl font-semibold text-indigo-800 mb-4"
+        ),
+        fh.P(
+            "Review the AI-generated rubric below. You can edit it after saving.",
+            cls="text-gray-600 mb-4",
+        ),
         # Preview table
         fh.Div(
             fh.Table(
@@ -1811,41 +1844,40 @@ def instructor_rubric_generate(session, assignment_id: int):
                         fh.Th("Description", cls="text-left py-3 px-4 font-semibold"),
                         fh.Th("Weight", cls="text-left py-3 px-4 font-semibold"),
                     ),
-                    cls="bg-indigo-50"
+                    cls="bg-indigo-50",
                 ),
                 fh.Tbody(
                     *[
                         fh.Tr(
-                            fh.Td(cat['name'], cls="py-3 px-4 border-b"),
-                            fh.Td(cat['description'], cls="py-3 px-4 border-b"),
+                            fh.Td(cat["name"], cls="py-3 px-4 border-b"),
+                            fh.Td(cat["description"], cls="py-3 px-4 border-b"),
                             fh.Td(f"{cat['weight']}%", cls="py-3 px-4 border-b"),
                         )
                         for cat in categories
                     ]
                 ),
-                cls="w-full"
+                cls="w-full",
             ),
-            cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6"
+            cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6",
         ),
-
         # Save button
         fh.Form(
             fh.Input(type="hidden", name="categories", value=str(categories)),
             fh.Button(
                 "Save Generated Rubric",
                 type="submit",
-                cls="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-sm mr-3"
+                cls="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-sm mr-3",
             ),
             fh.Button(
                 "Cancel",
                 type="button",
                 onclick="this.closest('#rubric-generation-result').innerHTML=''",
-                cls="bg-gray-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 transition-colors shadow-sm"
+                cls="bg-gray-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 transition-colors shadow-sm",
             ),
             hx_post=f"/instructor/assignments/{assignment_id}/rubric/save-generated",
-            hx_target="#rubric-generation-result"
+            hx_target="#rubric-generation-result",
         ),
-        cls="p-6 bg-green-50 rounded-lg border border-green-200"
+        cls="p-6 bg-green-50 rounded-lg border border-green-200",
     )
 
 
@@ -1860,17 +1892,18 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
-            fh.P("Error: " + error, cls="text-red-600"),
-            cls="p-4 bg-red-50 rounded-lg"
+            fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
         )
 
     # Check if rubric already exists
     for r in rubrics():
         if r.assignment_id == assignment_id:
             return fh.Div(
-                fh.P("A rubric already exists. Please delete it first to apply a template.",
-                     cls="text-amber-600"),
-                cls="p-4 bg-amber-50 rounded-lg"
+                fh.P(
+                    "A rubric already exists. Please delete it first to apply a template.",
+                    cls="text-amber-600",
+                ),
+                cls="p-4 bg-amber-50 rounded-lg",
             )
 
     # Get template
@@ -1880,11 +1913,14 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
 
     # Display template for review
     return fh.Div(
-        fh.H3(f"{template_type.capitalize()} Rubric Template",
-              cls="text-xl font-semibold text-indigo-800 mb-4"),
-        fh.P("Review the template below. You can edit it after saving.",
-             cls="text-gray-600 mb-4"),
-
+        fh.H3(
+            f"{template_type.capitalize()} Rubric Template",
+            cls="text-xl font-semibold text-indigo-800 mb-4",
+        ),
+        fh.P(
+            "Review the template below. You can edit it after saving.",
+            cls="text-gray-600 mb-4",
+        ),
         # Preview table
         fh.Div(
             fh.Table(
@@ -1894,41 +1930,40 @@ def instructor_rubric_apply_template(session, assignment_id: int, template_type:
                         fh.Th("Description", cls="text-left py-3 px-4 font-semibold"),
                         fh.Th("Weight", cls="text-left py-3 px-4 font-semibold"),
                     ),
-                    cls="bg-indigo-50"
+                    cls="bg-indigo-50",
                 ),
                 fh.Tbody(
                     *[
                         fh.Tr(
-                            fh.Td(cat['name'], cls="py-3 px-4 border-b"),
-                            fh.Td(cat['description'], cls="py-3 px-4 border-b"),
+                            fh.Td(cat["name"], cls="py-3 px-4 border-b"),
+                            fh.Td(cat["description"], cls="py-3 px-4 border-b"),
                             fh.Td(f"{cat['weight']}%", cls="py-3 px-4 border-b"),
                         )
                         for cat in categories
                     ]
                 ),
-                cls="w-full"
+                cls="w-full",
             ),
-            cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6"
+            cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100 mb-6",
         ),
-
         # Save button
         fh.Form(
             fh.Input(type="hidden", name="categories", value=str(categories)),
             fh.Button(
                 "Use This Template",
                 type="submit",
-                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-3"
+                cls="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-3",
             ),
             fh.Button(
                 "Cancel",
                 type="button",
                 onclick="this.closest('#rubric-generation-result').innerHTML=''",
-                cls="bg-gray-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 transition-colors shadow-sm"
+                cls="bg-gray-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-500 transition-colors shadow-sm",
             ),
             hx_post=f"/instructor/assignments/{assignment_id}/rubric/save-generated",
-            hx_target="#rubric-generation-result"
+            hx_target="#rubric-generation-result",
         ),
-        cls="p-6 bg-indigo-50 rounded-lg border border-indigo-200"
+        cls="p-6 bg-indigo-50 rounded-lg border border-indigo-200",
     )
 
 
@@ -1943,18 +1978,18 @@ def instructor_rubric_save_generated(session, assignment_id: int, categories: st
     assignment, error = get_instructor_assignment(assignment_id, user.email)
     if error:
         return fh.Div(
-            fh.P("Error: " + error, cls="text-red-600"),
-            cls="p-4 bg-red-50 rounded-lg"
+            fh.P("Error: " + error, cls="text-red-600"), cls="p-4 bg-red-50 rounded-lg"
         )
 
     # Parse categories
     import ast
+
     try:
         category_list = ast.literal_eval(categories)
     except Exception as e:
         return fh.Div(
             fh.P(f"Error parsing categories: {e!s}", cls="text-red-600"),
-            cls="p-4 bg-red-50 rounded-lg"
+            cls="p-4 bg-red-50 rounded-lg",
         )
 
     # Create rubric
@@ -1972,22 +2007,21 @@ def instructor_rubric_save_generated(session, assignment_id: int, categories: st
             new_category = RubricCategory(
                 id=None,
                 rubric_id=rubric_id,
-                name=cat['name'],
-                description=cat['description'],
-                weight=cat['weight']
+                name=cat["name"],
+                description=cat["description"],
+                weight=cat["weight"],
             )
             rubric_categories.insert(new_category)
 
         # Redirect to refresh the page
         return fh.RedirectResponse(
-            f"/instructor/assignments/{assignment_id}/rubric",
-            status_code=303
+            f"/instructor/assignments/{assignment_id}/rubric", status_code=303
         )
 
     except Exception as e:
         return fh.Div(
             fh.P(f"Error saving rubric: {e!s}", cls="text-red-600"),
-            cls="p-4 bg-red-50 rounded-lg"
+            cls="p-4 bg-red-50 rounded-lg",
         )
 
 
@@ -2007,8 +2041,13 @@ def load_models_for_assignment(session):
     available_models = []
     for model in ai_models():
         # Include if system model or owned by this instructor
-        if model.active and (model.owner_type == "system" or
-            (model.owner_type == "instructor" and model.owner_id == current_user.email)):
+        if model.active and (
+            model.owner_type == "system"
+            or (
+                model.owner_type == "instructor"
+                and model.owner_id == current_user.email
+            )
+        ):
             # Check if instructor has enabled this model
             is_enabled = instructor_prefs.get(model.id, model.active)
             if is_enabled:
@@ -2018,13 +2057,13 @@ def load_models_for_assignment(session):
         return fh.Div(
             fh.P(
                 "No AI models available. Please configure models first.",
-                cls="text-amber-600 italic"
+                cls="text-amber-600 italic",
             ),
             fh.A(
                 "Configure Models →",
                 href="/instructor/models",
-                cls="text-indigo-600 hover:underline text-sm mt-2 inline-block"
-            )
+                cls="text-indigo-600 hover:underline text-sm mt-2 inline-block",
+            ),
         )
 
     # Create model selection checkboxes
@@ -2075,6 +2114,6 @@ def load_models_for_assignment(session):
         *model_items,
         fh.P(
             "Select models to use for feedback generation. More models provide diverse perspectives.",
-            cls="text-xs text-gray-500 mt-3 italic"
-        )
+            cls="text-xs text-gray-500 mt-3 italic",
+        ),
     )

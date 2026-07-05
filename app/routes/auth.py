@@ -40,13 +40,13 @@ def get():
         fh.Div(
             # Brand logo on registration form
             fh.Div(
-                fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                fh.Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
+                fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
                 cls="text-3xl mb-4 text-center",
             ),
             fh.H1(
                 "Create Your Account",
-                cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
+                cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-6 text-center",
             ),
             fh.Div(
                 fh.Form(
@@ -54,14 +54,14 @@ def get():
                         fh.Label(
                             "Name",
                             for_="name",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
                         ),
                         fh.Input(
                             id="name",
                             type="text",
                             placeholder="Your full name",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 bg-white border border-slate-300 rounded text-[#1a2e44] focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-4",
                     ),
@@ -69,7 +69,7 @@ def get():
                         fh.Label(
                             "Email",
                             for_="email",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
                         ),
                         fh.P(
                             "For instructors only. Some email domains are auto-approved, others require administrator approval.",
@@ -80,7 +80,7 @@ def get():
                             type="email",
                             placeholder="Your institutional email address",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 bg-white border border-slate-300 rounded text-[#1a2e44] focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-4",
                     ),
@@ -88,7 +88,7 @@ def get():
                         fh.Label(
                             "Password",
                             for_="password",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
                         ),
                         fh.P(
                             "At least 8 characters with uppercase, lowercase, number, and special character",
@@ -99,7 +99,7 @@ def get():
                             type="password",
                             placeholder="Create a password",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 bg-white border border-slate-300 rounded text-[#1a2e44] focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-4",
                     ),
@@ -107,14 +107,14 @@ def get():
                         fh.Label(
                             "Confirm Password",
                             for_="confirm_password",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
                         ),
                         fh.Input(
                             id="confirm_password",
                             type="password",
                             placeholder="Confirm your password",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 bg-white border border-slate-300 rounded text-[#1a2e44] focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-6",
                     ),
@@ -122,7 +122,7 @@ def get():
                         fh.Button(
                             "Sign up",
                             type="submit",
-                            cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
+                            cls="w-full inline-flex items-center justify-center bg-[#1a2e44] text-[#faf8f2] py-3 rounded hover:bg-[#0f1e30] focus:outline-none focus:ring-2 focus:ring-teal-600 transition-colors font-medium uppercase tracking-[0.15em] text-sm",
                         ),
                         cls="mb-4",
                     ),
@@ -137,15 +137,15 @@ def get():
                     fh.A(
                         "Sign in here",
                         href="/login",
-                        cls="text-indigo-600 hover:underline font-medium",
+                        cls="text-teal-600 hover:underline font-medium",
                     ),
                     cls="text-center text-gray-600",
                 ),
                 cls="w-full max-w-md",
             ),
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100",
+            cls="bg-[#fdfcf8] p-8 rounded border border-slate-300",
         ),
-        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50",
+        cls="flex justify-center items-center py-16 px-4",
     )
 
     # Return the complete page
@@ -331,18 +331,18 @@ def get(message: str, email: str):
                 fh.Div(fh.Span("✅", cls="text-5xl block mb-4"), cls="text-center"),
                 # Brand logo
                 fh.Div(
-                    fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                    fh.Span("Forward", cls="text-teal-500 font-bold"),
+                    fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
+                    fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
                     cls="text-3xl mb-4 text-center",
                 ),
                 fh.H2(
                     "Registration Complete!",
-                    cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                    cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-4 text-center",
                 ),
                 fh.Div(
                     fh.P(message, cls="text-gray-600 mb-3"),
                     fh.P("We've sent a verification email to: ", cls="text-gray-600"),
-                    fh.P(email, cls="font-semibold text-indigo-600 mb-6"),
+                    fh.P(email, cls="font-semibold text-teal-600 mb-6"),
                     cls="text-center",
                 ),
                 fh.Div(
@@ -356,7 +356,7 @@ def get(message: str, email: str):
                     fh.A(
                         "Return to Login",
                         href="/login",
-                        cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm mr-4",
+                        cls="inline-block bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded font-medium uppercase tracking-[0.15em] text-sm hover:bg-[#0f1e30] transition-colors mr-4",
                     ),
                     fh.A(
                         "Return to Home",
@@ -367,9 +367,9 @@ def get(message: str, email: str):
                 ),
                 cls="text-center",
             ),
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full",
+            cls="bg-[#fdfcf8] p-8 rounded border border-slate-300 max-w-md w-full",
         ),
-        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50",
+        cls="flex justify-center items-center py-16 px-4",
     )
 
     # Return the complete page
@@ -401,16 +401,18 @@ def get(token: str):
                 fh.Div(
                     fh.Div(
                         # Success icon
-                        fh.Div(fh.Span("✅", cls="text-5xl block mb-4"), cls="text-center"),
+                        fh.Div(
+                            fh.Span("✅", cls="text-5xl block mb-4"), cls="text-center"
+                        ),
                         # Brand logo
                         fh.Div(
-                            fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                            fh.Span("Forward", cls="text-teal-500 font-bold"),
+                            fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
+                            fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
                             cls="text-3xl mb-4 text-center",
                         ),
                         fh.H1(
                             "Email Verified Successfully!",
-                            cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                            cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-4 text-center",
                         ),
                         fh.P(
                             "Your email has been verified."
@@ -425,13 +427,13 @@ def get(token: str):
                             fh.A(
                                 "Login to Your Account",
                                 href="/login",
-                                cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                                cls="inline-block bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded font-medium uppercase tracking-[0.15em] text-sm hover:bg-[#0f1e30] transition-colors",
                             ),
                             cls="text-center",
                         ),
                         cls="text-center",
                     ),
-                    cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full",
+                    cls="bg-[#fdfcf8] p-8 rounded border border-slate-300 max-w-md w-full",
                 ),
                 cls="flex justify-center items-center py-16 px-4",
             )
@@ -449,13 +451,13 @@ def get(token: str):
                 fh.Div(fh.Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
                 # Brand logo
                 fh.Div(
-                    fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                    fh.Span("Forward", cls="text-teal-500 font-bold"),
+                    fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
+                    fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
                     cls="text-3xl mb-4 text-center",
                 ),
                 fh.H1(
                     "Verification Failed",
-                    cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                    cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-4 text-center",
                 ),
                 fh.P(
                     "The verification link is invalid or has expired.",
@@ -465,13 +467,13 @@ def get(token: str):
                     fh.A(
                         "Return to Home",
                         href="/",
-                        cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                        cls="inline-block bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded font-medium uppercase tracking-[0.15em] text-sm hover:bg-[#0f1e30] transition-colors",
                     ),
                     cls="text-center",
                 ),
                 cls="text-center",
             ),
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full",
+            cls="bg-[#fdfcf8] p-8 rounded border border-slate-300 max-w-md w-full",
         ),
         cls="flex justify-center items-center py-16 px-4",
     )
@@ -483,48 +485,55 @@ def get(token: str):
 # --- Login Routes ---
 @rt("/login")
 def get():
+    from app.utils.design import COLOR, RADIUS, TEXT, button_classes
+
+    input_cls = (
+        f"w-full p-3 bg-white border border-{COLOR['border']} {RADIUS} "
+        f"text-{COLOR['text_strong']} focus:outline-none focus:ring-2 "
+        f"focus:ring-{COLOR['accent']} focus:border-{COLOR['accent']}"
+    )
+    label_cls = f"block {TEXT['label']} text-{COLOR['text_muted']} mb-2"
+
     # Create the login form content
     login_content = fh.Div(
         fh.Div(
-            # Brand logo on login form
+            # Brand wordmark on login form
             fh.Div(
-                fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                fh.Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Span(
+                    "Feed",
+                    cls=f"font-serif font-bold text-{COLOR['wordmark_first']}",
+                ),
+                fh.Span(
+                    "Forward",
+                    cls=f"font-serif font-bold text-{COLOR['wordmark_second']}",
+                ),
                 cls="text-3xl mb-4 text-center",
             ),
             fh.H1(
-                "Sign in to Your Account",
-                cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
+                "Sign in to your account",
+                cls=f"{TEXT['h2']} text-{COLOR['text_strong']} mb-6 text-center",
             ),
             fh.Div(
                 fh.Form(
                     fh.Div(
-                        fh.Label(
-                            "Email",
-                            for_="email",
-                            cls="block text-indigo-900 font-medium mb-1",
-                        ),
+                        fh.Label("Email", for_="email", cls=label_cls),
                         fh.Input(
                             id="email",
                             type="email",
                             placeholder="Your email address",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls=input_cls,
                         ),
                         cls="mb-4",
                     ),
                     fh.Div(
-                        fh.Label(
-                            "Password",
-                            for_="password",
-                            cls="block text-indigo-900 font-medium mb-1",
-                        ),
+                        fh.Label("Password", for_="password", cls=label_cls),
                         fh.Input(
                             id="password",
                             type="password",
                             placeholder="Your password",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls=input_cls,
                         ),
                         cls="mb-4",
                     ),
@@ -532,7 +541,8 @@ def get():
                         fh.A(
                             "Forgot password?",
                             href="/forgot-password",
-                            cls="text-indigo-600 hover:underline text-sm font-medium",
+                            cls=f"text-{COLOR['accent']} hover:underline text-sm "
+                            "font-medium",
                         ),
                         cls="mb-6 text-right",
                     ),
@@ -540,30 +550,32 @@ def get():
                         fh.Button(
                             "Sign in",
                             type="submit",
-                            cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
+                            cls=f"w-full {button_classes('primary', 'lg')}",
                         ),
                         cls="mb-4",
                     ),
-                    fh.Span(id="error", cls="text-red-500 block text-center"),
+                    fh.Span(
+                        id="error", cls=f"text-{COLOR['danger']} block text-center"
+                    ),
                     hx_post="/login",
                     hx_target="#error",
                     cls="w-full",
                 ),
-                fh.Hr(cls="my-6 border-gray-200"),
+                fh.Hr(cls=f"my-6 border-{COLOR['border']}"),
                 fh.P(
                     "Don't have an account? ",
                     fh.A(
                         "Sign up here",
                         href="/register",
-                        cls="text-indigo-600 hover:underline font-medium",
+                        cls=f"text-{COLOR['accent']} hover:underline font-medium",
                     ),
-                    cls="text-center text-gray-600",
+                    cls=f"text-center text-{COLOR['text_body']}",
                 ),
                 cls="w-full max-w-md",
             ),
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100",
+            cls=f"bg-{COLOR['surface']} p-8 {RADIUS} border border-{COLOR['border']}",
         ),
-        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50",
+        cls="flex justify-center items-center py-16 px-4",
     )
 
     # Return the complete page
@@ -635,13 +647,13 @@ def get():
         fh.Div(
             # Brand logo
             fh.Div(
-                fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                fh.Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
+                fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
                 cls="text-3xl mb-4 text-center",
             ),
             fh.H1(
                 "Reset Your Password",
-                cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-4 text-center",
             ),
             fh.P(
                 "Enter your email address and we'll send you a link to reset your password.",
@@ -653,14 +665,14 @@ def get():
                         fh.Label(
                             "Email",
                             for_="email",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
                         ),
                         fh.Input(
                             id="email",
                             type="email",
                             placeholder="Your email address",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 bg-white border border-slate-300 rounded text-[#1a2e44] focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-6",
                     ),
@@ -668,7 +680,7 @@ def get():
                         fh.Button(
                             "Send Reset Link",
                             type="submit",
-                            cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
+                            cls="w-full inline-flex items-center justify-center bg-[#1a2e44] text-[#faf8f2] py-3 rounded hover:bg-[#0f1e30] focus:outline-none focus:ring-2 focus:ring-teal-600 transition-colors font-medium uppercase tracking-[0.15em] text-sm",
                         ),
                         cls="mb-4",
                     ),
@@ -683,15 +695,15 @@ def get():
                     fh.A(
                         "Login here",
                         href="/login",
-                        cls="text-indigo-600 hover:underline font-medium",
+                        cls="text-teal-600 hover:underline font-medium",
                     ),
                     cls="text-center text-gray-600",
                 ),
                 cls="w-full max-w-md",
             ),
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100",
+            cls="bg-[#fdfcf8] p-8 rounded border border-slate-300",
         ),
-        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50",
+        cls="flex justify-center items-center py-16 px-4",
     )
 
     # Return the complete page
@@ -775,13 +787,13 @@ def get(token: str):
                     fh.Div(fh.Span("❌", cls="text-5xl block mb-4"), cls="text-center"),
                     # Brand logo
                     fh.Div(
-                        fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                        fh.Span("Forward", cls="text-teal-500 font-bold"),
+                        fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
+                        fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
                         cls="text-3xl mb-4 text-center",
                     ),
                     fh.H1(
                         "Invalid or Expired Link",
-                        cls="text-2xl font-bold text-indigo-900 mb-4 text-center",
+                        cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-4 text-center",
                     ),
                     fh.P(
                         "The password reset link is invalid or has expired.",
@@ -791,15 +803,15 @@ def get(token: str):
                         fh.A(
                             "Request New Link",
                             href="/forgot-password",
-                            cls="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm",
+                            cls="inline-block bg-[#1a2e44] text-[#faf8f2] px-6 py-3 rounded font-medium uppercase tracking-[0.15em] text-sm hover:bg-[#0f1e30] transition-colors",
                         ),
                         cls="text-center",
                     ),
                     cls="text-center",
                 ),
-                cls="bg-white p-8 rounded-xl shadow-md border border-gray-100 max-w-md w-full",
+                cls="bg-[#fdfcf8] p-8 rounded border border-slate-300 max-w-md w-full",
             ),
-            cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50",
+            cls="flex justify-center items-center py-16 px-4",
         )
 
         # Return the complete page
@@ -810,13 +822,13 @@ def get(token: str):
         fh.Div(
             # Brand logo
             fh.Div(
-                fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                fh.Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Span("Feed", cls="font-serif font-bold text-[#1a2e44]"),
+                fh.Span("Forward", cls="font-serif font-bold text-teal-600"),
                 cls="text-3xl mb-4 text-center",
             ),
             fh.H1(
                 "Set New Password",
-                cls="text-2xl font-bold text-indigo-900 mb-6 text-center",
+                cls="font-serif text-2xl font-semibold text-[#1a2e44] mb-6 text-center",
             ),
             fh.Div(
                 fh.Form(
@@ -826,7 +838,7 @@ def get(token: str):
                         fh.Label(
                             "New Password",
                             for_="password",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
                         ),
                         fh.P(
                             "At least 8 characters with uppercase, lowercase, number, and special character",
@@ -837,7 +849,7 @@ def get(token: str):
                             type="password",
                             placeholder="New password",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 bg-white border border-slate-300 rounded text-[#1a2e44] focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-4",
                     ),
@@ -845,14 +857,14 @@ def get(token: str):
                         fh.Label(
                             "Confirm Password",
                             for_="confirm_password",
-                            cls="block text-indigo-900 font-medium mb-1",
+                            cls="block text-xs uppercase tracking-[0.2em] text-slate-500 mb-2",
                         ),
                         fh.Input(
                             id="confirm_password",
                             type="password",
                             placeholder="Confirm new password",
                             required=True,
-                            cls="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500",
+                            cls="w-full p-3 bg-white border border-slate-300 rounded text-[#1a2e44] focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600",
                         ),
                         cls="mb-6",
                     ),
@@ -860,7 +872,7 @@ def get(token: str):
                         fh.Button(
                             "Reset Password",
                             type="submit",
-                            cls="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium shadow-sm",
+                            cls="w-full inline-flex items-center justify-center bg-[#1a2e44] text-[#faf8f2] py-3 rounded hover:bg-[#0f1e30] focus:outline-none focus:ring-2 focus:ring-teal-600 transition-colors font-medium uppercase tracking-[0.15em] text-sm",
                         ),
                         cls="mb-4",
                     ),
@@ -871,9 +883,9 @@ def get(token: str):
                 ),
                 cls="w-full max-w-md",
             ),
-            cls="bg-white p-8 rounded-xl shadow-md border border-gray-100",
+            cls="bg-[#fdfcf8] p-8 rounded border border-slate-300",
         ),
-        cls="flex justify-center items-center py-16 px-4 bg-gradient-to-br from-gray-50 to-indigo-50",
+        cls="flex justify-center items-center py-16 px-4",
     )
 
     # Return the complete page

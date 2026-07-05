@@ -54,6 +54,7 @@ Rubric = rubrics.dataclass()
 rubric_categories = db.t.rubric_categories
 if rubric_categories not in db.t:
     rubric_categories.create(
-        {"id": int, "rubric_id": int, "name": str, "description": str, "weight": float}, pk="id"
+        {"id": int, "rubric_id": int, "name": str, "description": str, "weight": float},
+        pk="id",
     )
 RubricCategory = rubric_categories.dataclass()

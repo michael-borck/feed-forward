@@ -141,9 +141,7 @@ def _schedule_content_removal(draft_id: int, delay_days: int = 7):
     try:
         remove_student_content_after_delay(draft_id, delay_days)
     except Exception as e:
-        logger.error(
-            f"Failed to schedule content removal for draft {draft_id}: {e!s}"
-        )
+        logger.error(f"Failed to schedule content removal for draft {draft_id}: {e!s}")
 
 
 # ------------------------------------------------------------------

@@ -9,6 +9,30 @@ import docx  # TECH-DEBT: Add type stubs for python-docx
 import pypdf  # TECH-DEBT: Add type stubs for pypdf
 from starlette.datastructures import UploadFile
 
+# Extensions read as plain text: prose formats plus every extension the code
+# assessment handler accepts (code submissions are just text).
+PLAIN_TEXT_EXTENSIONS = {
+    ".txt",
+    ".md",
+    ".py",
+    ".js",
+    ".ts",
+    ".java",
+    ".cpp",
+    ".c",
+    ".h",
+    ".rb",
+    ".go",
+    ".rs",
+    ".cs",
+    ".swift",
+    ".kt",
+    ".html",
+    ".css",
+    ".sql",
+    ".ipynb",
+}
+
 
 async def extract_file_content(file: UploadFile) -> str:
     """
@@ -37,8 +61,8 @@ async def extract_file_content(file: UploadFile) -> str:
     await file.seek(0)
 
     try:
-        if file_ext == ".txt":
-            # Handle text files
+        if file_ext in PLAIN_TEXT_EXTENSIONS:
+            # Handle text files (prose and source code)
             try:
                 # Try UTF-8 first
                 content = content_bytes.decode("utf-8")

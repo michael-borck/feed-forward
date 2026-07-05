@@ -78,7 +78,7 @@ def get_student_assignment(assignment_id, student_email):
     return target_assignment, course, None
 
 
-@rt("/student/assignments/{assignment_id}/submit")
+@rt("/student/assignments/{assignment_id}/submit", methods=["get"])
 @student_required
 def student_assignment_submit_form(session, request, assignment_id: int):
     """Student assignment submission form view"""
@@ -131,7 +131,9 @@ def student_assignment_submit_form(session, request, assignment_id: int):
     sidebar_content = fh.Div(
         # Assignment info card
         fh.Div(
-            fh.H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"),
+            fh.H3(
+                "Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"
+            ),
             fh.P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
             fh.P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
             fh.P(f"Maximum Drafts: {assignment.max_drafts}", cls="text-gray-600 mb-2"),
@@ -157,7 +159,9 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 "• Each submission counts as one draft",
                 cls="text-gray-600 mb-2 text-sm",
             ),
-            fh.P("• You cannot edit after submitting", cls="text-gray-600 mb-2 text-sm"),
+            fh.P(
+                "• You cannot edit after submitting", cls="text-gray-600 mb-2 text-sm"
+            ),
             fh.P(
                 f"• You have {assignment.max_drafts - next_version + 1} remaining drafts",
                 cls="text-gray-600 mb-2 text-sm",
@@ -181,7 +185,6 @@ def student_assignment_submit_form(session, request, assignment_id: int):
             # Hidden fields for POST
             fh.Input(type="hidden", name="assignment_id", value=str(assignment_id)),
             fh.Input(type="hidden", name="version", value=str(next_version)),
-
             # Submission type selector
             fh.Div(
                 fh.Label(
@@ -218,7 +221,6 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 ),
                 cls="mb-6",
             ),
-
             # Text input section
             fh.Div(
                 fh.Label(
@@ -242,7 +244,6 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 id="text_input_section",
                 cls="mb-6",
             ),
-
             # File upload section (initially hidden)
             fh.Div(
                 fh.Label(
@@ -250,7 +251,10 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                     for_="file_upload",
                     cls="block text-lg font-semibold text-indigo-900 mb-2",
                 ),
-                fh.P("Select a file to upload for your submission.", cls="text-gray-600 mb-1"),
+                fh.P(
+                    "Select a file to upload for your submission.",
+                    cls="text-gray-600 mb-1",
+                ),
                 fh.P(
                     "Supported formats: PDF (.pdf), Word (.docx), Text (.txt)",
                     cls="text-gray-600 mb-1",
@@ -273,7 +277,6 @@ def student_assignment_submit_form(session, request, assignment_id: int):
                 id="file_upload_section",
                 cls="mb-6 hidden",
             ),
-
             # Submit button
             fh.Div(
                 fh.Button(
@@ -314,15 +317,15 @@ def student_assignment_submit_form(session, request, assignment_id: int):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            f"Submit Draft - {assignment.title}",
-            sidebar_content,
-            main_content,
-            user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard active in nav,
+        f"Submit Draft - {assignment.title}",
+        sidebar_content,
+        main_content,
+        user_role=Role.STUDENT,
+        current_path="/student/dashboard",  # Keep dashboard active in nav,
     )
 
 
-@rt("/student/assignments/{assignment_id}/submit")
+@rt("/student/assignments/{assignment_id}/submit", methods=["post"])
 @student_required
 async def student_assignment_submit_process(
     session, request, assignment_id: int, version: int, submission_type: str = "text"
@@ -355,7 +358,7 @@ async def student_assignment_submit_process(
         # Handle file upload
         file_upload = form_data.get("file_upload")
 
-        if not file_upload or not hasattr(file_upload, 'filename'):
+        if not file_upload or not hasattr(file_upload, "filename"):
             return fh.Div(
                 fh.P(
                     "Please select a file to upload.",
@@ -490,7 +493,9 @@ async def student_assignment_submit_process(
             # Store task reference to prevent garbage collection
             feedback_task = asyncio.create_task(process_draft_submission(draft_id))  # noqa: F841, RUF006
         except Exception as e:
-            print(f"Warning: Failed to start feedback generation for draft {draft_id}: {e}")
+            print(
+                f"Warning: Failed to start feedback generation for draft {draft_id}: {e}"
+            )
             # Continue anyway - the draft was saved successfully
 
         # Extract lens signals in the background while content still exists (ADR 012, S1)
@@ -499,7 +504,9 @@ async def student_assignment_submit_process(
 
             queue_signal_extraction(draft_id)
         except Exception as e:
-            print(f"Warning: Failed to start signal extraction for draft {draft_id}: {e}")
+            print(
+                f"Warning: Failed to start signal extraction for draft {draft_id}: {e}"
+            )
 
         # Redirect to the assignment view to see the submitted draft
         return fh.RedirectResponse(
@@ -692,7 +699,9 @@ def student_submissions_list(session, request):
                             *(
                                 fh.Tr(
                                     # Draft number
-                                    fh.Td(str(draft.version), cls="py-3 px-4 font-medium"),
+                                    fh.Td(
+                                        str(draft.version), cls="py-3 px-4 font-medium"
+                                    ),
                                     # Submission date
                                     fh.Td(
                                         draft.submission_date.split("T")[0]
@@ -757,11 +766,11 @@ def student_submissions_list(session, request):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            "Submission History",
-            sidebar_content,
-            main_content,
-            user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard active in nav,
+        "Submission History",
+        sidebar_content,
+        main_content,
+        user_role=Role.STUDENT,
+        current_path="/student/dashboard",  # Keep dashboard active in nav,
     )
 
 

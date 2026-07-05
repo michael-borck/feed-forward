@@ -10,12 +10,11 @@ import contextlib
 import json
 from typing import Any
 
+from app.assessment.registry import type_code_for_assignment
 from app.models.assignment import rubric_categories, rubrics
 from app.models.signal_rules import SignalRule, signal_rules
 from app.services import signal_scorer
 from app.utils.db_query import first, where
-
-SOURCE = "document-analyser"
 
 
 def _assignment_categories(assignment_id: int) -> list[Any]:
@@ -35,6 +34,7 @@ def rules_view_for_assignment(assignment_id: int) -> list[dict[str, Any]]:
     for rule in signal_rules():
         persisted_by_cat.setdefault(rule.rubric_category_id, []).append(rule)
 
+    type_code = type_code_for_assignment(assignment_id)
     view = []
     for cat in _assignment_categories(assignment_id):
         persisted = persisted_by_cat.get(cat.id)
@@ -42,6 +42,7 @@ def rules_view_for_assignment(assignment_id: int) -> list[dict[str, Any]]:
             rules = [
                 {
                     "signal_name": r.signal_name,
+                    "signal_source": r.signal_source,
                     "transform": r.transform,
                     "weight": r.weight,
                     "enabled": bool(r.enabled),
@@ -53,12 +54,13 @@ def rules_view_for_assignment(assignment_id: int) -> list[dict[str, Any]]:
             rules = [
                 {
                     "signal_name": s.signal_name,
+                    "signal_source": s.signal_source,
                     "transform": json.dumps(s.transform),
                     "weight": s.weight,
                     "enabled": s.enabled,
                     "persisted": False,
                 }
-                for s in signal_scorer.suggest_rules_for_category(cat.name)
+                for s in signal_scorer.suggest_rules_for_category(cat.name, type_code)
             ]
         view.append({"category": cat, "rules": rules})
     return view
@@ -94,7 +96,7 @@ def save_rules_for_assignment(assignment_id: int, fields: dict[str, Any]) -> int
                 signal_rules.insert(
                     SignalRule(
                         rubric_category_id=cat.id,
-                        signal_source=SOURCE,
+                        signal_source=rule["signal_source"],
                         signal_name=sig,
                         transform=rule["transform"],
                         weight=weight,

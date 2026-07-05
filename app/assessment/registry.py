@@ -25,3 +25,23 @@ def get_assessment_handler(type_code: str | None) -> AssessmentHandler:
     if not type_code:
         return DEFAULT_HANDLER
     return HANDLERS.get(type_code, DEFAULT_HANDLER)
+
+
+def type_code_for_assignment(assignment_id: int) -> str:
+    """Resolve an assignment's assessment type code via ``assessment_types``.
+
+    Falls back to the default handler's code when the assignment has no
+    type linkage (most current assignments) or the lookup fails.
+    """
+    # Local imports: keep this module import-time free of the DB layer.
+    from app.models.assessment import assessment_types
+    from app.models.assignment import assignments
+    from app.utils.db_query import by_id
+
+    assignment = by_id(assignments, assignment_id)
+    type_id = getattr(assignment, "assessment_type_id", None) if assignment else None
+    if not type_id:
+        return DEFAULT_HANDLER.type_code
+    atype = by_id(assessment_types, type_id)
+    code = getattr(atype, "type_code", None) if atype else None
+    return code if code in HANDLERS else DEFAULT_HANDLER.type_code

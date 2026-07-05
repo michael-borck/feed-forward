@@ -54,11 +54,15 @@ def admin_instructors_approve_list(session):
     # Main content - Instructor approval list
     main_content = fh.Div(
         fh.H1("Approve Instructors", cls="text-3xl font-bold text-indigo-900 mb-6"),
-        fh.P("Review and approve instructor account requests.", cls="text-gray-600 mb-8"),
+        fh.P(
+            "Review and approve instructor account requests.", cls="text-gray-600 mb-8"
+        ),
         # Instructor approval table
         fh.Div(
             fh.Div(
-                fh.H2("Pending Approval", cls="text-2xl font-bold text-indigo-900 mb-4"),
+                fh.H2(
+                    "Pending Approval", cls="text-2xl font-bold text-indigo-900 mb-4"
+                ),
                 # Check if there are pending instructors
                 (
                     fh.Div(
@@ -142,7 +146,10 @@ def admin_instructors_approve_list(session):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            "Approve Instructors", sidebar_content, main_content, user_role=Role.ADMIN,
+        "Approve Instructors",
+        sidebar_content,
+        main_content,
+        user_role=Role.ADMIN,
     )
 
 
@@ -166,7 +173,9 @@ def admin_instructor_approve(session, email: str):
         )
     except Exception:
         # Return error message
-        return fh.Div(fh.P("Error approving instructor", cls="text-red-500"), cls="py-2 px-4")
+        return fh.Div(
+            fh.P("Error approving instructor", cls="text-red-500"), cls="py-2 px-4"
+        )
 
 
 @rt("/admin/instructors/reject/{email}")
@@ -185,7 +194,9 @@ def admin_instructor_reject(session, email: str):
         )
     except Exception:
         # Return error message
-        return fh.Div(fh.P("Error rejecting instructor", cls="text-red-500"), cls="py-2 px-4")
+        return fh.Div(
+            fh.P("Error rejecting instructor", cls="text-red-500"), cls="py-2 px-4"
+        )
 
 
 @rt("/admin/instructors")
@@ -257,7 +268,9 @@ def admin_instructors_list(session):
         # Instructors table
         fh.Div(
             fh.Div(
-                fh.H2("Active Instructors", cls="text-2xl font-bold text-indigo-900 mb-4"),
+                fh.H2(
+                    "Active Instructors", cls="text-2xl font-bold text-indigo-900 mb-4"
+                ),
                 # Instructors table
                 (
                     fh.Div(
@@ -371,7 +384,10 @@ def admin_instructors_list(session):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            "Manage Instructors", sidebar_content, main_content, user_role=Role.ADMIN,
+        "Manage Instructors",
+        sidebar_content,
+        main_content,
+        user_role=Role.ADMIN,
     )
 
 
@@ -400,5 +416,6 @@ def admin_instructor_remove(session, email: str):
     except Exception as e:
         # Return error message
         return fh.Div(
-            fh.P(f"Error removing instructor: {e!s}", cls="text-red-500"), cls="py-2 px-4"
+            fh.P(f"Error removing instructor: {e!s}", cls="text-red-500"),
+            cls="py-2 px-4",
         )

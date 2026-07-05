@@ -3,7 +3,6 @@ User profile management routes
 Handles profile viewing and editing for all user types
 """
 
-
 from typing import Optional
 
 from fasthtml import common as fh
@@ -28,10 +27,7 @@ def profile_view(session):
             fh.H3("Navigation", cls="font-semibold text-slate-800 mb-4"),
             fh.Div(
                 action_button(
-                    "Dashboard",
-                    color="gray",
-                    href=f"/{user.role}/dashboard",
-                    icon="←"
+                    "Dashboard", color="gray", href=f"/{user.role}/dashboard", icon="←"
                 ),
                 cls="space-y-3",
             ),
@@ -76,95 +72,116 @@ def profile_view(session):
     # Main content
     main_content = fh.Div(
         fh.H1("My Profile", cls="text-3xl font-bold text-slate-800 mb-6"),
-
         # Profile Information Card
         fh.Div(
             card(
-                fh.H2("Personal Information", cls="text-xl font-bold text-slate-700 mb-4"),
-            fh.Div(
-                # Name
-                fh.Div(
-                    fh.Label("Name", cls="text-sm font-medium text-gray-500"),
-                    fh.P(user.name, cls="text-lg text-slate-800 mt-1"),
-                    cls="mb-4",
+                fh.H2(
+                    "Personal Information", cls="text-xl font-bold text-slate-700 mb-4"
                 ),
-                # Email
                 fh.Div(
-                    fh.Label("Email", cls="text-sm font-medium text-gray-500"),
-                    fh.P(user.email, cls="text-lg text-slate-800 mt-1"),
-                    cls="mb-4",
-                ),
-                # Role
-                fh.Div(
-                    fh.Label("Role", cls="text-sm font-medium text-gray-500"),
-                    fh.P(
-                        user.role.title(),
-                        cls="text-lg text-slate-800 mt-1 capitalize",
-                    ),
-                    cls="mb-4",
-                ),
-                # Department (if instructor)
-                (
+                    # Name
                     fh.Div(
-                        fh.Label("Department", cls="text-sm font-medium text-gray-500"),
+                        fh.Label("Name", cls="text-sm font-medium text-gray-500"),
+                        fh.P(user.name, cls="text-lg text-slate-800 mt-1"),
+                        cls="mb-4",
+                    ),
+                    # Email
+                    fh.Div(
+                        fh.Label("Email", cls="text-sm font-medium text-gray-500"),
+                        fh.P(user.email, cls="text-lg text-slate-800 mt-1"),
+                        cls="mb-4",
+                    ),
+                    # Role
+                    fh.Div(
+                        fh.Label("Role", cls="text-sm font-medium text-gray-500"),
                         fh.P(
-                            user.department if user.department else "Not specified",
-                            cls="text-lg text-slate-800 mt-1",
+                            user.role.title(),
+                            cls="text-lg text-slate-800 mt-1 capitalize",
                         ),
                         cls="mb-4",
-                    )
-                    if user.role == "instructor" and hasattr(user, "department")
-                    else fh.Div()
-                ),
-                # Account Status
-                fh.Div(
-                    fh.Label("Account Status", cls="text-sm font-medium text-gray-500"),
+                    ),
+                    # Department (if instructor)
+                    (
+                        fh.Div(
+                            fh.Label(
+                                "Department", cls="text-sm font-medium text-gray-500"
+                            ),
+                            fh.P(
+                                user.department if user.department else "Not specified",
+                                cls="text-lg text-slate-800 mt-1",
+                            ),
+                            cls="mb-4",
+                        )
+                        if user.role == "instructor" and hasattr(user, "department")
+                        else fh.Div()
+                    ),
+                    # Account Status
                     fh.Div(
-                        fh.Span(
-                            "✓ Verified" if user.verified else "⚠ Unverified",
-                            cls=f"px-3 py-1 rounded-full text-sm font-medium {'bg-green-100 text-green-700' if user.verified else 'bg-amber-100 text-amber-700'}",
+                        fh.Label(
+                            "Account Status", cls="text-sm font-medium text-gray-500"
                         ),
-                        (
+                        fh.Div(
                             fh.Span(
-                                "✓ Approved" if user.approved else "⏳ Pending Approval",
-                                cls=f"px-3 py-1 rounded-full text-sm font-medium ml-2 {'bg-green-100 text-green-700' if user.approved else 'bg-gray-100 text-gray-700'}",
-                            )
-                            if user.role == "instructor"
-                            else fh.Span()
+                                "✓ Verified" if user.verified else "⚠ Unverified",
+                                cls=f"px-3 py-1 rounded-full text-sm font-medium {'bg-green-100 text-green-700' if user.verified else 'bg-amber-100 text-amber-700'}",
+                            ),
+                            (
+                                fh.Span(
+                                    "✓ Approved"
+                                    if user.approved
+                                    else "⏳ Pending Approval",
+                                    cls=f"px-3 py-1 rounded-full text-sm font-medium ml-2 {'bg-green-100 text-green-700' if user.approved else 'bg-gray-100 text-gray-700'}",
+                                )
+                                if user.role == "instructor"
+                                else fh.Span()
+                            ),
+                            cls="mt-1",
                         ),
-                        cls="mt-1",
+                        cls="mb-4",
                     ),
-                    cls="mb-4",
-                ),
-                # Edit button
-                fh.Div(
-                    action_button(
-                        "Edit Profile",
-                        color="blue",
-                        href="/profile/edit",
-                        icon="✏️",
-                        size="regular",
+                    # Edit button
+                    fh.Div(
+                        action_button(
+                            "Edit Profile",
+                            color="blue",
+                            href="/profile/edit",
+                            icon="✏️",
+                            size="regular",
+                        ),
+                        cls="mt-6",
                     ),
-                    cls="mt-6",
-                ),
                 ),
             ),
             cls="mb-6",
         ),
-
         # Role-specific information
         (
             card(
                 fh.Div(
-                    fh.H2("Instructor Settings", cls="text-xl font-bold text-slate-700 mb-4"),
+                    fh.H2(
+                        "Instructor Settings",
+                        cls="text-xl font-bold text-slate-700 mb-4",
+                    ),
                     fh.P(
                         "Manage your teaching preferences and AI model configurations.",
                         cls="text-gray-600 mb-4",
                     ),
                     fh.Div(
-                        fh.P("Department: ", fh.Strong(user.department or "Not set"), cls="text-gray-700 mb-2"),
-                        fh.P("Default feedback style: ", fh.Strong("Balanced"), cls="text-gray-700 mb-2"),
-                        fh.P("AI models enabled: ", fh.Strong("Check AI Models page"), cls="text-gray-700"),
+                        fh.P(
+                            "Department: ",
+                            fh.Strong(user.department or "Not set"),
+                            cls="text-gray-700 mb-2",
+                        ),
+                        fh.P(
+                            "Default feedback style: ",
+                            fh.Strong("Balanced"),
+                            cls="text-gray-700 mb-2",
+                        ),
+                        fh.P(
+                            "AI models enabled: ",
+                            fh.Strong("Check AI Models page"),
+                            cls="text-gray-700",
+                        ),
                         cls="space-y-2",
                     ),
                 )
@@ -172,7 +189,6 @@ def profile_view(session):
             if user.role == "instructor"
             else fh.Div()
         ),
-
         # Student-specific information
         (
             card(
@@ -212,7 +228,6 @@ def profile_view(session):
             if user.role == "student"
             else fh.Div()
         ),
-
         # Security Settings
         fh.Div(
             card(
@@ -271,7 +286,9 @@ def profile_edit(session):
         fh.H1("Edit Profile", cls="text-3xl font-bold text-slate-800 mb-6"),
         fh.Form(
             card(
-                fh.H2("Personal Information", cls="text-xl font-bold text-slate-700 mb-4"),
+                fh.H2(
+                    "Personal Information", cls="text-xl font-bold text-slate-700 mb-4"
+                ),
                 # Name field
                 fh.Div(
                     fh.Label(
@@ -322,7 +339,9 @@ def profile_edit(session):
                             type="text",
                             id="department",
                             name="department",
-                            value=user.department if hasattr(user, "department") and user.department else "",
+                            value=user.department
+                            if hasattr(user, "department") and user.department
+                            else "",
                             placeholder="e.g., Computer Science",
                             cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
                         ),
@@ -400,75 +419,77 @@ def change_password_form(session):
         fh.Form(
             card(
                 fh.Div(
-                    fh.H2("Update Password", cls="text-xl font-bold text-slate-700 mb-4"),
+                    fh.H2(
+                        "Update Password", cls="text-xl font-bold text-slate-700 mb-4"
+                    ),
                     # Current password
                     fh.Div(
-                    fh.Label(
-                        "Current Password",
-                        for_="current_password",
-                        cls="block text-sm font-medium text-gray-700 mb-2",
+                        fh.Label(
+                            "Current Password",
+                            for_="current_password",
+                            cls="block text-sm font-medium text-gray-700 mb-2",
+                        ),
+                        fh.Input(
+                            type="password",
+                            id="current_password",
+                            name="current_password",
+                            cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                            required=True,
+                        ),
+                        cls="mb-4",
                     ),
-                    fh.Input(
-                        type="password",
-                        id="current_password",
-                        name="current_password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                        required=True,
+                    # New password
+                    fh.Div(
+                        fh.Label(
+                            "New Password",
+                            for_="new_password",
+                            cls="block text-sm font-medium text-gray-700 mb-2",
+                        ),
+                        fh.Input(
+                            type="password",
+                            id="new_password",
+                            name="new_password",
+                            cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                            required=True,
+                            minlength="8",
+                        ),
+                        fh.P(
+                            "Minimum 8 characters",
+                            cls="text-sm text-gray-500 mt-1",
+                        ),
+                        cls="mb-4",
                     ),
-                    cls="mb-4",
-                ),
-                # New password
-                fh.Div(
-                    fh.Label(
-                        "New Password",
-                        for_="new_password",
-                        cls="block text-sm font-medium text-gray-700 mb-2",
+                    # Confirm new password
+                    fh.Div(
+                        fh.Label(
+                            "Confirm New Password",
+                            for_="confirm_password",
+                            cls="block text-sm font-medium text-gray-700 mb-2",
+                        ),
+                        fh.Input(
+                            type="password",
+                            id="confirm_password",
+                            name="confirm_password",
+                            cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                            required=True,
+                            minlength="8",
+                        ),
+                        cls="mb-6",
                     ),
-                    fh.Input(
-                        type="password",
-                        id="new_password",
-                        name="new_password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                        required=True,
-                        minlength="8",
+                    # Submit buttons
+                    fh.Div(
+                        fh.Button(
+                            "Update Password",
+                            type="submit",
+                            cls="bg-amber-600 text-white px-6 py-2 rounded-md hover:bg-amber-700 transition-colors mr-4",
+                        ),
+                        fh.A(
+                            "Cancel",
+                            href="/profile",
+                            cls="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors inline-block",
+                        ),
+                        cls="flex items-center",
                     ),
-                    fh.P(
-                        "Minimum 8 characters",
-                        cls="text-sm text-gray-500 mt-1",
-                    ),
-                    cls="mb-4",
-                ),
-                # Confirm new password
-                fh.Div(
-                    fh.Label(
-                        "Confirm New Password",
-                        for_="confirm_password",
-                        cls="block text-sm font-medium text-gray-700 mb-2",
-                    ),
-                    fh.Input(
-                        type="password",
-                        id="confirm_password",
-                        name="confirm_password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                        required=True,
-                        minlength="8",
-                    ),
-                    cls="mb-6",
-                ),
-                # Submit buttons
-                fh.Div(
-                    fh.Button(
-                        "Update Password",
-                        type="submit",
-                        cls="bg-amber-600 text-white px-6 py-2 rounded-md hover:bg-amber-700 transition-colors mr-4",
-                    ),
-                    fh.A(
-                        "Cancel",
-                        href="/profile",
-                        cls="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors inline-block",
-                    ),
-                    cls="flex items-center",
-                ),
                 )
             ),
             method="post",
@@ -490,7 +511,9 @@ def change_password_form(session):
 
 @rt("/profile/update-password")
 @login_required
-def update_password(session, current_password: str, new_password: str, confirm_password: str):
+def update_password(
+    session, current_password: str, new_password: str, confirm_password: str
+):
     """Handle password update"""
     user = users[session["auth"]]
 
@@ -527,5 +550,3 @@ def update_password(session, current_password: str, new_password: str, confirm_p
         fh.Script("setTimeout(() => window.location.href = '/profile', 1500)"),
         id="password-result",
     )
-
-

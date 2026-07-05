@@ -14,9 +14,19 @@ from app.utils.design import (
     DASHBOARD_BODY_PAD,
     GAP,
     RADIUS,
-    SHADOW_HOVER,
-    SHADOW_REST,
+    RULE_HEAVY,
+    TEXT,
+    button_classes,
 )
+
+
+def brand_wordmark(size_cls="text-2xl"):
+    """The two-tone serif wordmark — "Feed" in ink navy, "Forward" in teal."""
+    return fh.Div(
+        fh.Span("Feed", cls=f"font-serif font-bold text-{COLOR['wordmark_first']}"),
+        fh.Span("Forward", cls=f"font-serif font-bold text-{COLOR['wordmark_second']}"),
+        cls=f"flex items-center {size_cls}",
+    )
 
 
 def page_header(show_auth_buttons=True):
@@ -26,25 +36,17 @@ def page_header(show_auth_buttons=True):
     Args:
         show_auth_buttons: Whether to show sign in/sign up buttons in the header
     """
-    # Branded logo/wordmark for header
-    brand_logo = fh.Div(
-        fh.Span("Feed", cls="text-blue-300 font-bold"),
-        fh.Span("Forward", cls="text-teal-400 font-bold"),
-        cls="flex items-center text-2xl",
-    )
-
     nav_buttons = (
         fh.Nav(
             fh.A(
                 "Sign in",
                 href="/login",
-                cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-slate-600 transition-colors",
+                cls=(
+                    f"{TEXT['label']} text-{COLOR['text_body']} mr-6 "
+                    "hover:underline underline-offset-4"
+                ),
             ),
-            fh.A(
-                "Sign up",
-                href="/register",
-                cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-md transition-all",
-            ),
+            fh.A("Sign up", href="/register", cls=button_classes("secondary", "md")),
             cls="flex items-center",
         )
         if show_auth_buttons
@@ -55,7 +57,7 @@ def page_header(show_auth_buttons=True):
         fh.Div(
             # Left side - Logo and name
             fh.A(
-                brand_logo,
+                brand_wordmark(),
                 href="/landing",
                 cls="flex items-center hover:opacity-90 transition-opacity",
             ),
@@ -63,81 +65,46 @@ def page_header(show_auth_buttons=True):
             nav_buttons,
             cls="container mx-auto flex justify-between items-center px-4",
         ),
-        cls="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4 shadow-md",
+        cls=f"bg-{COLOR['surface_alt']} {RULE_HEAVY} py-4",
     )
 
 
 def page_footer():
-    """Return a consistent footer component for all pages"""
-    current_year = "2025"  # In a real app, you'd use datetime.now().year
+    """One-line footer — FeedForward is an internal tool, not a marketing site."""
+    from datetime import datetime
 
+    link_cls = (
+        f"{TEXT['label']} text-{COLOR['text_muted']} hover:text-{COLOR['primary']}"
+    )
     return fh.Footer(
         fh.Div(
             fh.Div(
-                # Footer logo
-                fh.Div(
-                    fh.Span("Feed", cls="text-blue-600 font-bold"),
-                    fh.Span("Forward", cls="text-teal-500 font-bold"),
-                    cls="text-2xl mb-3",
+                fh.Span(
+                    "Feed",
+                    cls=f"font-serif font-semibold text-{COLOR['wordmark_first']}",
                 ),
-                fh.P(
-                    "Transforming the feedback experience for students and educators.",
-                    cls="text-gray-600 max-w-xs",
+                fh.Span(
+                    "Forward",
+                    cls=f"font-serif font-semibold text-{COLOR['wordmark_second']}",
                 ),
-                cls="md:w-1/3",
+                fh.Span(
+                    f" · © {datetime.now().year} Curtin University",
+                    cls="text-slate-500",
+                ),
+                cls="text-sm",
             ),
             fh.Div(
-                # Quick links
-                fh.Div(
-                    fh.H3("Resources", cls="font-semibold text-slate-700 mb-3"),
-                    fh.A(
-                        "Documentation",
-                        href="/docs",
-                        cls="block text-gray-600 hover:text-blue-600 mb-2",
-                    ),
-                    fh.A(
-                        "Tutorials",
-                        href="/docs/getting-started",
-                        cls="block text-gray-600 hover:text-blue-600 mb-2",
-                    ),
-                    fh.A(
-                        "FAQs",
-                        href="/docs",
-                        cls="block text-gray-600 hover:text-blue-600",
-                    ),
-                    cls="mb-6 md:mb-0",
-                ),
-                # Legal
-                fh.Div(
-                    fh.H3("Legal", cls="font-semibold text-slate-700 mb-3"),
-                    fh.A(
-                        "Terms",
-                        href="/terms",
-                        cls="block text-gray-600 hover:text-blue-600 mb-2",
-                    ),
-                    fh.A(
-                        "Privacy",
-                        href="/privacy",
-                        cls="block text-gray-600 hover:text-blue-600 mb-2",
-                    ),
-                    fh.A(
-                        "Contact",
-                        href="/contact",
-                        cls="block text-gray-600 hover:text-blue-600",
-                    ),
-                ),
-                cls="md:w-1/3 flex gap-12",
+                fh.A("Privacy", href="/privacy", cls=link_cls),
+                fh.A("Terms", href="/terms", cls=link_cls),
+                fh.A("Docs", href="/docs", cls=link_cls),
+                cls=f"flex gap-{GAP['lg']} items-center",
             ),
-            cls="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between gap-4",
-        ),
-        fh.Div(
-            fh.P(
-                f"© {current_year} FeedForward. All rights reserved.",
-                cls="text-center text-gray-500 text-sm",
+            cls=(
+                "container mx-auto px-4 py-4 flex flex-col sm:flex-row "
+                "items-center justify-between gap-2"
             ),
-            cls="container mx-auto px-4 py-3 border-t border-gray-200",
         ),
-        cls="bg-gray-50",
+        cls=f"bg-{COLOR['surface_alt']} border-t border-{COLOR['border']}",
     )
 
 
@@ -155,10 +122,10 @@ def page_container(title, content):
         page_header(),
         fh.Div(
             content,
-            cls=f"container mx-auto px-4 {BODY_VPAD} flex justify-center bg-{COLOR['surface_alt']}",
+            cls=f"container mx-auto px-4 {BODY_VPAD} flex justify-center flex-grow",
         ),
         page_footer(),
-        cls="min-h-screen flex flex-col",
+        cls=f"min-h-screen flex flex-col bg-{COLOR['surface_alt']}",
     )
 
 
@@ -174,12 +141,7 @@ def dashboard_header(user_role, current_path=None):
     portal_name = ""
     nav_links = []
 
-    # Branded logo/wordmark for header
-    brand_logo = fh.Div(
-        fh.Span("Feed", cls="text-blue-300 font-bold"),
-        fh.Span("Forward", cls="text-teal-400 font-bold"),
-        cls="flex items-center text-2xl",
-    )
+    brand_logo = brand_wordmark()
 
     if user_role == Role.STUDENT:
         portal_name = "Student Portal"
@@ -227,9 +189,16 @@ def dashboard_header(user_role, current_path=None):
             if label == "Invite" and current_path == "/instructor/invite-students":
                 is_active = True
 
-        cls = "text-white px-4 py-2 mx-1 transition-colors hover:text-blue-200"
+        cls = (
+            f"{TEXT['label']} text-{COLOR['text_body']} px-3 py-2 mx-1 "
+            f"border-b-2 border-transparent hover:text-{COLOR['primary']} "
+            "transition-colors"
+        )
         if is_active:
-            cls = "text-white bg-blue-700 px-4 py-2 rounded-lg mx-1 font-medium shadow-sm"
+            cls = (
+                f"{TEXT['label']} text-{COLOR['primary']} px-3 py-2 mx-1 "
+                f"border-b-2 border-{COLOR['primary']} font-semibold"
+            )
         nav_items.append(fh.A(label, href=href, cls=cls))
 
     # User profile/avatar with logout button
@@ -261,7 +230,10 @@ def dashboard_header(user_role, current_path=None):
             fh.A(
                 fh.Div(
                     user_initial,  # First letter as fallback
-                    cls="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-semibold",
+                    cls=(
+                        f"w-8 h-8 rounded-full bg-{COLOR['accent']} text-white "
+                        "flex items-center justify-center font-semibold"
+                    ),
                 ),
                 href="/profile",
                 title="Profile",
@@ -271,7 +243,10 @@ def dashboard_header(user_role, current_path=None):
                 fh.Button(
                     "Logout",
                     hx_post="/logout",
-                    cls="text-white hover:text-teal-200 transition-colors ml-4 font-medium",
+                    cls=(
+                        f"{TEXT['label']} text-{COLOR['text_muted']} ml-4 "
+                        f"hover:text-{COLOR['primary']} transition-colors"
+                    ),
                 ),
                 cls="flex items-center",
             ),
@@ -289,7 +264,8 @@ def dashboard_header(user_role, current_path=None):
                     cls="flex items-center hover:opacity-90 transition-opacity mr-4",
                 ),
                 fh.Span(
-                    portal_name, cls="text-gray-300 text-sm md:text-base tracking-wide"
+                    portal_name,
+                    cls=f"{TEXT['label']} text-{COLOR['text_muted']} mt-1",
                 )
                 if portal_name
                 else "",
@@ -306,14 +282,18 @@ def dashboard_header(user_role, current_path=None):
         fh.Div(
             fh.Div(
                 *[
-                    fh.A(label, href=href, cls="block py-2 px-4 hover:bg-slate-700")
+                    fh.A(
+                        label,
+                        href=href,
+                        cls=f"block py-2 px-4 hover:bg-{COLOR['primary_subtle']}",
+                    )
                     for label, href, _ in nav_links
                 ],
                 cls="hidden py-2",  # Hidden by default, would be shown/hidden with JS
             ),
             cls="md:hidden container mx-auto px-4",
         ),
-        cls="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4 shadow-md",
+        cls=f"bg-{COLOR['surface_alt']} {RULE_HEAVY} py-4",
     )
 
 
@@ -347,36 +327,33 @@ def dashboard_layout(
     )
 
 
-def card(content, title=None, padding=4, bg_color="bg-white"):
+def card(content, title=None, padding=4, bg_color=None):
     """
     Create a standard card component with consistent styling.
 
-    Default padding is ``4`` (was ``6``) and the radius/shadow now come from
-    the design tokens. Callers that need a roomier card can still pass
-    ``padding=6`` explicitly.
+    Editorial: depth comes from a hairline border on the warm card surface —
+    no shadows. Callers that need a roomier card can pass ``padding=6``.
 
     Args:
         content: Content to display inside the card
-        title: Optional card title
+        title: Optional card title (serif, over a hairline rule)
         padding: Padding size (default: 4)
-        bg_color: Background color class (default: bg-white)
+        bg_color: Background color class (default: the token card surface)
     """
+    bg_color = bg_color or f"bg-{COLOR['surface']}"
     card_content = []
     if title:
         card_content.append(
             fh.Div(
-                fh.H3(title, cls=f"text-lg font-semibold text-{COLOR['text_strong']}"),
-                cls="mb-3 pb-2 border-b border-gray-100",
+                fh.H3(title, cls=f"{TEXT['h3']} text-{COLOR['text_strong']}"),
+                cls=f"mb-3 pb-2 border-b border-{COLOR['border']}",
             )
         )
     card_content.append(content)
 
     return fh.Div(
         *card_content,
-        cls=(
-            f"{bg_color} p-{padding} {RADIUS} {SHADOW_REST} "
-            f"hover:{SHADOW_HOVER} transition-shadow border border-{COLOR['border']}"
-        ),
+        cls=f"{bg_color} p-{padding} {RADIUS} border border-{COLOR['border']}",
     )
 
 
@@ -391,14 +368,19 @@ def tabs(items, active_index=0):
     tab_items = []
     for i, (label, href) in enumerate(items):
         if i == active_index:
-            cls = "flex-1 py-3 px-4 text-center bg-blue-600 text-white rounded-t-lg font-medium shadow-sm"
+            cls = (
+                f"flex-1 py-3 px-4 text-center {TEXT['label']} font-semibold "
+                f"text-{COLOR['primary']} border-b-2 border-{COLOR['primary']}"
+            )
         else:
-            cls = "flex-1 py-3 px-4 text-center text-gray-600 hover:bg-gray-100 transition-colors border-b border-gray-200"
+            cls = (
+                f"flex-1 py-3 px-4 text-center {TEXT['label']} "
+                f"text-{COLOR['text_muted']} border-b border-{COLOR['border']} "
+                f"hover:text-{COLOR['primary']} transition-colors"
+            )
         tab_items.append(fh.A(label, href=href, cls=cls))
 
-    return fh.Div(
-        *tab_items, cls="bg-white rounded-lg mb-6 flex overflow-hidden shadow-sm"
-    )
+    return fh.Div(*tab_items, cls=f"bg-{COLOR['surface_alt']} mb-6 flex")
 
 
 def status_badge(text, color):
@@ -410,20 +392,27 @@ def status_badge(text, color):
         color: Color name (indigo, teal, yellow, red)
     """
     color_map = {
-        "blue": "indigo",
+        "blue": "slate",
+        "indigo": "slate",
+        "purple": "slate",
         "green": "teal",
-        "yellow": "yellow",
+        "yellow": "amber",
         "red": "red",
-        "purple": "indigo",
-        "gray": "gray",
+        "gray": "slate",
     }
 
     # Use mapped color or original if not in map
     mapped_color = color_map.get(color, color)
 
     return fh.Span(
+        fh.Span("●", cls=f"text-[8px] mr-1.5 text-{mapped_color}-600"),
         text,
-        cls=f"bg-{mapped_color}-100 text-{mapped_color}-700 px-3 py-1 rounded-full text-xs font-semibold shadow-sm",
+        cls=(
+            f"inline-flex items-center bg-{mapped_color}-50 "
+            f"text-{mapped_color}-800 border border-{mapped_color}-200 "
+            "px-3 py-1 rounded-full text-[11px] font-semibold uppercase "
+            "tracking-[0.1em]"
+        ),
     )
 
 
@@ -435,30 +424,35 @@ def data_table(headers, rows):
         headers: List of header strings
         rows: List of row data (each row is a list of cell contents)
     """
-    # Create table headers
+    # Create table headers — small-caps over the heavy ink rule
     header_cells = [
         fh.Th(
             h,
-            cls="text-left py-4 px-6 font-semibold text-slate-800 border-b-2 border-blue-100",
+            cls=(
+                f"text-left py-3 px-6 {TEXT['label']} font-semibold "
+                f"text-{COLOR['text_muted']} {RULE_HEAVY}"
+            ),
         )
         for h in headers
     ]
-    header_row = fh.Tr(*header_cells, cls="bg-blue-50")
+    header_row = fh.Tr(*header_cells)
 
-    # Create table rows
+    # Create table rows — hairline dividers
     table_rows = [header_row]
     for i, row_data in enumerate(rows):
         cells = [fh.Td(cell, cls="py-4 px-6") for cell in row_data]
         row_cls = (
-            "border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            f"border-b border-{COLOR['border']} "
+            f"hover:bg-{COLOR['primary_subtle']} transition-colors"
             if i < len(rows) - 1
-            else "hover:bg-gray-50 transition-colors"
+            else f"hover:bg-{COLOR['primary_subtle']} transition-colors"
         )
         table_rows.append(fh.Tr(*cells, cls=row_cls))
 
     return fh.Div(
         fh.Table(fh.Thead(header_row), fh.Tbody(*table_rows[1:]), cls="w-full"),
-        cls="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-100",
+        cls=f"overflow-x-auto bg-{COLOR['surface']} {RADIUS} "
+        f"border border-{COLOR['border']}",
     )
 
 
@@ -471,11 +465,12 @@ def summary_card(content, bg_color="indigo"):
         bg_color: Background color (indigo, teal, yellow, red)
     """
     color_map = {
-        "blue": "indigo",
+        "blue": "slate",
+        "indigo": "slate",
+        "purple": "slate",
         "green": "teal",
-        "yellow": "yellow",
+        "yellow": "amber",
         "red": "red",
-        "purple": "indigo",
     }
 
     # Use mapped color or original if not in map
@@ -483,7 +478,10 @@ def summary_card(content, bg_color="indigo"):
 
     return fh.Div(
         content,
-        cls=f"bg-{mapped_color}-50 p-6 rounded-xl mt-6 border border-{mapped_color}-200 shadow-sm",
+        cls=(
+            f"bg-{mapped_color}-50 p-6 {RADIUS} mt-6 "
+            f"border-l-2 border-{mapped_color}-600"
+        ),
     )
 
 
@@ -497,11 +495,12 @@ def feedback_card(title, content, color="teal"):
         color: Indicator color (teal, red, indigo, yellow)
     """
     color_map = {
-        "blue": "indigo",
+        "blue": "slate",
+        "indigo": "slate",
+        "purple": "slate",
         "green": "teal",
-        "yellow": "yellow",
+        "yellow": "amber",
         "red": "red",
-        "purple": "indigo",
     }
 
     # Use mapped color or original if not in map
@@ -509,15 +508,21 @@ def feedback_card(title, content, color="teal"):
 
     return fh.Div(
         fh.Div(
-            fh.Div(cls=f"w-2 bg-{mapped_color}-500 rounded-l"),
+            fh.Div(cls=f"w-0.5 bg-{mapped_color}-600"),
             fh.Div(
-                fh.H4(title, cls="font-semibold text-slate-800 mb-3"),
+                fh.H4(
+                    title,
+                    cls=f"font-serif font-semibold text-{COLOR['text_strong']} mb-3",
+                ),
                 content,
                 cls="p-5 flex-1",
             ),
             cls="flex",
         ),
-        cls="border border-gray-200 rounded-xl mb-4 overflow-hidden bg-white shadow-md hover:shadow-lg transition-shadow",
+        cls=(
+            f"border border-{COLOR['border']} {RADIUS} mb-4 overflow-hidden "
+            f"bg-{COLOR['surface']}"
+        ),
     )
 
 
@@ -535,24 +540,17 @@ def action_button(
         size: Button size (small, medium, large)
         disabled: Whether the button is disabled
     """
-    color_map = {
-        "blue": "indigo",
-        "green": "teal",
-        "yellow": "yellow",
-        "red": "red",
-        "purple": "indigo",
+    # Legacy colour names map onto the editorial button intents: everything
+    # converges on ink-navy primary except destructive (red) actions.
+    intent_map = {
+        "red": "danger",
+        "yellow": "secondary",
+        "gray": "secondary",
     }
+    intent = intent_map.get(color, "primary")
 
-    # Use mapped color or original if not in map
-    mapped_color = color_map.get(color, color)
-
-    # Size mapping
-    size_classes = {
-        "small": "px-3 py-1 text-sm",
-        "medium": "px-5 py-2",
-        "large": "px-6 py-3 text-lg",
-    }
-    padding = size_classes.get(size, "px-5 py-2")
+    size_map = {"small": "sm", "medium": "md", "large": "lg"}
+    size_key = size_map.get(size, "md")
 
     button_content = []
     if icon:
@@ -563,13 +561,18 @@ def action_button(
     if disabled:
         return fh.Span(
             *button_content,
-            cls=f"bg-gray-300 text-gray-500 cursor-not-allowed {padding} rounded-lg inline-flex items-center justify-center shadow-sm font-medium",
+            cls=(
+                f"bg-{COLOR['primary_subtle']} text-{COLOR['text_muted']} "
+                f"cursor-not-allowed {RADIUS} px-5 py-2.5 text-xs uppercase "
+                "tracking-[0.15em] inline-flex items-center justify-center "
+                "font-medium"
+            ),
         )
     else:
         return fh.A(
             *button_content,
             href=href,
-            cls=f"bg-{mapped_color}-600 text-white {padding} rounded-lg inline-flex items-center justify-center hover:bg-{mapped_color}-700 transition-all shadow-sm hover:shadow font-medium",
+            cls=button_classes(intent, size_key),
         )
 
 
@@ -585,13 +588,20 @@ def modal_dialog(title, content, footer=None):
     return fh.Div(
         fh.Div(
             fh.Div(
-                fh.H3(title, cls="text-xl font-bold text-slate-800"),
-                fh.Button("x", cls="text-gray-500 hover:text-gray-700 text-2xl font-bold"),
-                cls="flex justify-between items-center border-b border-gray-200 pb-4 mb-6",
+                fh.H3(title, cls=f"{TEXT['h2']} text-{COLOR['text_strong']}"),
+                fh.Button(
+                    "x",
+                    cls=f"text-{COLOR['text_muted']} hover:text-{COLOR['primary']} "
+                    "text-2xl font-bold",
+                ),
+                cls=f"flex justify-between items-center {RULE_HEAVY} pb-4 mb-6",
             ),
             fh.Div(content, cls="mb-6"),
             fh.Div(footer if footer else "", cls="flex justify-end space-x-4"),
-            cls="bg-white p-8 rounded-xl shadow-xl max-w-2xl w-full border border-gray-100",
+            cls=(
+                f"bg-{COLOR['surface']} p-8 {RADIUS} max-w-2xl w-full "
+                f"border border-{COLOR['border']}"
+            ),
         ),
         cls="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm",
     )
@@ -608,13 +618,22 @@ def sidebar_navigation(items, active_index=0):
     nav_items = []
     for i, (label, href) in enumerate(items):
         if i == active_index:
-            cls = "bg-blue-100 p-3 rounded-lg mb-2 text-blue-700 font-medium flex items-center"
+            cls = (
+                f"p-3 mb-2 border-l-2 border-{COLOR['primary']} "
+                f"bg-{COLOR['primary_subtle']} text-{COLOR['primary']} "
+                "font-medium flex items-center"
+            )
         else:
-            cls = "p-3 mb-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-all flex items-center"
+            cls = (
+                f"p-3 mb-2 border-l-2 border-transparent "
+                f"hover:bg-{COLOR['primary_subtle']} text-{COLOR['text_body']} "
+                "transition-all flex items-center"
+            )
         nav_items.append(fh.A(label, href=href, cls=cls))
 
     return fh.Div(
-        *nav_items, cls="bg-white p-4 rounded-xl shadow-md border border-gray-100"
+        *nav_items,
+        cls=f"bg-{COLOR['surface']} p-4 {RADIUS} border border-{COLOR['border']}",
     )
 
 
@@ -625,11 +644,11 @@ def dynamic_header(session=None):
     Args:
         session: Current session object to check auth status
     """
-    # Branded logo/wordmark for header
-    brand_logo = fh.Div(
-        fh.Span("Feed", cls="text-blue-300 font-bold"),
-        fh.Span("Forward", cls="text-teal-400 font-bold"),
-        cls="flex items-center text-2xl",
+    brand_logo = brand_wordmark()
+
+    signin_link_cls = (
+        f"{TEXT['label']} text-{COLOR['text_body']} mr-6 "
+        "hover:underline underline-offset-4"
     )
 
     # Right nav content based on auth status
@@ -659,13 +678,17 @@ def dynamic_header(session=None):
                 fh.A(
                     "Dashboard",
                     href=dashboard_link,
-                    cls="text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors mr-2",
+                    cls=signin_link_cls,
                 ),
                 fh.A(
                     fh.Div(
                         fh.Div(
                             user_initial,
-                            cls="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-semibold",
+                            cls=(
+                                f"w-8 h-8 rounded-full bg-{COLOR['accent']} "
+                                "text-white flex items-center justify-center "
+                                "font-semibold"
+                            ),
                         ),
                         cls="mx-2",
                     ),
@@ -676,37 +699,30 @@ def dynamic_header(session=None):
                 fh.A(
                     "Sign Out",
                     href="/logout",
-                    cls="text-white px-4 py-2 hover:text-teal-200 transition-colors",
+                    cls=f"{TEXT['label']} text-{COLOR['text_muted']} ml-4 "
+                    f"hover:text-{COLOR['primary']}",
                 ),
                 cls="flex items-center",
             )
         except Exception:
             # Fallback to default buttons if there's an error
             nav_buttons = fh.Nav(
-                fh.A(
-                    "Sign in",
-                    href="/login",
-                    cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-slate-600 transition-colors",
-                ),
+                fh.A("Sign in", href="/login", cls=signin_link_cls),
                 fh.A(
                     "Sign up",
                     href="/register",
-                    cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-md transition-all",
+                    cls=button_classes("secondary", "md"),
                 ),
                 cls="flex items-center",
             )
     else:
         # Default buttons for unauthenticated users
         nav_buttons = fh.Nav(
-            fh.A(
-                "Sign in",
-                href="/login",
-                cls="text-white px-4 py-2 rounded-lg mx-2 hover:bg-slate-600 transition-colors",
-            ),
+            fh.A("Sign in", href="/login", cls=signin_link_cls),
             fh.A(
                 "Sign up",
                 href="/register",
-                cls="bg-teal-500 text-white px-5 py-2 rounded-lg mx-2 hover:bg-teal-600 shadow-md transition-all",
+                cls=button_classes("secondary", "md"),
             ),
             cls="flex items-center",
         )
@@ -723,8 +739,57 @@ def dynamic_header(session=None):
             nav_buttons,
             cls="container mx-auto flex justify-between items-center px-4",
         ),
-        cls="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4 shadow-md",
+        cls=f"bg-{COLOR['surface_alt']} {RULE_HEAVY} py-4",
     )
+
+
+def bullseye_progress(closeness, size=32, label=None):
+    """
+    Dartboard progress glyph — a dart that lands closer to the bullseye as a
+    student's drafts improve.
+
+    FeedForward does not show numeric scores to students by default (score
+    display is a config option, default off). This glyph is the student-facing
+    progress cue: concentric ink rings on paper, with a teal dart whose
+    distance from the centre encodes ``closeness``.
+
+    Args:
+        closeness: 0.0 to 1.0; 1.0 puts the dart on the bullseye. (Work in
+            progress: how feedback maps to closeness is still being designed —
+            callers should treat this as a qualitative cue, not a score.)
+        size: Rendered width/height in px.
+        label: Optional accessible label; defaults to a qualitative phrase.
+    """
+    closeness = max(0.0, min(1.0, closeness))
+    # Dart lands along a 45° radial: edge of the outer ring -> centre.
+    max_r = 13.0
+    r = max_r * (1.0 - closeness)
+    offset = r * 0.7071  # cos(45°)
+    cx, cy = 16 + offset, 16 - offset
+    if label is None:
+        label = (
+            "On the bullseye"
+            if closeness >= 0.95
+            else "Closing in on the bullseye"
+            if closeness >= 0.6
+            else "Moving toward the bullseye"
+        )
+    ink = "#1a2e44"
+    teal = "#0d9488"
+    svg = (
+        f'<svg width="{size}" height="{size}" viewBox="0 0 32 32" '
+        f'role="img" aria-label="{label}" fill="none">'
+        f'<circle cx="16" cy="16" r="14" stroke="{ink}" stroke-width="1.5"/>'
+        f'<circle cx="16" cy="16" r="9" stroke="{ink}" stroke-width="1" opacity="0.55"/>'
+        f'<circle cx="16" cy="16" r="4.5" stroke="{ink}" stroke-width="1" opacity="0.35"/>'
+        f'<circle cx="16" cy="16" r="1.6" fill="{ink}"/>'
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="3" fill="{teal}"/>'
+        f'<line x1="{cx + 2.2:.1f}" y1="{cy - 2.2:.1f}" x2="{cx + 6.5:.1f}" '
+        f'y2="{cy - 6.5:.1f}" stroke="{teal}" stroke-width="1.8" '
+        'stroke-linecap="round"/>'
+        "</svg>"
+    )
+    return fh.NotStr(svg)
 
 
 def error_card(title, message, error_code="", error_type="Error"):
@@ -740,27 +805,31 @@ def error_card(title, message, error_code="", error_type="Error"):
     return fh.Div(
         # Error code and type
         fh.Div(
-            fh.Span(error_code, cls="text-6xl font-bold text-blue-300"),
-            fh.Span(error_type, cls="text-xl text-gray-500 ml-4"),
+            fh.Span(
+                error_code, cls=f"font-serif text-6xl font-bold text-{COLOR['border']}"
+            ),
+            fh.Span(error_type, cls=f"{TEXT['label']} text-{COLOR['text_muted']} ml-4"),
             cls="flex items-center justify-center mb-6",
         ),
         # Error title
-        fh.H1(title, cls="text-2xl font-bold text-slate-800 mb-4 text-center"),
+        fh.H1(
+            title,
+            cls=f"{TEXT['h1']} text-{COLOR['text_strong']} mb-4 text-center",
+        ),
         # Error message
-        fh.P(message, cls="text-gray-600 mb-8 text-center"),
+        fh.P(message, cls=f"text-{COLOR['text_body']} mb-8 text-center"),
         # Action buttons
         fh.Div(
             fh.A(
                 "Dashboard",
                 href="/",  # This will redirect to proper dashboard based on role in landing page
-                cls="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg mr-4",
+                cls=f"{button_classes('primary', 'lg')} mr-4",
             ),
-            fh.A(
-                "Sign Out",
-                href="/logout",
-                cls="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors",
-            ),
+            fh.A("Sign Out", href="/logout", cls=button_classes("secondary", "lg")),
             cls="flex justify-center",
         ),
-        cls="p-10 bg-white rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto",
+        cls=(
+            f"p-10 bg-{COLOR['surface']} {RADIUS} border border-{COLOR['border']} "
+            "max-w-md mx-auto"
+        ),
     )

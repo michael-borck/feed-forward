@@ -12,7 +12,7 @@ def generate_rubric_from_spec(
     assignment_title: str,
     assignment_instructions: str,
     spec_content: Optional[str] = None,
-    assignment_type: str = "essay"
+    assignment_type: str = "essay",
 ) -> tuple[bool, list[dict[str, Any]], str]:
     """
     Generate a rubric from assignment specification using AI.
@@ -68,11 +68,14 @@ def generate_rubric_from_spec(
         response = litellm.completion(
             model="gpt-3.5-turbo",  # Default model
             messages=[
-                {"role": "system", "content": "You are an expert educator creating assessment rubrics. Return only valid JSON."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are an expert educator creating assessment rubrics. Return only valid JSON.",
+                },
+                {"role": "user", "content": prompt},
             ],
             max_tokens=1500,
-            temperature=0.7
+            temperature=0.7,
         )
 
         # Extract the response text
@@ -105,19 +108,23 @@ def generate_rubric_from_spec(
         # Validate each category and check weights
         total_weight = 0.0
         for category in rubric_categories:
-            if not all(key in category for key in ['name', 'description', 'weight']):
-                return False, [], "Each category must have name, description, and weight"
+            if not all(key in category for key in ["name", "description", "weight"]):
+                return (
+                    False,
+                    [],
+                    "Each category must have name, description, and weight",
+                )
 
-            if not isinstance(category['weight'], (int, float)):
+            if not isinstance(category["weight"], (int, float)):
                 return False, [], f"Invalid weight for category {category['name']}"
 
-            total_weight += float(category['weight'])
+            total_weight += float(category["weight"])
 
         # Adjust weights if they don't sum to 100 (allow small rounding errors)
         if abs(total_weight - 100) > 0.1:
             # Normalize weights to sum to 100
             for category in rubric_categories:
-                category['weight'] = round((category['weight'] / total_weight) * 100, 1)
+                category["weight"] = round((category["weight"] / total_weight) * 100, 1)
 
         return True, rubric_categories, ""
 
@@ -143,110 +150,110 @@ def get_rubric_template(template_type: str) -> list[dict[str, Any]]:
             {
                 "name": "Thesis & Argument",
                 "description": "Clear thesis statement, logical argument development, and persuasive reasoning throughout the essay",
-                "weight": 25
+                "weight": 25,
             },
             {
                 "name": "Evidence & Support",
                 "description": "Use of relevant evidence, examples, and citations to support claims. Quality and integration of sources",
-                "weight": 25
+                "weight": 25,
             },
             {
                 "name": "Organization & Structure",
                 "description": "Clear introduction, body paragraphs with topic sentences, smooth transitions, and effective conclusion",
-                "weight": 20
+                "weight": 20,
             },
             {
                 "name": "Writing Quality",
                 "description": "Grammar, spelling, sentence variety, word choice, and overall clarity of expression",
-                "weight": 20
+                "weight": 20,
             },
             {
                 "name": "Critical Thinking",
                 "description": "Depth of analysis, original insights, consideration of counterarguments, and sophistication of thought",
-                "weight": 10
-            }
+                "weight": 10,
+            },
         ],
         "research": [
             {
                 "name": "Research Question",
                 "description": "Clear, focused, and significant research question or hypothesis that guides the investigation",
-                "weight": 15
+                "weight": 15,
             },
             {
                 "name": "Literature Review",
                 "description": "Comprehensive review of relevant sources, synthesis of existing knowledge, and identification of gaps",
-                "weight": 25
+                "weight": 25,
             },
             {
                 "name": "Methodology",
                 "description": "Appropriate research methods, clear explanation of approach, and justification of choices",
-                "weight": 20
+                "weight": 20,
             },
             {
                 "name": "Analysis & Results",
                 "description": "Thorough analysis of data/findings, clear presentation of results, and accurate interpretation",
-                "weight": 25
+                "weight": 25,
             },
             {
                 "name": "Conclusions",
                 "description": "Well-supported conclusions, acknowledgment of limitations, and suggestions for future research",
-                "weight": 15
-            }
+                "weight": 15,
+            },
         ],
         "presentation": [
             {
                 "name": "Content & Knowledge",
                 "description": "Accuracy of information, depth of understanding, and relevance to topic",
-                "weight": 30
+                "weight": 30,
             },
             {
                 "name": "Organization",
                 "description": "Logical flow, clear introduction and conclusion, smooth transitions between sections",
-                "weight": 20
+                "weight": 20,
             },
             {
                 "name": "Delivery",
                 "description": "Eye contact, voice projection, pace, enthusiasm, and engagement with audience",
-                "weight": 20
+                "weight": 20,
             },
             {
                 "name": "Visual Aids",
                 "description": "Quality and effectiveness of slides, handouts, or other visual materials",
-                "weight": 15
+                "weight": 15,
             },
             {
                 "name": "Q&A Handling",
                 "description": "Ability to answer questions clearly and demonstrate deeper understanding",
-                "weight": 15
-            }
+                "weight": 15,
+            },
         ],
         "code": [
             {
                 "name": "Functionality",
                 "description": "Code runs correctly, meets all requirements, handles edge cases appropriately",
-                "weight": 35
+                "weight": 35,
             },
             {
                 "name": "Code Quality",
                 "description": "Clean, readable code with proper naming conventions, appropriate comments, and good structure",
-                "weight": 25
+                "weight": 25,
             },
             {
                 "name": "Algorithm Design",
                 "description": "Efficient algorithms, appropriate data structures, and optimization where relevant",
-                "weight": 20
+                "weight": 20,
             },
             {
                 "name": "Testing",
                 "description": "Comprehensive test cases, error handling, and validation of inputs",
-                "weight": 10
+                "weight": 10,
             },
             {
                 "name": "Documentation",
                 "description": "Clear README, inline comments, and explanation of design decisions",
-                "weight": 10
-            }
-        ]
+                "weight": 10,
+            },
+        ],
     }
 
     return templates.get(template_type, templates["essay"])
@@ -265,8 +272,12 @@ def extract_rubric_from_text(text: str) -> tuple[bool, list[dict[str, Any]], str
 
     # Check if text seems to contain a rubric
     rubric_indicators = [
-        "rubric", "grading criteria", "evaluation criteria",
-        "assessment criteria", "scoring guide", "grading scale"
+        "rubric",
+        "grading criteria",
+        "evaluation criteria",
+        "assessment criteria",
+        "scoring guide",
+        "grading scale",
     ]
 
     has_rubric = any(indicator in text.lower() for indicator in rubric_indicators)
@@ -305,11 +316,14 @@ def extract_rubric_from_text(text: str) -> tuple[bool, list[dict[str, Any]], str
         response = litellm.completion(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an expert at extracting rubrics from academic documents. Return only valid JSON."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are an expert at extracting rubrics from academic documents. Return only valid JSON.",
+                },
+                {"role": "user", "content": prompt},
             ],
             max_tokens=1500,
-            temperature=0.3  # Lower temperature for extraction task
+            temperature=0.3,  # Lower temperature for extraction task
         )
 
         # Extract the response text
@@ -334,10 +348,12 @@ def extract_rubric_from_text(text: str) -> tuple[bool, list[dict[str, Any]], str
         # Validate as rubric categories
         if isinstance(parsed, list) and len(parsed) > 0:
             # Ensure weights sum to 100
-            total_weight = sum(cat.get('weight', 0) for cat in parsed)
+            total_weight = sum(cat.get("weight", 0) for cat in parsed)
             if total_weight > 0 and abs(total_weight - 100) > 0.1:
                 for cat in parsed:
-                    cat['weight'] = round((cat.get('weight', 100/len(parsed)) / total_weight) * 100, 1)
+                    cat["weight"] = round(
+                        (cat.get("weight", 100 / len(parsed)) / total_weight) * 100, 1
+                    )
 
             return True, parsed, ""
 

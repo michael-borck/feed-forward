@@ -10,20 +10,39 @@ def _id(res):
 def _seed_draft(draft_id, assignment_id):
     from app.models.feedback import Draft, drafts
 
-    drafts.insert(Draft(
-        id=draft_id, assignment_id=assignment_id, student_email="s@example.com",
-        version=1, content="x", submission_date="t", status="feedback_ready",
-        word_count=1,
-    ))
+    drafts.insert(
+        Draft(
+            id=draft_id,
+            assignment_id=assignment_id,
+            student_email="s@example.com",
+            version=1,
+            content="x",
+            submission_date="t",
+            status="feedback_ready",
+            word_count=1,
+        )
+    )
 
 
 def _seed_rubric(assignment_id, category_name="Clarity"):
     from app.models.assignment import Rubric, RubricCategory, rubric_categories, rubrics
 
-    rid = _id(rubrics.insert(
-        Rubric(assignment_id=assignment_id, assessment_type_id=1, type_specific_criteria="")))
-    cid = _id(rubric_categories.insert(
-        RubricCategory(rubric_id=rid, name=category_name, description="", weight=1.0)))
+    rid = _id(
+        rubrics.insert(
+            Rubric(
+                assignment_id=assignment_id,
+                assessment_type_id=1,
+                type_specific_criteria="",
+            )
+        )
+    )
+    cid = _id(
+        rubric_categories.insert(
+            RubricCategory(
+                rubric_id=rid, name=category_name, description="", weight=1.0
+            )
+        )
+    )
     return cid
 
 
@@ -33,8 +52,16 @@ def test_produce_signal_run_writes_category_scores():
 
     _seed_draft(10, assignment_id=1)
     cid = _seed_rubric(assignment_id=1)
-    signals.insert(Signal(draft_id=10, source="document-analyser",
-                          name="flesch_score", value=45.0, raw="", created_at="t"))
+    signals.insert(
+        Signal(
+            draft_id=10,
+            source="document-analyser",
+            name="flesch_score",
+            value=45.0,
+            raw="",
+            created_at="t",
+        )
+    )
 
     run_id = signal_evidence.produce_signal_run(10)
     assert run_id is not None

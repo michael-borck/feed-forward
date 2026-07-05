@@ -40,12 +40,16 @@ def get():
                 ),
                 fh.H3("Account Types", cls="text-xl font-medium text-indigo-700 mb-2"),
                 fh.Ul(
-                    fh.Li("Students: Enrolled through instructor invitation", cls="mb-1"),
+                    fh.Li(
+                        "Students: Enrolled through instructor invitation", cls="mb-1"
+                    ),
                     fh.Li(
                         "Instructors: Register with institutional email addresses",
                         cls="mb-1",
                     ),
-                    fh.Li("Administrators: Manage system settings and users", cls="mb-1"),
+                    fh.Li(
+                        "Administrators: Manage system settings and users", cls="mb-1"
+                    ),
                     cls="list-disc list-inside mb-4 text-gray-700",
                 ),
                 fh.H3(
@@ -200,14 +204,18 @@ def get():
                 ),
             ),
             fh.Section(
-                fh.H2("Student Rights", cls="text-2xl font-semibold text-indigo-800 mb-4"),
+                fh.H2(
+                    "Student Rights", cls="text-2xl font-semibold text-indigo-800 mb-4"
+                ),
                 fh.P(
                     "Students have the right to transparency about how their submissions are processed and assurance that content is not permanently stored. Students are advised to maintain their own copies of submitted work.",
                     cls="mb-6 text-gray-700 leading-relaxed",
                 ),
             ),
             fh.Section(
-                fh.H2("Policy Updates", cls="text-2xl font-semibold text-indigo-800 mb-4"),
+                fh.H2(
+                    "Policy Updates", cls="text-2xl font-semibold text-indigo-800 mb-4"
+                ),
                 fh.P(
                     "This privacy policy may be updated periodically. Major changes will be communicated to users.",
                     cls="mb-6 text-gray-700 leading-relaxed",

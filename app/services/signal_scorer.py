@@ -76,7 +76,7 @@ def score_category(
         if not getattr(rule, "enabled", True):
             continue
         considered += 1
-        value = signals_by_name.get(getattr(rule, "signal_name", None))
+        value = signals_by_name.get(getattr(rule, "signal_name", ""))
         if value is None:
             continue
         contribution = apply_transform(value, _parse_transform(rule))
@@ -126,26 +126,141 @@ def estimate_scores_for_draft(draft_id: int) -> dict[int, dict[str, float]]:
 # Instructors confirm / override these (ADR 012 "instructor-controlled").
 # ---------------------------------------------------------------------------
 
-# Keyword(s) in a rubric category name -> (signal_name, transform) suggestions.
-_SUGGESTIONS: list[tuple[tuple[str, ...], list[tuple[str, dict[str, Any]]]]] = [
-    (("clarity", "readab", "clear"),
-     [("flesch_score",
-       {"type": "band", "bands": [[None, 30, 55], [30, 50, 72], [50, 70, 85], [70, None, 92]]})]),
-    (("structure", "organi", "cohesion", "coheren"),
-     [("paragraph_count",
-       {"type": "band", "bands": [[None, 3, 50], [3, 5, 75], [5, None, 90]]}),
-      ("sentence_variety", {"type": "linear", "in": [0, 100], "out": [0, 100]})]),
-    (("vocab", "lexic", "word choice", "diction"),
-     [("vocabulary_richness", {"type": "linear", "in": [0, 100], "out": [0, 100]})]),
-    (("style", "writing", "grammar", "mechanic", "expression"),
-     [("passive_voice_percentage", {"type": "linear", "in": [0, 40], "out": [100, 0]}),
-      ("transition_words", {"type": "linear", "in": [0, 60], "out": [40, 100]})]),
-    (("tone", "sentiment", "engagement", "voice"),
-     [("sentiment_positive", {"type": "linear", "in": [0, 1], "out": [0, 100]})]),
+# Keyword(s) in a rubric category name -> (signal_name, transform[, source])
+# suggestions, per assessment type (an essay "Style" category and a code
+# "Style" category map to entirely different signals). A tuple's optional
+# third element overrides the type's default signal source.
+_Suggestions = list[tuple[tuple[str, ...], list[tuple[Any, ...]]]]
+
+_ESSAY_SUGGESTIONS: _Suggestions = [
+    (
+        ("clarity", "readab", "clear"),
+        [
+            (
+                "flesch_score",
+                {
+                    "type": "band",
+                    "bands": [
+                        [None, 30, 55],
+                        [30, 50, 72],
+                        [50, 70, 85],
+                        [70, None, 92],
+                    ],
+                },
+            )
+        ],
+    ),
+    (
+        ("structure", "organi", "cohesion", "coheren"),
+        [
+            (
+                "paragraph_count",
+                {"type": "band", "bands": [[None, 3, 50], [3, 5, 75], [5, None, 90]]},
+            ),
+            ("sentence_variety", {"type": "linear", "in": [0, 100], "out": [0, 100]}),
+        ],
+    ),
+    (
+        ("vocab", "lexic", "word choice", "diction"),
+        [("vocabulary_richness", {"type": "linear", "in": [0, 100], "out": [0, 100]})],
+    ),
+    (
+        ("style", "writing", "grammar", "mechanic", "expression"),
+        [
+            (
+                "passive_voice_percentage",
+                {"type": "linear", "in": [0, 40], "out": [100, 0]},
+            ),
+            ("transition_words", {"type": "linear", "in": [0, 60], "out": [40, 100]}),
+        ],
+    ),
+    (
+        ("tone", "sentiment", "engagement", "voice"),
+        [("sentiment_positive", {"type": "linear", "in": [0, 1], "out": [0, 100]})],
+    ),
+    # Reference integrity comes from cite-sight, not document-analyser (the
+    # third tuple element overrides the type's default source).
+    (
+        ("referenc", "citation", "source", "integrity", "bibliograph"),
+        [
+            (
+                "citation_integrity_pct",
+                {"type": "linear", "in": [0, 100], "out": [0, 100]},
+                "cite-sight",
+            ),
+            (
+                "orphaned_reference_count",
+                {"type": "band", "bands": [[None, 1, 95], [1, 3, 70], [3, None, 45]]},
+                "cite-sight",
+            ),
+            (
+                "citation_format_issue_count",
+                {"type": "band", "bands": [[None, 1, 90], [1, 4, 70], [4, None, 50]]},
+                "cite-sight",
+            ),
+        ],
+    ),
 ]
 
+# Code signals come from code-analyser; coverages are 0-1 fractions, counts are
+# raw, cyclomatic_complexity is the per-function average.
+_CODE_SUGGESTIONS: _Suggestions = [
+    (
+        ("complexity", "design", "structure", "decomposition"),
+        [
+            (
+                "cyclomatic_complexity",
+                {
+                    "type": "band",
+                    "bands": [[None, 4, 90], [4, 8, 75], [8, 15, 55], [15, None, 35]],
+                },
+            ),
+            (
+                "max_nesting_depth",
+                {"type": "band", "bands": [[None, 3, 90], [3, 5, 70], [5, None, 45]]},
+            ),
+        ],
+    ),
+    (
+        ("quality", "correct", "robust", "function"),
+        [
+            ("syntax_valid", {"type": "band", "bands": [[None, 1, 20], [1, None, 85]]}),
+            (
+                "lint_error_count",
+                {
+                    "type": "band",
+                    "bands": [[None, 1, 90], [1, 5, 70], [5, 15, 50], [15, None, 30]],
+                },
+            ),
+        ],
+    ),
+    (
+        ("documentation", "docstring", "comment"),
+        [("docstring_coverage", {"type": "linear", "in": [0, 1], "out": [20, 95]})],
+    ),
+    (
+        ("style", "convention", "naming", "readab", "clean"),
+        [
+            (
+                "lint_warning_count",
+                {
+                    "type": "band",
+                    "bands": [[None, 1, 90], [1, 5, 75], [5, 15, 55], [15, None, 35]],
+                },
+            )
+        ],
+    ),
+]
 
-def suggest_rules_for_category(category_name: str) -> list[Any]:
+_SUGGESTIONS_BY_TYPE: dict[str, tuple[str, _Suggestions]] = {
+    "essay": ("document-analyser", _ESSAY_SUGGESTIONS),
+    "code": ("code-analyser", _CODE_SUGGESTIONS),
+}
+
+
+def suggest_rules_for_category(
+    category_name: str, type_code: str = "essay"
+) -> list[Any]:
     """Auto-matched (unsaved) rules for a rubric category, by name keywords.
 
     Returns rule-shaped objects (``.signal_name``/``.transform``/``.weight``/
@@ -154,18 +269,21 @@ def suggest_rules_for_category(category_name: str) -> list[Any]:
     """
     from types import SimpleNamespace
 
+    default_source, suggestions = _SUGGESTIONS_BY_TYPE.get(
+        type_code, _SUGGESTIONS_BY_TYPE["essay"]
+    )
     name = (category_name or "").lower()
-    for keywords, sigs in _SUGGESTIONS:
+    for keywords, sigs in suggestions:
         if any(k in name for k in keywords):
             return [
                 SimpleNamespace(
-                    signal_source="document-analyser",
-                    signal_name=signal_name,
-                    transform=transform,
+                    signal_source=sig[2] if len(sig) > 2 else default_source,
+                    signal_name=sig[0],
+                    transform=sig[1],
                     weight=1.0,
                     enabled=True,
                 )
-                for signal_name, transform in sigs
+                for sig in sigs
             ]
     return []
 
@@ -179,10 +297,21 @@ def category_estimates(draft_id: int, categories: Any) -> dict[int, dict[str, An
     Returns ``{category_id: {"score", "confidence", "suggested"}}`` for every
     category that produced an estimate.
     """
+    from app.models.feedback import drafts
     from app.models.signal_rules import signal_rules
     from app.models.signals import signals
+    from app.utils.db_query import by_id
 
     signals_by_name = {s.name: s.value for s in where(signals, draft_id=draft_id)}
+
+    # Auto-match suggestions depend on the assignment's assessment type
+    # (essay categories map to prose signals, code categories to code signals).
+    type_code = "essay"
+    draft = by_id(drafts, draft_id)
+    if draft is not None:
+        from app.assessment.registry import type_code_for_assignment
+
+        type_code = type_code_for_assignment(draft.assignment_id)
 
     persisted: dict[int, list[Any]] = {}
     for rule in signal_rules():
@@ -191,7 +320,9 @@ def category_estimates(draft_id: int, categories: Any) -> dict[int, dict[str, An
     out: dict[int, dict[str, Any]] = {}
     for category in categories:
         is_suggested = category.id not in persisted
-        rules = persisted.get(category.id) or suggest_rules_for_category(category.name)
+        rules = persisted.get(category.id) or suggest_rules_for_category(
+            category.name, type_code
+        )
         score, confidence = score_category(rules, signals_by_name)
         if score is not None:
             out[category.id] = {

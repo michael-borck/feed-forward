@@ -28,7 +28,17 @@ from app.utils.ui import (
 )
 
 
-def render_enhanced_feedback(draft, feedback_list, rubric_cats, all_drafts, max_drafts):
+def _overall_score(feedback_list):
+    """Mean of a draft's per-category aggregated scores (0.0 when none)."""
+    scores = [
+        fb.aggregated_score for fb in feedback_list if fb.aggregated_score is not None
+    ]
+    return round(sum(scores) / len(scores), 1) if scores else 0.0
+
+
+def render_enhanced_feedback(
+    draft, feedback_list, rubric_cats, all_drafts, max_drafts, all_feedback=None
+):
     """
     Render enhanced feedback visualization for a draft.
 
@@ -38,6 +48,8 @@ def render_enhanced_feedback(draft, feedback_list, rubric_cats, all_drafts, max_
         rubric_cats: List of rubric categories
         all_drafts: All drafts for this assignment (for progress tracking)
         max_drafts: Maximum allowed drafts for the assignment
+        all_feedback: Optional {draft_id: feedback rows} for every draft, so the
+            progress chart can show real historical scores
 
     Returns:
         fh.Div element with enhanced feedback visualization
@@ -47,11 +59,12 @@ def render_enhanced_feedback(draft, feedback_list, rubric_cats, all_drafts, max_
 
     # feedback_list = AggregatedFeedback rows (one per rubric category) for this draft.
     by_category = {fb.category_id: fb for fb in feedback_list}
-    scores = [fb.aggregated_score for fb in feedback_list if fb.aggregated_score is not None]
-    overall_score = round(sum(scores) / len(scores), 1) if scores else 0.0
+    overall_score = _overall_score(feedback_list)
 
     # Combined feedback text drives the strengths/improvements summary + raw view.
-    combined_text = "\n\n".join(fb.feedback_text for fb in feedback_list if fb.feedback_text)
+    combined_text = "\n\n".join(
+        fb.feedback_text for fb in feedback_list if fb.feedback_text
+    )
 
     strengths: list[str] = []
     improvements: list[str] = []
@@ -81,15 +94,22 @@ def render_enhanced_feedback(draft, feedback_list, rubric_cats, all_drafts, max_
                 category_name=cat.name,
                 category_description=cat.description,
                 score=fb.aggregated_score or 0,
-                feedback_text=fb.feedback_text or "No specific feedback for this category.",
+                feedback_text=fb.feedback_text
+                or "No specific feedback for this category.",
                 weight=cat.weight,
                 show_details=True,
             )
         )
 
-    # Progress data: this draft's overall score (other drafts handled by progress UI).
+    # Progress data: real released scores per draft (not just the current one).
+    all_feedback = all_feedback or {}
     drafts_data = [
-        {"version": d.version, "score": overall_score if d.id == draft.id else 0}
+        {
+            "version": d.version,
+            "score": overall_score
+            if d.id == draft.id
+            else _overall_score(all_feedback.get(d.id, [])),
+        }
         for d in sorted(all_drafts, key=lambda x: x.version)
     ]
 
@@ -174,7 +194,9 @@ def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignm
     if len(drafts_list) >= 2:
         latest_draft = drafts_list[-1]
         previous_draft = drafts_list[-2]
-        comparison = analyzer.compare_drafts(previous_draft.version, latest_draft.version)
+        comparison = analyzer.compare_drafts(
+            previous_draft.version, latest_draft.version
+        )
         ui_components.append(draft_comparison_card(comparison))
 
     # 3. Next steps recommendations
@@ -183,8 +205,7 @@ def create_progress_tracking_ui(drafts_list, feedback_dict, rubric_cats, assignm
         latest_feedback = feedback_dict.get(latest_draft.id, [])
         if latest_feedback:
             recommendations = analyzer.get_next_steps_recommendations(
-                latest_feedback[0],
-                rubric_cats
+                latest_feedback, rubric_cats
             )
             remaining_drafts = assignment.max_drafts - len(drafts_list)
             if recommendations:
@@ -211,7 +232,9 @@ def create_category_progression_chart(category_progression: dict) -> fh.Div:
         Div element with category progression chart
     """
     return fh.Div(
-        fh.H3("📊 Category Score Progression", cls="text-xl font-bold text-gray-800 mb-4"),
+        fh.H3(
+            "📊 Category Score Progression", cls="text-xl font-bold text-gray-800 mb-4"
+        ),
         fh.Div(
             *(
                 fh.Div(
@@ -221,30 +244,35 @@ def create_category_progression_chart(category_progression: dict) -> fh.Div:
                             fh.Div(
                                 fh.Div(
                                     cls=f"h-20 bg-{get_score_color(prog['score'])}-500 rounded-t"
-                                    if prog['has_feedback'] else "h-20 bg-gray-300 rounded-t",
-                                    style=f"height: {prog['score']}%;" if prog['has_feedback'] else "height: 20%;",
+                                    if prog["has_feedback"]
+                                    else "h-20 bg-gray-300 rounded-t",
+                                    style=f"height: {prog['score']}%;"
+                                    if prog["has_feedback"]
+                                    else "height: 20%;",
                                 ),
                                 fh.P(
                                     f"D{prog['version']}",
-                                    cls="text-xs text-center mt-1 text-gray-600"
+                                    cls="text-xs text-center mt-1 text-gray-600",
                                 ),
                                 fh.P(
-                                    f"{prog['score']:.0f}" if prog['has_feedback'] else "-",
-                                    cls="text-xs text-center font-semibold"
+                                    f"{prog['score']:.0f}"
+                                    if prog["has_feedback"]
+                                    else "-",
+                                    cls="text-xs text-center font-semibold",
                                 ),
-                                cls="flex-1 flex flex-col justify-end"
+                                cls="flex-1 flex flex-col justify-end",
                             )
                             for prog in progression_data
                         ),
-                        cls="flex gap-2 items-end h-24"
+                        cls="flex gap-2 items-end h-24",
                     ),
-                    cls="mb-4"
+                    cls="mb-4",
                 )
                 for category_name, progression_data in category_progression.items()
             ),
-            cls="grid grid-cols-1 md:grid-cols-2 gap-4"
+            cls="grid grid-cols-1 md:grid-cols-2 gap-4",
         ),
-        cls="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+        cls="bg-white p-6 rounded-xl shadow-sm border border-gray-100",
     )
 
 
@@ -385,7 +413,9 @@ def student_assignment_view(session, request, assignment_id: int):
     sidebar_content = fh.Div(
         # Assignment info card
         fh.Div(
-            fh.H3("Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"),
+            fh.H3(
+                "Assignment Details", cls="text-xl font-semibold text-indigo-900 mb-2"
+            ),
             fh.P(f"Course: {course.title} ({course.code})", cls="text-gray-600 mb-2"),
             fh.P(f"Due Date: {assignment.due_date}", cls="text-gray-600 mb-2"),
             fh.P(f"Maximum Drafts: {assignment.max_drafts}", cls="text-gray-600 mb-2"),
@@ -449,8 +479,8 @@ def student_assignment_view(session, request, assignment_id: int):
                     cls="text-xl font-semibold text-indigo-900 mb-4",
                 ),
                 fh.P(
-                    getattr(assignment, 'instructions', assignment.description),
-                    cls="text-gray-700 whitespace-pre-line mb-4"
+                    getattr(assignment, "instructions", assignment.description),
+                    cls="text-gray-700 whitespace-pre-line mb-4",
                 ),
                 # Display specification link if available
                 (
@@ -462,7 +492,9 @@ def student_assignment_view(session, request, assignment_id: int):
                         fh.Div(
                             fh.A(
                                 fh.Span("📄 ", cls="mr-2"),
-                                getattr(assignment, 'spec_file_name', 'View Specification'),
+                                getattr(
+                                    assignment, "spec_file_name", "View Specification"
+                                ),
                                 href=f"/student/assignments/{assignment_id}/spec",
                                 target="_blank",
                                 cls="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium",
@@ -474,7 +506,8 @@ def student_assignment_view(session, request, assignment_id: int):
                             cls="p-3 bg-indigo-50 rounded-lg border border-indigo-200",
                         ),
                     )
-                    if hasattr(assignment, 'spec_file_path') and assignment.spec_file_path
+                    if hasattr(assignment, "spec_file_path")
+                    and assignment.spec_file_path
                     else ""
                 ),
                 cls="prose max-w-none",
@@ -564,7 +597,8 @@ def student_assignment_view(session, request, assignment_id: int):
                                                 draft_feedback.get(draft.id, []),
                                                 rubric_cats,
                                                 assignment_drafts,
-                                                assignment.max_drafts
+                                                assignment.max_drafts,
+                                                all_feedback=draft_feedback,
                                             )
                                         )
                                         if draft_feedback.get(draft.id)
@@ -578,7 +612,8 @@ def student_assignment_view(session, request, assignment_id: int):
                                                     cls="animate-pulse h-4 bg-gray-200 rounded w-1/2",
                                                 ),
                                                 cls="space-y-2",
-                                            ) if draft.status == "processing"
+                                            )
+                                            if draft.status == "processing"
                                             else fh.P(
                                                 "Your feedback is being reviewed by your instructor and will appear once released."
                                                 if draft_pending.get(draft.id)
@@ -619,12 +654,17 @@ def student_assignment_view(session, request, assignment_id: int):
         # Progress Tracking Section - only show if there are multiple drafts with feedback
         (
             fh.Div(
-                fh.H3("📈 Progress Analysis", cls="text-xl font-semibold text-indigo-900 mt-8 mb-4"),
+                fh.H3(
+                    "📈 Progress Analysis",
+                    cls="text-xl font-semibold text-indigo-900 mt-8 mb-4",
+                ),
                 fh.Div(
                     # Initialize progress analyzer
                     # Create progress tracking UI
-                    *create_progress_tracking_ui(assignment_drafts, draft_feedback, rubric_cats, assignment),
-                    cls="space-y-6"
+                    *create_progress_tracking_ui(
+                        assignment_drafts, draft_feedback, rubric_cats, assignment
+                    ),
+                    cls="space-y-6",
                 ),
             )
             if len(assignment_drafts) > 1 and any(draft_feedback.values())
@@ -634,11 +674,11 @@ def student_assignment_view(session, request, assignment_id: int):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            f"Assignment: {assignment.title}",
-            sidebar_content,
-            main_content,
-            user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard highlighted in nav,
+        f"Assignment: {assignment.title}",
+        sidebar_content,
+        main_content,
+        user_role=Role.STUDENT,
+        current_path="/student/dashboard",  # Keep dashboard highlighted in nav,
     )
 
 
@@ -690,7 +730,9 @@ def student_assignments_list(session, request):
     sidebar_content = fh.Div(
         # User welcome card
         fh.Div(
-            fh.H3("Assignment Options", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Assignment Options", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/student/dashboard", icon="←"
@@ -892,11 +934,11 @@ def student_assignments_list(session, request):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            "All Assignments",
-            sidebar_content,
-            main_content,
-            user_role=Role.STUDENT,
-            current_path="/student/dashboard"
+        "All Assignments",
+        sidebar_content,
+        main_content,
+        user_role=Role.STUDENT,
+        current_path="/student/dashboard",
     )
 
 
@@ -920,10 +962,12 @@ def student_assignment_spec_view(session, assignment_id: int):
         )
 
     # Check if specification exists
-    if not hasattr(assignment, 'spec_file_path') or not assignment.spec_file_path:
+    if not hasattr(assignment, "spec_file_path") or not assignment.spec_file_path:
         return fh.Div(
-            fh.P("No specification file available for this assignment.",
-                 cls="text-amber-600 bg-amber-50 p-4 rounded-lg"),
+            fh.P(
+                "No specification file available for this assignment.",
+                cls="text-amber-600 bg-amber-50 p-4 rounded-lg",
+            ),
             fh.A(
                 "Back to Assignment",
                 href=f"/student/assignments/{assignment_id}",
@@ -933,12 +977,15 @@ def student_assignment_spec_view(session, assignment_id: int):
 
     # Serve the file
     from pathlib import Path
+
     file_path = Path("data/assignment_specs") / assignment.spec_file_path
 
     if not file_path.exists():
         return fh.Div(
-            fh.P("Specification file not found.",
-                 cls="text-red-600 bg-red-50 p-4 rounded-lg"),
+            fh.P(
+                "Specification file not found.",
+                cls="text-red-600 bg-red-50 p-4 rounded-lg",
+            ),
             fh.A(
                 "Back to Assignment",
                 href=f"/student/assignments/{assignment_id}",
@@ -949,6 +996,6 @@ def student_assignment_spec_view(session, assignment_id: int):
     # Return file response
     return FileResponse(
         path=str(file_path),
-        filename=getattr(assignment, 'spec_file_name', 'assignment_specification.pdf'),
-        media_type='application/octet-stream'
+        filename=getattr(assignment, "spec_file_name", "assignment_specification.pdf"),
+        media_type="application/octet-stream",
     )

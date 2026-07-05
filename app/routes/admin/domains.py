@@ -214,7 +214,10 @@ def admin_domains_list(session):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            "Domain Whitelist", sidebar_content, main_content, user_role=Role.ADMIN,
+        "Domain Whitelist",
+        sidebar_content,
+        main_content,
+        user_role=Role.ADMIN,
     )
 
 

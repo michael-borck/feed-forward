@@ -84,7 +84,6 @@ COMPONENT_CLASSES = {
     # Headers
     "header_main": "bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4 shadow-md",
     "header_light": "bg-white border-b border-gray-200 py-4 shadow-sm",
-
     # Buttons - using fixed Tailwind classes that exist
     "btn_primary": "bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5",
     "btn_secondary": "bg-white hover:bg-blue-50 text-blue-600 border-2 border-blue-600 hover:border-blue-700 px-8 py-4 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md",
@@ -92,21 +91,17 @@ COMPONENT_CLASSES = {
     "btn_success": "bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-sm hover:shadow-md",
     "btn_danger": "bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-sm hover:shadow-md",
     "btn_warning": "bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-sm hover:shadow-md",
-
     # Cards
     "card_default": "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100",
     "card_elevated": "bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow",
     "card_bordered": "bg-white rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-colors",
-
     # Forms
     "input_default": "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
     "input_error": "w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500",
     "input_success": "w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500",
     "input_disabled": "w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed",
-
     "label_default": "block text-sm font-medium text-gray-700 mb-1",
     "label_required": "block text-sm font-medium text-gray-700 mb-1 after:content-['*'] after:ml-0.5 after:text-red-500",
-
     # Typography
     "text_hero": "text-4xl md:text-6xl font-bold leading-tight",
     "text_h1": "text-3xl md:text-4xl font-bold leading-tight text-slate-800",
@@ -116,37 +111,34 @@ COMPONENT_CLASSES = {
     "text_body_lg": "text-lg leading-relaxed text-gray-700",
     "text_small": "text-sm leading-normal text-gray-600",
     "text_muted": "text-gray-500",
-
     # Alerts/Messages
     "alert_success": "bg-green-100 text-green-700 p-3 rounded-lg",
     "alert_error": "bg-red-100 text-red-700 p-3 rounded-lg",
     "alert_warning": "bg-amber-100 text-amber-700 p-3 rounded-lg",
     "alert_info": "bg-blue-100 text-blue-700 p-3 rounded-lg",
-
     # Badges
     "badge_primary": "bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium",
     "badge_secondary": "bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium",
     "badge_success": "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium",
     "badge_warning": "bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium",
     "badge_error": "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium",
-
     # Navigation
     "nav_link": "text-white px-4 py-2 mx-1 transition-colors hover:text-blue-200",
     "nav_link_active": "text-white bg-blue-700 px-4 py-2 rounded-lg mx-1 font-medium shadow-sm",
-
     # Sections/Containers
     "section_light": "bg-gray-50",
     "section_white": "bg-white",
     "section_gradient": "bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50",
-
     # Footer
     "footer_main": "bg-gray-50",
     "footer_dark": "bg-slate-800 text-white",
 }
 
+
 def get_theme_styles():
     """Return the theme CSS as a Style component."""
     return fh.Style(THEME_CSS)
+
 
 def themed(component_type: str, *children, **kwargs):
     """
@@ -164,71 +156,95 @@ def themed(component_type: str, *children, **kwargs):
     default_cls = COMPONENT_CLASSES.get(component_type, "")
 
     # Allow overriding or extending classes
-    if 'cls' in kwargs:
-        kwargs['cls'] = f"{default_cls} {kwargs['cls']}"
+    if "cls" in kwargs:
+        kwargs["cls"] = f"{default_cls} {kwargs['cls']}"
     else:
-        kwargs['cls'] = default_cls
+        kwargs["cls"] = default_cls
 
     # Determine the HTML element based on component type
-    if 'btn' in component_type:
+    if "btn" in component_type:
         return fh.Button(*children, **kwargs)
-    elif 'card' in component_type or 'text' in component_type or component_type.startswith('h') or 'alert' in component_type:
+    elif (
+        "card" in component_type
+        or "text" in component_type
+        or component_type.startswith("h")
+        or "alert" in component_type
+    ):
         return fh.Div(*children, **kwargs)
-    elif 'badge' in component_type:
+    elif "badge" in component_type:
         return fh.Span(*children, **kwargs)
-    elif 'input' in component_type:
+    elif "input" in component_type:
         return fh.Input(**kwargs)
-    elif 'label' in component_type:
+    elif "label" in component_type:
         return fh.Label(*children, **kwargs)
     else:
         return fh.Div(*children, **kwargs)
 
+
 # Specific component builders for common patterns
 def primary_button(text, **kwargs):
     """Create a primary button with consistent styling."""
-    return fh.Button(text, cls=COMPONENT_CLASSES['btn_primary'], **kwargs)
+    return fh.Button(text, cls=COMPONENT_CLASSES["btn_primary"], **kwargs)
+
 
 def secondary_button(text, **kwargs):
     """Create a secondary button with consistent styling."""
-    return fh.Button(text, cls=COMPONENT_CLASSES['btn_secondary'], **kwargs)
+    return fh.Button(text, cls=COMPONENT_CLASSES["btn_secondary"], **kwargs)
+
 
 def card(title=None, *children, **kwargs):
     """Create a card with optional title."""
     card_content = []
     if title:
         card_content.append(
-            fh.H3(title, cls="text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-gray-100")
+            fh.H3(
+                title,
+                cls="text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-gray-100",
+            )
         )
     card_content.extend(children)
 
-    return fh.Div(*card_content, cls=COMPONENT_CLASSES['card_default'], **kwargs)
+    return fh.Div(*card_content, cls=COMPONENT_CLASSES["card_default"], **kwargs)
 
-def alert(message, type='info', **kwargs):
+
+def alert(message, type="info", **kwargs):
     """Create an alert message."""
-    alert_class = COMPONENT_CLASSES.get(f'alert_{type}', COMPONENT_CLASSES['alert_info'])
+    alert_class = COMPONENT_CLASSES.get(
+        f"alert_{type}", COMPONENT_CLASSES["alert_info"]
+    )
     return fh.Div(message, cls=alert_class, **kwargs)
 
-def badge(text, type='primary', **kwargs):
+
+def badge(text, type="primary", **kwargs):
     """Create a badge."""
-    badge_class = COMPONENT_CLASSES.get(f'badge_{type}', COMPONENT_CLASSES['badge_primary'])
+    badge_class = COMPONENT_CLASSES.get(
+        f"badge_{type}", COMPONENT_CLASSES["badge_primary"]
+    )
     return fh.Span(text, cls=badge_class, **kwargs)
 
-def form_input(name, label=None, type='text', required=False, error=None, **kwargs):
+
+def form_input(name, label=None, type="text", required=False, error=None, **kwargs):
     """Create a form input with label and error handling."""
     elements = []
 
     # Add label if provided
     if label:
-        label_class = COMPONENT_CLASSES['label_required'] if required else COMPONENT_CLASSES['label_default']
+        label_class = (
+            COMPONENT_CLASSES["label_required"]
+            if required
+            else COMPONENT_CLASSES["label_default"]
+        )
         elements.append(fh.Label(label, for_=name, cls=label_class))
 
     # Determine input class based on error state
-    input_class = COMPONENT_CLASSES['input_error'] if error else COMPONENT_CLASSES['input_default']
+    input_class = (
+        COMPONENT_CLASSES["input_error"]
+        if error
+        else COMPONENT_CLASSES["input_default"]
+    )
 
     # Create input
-    elements.append(
-        fh.Input(type=type, id=name, name=name, cls=input_class, **kwargs)
-    )
+    elements.append(fh.Input(type=type, id=name, name=name, cls=input_class, **kwargs))
 
     # Add error message if present
     if error:
@@ -236,26 +252,27 @@ def form_input(name, label=None, type='text', required=False, error=None, **kwar
 
     return fh.Div(*elements, cls="mb-4")
 
+
 # Export theme as a dictionary for use in templates
 THEME = {
-    'colors': {
-        'primary': 'blue-600',
-        'primary_dark': 'blue-700',
-        'primary_light': 'blue-500',
-        'secondary': 'teal-500',
-        'secondary_dark': 'teal-600',
-        'secondary_light': 'teal-400',
-        'success': 'green-600',
-        'warning': 'amber-500',
-        'error': 'red-600',
-        'info': 'blue-500',
-        'text_primary': 'slate-800',
-        'text_secondary': 'gray-600',
-        'text_muted': 'gray-500',
-        'border': 'gray-200',
-        'bg_light': 'gray-50',
-        'bg_white': 'white',
+    "colors": {
+        "primary": "blue-600",
+        "primary_dark": "blue-700",
+        "primary_light": "blue-500",
+        "secondary": "teal-500",
+        "secondary_dark": "teal-600",
+        "secondary_light": "teal-400",
+        "success": "green-600",
+        "warning": "amber-500",
+        "error": "red-600",
+        "info": "blue-500",
+        "text_primary": "slate-800",
+        "text_secondary": "gray-600",
+        "text_muted": "gray-500",
+        "border": "gray-200",
+        "bg_light": "gray-50",
+        "bg_white": "white",
     },
-    'classes': COMPONENT_CLASSES,
-    'css': THEME_CSS
+    "classes": COMPONENT_CLASSES,
+    "css": THEME_CSS,
 }

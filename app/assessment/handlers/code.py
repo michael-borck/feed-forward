@@ -8,8 +8,19 @@ CODE = AssessmentHandler(
     supports_file_upload=True,
     supports_text_input=True,
     allowed_extensions=(
-        ".py", ".js", ".ts", ".java", ".cpp", ".c", ".h",
-        ".rb", ".go", ".rs", ".cs", ".swift", ".kt",
+        ".py",
+        ".js",
+        ".ts",
+        ".java",
+        ".cpp",
+        ".c",
+        ".h",
+        ".rb",
+        ".go",
+        ".rs",
+        ".cs",
+        ".swift",
+        ".kt",
     ),
     max_file_size=5 * 1024 * 1024,  # 5MB
 )

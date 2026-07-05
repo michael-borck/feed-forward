@@ -10,11 +10,20 @@ def _id(res):
 def _seed_agg(draft_id, category_id=10, score=50.0, status="pending_review"):
     from app.models.feedback import AggregatedFeedback, aggregated_feedback
 
-    return _id(aggregated_feedback.insert(AggregatedFeedback(
-        draft_id=draft_id, category_id=category_id, aggregated_score=score,
-        feedback_text="orig", edited_by_instructor=False, instructor_email="",
-        release_date="", status=status,
-    )))
+    return _id(
+        aggregated_feedback.insert(
+            AggregatedFeedback(
+                draft_id=draft_id,
+                category_id=category_id,
+                aggregated_score=score,
+                feedback_text="orig",
+                edited_by_instructor=False,
+                instructor_email="",
+                release_date="",
+                status=status,
+            )
+        )
+    )
 
 
 def test_pending_feedback_is_hidden():
@@ -68,7 +77,9 @@ def test_apply_review_ignores_bad_score():
     from app.models.feedback import aggregated_feedback
 
     aid = _seed_agg(5, score=50.0)
-    feedback_review.apply_review(5, {f"score_{aid}": "notanumber"}, "i@e.com", approve=False)
+    feedback_review.apply_review(
+        5, {f"score_{aid}": "notanumber"}, "i@e.com", approve=False
+    )
     af = next(a for a in aggregated_feedback() if a.id == aid)
     assert af.aggregated_score == 50.0  # unchanged on bad input
 
@@ -88,7 +99,9 @@ def test_bulk_approve_releases_all_pending_for_listed_drafts():
     from app.models.feedback import aggregated_feedback
 
     # Three drafts, each with one pending row.
-    aids = [_seed_agg(d, category_id=10 + d, status="pending_review") for d in (11, 12, 13)]
+    aids = [
+        _seed_agg(d, category_id=10 + d, status="pending_review") for d in (11, 12, 13)
+    ]
     res = feedback_review.bulk_approve([11, 12, 13], "i@e.com")
     assert res == {"drafts_approved": 3, "rows_released": 3}
     for did, aid in zip([11, 12, 13], aids, strict=True):

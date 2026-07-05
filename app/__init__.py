@@ -18,10 +18,59 @@ custom_styles = fh.Style("""
 .mx-auto { margin-left: auto; margin-right: auto; }
 """)
 
+# Typography: Inter as the app-wide sans, Fraunces as the display serif
+# (Editorial direction, 2026-07 — see app/utils/design.py). Loaded before
+# Tailwind so the config below can reference them.
+inter_font = fh.Link(
+    rel="stylesheet",
+    href=(
+        "https://fonts.googleapis.com/css2"
+        "?family=Inter:wght@400;500;600;700"
+        "&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700"
+        "&display=swap"
+    ),
+)
+
 # Include Tailwind CSS for styling
 tailwind_cdn = fh.Script(src="https://cdn.tailwindcss.com")
+tailwind_config = fh.Script("""
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Fraunces', 'Georgia', 'ui-serif', 'serif'],
+      },
+    },
+  },
+}
+""")
 
-app, rt = fh.fast_app(live=True, debug=True, hdrs=(custom_styles, tailwind_cdn))
+# Inline SVG favicon (two-tone arrow glyph in the Editorial palette — navy
+# ink + brand teal); also stops browsers 404-ing /favicon.ico on every page.
+favicon = fh.Link(
+    rel="icon",
+    type="image/svg+xml",
+    href=(
+        "data:image/svg+xml,"
+        "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
+        "%3Crect width='32' height='32' rx='4' fill='%231a2e44'/%3E"
+        "%3Cpath d='M8 22 L16 10 L20 16 L24 10' stroke='%230d9488' "
+        "stroke-width='3' fill='none' stroke-linecap='round' "
+        "stroke-linejoin='round'/%3E%3C/svg%3E"
+    ),
+)
+
+app, rt = fh.fast_app(
+    live=True,
+    debug=True,
+    hdrs=(custom_styles, inter_font, tailwind_cdn, tailwind_config, favicon),
+    # Pin Pico (FastHTML's base stylesheet) to its light theme: the Editorial
+    # design is paper-light everywhere, and without this any element that
+    # lacks explicit Tailwind colours (bare inputs, page gutters) flips to
+    # Pico's dark palette for dark-mode users.
+    htmlkw={"data-theme": "light"},
+)
 
 # We'll use explicit route handlers for error pages instead of exception handlers
 # This ensures proper HTML rendering
@@ -60,10 +109,12 @@ def basic_auth(f):
 # --- General Login Required Decorator ---
 def login_required(f):
     """Decorator to require authentication without specific role"""
+
     @wraps(f)
     async def wrapper(session, *args, **kwargs):
         try:
             from app.models.user import users
+
             # Just check if user exists in session
             users[session["auth"]]
         except Exception:

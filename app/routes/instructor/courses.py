@@ -181,7 +181,9 @@ def instructor_courses_list(session, request):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Course Management", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/instructor/dashboard", icon="←"
@@ -203,7 +205,9 @@ def instructor_courses_list(session, request):
             cls="mb-6 p-4 bg-white rounded-xl shadow-md border border-gray-100",
         ),
         fh.Div(
-            fh.H3("Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.P(f"Total Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
             fh.P(
                 f"Active Courses: {sum(1 for c, _ in instructor_courses if getattr(c, 'status', 'active') == 'active')}",
@@ -231,7 +235,7 @@ def instructor_courses_list(session, request):
     )
 
 
-@rt("/instructor/courses/new")
+@rt("/instructor/courses/new", methods=["get"])
 @instructor_required
 def instructor_courses_new(session):
     """Course creation page for instructors"""
@@ -353,10 +357,14 @@ def instructor_courses_new(session):
     )
 
 
-@rt("/instructor/courses/new")
+@rt("/instructor/courses/new", methods=["post"])
 @instructor_required
 def instructor_courses_create(
-    session, title: str, code: str, term: Optional[str] = None, description: Optional[str] = None
+    session,
+    title: str,
+    code: str,
+    term: Optional[str] = None,
+    description: Optional[str] = None,
 ):
     """Create a new course"""
     # Get current user
@@ -367,29 +375,26 @@ def instructor_courses_create(
         return fh.RedirectResponse("/instructor/courses/new", status_code=303)
 
     # Create the course
+    now = datetime.now().isoformat()
     new_course = Course(
-        id=None,  # Will be auto-assigned
         title=title.strip(),
         code=code.strip().upper(),
         term=term.strip() if term else "Current",
+        department="",
         description=description.strip() if description else "",
         instructor_email=user.email,
         status="active",
-        created_at=datetime.now(),
+        created_at=now,
+        updated_at=now,
     )
 
-    # Save to database
-    try:
-        course_id = courses.insert(new_course)
-        return fh.RedirectResponse(
-            f"/instructor/courses/{course_id}/students", status_code=303
-        )
-    except Exception:
-        # Handle duplicate course codes or other errors
-        return fh.RedirectResponse("/instructor/courses/new", status_code=303)
+    created = courses.insert(new_course)
+    return fh.RedirectResponse(
+        f"/instructor/courses/{created.id}/students", status_code=303
+    )
 
 
-@rt("/instructor/courses/{course_id}/edit")
+@rt("/instructor/courses/{course_id}/edit", methods=["get"])
 @instructor_required
 def instructor_course_edit(session, course_id: int):
     """Edit course page"""
@@ -566,7 +571,7 @@ def instructor_course_edit(session, course_id: int):
     )
 
 
-@rt("/instructor/courses/{course_id}/edit")
+@rt("/instructor/courses/{course_id}/edit", methods=["post"])
 @instructor_required
 def instructor_course_update(
     session,
@@ -676,7 +681,10 @@ def instructor_course_detail(session, course_id: int):
                 cls="bg-white p-5 rounded-lg shadow text-center",
             ),
             fh.Div(
-                fh.P(str(len(course_assignments)), cls="text-3xl font-bold text-indigo-700"),
+                fh.P(
+                    str(len(course_assignments)),
+                    cls="text-3xl font-bold text-indigo-700",
+                ),
                 fh.P("Assignments", cls="text-gray-600 text-sm"),
                 cls="bg-white p-5 rounded-lg shadow text-center",
             ),

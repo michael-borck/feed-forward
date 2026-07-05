@@ -65,7 +65,14 @@ def test_analyse_sentiment_down_returns_none(monkeypatch):
 
 
 def test_analyse_sentiment_success_returns_payload(monkeypatch):
-    payload = {"document_sentiment": {"positive": 0.9, "negative": 0.0, "neutral": 0.1, "compound": 0.9}}
+    payload = {
+        "document_sentiment": {
+            "positive": 0.9,
+            "negative": 0.0,
+            "neutral": 0.1,
+            "compound": 0.9,
+        }
+    }
 
     class FakeResp:
         def raise_for_status(self):
@@ -76,3 +83,45 @@ def test_analyse_sentiment_success_returns_payload(monkeypatch):
 
     monkeypatch.setattr(analyser_client.requests, "post", lambda *a, **k: FakeResp())
     assert analyser_client.analyse_sentiment("text") == payload
+
+
+# ---- service_health (admin signal-services card) ----
+
+
+def test_service_health_reports_all_three_services(monkeypatch):
+    class FakeResp:
+        status_code = 200
+
+        def json(self):
+            return {"status": "ok", "version": "1.2.3"}
+
+    monkeypatch.setattr(analyser_client.requests, "get", lambda *a, **k: FakeResp())
+    results = analyser_client.service_health()
+    names = {r["name"] for r in results}
+    assert names == {"document-analyser", "code-analyser", "cite-sight"}
+    assert all(r["ok"] for r in results)
+    assert all(r["version"] == "1.2.3" for r in results)
+    assert all(r["url"].startswith("http") for r in results)
+
+
+def test_service_health_marks_unreachable(monkeypatch):
+    def boom(*args, **kwargs):
+        raise requests.ConnectionError("connection refused")
+
+    monkeypatch.setattr(analyser_client.requests, "get", boom)
+    results = analyser_client.service_health()
+    assert all(not r["ok"] for r in results)
+    assert all(r["error"] for r in results)
+
+
+def test_service_health_handles_non_200(monkeypatch):
+    class FakeResp:
+        status_code = 503
+
+        def json(self):
+            return {}
+
+    monkeypatch.setattr(analyser_client.requests, "get", lambda *a, **k: FakeResp())
+    results = analyser_client.service_health()
+    assert all(not r["ok"] for r in results)
+    assert all(r["error"] == "HTTP 503" for r in results)

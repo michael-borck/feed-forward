@@ -80,6 +80,8 @@ def produce_signal_run(draft_id: int) -> Optional[int]:
 
     logger.info(
         "signal evidence: stored %d category scores for draft %s (run %s)",
-        len(estimates), draft_id, run_id,
+        len(estimates),
+        draft_id,
+        run_id,
     )
     return run_id

@@ -98,7 +98,9 @@ def student_course_view(session, request, course_id: int):
         fh.Div(
             fh.H3(course.title, cls="text-xl font-semibold text-indigo-900 mb-2"),
             fh.P(f"Course Code: {course.code}", cls="text-gray-600 mb-1"),
-            fh.P(f"Term: {getattr(course, 'term', 'Current')}", cls="text-gray-600 mb-1"),
+            fh.P(
+                f"Term: {getattr(course, 'term', 'Current')}", cls="text-gray-600 mb-1"
+            ),
             fh.P(
                 f"Status: {getattr(course, 'status', 'active').capitalize()}",
                 cls="text-gray-600 mb-4",
@@ -121,7 +123,9 @@ def student_course_view(session, request, course_id: int):
         ),
         # Course stats
         fh.Div(
-            fh.H3("Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Course Statistics", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.P(f"Assignments: {len(course_assignments)}", cls="text-gray-600 mb-2"),
             fh.P(f"Submitted Drafts: {len(student_drafts)}", cls="text-gray-600 mb-2"),
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
@@ -278,11 +282,11 @@ def student_course_view(session, request, course_id: int):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            f"Course: {course.title}",
-            sidebar_content,
-            main_content,
-            user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard highlighted in nav,
+        f"Course: {course.title}",
+        sidebar_content,
+        main_content,
+        user_role=Role.STUDENT,
+        current_path="/student/dashboard",  # Keep dashboard highlighted in nav,
     )
 
 
@@ -317,7 +321,9 @@ def student_course_assignments(session, request, course_id: int):
     # summary of *all* assignments). ``visible_assignments`` is what gets
     # rendered in the main list below.
     filter_status = (request.query_params.get("filter") or "all").lower()
-    visible_assignments = filter_assignments_by_status(course_assignments, filter_status)
+    visible_assignments = filter_assignments_by_status(
+        course_assignments, filter_status
+    )
 
     # Get student drafts for these assignments
     student_drafts = {}
@@ -336,7 +342,9 @@ def student_course_assignments(session, request, course_id: int):
         fh.Div(
             fh.H3(course.title, cls="text-xl font-semibold text-indigo-900 mb-2"),
             fh.P(f"Course Code: {course.code}", cls="text-gray-600 mb-1"),
-            fh.P(f"Term: {getattr(course, 'term', 'Current')}", cls="text-gray-600 mb-1"),
+            fh.P(
+                f"Term: {getattr(course, 'term', 'Current')}", cls="text-gray-600 mb-1"
+            ),
             fh.P(
                 f"Status: {getattr(course, 'status', 'active').capitalize()}",
                 cls="text-gray-600 mb-4",
@@ -355,7 +363,9 @@ def student_course_assignments(session, request, course_id: int):
         ),
         # Assignment status summary
         fh.Div(
-            fh.H3("Assignment Status", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Assignment Status", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.Div(
                 fh.Div(
                     fh.Div(
@@ -571,9 +581,9 @@ def student_course_assignments(session, request, course_id: int):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            f"Assignments - {course.title}",
-            sidebar_content,
-            main_content,
-            user_role=Role.STUDENT,
-            current_path="/student/dashboard",  # Keep dashboard active in nav,
+        f"Assignments - {course.title}",
+        sidebar_content,
+        main_content,
+        user_role=Role.STUDENT,
+        current_path="/student/dashboard",  # Keep dashboard active in nav,
     )

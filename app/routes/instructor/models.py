@@ -161,15 +161,16 @@ def instructor_models_list(session, request):
                                     "red",
                                 ),
                                 cls="mb-2",
-                            ) if not model["active"] else "",
-
+                            )
+                            if not model["active"]
+                            else "",
                             # Toggle switch for instructor preference
                             fh.Div(
                                 fh.Label(
                                     fh.Div(
                                         fh.Span(
                                             "Enabled for your assignments",
-                                            cls="text-sm font-medium text-gray-700"
+                                            cls="text-sm font-medium text-gray-700",
                                         ),
                                         fh.Div(
                                             fh.Input(
@@ -179,21 +180,28 @@ def instructor_models_list(session, request):
                                                 hx_post=f"/instructor/models/toggle/{model['id']}",
                                                 hx_trigger="change",
                                                 hx_swap="none",
-                                                disabled=not model["active"],  # Disable if model itself is inactive
+                                                disabled=not model[
+                                                    "active"
+                                                ],  # Disable if model itself is inactive
                                             ),
                                             fh.Div(
                                                 cls="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-                                                + (" opacity-50" if not model["active"] else "")
+                                                + (
+                                                    " opacity-50"
+                                                    if not model["active"]
+                                                    else ""
+                                                )
                                             ),
                                             cls="relative inline-flex",
                                         ),
                                         cls="flex items-center justify-between",
                                     ),
-                                    cls="cursor-pointer" if model["active"] else "cursor-not-allowed",
+                                    cls="cursor-pointer"
+                                    if model["active"]
+                                    else "cursor-not-allowed",
                                 ),
                                 cls="mb-3",
                             ),
-
                             # Owner info
                             fh.Div(
                                 fh.Span(
@@ -204,7 +212,6 @@ def instructor_models_list(session, request):
                                 ),
                                 cls="mb-2",
                             ),
-
                             # View details link (only for instructor's own models)
                             fh.Div(
                                 fh.A(
@@ -234,11 +241,11 @@ def instructor_models_list(session, request):
     )
 
     return dashboard_layout(
-            "AI Models Management",
-            sidebar_content,
-            main_content,
-            user_role="instructor",
-            current_path="/instructor/models"
+        "AI Models Management",
+        sidebar_content,
+        main_content,
+        user_role="instructor",
+        current_path="/instructor/models",
     )
 
 
@@ -253,7 +260,9 @@ def instructor_models_new(session, request):
     sidebar_content = fh.Div(
         fh.Div(
             fh.H3("Create New Model", cls="font-semibold text-indigo-900 mb-4"),
-            fh.P("Configure a new AI model for your courses.", cls="text-gray-600 mb-4"),
+            fh.P(
+                "Configure a new AI model for your courses.", cls="text-gray-600 mb-4"
+            ),
             action_button("Cancel", color="gray", href="/instructor/models", icon="×"),  # noqa: RUF001
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
@@ -271,7 +280,9 @@ def instructor_models_new(session, request):
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
                 fh.Select(
-                    fh.Option("Select a provider", value="", selected=True, disabled=True),
+                    fh.Option(
+                        "Select a provider", value="", selected=True, disabled=True
+                    ),
                     fh.Option("OpenAI", value="openai"),
                     fh.Option("Anthropic", value="anthropic"),
                     fh.Option("Google (PaLM/Bard)", value="google"),
@@ -433,11 +444,11 @@ def instructor_models_new(session, request):
     )
 
     return dashboard_layout(
-            "Configure New AI Model",
-            sidebar_content,
-            main_content,
-            user_role="instructor",
-            current_path="/instructor/models"
+        "Configure New AI Model",
+        sidebar_content,
+        main_content,
+        user_role="instructor",
+        current_path="/instructor/models",
     )
 
 
@@ -493,7 +504,9 @@ def instructor_models_create(
     # Save to database
     try:
         model_id = ai_models.insert(new_model)
-        return fh.RedirectResponse(f"/instructor/models/view/{model_id}", status_code=303)
+        return fh.RedirectResponse(
+            f"/instructor/models/view/{model_id}", status_code=303
+        )
     except Exception as e:
         return fh.Div(
             fh.P(f"Error creating model: {e!s}", cls="text-red-600"),
@@ -509,20 +522,20 @@ def fetch_ollama_models(session, base_url: str):
 
     try:
         # Clean up the URL
-        ollama_url = base_url.strip().rstrip('/') + '/api/tags'
+        ollama_url = base_url.strip().rstrip("/") + "/api/tags"
 
         # Try to fetch models
         resp = requests.get(ollama_url, timeout=5, verify=True)
 
         if resp.status_code == 200:
             models_data = resp.json()
-            models = models_data.get('models', [])
+            models = models_data.get("models", [])
 
             if models:
                 options = [
                     fh.Option(
                         f"{m['name']} ({m.get('size', 'Unknown size')})",
-                        value=m['name'].replace(':latest', '')
+                        value=m["name"].replace(":latest", ""),
                     )
                     for m in models
                 ]
@@ -537,21 +550,33 @@ def fetch_ollama_models(session, base_url: str):
             else:
                 return fh.Div(
                     fh.P("No models found on server", cls="text-amber-600"),
-                    fh.P("Please pull models first using: ollama pull <model-name>", cls="text-sm text-gray-500 mt-1"),
+                    fh.P(
+                        "Please pull models first using: ollama pull <model-name>",
+                        cls="text-sm text-gray-500 mt-1",
+                    ),
                 )
         else:
             return fh.Div(
-                fh.P(f"Server responded with status {resp.status_code}", cls="text-red-600"),
+                fh.P(
+                    f"Server responded with status {resp.status_code}",
+                    cls="text-red-600",
+                ),
             )
     except requests.exceptions.SSLError:
         return fh.Div(
             fh.P("SSL Certificate error", cls="text-red-600"),
-            fh.P("For self-signed certificates, you may need to configure certificate verification", cls="text-sm text-gray-500 mt-1"),
+            fh.P(
+                "For self-signed certificates, you may need to configure certificate verification",
+                cls="text-sm text-gray-500 mt-1",
+            ),
         )
     except requests.exceptions.ConnectionError:
         return fh.Div(
             fh.P("Cannot connect to Ollama server", cls="text-red-600"),
-            fh.P("Please check the URL and ensure the server is running", cls="text-sm text-gray-500 mt-1"),
+            fh.P(
+                "Please check the URL and ensure the server is running",
+                cls="text-sm text-gray-500 mt-1",
+            ),
         )
     except Exception as e:
         return fh.Div(
@@ -562,7 +587,11 @@ def fetch_ollama_models(session, base_url: str):
 @rt("/instructor/models/test")
 @instructor_required
 def instructor_models_test(
-    session, provider: str, api_key: Optional[str] = None, base_url: Optional[str] = None, model_id: Optional[str] = None
+    session,
+    provider: str,
+    api_key: Optional[str] = None,
+    base_url: Optional[str] = None,
+    model_id: Optional[str] = None,
 ):
     """Test AI model connection"""
     import litellm
@@ -593,12 +622,15 @@ def instructor_models_test(
         if provider == "ollama" and base_url:
             try:
                 import requests
+
                 # Try to fetch available models from Ollama
-                ollama_url = base_url.strip().rstrip('/') + '/api/tags'
+                ollama_url = base_url.strip().rstrip("/") + "/api/tags"
                 resp = requests.get(ollama_url, timeout=5)
                 if resp.status_code == 200:
                     models_data = resp.json()
-                    available_models = [m['name'] for m in models_data.get('models', [])]
+                    available_models = [
+                        m["name"] for m in models_data.get("models", [])
+                    ]
                     if available_models:
                         # Use the first available model for testing
                         model = f"ollama/{available_models[0].replace(':latest', '')}"
@@ -610,7 +642,9 @@ def instructor_models_test(
                 model = "ollama/llama2"
         else:
             # Simple test prompt
-            model = "ollama/llama2" if provider == "ollama" else f"{provider}/gpt-3.5-turbo"
+            model = (
+                "ollama/llama2" if provider == "ollama" else f"{provider}/gpt-3.5-turbo"
+            )
 
         response = litellm.completion(
             model=model,
@@ -791,11 +825,11 @@ def instructor_models_view(session, model_id: int):
     )
 
     return dashboard_layout(
-            f"Model: {model.name}",
-            sidebar_content,
-            main_content,
-            user_role="instructor",
-            current_path="/instructor/models"
+        f"Model: {model.name}",
+        sidebar_content,
+        main_content,
+        user_role="instructor",
+        current_path="/instructor/models",
     )
 
 

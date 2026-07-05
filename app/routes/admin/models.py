@@ -229,7 +229,10 @@ def admin_models_list(session):
 
     # Use the dashboard layout with our components
     return dashboard_layout(
-            "AI Model Management", sidebar_content, main_content, user_role=Role.ADMIN,
+        "AI Model Management",
+        sidebar_content,
+        main_content,
+        user_role=Role.ADMIN,
     )
 
 
@@ -252,7 +255,10 @@ def admin_models_new(session):
     sidebar_content = fh.Div(
         fh.Div(
             fh.H3("Create System Model", cls="font-semibold text-indigo-900 mb-4"),
-            fh.P("Configure a new AI model available to all instructors.", cls="text-gray-600 mb-4"),
+            fh.P(
+                "Configure a new AI model available to all instructors.",
+                cls="text-gray-600 mb-4",
+            ),
             action_button("Cancel", color="gray", href="/admin/ai-models", icon="×"),  # noqa: RUF001
             cls="p-4 bg-white rounded-xl shadow-md border border-gray-100",
         )
@@ -260,7 +266,10 @@ def admin_models_new(session):
 
     # Main content - Model creation form
     main_content = fh.Div(
-        fh.H2("Configure New System AI Model", cls="text-2xl font-bold text-indigo-900 mb-6"),
+        fh.H2(
+            "Configure New System AI Model",
+            cls="text-2xl font-bold text-indigo-900 mb-6",
+        ),
         fh.Form(
             # Provider selection
             fh.Div(
@@ -270,7 +279,9 @@ def admin_models_new(session):
                     cls="block text-sm font-medium text-gray-700 mb-2",
                 ),
                 fh.Select(
-                    fh.Option("Select a provider", value="", selected=True, disabled=True),
+                    fh.Option(
+                        "Select a provider", value="", selected=True, disabled=True
+                    ),
                     fh.Option("OpenAI", value="openai"),
                     fh.Option("Anthropic", value="anthropic"),
                     fh.Option("Google (PaLM/Bard)", value="google"),
@@ -417,14 +428,14 @@ def admin_models_create(session):
     return fh.Div(fh.P("AI Model creation handler - To be implemented"))
 
 
-@rt("/admin/ai-models/edit/{id}")
+@rt("/admin/ai-models/edit/{id}", methods=["get"])
 @admin_required
 def admin_models_edit_form(session, id: int):
     """Placeholder for edit AI model form"""
     return fh.Div(fh.P(f"AI Model {id} edit form - To be implemented"))
 
 
-@rt("/admin/ai-models/edit/{id}")
+@rt("/admin/ai-models/edit/{id}", methods=["post"])
 @admin_required
 def admin_models_edit_update(session, id: int):
     """Placeholder for update AI model handler"""

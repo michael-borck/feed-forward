@@ -1,103 +1,105 @@
 """
-FeedForward design tokens — Modern Educational direction (Option B, dense).
+FeedForward design tokens — Editorial direction (chosen 2026-07-05).
 
 Single source of truth for colour, spacing, radius, shadow, typography. The
 helpers in ``app/utils/ui.py`` and the landing page in ``app.py`` consume these
 constants; new routes should reference them rather than reaching for raw
 Tailwind utilities so that drift doesn't return.
 
-Direction summary (see ``docs/design-audit-2026-05.md`` for the audit that
-produced this):
+Direction summary (picked from four prototyped variants on ``/landing``; see
+``docs/design/direction-editorial-2026-07.md``):
 
-- Palette: indigo (primary) + emerald (accent), with the two-tone wordmark
-  preserved as its own blue + teal — kept because Michael liked the
-  wordmark and shouldn't be touched.
-- Single radius (``rounded-lg``), one shadow scale.
-- Typography is deliberately dense — the audit found pages overflowed even
-  on desktop, so the hero, h1, and h2 sizes are one Tailwind step smaller
-  than the previous values.
-- Spacing scale is tight: ``2 / 3 / 4 / 6 / 8`` Tailwind units; nothing larger
-  by default. ``BODY_VPAD`` of ``py-6`` replaces the ``py-16`` that was
-  eating ~128px on every marketing page.
+- "Academic press": warm paper surfaces, deep navy ink, the brand teal as the
+  single accent. Serif display type (Fraunces, loaded in ``app/__init__.py``)
+  for headings and the wordmark; Inter stays for body text.
+- Depth comes from hairline rules and borders, never shadows.
+- Labels are small-caps (uppercase + letterspacing) — see ``TEXT['label']``.
+- One radius (``rounded``, 4px); pills only for status badges.
+- Numeric scores are NOT shown to students by default (config option, default
+  off). Progress is expressed with the bullseye glyph
+  (``app/utils/ui.py::bullseye_progress``) rather than numbers.
 
 Tokens are Tailwind class fragments so they can be slotted into f-strings
-without lookups:
+without lookups (arbitrary-value fragments like ``[#1a2e44]`` work because
+Tailwind is the Play CDN):
 
-    cls=f"bg-{COLOR['primary']} text-white {RADIUS} {SHADOW_REST}"
+    cls=f"bg-{COLOR['primary']} text-white {RADIUS}"
 """
 
 # ---------------------------------------------------------------------------
-# Colour — Tailwind palette names (not full classes), so callers can embed
-# them in `bg-{...}`, `text-{...}`, `border-{...}` etc.
+# Colour — Tailwind palette names or arbitrary-value fragments (not full
+# classes), so callers can embed them in `bg-{...}`, `text-{...}`,
+# `border-{...}` etc.
 # ---------------------------------------------------------------------------
 
 COLOR: dict[str, str] = {
-    # Primary action / link / focus
-    "primary":          "indigo-600",
-    "primary_hover":    "indigo-700",
-    "primary_subtle":   "indigo-50",
-    # Accent — second tone (success, "ready", emerald track in two-tone use)
-    "accent":           "emerald-600",
-    "accent_hover":     "emerald-700",
-    "accent_subtle":    "emerald-50",
-    # Surfaces
-    "surface":          "white",
-    "surface_alt":      "slate-50",
+    # Primary ink / action — deep navy
+    "primary": "[#1a2e44]",
+    "primary_hover": "[#0f1e30]",
+    "primary_subtle": "[#edeae1]",
+    # Accent — the brand teal (the "Forward" half of the wordmark)
+    "accent": "teal-600",
+    "accent_hover": "teal-700",
+    "accent_subtle": "teal-50",
+    # Surfaces — warm paper, with a near-white warm card surface
+    "surface": "[#fdfcf8]",
+    "surface_alt": "[#faf8f2]",
     # Text
-    "text_strong":      "slate-900",
-    "text_body":        "slate-700",
-    "text_muted":       "slate-500",
-    # Borders
-    "border":           "slate-200",
+    "text_strong": "[#1a2e44]",
+    "text_body": "slate-700",
+    "text_muted": "slate-500",
+    # Borders — hairlines do the work shadows used to do
+    "border": "slate-300",
     # Semantic states
-    "danger":           "red-600",
-    "danger_hover":     "red-700",
-    "warning":          "amber-500",
-    # Wordmark — preserved as the user-liked brand mark; intentionally
-    # different from primary/accent so the wordmark keeps its identity.
-    "wordmark_first":        "blue-600",
-    "wordmark_second":       "teal-500",
-    "wordmark_first_dark":   "blue-300",   # used on the dark slate header
-    "wordmark_second_dark":  "teal-400",
+    "danger": "red-700",
+    "danger_hover": "red-800",
+    "warning": "amber-700",
+    # Wordmark — "Feed" in ink navy, "Forward" in brand teal
+    "wordmark_first": "[#1a2e44]",
+    "wordmark_second": "teal-600",
+    "wordmark_first_dark": "[#f5f2e9]",  # for any remaining dark surface
+    "wordmark_second_dark": "teal-300",
 }
 
 # ---------------------------------------------------------------------------
-# Typography — dense scale. Each entry is a complete class string suitable
-# for the relevant element (e.g. ``cls=TEXT['h1']`` on an ``H1``).
-# Was: hero text-4xl md:text-6xl; h1 text-3xl md:text-4xl ... (oversized).
-# Now: one Tailwind step down across the board.
+# Typography — serif display over sans body. Each entry is a complete class
+# string suitable for the relevant element (e.g. ``cls=TEXT['h1']``).
+# ``font-serif`` resolves to Fraunces via the Tailwind config in
+# ``app/__init__.py``.
 # ---------------------------------------------------------------------------
 
 TEXT: dict[str, str] = {
     # Hero — used once per landing-style page
-    "hero":     "text-3xl md:text-5xl font-bold leading-tight",
+    "hero": "font-serif text-4xl md:text-6xl font-semibold leading-[1.05]",
     # Page titles (dashboards, list pages)
-    "h1":       "text-2xl md:text-3xl font-semibold leading-tight",
+    "h1": "font-serif text-2xl md:text-3xl font-semibold leading-tight",
     # Section heads
-    "h2":       "text-xl font-semibold leading-snug",
+    "h2": "font-serif text-xl md:text-2xl font-semibold leading-snug",
     # Card / subsection heads
-    "h3":       "text-base font-semibold leading-snug",
-    # Body
-    "body":     "text-base leading-normal",
-    "body_sm":  "text-sm leading-normal",
+    "h3": "font-serif text-lg font-semibold leading-snug",
+    # Body — stays sans (Inter)
+    "body": "text-base leading-relaxed",
+    "body_sm": "text-sm leading-relaxed",
     # Meta / caption
-    "meta":     "text-xs text-slate-500 leading-normal",
-    # Numerics — tabular feel for scores, IDs, counts (precision cue without
-    # changing prose font).
-    "numeric":  "font-mono tabular-nums",
+    "meta": "text-xs text-slate-500 leading-normal",
+    # Small-caps label — eyebrows, table headers, statuses. The signature
+    # editorial device; pair with a muted or accent text colour.
+    "label": "text-xs uppercase tracking-[0.2em]",
+    # Numerics — tabular figures for the rare places numbers still align
+    # (instructor tables). Student-facing progress uses bullseye_progress.
+    "numeric": "tabular-nums",
 }
 
 # ---------------------------------------------------------------------------
 # Spacing — Tailwind number suffixes. Use as ``f"p-{PAD['md']}"`` etc.
-# Five-step scale, defaults conservative.
 # ---------------------------------------------------------------------------
 
 PAD: dict[str, str] = {
-    "xs": "2",   # 0.5rem
-    "sm": "3",   # 0.75rem
-    "md": "4",   # 1rem   — default card padding
-    "lg": "6",   # 1.5rem — roomy card / hero inner
-    "xl": "8",   # 2rem   — largest standard; bigger is a smell
+    "xs": "2",  # 0.5rem
+    "sm": "3",  # 0.75rem
+    "md": "4",  # 1rem   — default card padding
+    "lg": "6",  # 1.5rem — roomy card / hero inner
+    "xl": "8",  # 2rem   — largest standard; bigger is a smell
 }
 
 GAP: dict[str, str] = {
@@ -107,54 +109,53 @@ GAP: dict[str, str] = {
     "lg": "6",
 }
 
-# Body wrappers — what page_container / dashboard_layout use. These are
-# full class strings (not just suffixes) because callers slot them into
-# ``cls=`` directly.
-BODY_VPAD = "py-6"           # was py-16  — single biggest density win
-DASHBOARD_BODY_PAD = "p-4"   # was p-6
+# Body wrappers — what page_container / dashboard_layout use.
+BODY_VPAD = "py-6"
+DASHBOARD_BODY_PAD = "p-4"
 
 # ---------------------------------------------------------------------------
-# Radius + shadow
+# Radius + shadow — editorial: one small radius, no shadows anywhere.
 # ---------------------------------------------------------------------------
 
-RADIUS = "rounded-lg"        # single value across cards + buttons + inputs
-RADIUS_PILL = "rounded-full" # pills only (status badges)
+RADIUS = "rounded"  # 4px, single value across cards + buttons + inputs
+RADIUS_PILL = "rounded-full"  # pills only (status badges)
 
-SHADOW_REST = "shadow-sm"
-SHADOW_HOVER = "shadow"      # subtle lift; intentionally not shadow-lg
+SHADOW_REST = "shadow-none"
+SHADOW_HOVER = "shadow-none"
+
+# Hairline rules — the editorial depth cues. HAIRLINE for internal division,
+# RULE_HEAVY for the chrome (header/footer/table-head) signature 2px ink rule.
+HAIRLINE = f"border-{COLOR['border']}"
+RULE_HEAVY = f"border-b-2 border-{COLOR['primary']}"
 
 
 # ---------------------------------------------------------------------------
 # Composed button classes — what ``action_button`` and the landing CTAs use.
-# Three intents; everything else converges to one of these.
+# Editorial buttons are rectangular small-caps; three intents.
 # ---------------------------------------------------------------------------
 
 _BUTTON_INTENTS: dict[str, str] = {
     "primary": (
-        f"bg-{COLOR['primary']} text-white "
-        f"hover:bg-{COLOR['primary_hover']} {SHADOW_REST} hover:{SHADOW_HOVER}"
+        f"bg-{COLOR['primary']} text-[#faf8f2] hover:bg-{COLOR['primary_hover']}"
     ),
     "secondary": (
-        f"bg-white text-{COLOR['primary']} "
-        f"border border-{COLOR['primary']} hover:bg-{COLOR['primary_subtle']}"
+        f"bg-transparent text-{COLOR['primary']} "
+        f"border border-{COLOR['primary']} "
+        f"hover:bg-{COLOR['primary']} hover:text-[#faf8f2]"
     ),
-    "ghost": (
-        f"text-{COLOR['primary']} hover:bg-{COLOR['primary_subtle']}"
-    ),
-    "danger": (
-        f"bg-{COLOR['danger']} text-white "
-        f"hover:bg-{COLOR['danger_hover']} {SHADOW_REST} hover:{SHADOW_HOVER}"
-    ),
+    "ghost": (f"text-{COLOR['primary']} hover:bg-{COLOR['primary_subtle']}"),
+    "danger": (f"bg-{COLOR['danger']} text-white hover:bg-{COLOR['danger_hover']}"),
 }
 
 _BUTTON_SIZES: dict[str, str] = {
-    "sm": "px-3 py-1.5 text-sm",
-    "md": "px-4 py-2",
-    "lg": "px-5 py-2.5 text-lg",
+    "sm": "px-3 py-1.5 text-[11px]",
+    "md": "px-5 py-2.5 text-xs",
+    "lg": "px-7 py-3 text-sm",
 }
 
 _BUTTON_BASE = (
-    f"inline-flex items-center justify-center font-medium {RADIUS} transition-colors"
+    "inline-flex items-center justify-center font-medium uppercase "
+    f"tracking-[0.15em] {RADIUS} transition-colors"
 )
 
 

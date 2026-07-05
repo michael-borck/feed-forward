@@ -52,7 +52,7 @@ Your role is to:
                 "encouraging": "Maintain a warm, supportive, and encouraging tone. Emphasize strengths and frame improvements positively.",
                 "neutral": "Maintain a balanced, objective tone. Present feedback matter-of-factly without excessive praise or criticism.",
                 "direct": "Be clear and direct with feedback. Focus on what needs improvement with straightforward language.",
-                "critical": "Provide rigorous, demanding feedback. Hold work to high standards and be explicit about shortcomings."
+                "critical": "Provide rigorous, demanding feedback. Hold work to high standards and be explicit about shortcomings.",
             }
             base_prompt += f"Tone Guideline: {tone_guides.get(context.feedback_tone, tone_guides['encouraging'])}\n\n"
 
@@ -61,7 +61,7 @@ Your role is to:
             detail_guides = {
                 "brief": "Provide concise feedback with key points only. Keep explanations short and to the point.",
                 "standard": "Provide balanced feedback with moderate detail. Include examples and explanations where helpful.",
-                "comprehensive": "Provide thorough, detailed feedback. Include extensive examples, explanations, and specific suggestions."
+                "comprehensive": "Provide thorough, detailed feedback. Include extensive examples, explanations, and specific suggestions.",
             }
             base_prompt += f"Detail Level: {detail_guides.get(context.feedback_detail, detail_guides['standard'])}\n\n"
 
@@ -143,7 +143,7 @@ Word Count: {context.word_count or "Not specified"}"""
                 "evidence": "Evidence and Support",
                 "citations": "Citations and References",
                 "critical_thinking": "Critical Thinking",
-                "creativity": "Creativity and Originality"
+                "creativity": "Creativity and Originality",
             }
 
             instructions += "### Priority Focus Areas\n"
@@ -282,7 +282,9 @@ class IterativePromptTemplate(PromptTemplate):
         return base_instructions
 
 
-def create_prompt_template(template_type: str = "standard", context: Optional[PromptContext] = None) -> PromptTemplate:
+def create_prompt_template(
+    template_type: str = "standard", context: Optional[PromptContext] = None
+) -> PromptTemplate:
     """Factory function to create appropriate prompt template"""
     if template_type == "iterative":
         return IterativePromptTemplate(context)
@@ -343,7 +345,7 @@ def generate_feedback_prompt(
 
     # Parse assignment feedback configuration
     focus_areas = None
-    if hasattr(assignment, 'feedback_focus') and assignment.feedback_focus:
+    if hasattr(assignment, "feedback_focus") and assignment.feedback_focus:
         try:
             focus_areas = json.loads(assignment.feedback_focus)
         except (json.JSONDecodeError, TypeError, ValueError):
@@ -359,16 +361,15 @@ def generate_feedback_prompt(
         feedback_style=style,
         feedback_level=feedback_level,
         word_count=word_count,
-        feedback_tone=getattr(assignment, 'feedback_tone', 'encouraging'),
-        feedback_detail=getattr(assignment, 'feedback_detail', 'standard'),
+        feedback_tone=getattr(assignment, "feedback_tone", "encouraging"),
+        feedback_detail=getattr(assignment, "feedback_detail", "standard"),
         focus_areas=focus_areas,
-        custom_prompt=getattr(assignment, 'custom_prompt', None),
+        custom_prompt=getattr(assignment, "custom_prompt", None),
     )
 
     # Create appropriate template with context
     template = create_prompt_template(
-        "iterative" if assignment.max_drafts > 1 else "standard",
-        context
+        "iterative" if assignment.max_drafts > 1 else "standard", context
     )
 
     # Generate and return prompt

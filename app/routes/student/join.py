@@ -16,7 +16,7 @@ from app.utils.ui import page_container
 logger = logging.getLogger(__name__)
 
 
-@rt("/student/join")
+@rt("/student/join", methods=["get"])
 def student_join_form(token: str):
     """Student join form from invitation token"""
     # Check if token is valid
@@ -36,7 +36,7 @@ def student_join_form(token: str):
                     # Brand logo
                     fh.Div(
                         fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                        fh.Span("Forward", cls="text-teal-500 font-bold"),
+                        fh.Span("Forward", cls="text-emerald-600 font-bold"),
                         cls="text-3xl mb-4 text-center",
                     ),
                     fh.H1(
@@ -70,7 +70,7 @@ def student_join_form(token: str):
             # Brand logo on registration form
             fh.Div(
                 fh.Span("Feed", cls="text-indigo-600 font-bold"),
-                fh.Span("Forward", cls="text-teal-500 font-bold"),
+                fh.Span("Forward", cls="text-emerald-600 font-bold"),
                 cls="text-3xl mb-4 text-center",
             ),
             fh.H1(
@@ -168,7 +168,7 @@ def student_join_form(token: str):
     return page_container("Complete Registration - FeedForward", registration_content)
 
 
-@rt("/student/join")
+@rt("/student/join", methods=["post"])
 def student_join_process(
     session, token: str, email: str, name: str, password: str, confirm_password: str
 ):

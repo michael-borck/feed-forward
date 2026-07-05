@@ -10,12 +10,22 @@ def _id(res):
 def _seed_rubric(assignment_id, names=("Clarity", "Argument depth")):
     from app.models.assignment import Rubric, RubricCategory, rubric_categories, rubrics
 
-    rid = _id(rubrics.insert(
-        Rubric(assignment_id=assignment_id, assessment_type_id=1, type_specific_criteria="")))
+    rid = _id(
+        rubrics.insert(
+            Rubric(
+                assignment_id=assignment_id,
+                assessment_type_id=1,
+                type_specific_criteria="",
+            )
+        )
+    )
     cats = {}
     for n in names:
-        cats[n] = _id(rubric_categories.insert(
-            RubricCategory(rubric_id=rid, name=n, description="", weight=1.0)))
+        cats[n] = _id(
+            rubric_categories.insert(
+                RubricCategory(rubric_id=rid, name=n, description="", weight=1.0)
+            )
+        )
     return cats
 
 
@@ -51,7 +61,9 @@ def test_save_applies_weight_and_disable():
 
     cats = _seed_rubric(3)
     cid = cats["Clarity"]
-    signal_rules_service.save_rules_for_assignment(3, {f"w_{cid}_flesch_score": "2.5"})  # no en_
+    signal_rules_service.save_rules_for_assignment(
+        3, {f"w_{cid}_flesch_score": "2.5"}
+    )  # no en_
     rule = next(x for x in signal_rules() if x.rubric_category_id == cid)
     assert rule.weight == 2.5
     assert bool(rule.enabled) is False  # checkbox absent -> disabled
@@ -61,7 +73,8 @@ def test_rules_view_prefers_persisted_after_save():
     cats = _seed_rubric(4)
     cid = cats["Clarity"]
     signal_rules_service.save_rules_for_assignment(
-        4, {f"en_{cid}_flesch_score": "on", f"w_{cid}_flesch_score": "3"})
+        4, {f"en_{cid}_flesch_score": "on", f"w_{cid}_flesch_score": "3"}
+    )
     view = signal_rules_service.rules_view_for_assignment(4)
     clarity = next(e for e in view if e["category"].name == "Clarity")
     assert clarity["rules"][0]["persisted"] is True

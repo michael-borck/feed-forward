@@ -21,7 +21,9 @@ import pytest
 @pytest.fixture(autouse=True)
 def _clean_tables():
     """Wipe signal/draft rows between tests so state doesn't leak."""
-    from app.models.assignment import rubric_categories, rubrics
+    from app.models.assessment import assessment_types, submission_files
+    from app.models.assignment import assignments, rubric_categories, rubrics
+    from app.models.course import courses, enrollments
     from app.models.feedback import (
         aggregated_feedback,
         category_scores,
@@ -33,8 +35,20 @@ def _clean_tables():
     from app.models.signals import signals
 
     tables = (
-        signals, signal_rules, category_scores, feedback_items,
-        aggregated_feedback, model_runs, rubric_categories, rubrics, drafts,
+        signals,
+        signal_rules,
+        category_scores,
+        feedback_items,
+        aggregated_feedback,
+        model_runs,
+        rubric_categories,
+        rubrics,
+        drafts,
+        submission_files,
+        assignments,
+        assessment_types,
+        courses,
+        enrollments,
     )
     for table in tables:
         for row in list(table()):

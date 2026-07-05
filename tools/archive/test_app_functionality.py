@@ -69,15 +69,23 @@ def test_model_relationships():
         course = courses()[0] if courses() else None
         if course:
             course_assignments = [a for a in assignments() if a.course_id == course.id]
-            print(f"✅ Course '{course.title}' has {len(course_assignments)} assignments")
+            print(
+                f"✅ Course '{course.title}' has {len(course_assignments)} assignments"
+            )
 
             # Check rubrics for assignments
             for assignment in course_assignments[:1]:  # Check first assignment
-                assignment_rubrics = [r for r in rubrics() if r.assignment_id == assignment.id]
+                assignment_rubrics = [
+                    r for r in rubrics() if r.assignment_id == assignment.id
+                ]
                 if assignment_rubrics:
                     rubric = assignment_rubrics[0]
-                    categories = [c for c in rubric_categories() if c.rubric_id == rubric.id]
-                    print(f"✅ Assignment '{assignment.title}' has rubric with {len(categories)} categories")
+                    categories = [
+                        c for c in rubric_categories() if c.rubric_id == rubric.id
+                    ]
+                    print(
+                        f"✅ Assignment '{assignment.title}' has rubric with {len(categories)} categories"
+                    )
 
         # Check AI models
         active_models = [m for m in ai_models() if m.active]
@@ -96,9 +104,9 @@ def test_authentication_system():
 
     try:
         # Check for different user roles
-        admins = [u for u in users() if u.role == 'admin']
-        instructors = [u for u in users() if u.role == 'instructor']
-        students = [u for u in users() if u.role == 'student']
+        admins = [u for u in users() if u.role == "admin"]
+        instructors = [u for u in users() if u.role == "instructor"]
+        students = [u for u in users() if u.role == "student"]
 
         print(f"✅ Found {len(admins)} admin(s)")
         print(f"✅ Found {len(instructors)} instructor(s)")
@@ -106,7 +114,9 @@ def test_authentication_system():
 
         # Check for approved instructors
         approved_instructors = [u for u in instructors if u.approved]
-        print(f"✅ {len(approved_instructors)} of {len(instructors)} instructors are approved")
+        print(
+            f"✅ {len(approved_instructors)} of {len(instructors)} instructors are approved"
+        )
 
         return True
 
@@ -123,8 +133,10 @@ def test_feedback_system():
         # Check draft statuses
         draft_list = list(drafts())
         if draft_list:
-            statuses = {d.status for d in draft_list if hasattr(d, 'status')}
-            print(f"✅ Draft statuses found: {', '.join(statuses) if statuses else 'none'}")
+            statuses = {d.status for d in draft_list if hasattr(d, "status")}
+            print(
+                f"✅ Draft statuses found: {', '.join(statuses) if statuses else 'none'}"
+            )
 
             # Check for drafts with feedback
             drafts_with_runs = []

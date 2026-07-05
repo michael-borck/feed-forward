@@ -43,12 +43,16 @@ def _md(rows, cat_names=None, **overrides):
     )
     assignment = _Assignment(overrides.get("title", "Essay 1"))
     return build_feedback_markdown(
-        draft, assignment, overrides.get("course", "Intro to AI"),
-        rows, cat_names or {},
+        draft,
+        assignment,
+        overrides.get("course", "Intro to AI"),
+        rows,
+        cat_names or {},
     )
 
 
 # ---- header ----
+
 
 def test_header_includes_assignment_title_student_and_course():
     md = _md([], title="Reflection 1", course="Intro to AI", email="alice@x.com")
@@ -64,6 +68,7 @@ def test_header_includes_version_and_submission_date():
 
 
 # ---- overall + status ----
+
 
 def test_overall_is_unweighted_average_of_category_scores():
     md = _md(
@@ -92,6 +97,7 @@ def test_no_rows_omits_overall_and_status_lines():
 
 
 # ---- per-category ----
+
 
 def test_each_category_renders_with_score_heading_and_text():
     md = _md(

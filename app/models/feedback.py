@@ -63,16 +63,34 @@ if model_runs not in db.t:
             "status": str,  # 'pending', 'complete', 'error'
             "preprocessing_service_id": int,  # Track which service processed the submission
             "service_response_time": float,  # Time in seconds
+            "input_tokens": int,  # LLM prompt tokens (cost tracking)
+            "output_tokens": int,  # LLM completion tokens (cost tracking)
+            "cost_usd": float,  # Estimated cost of this run in USD
         },
         pk="id",
     )
+else:
+    # Migration: cost-tracking columns added 2026-06-13.
+    _mr_cols = {c.name for c in model_runs.columns}
+    if "input_tokens" not in _mr_cols:
+        model_runs.add_column("input_tokens", int)
+    if "output_tokens" not in _mr_cols:
+        model_runs.add_column("output_tokens", int)
+    if "cost_usd" not in _mr_cols:
+        model_runs.add_column("cost_usd", float)
 ModelRun = model_runs.dataclass()
 
 # Define category scores table if it doesn't exist
 category_scores = db.t.category_scores
 if category_scores not in db.t:
     category_scores.create(
-        {"id": int, "model_run_id": int, "category_id": int, "score": float, "confidence": float},
+        {
+            "id": int,
+            "model_run_id": int,
+            "category_id": int,
+            "score": float,
+            "confidence": float,
+        },
         pk="id",
     )
 CategoryScore = category_scores.dataclass()

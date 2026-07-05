@@ -118,6 +118,7 @@ AssignmentSettings = assignment_settings.dataclass()
 assignment_model_runs = db.t.assignment_model_runs
 if assignment_model_runs not in db.t:
     assignment_model_runs.create(
-        {"id": int, "assignment_setting_id": int, "ai_model_id": int, "num_runs": int}, pk="id"
+        {"id": int, "assignment_setting_id": int, "ai_model_id": int, "num_runs": int},
+        pk="id",
     )
 AssignmentModelRun = assignment_model_runs.dataclass()

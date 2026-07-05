@@ -87,7 +87,9 @@ class APIKeySetup:
         else:
             print(f"⚠️  No .env file found. Will create one at {self.env_path}")
 
-    async def test_api_key(self, provider: str, api_key: str, base_url: Optional[str] = None) -> bool:
+    async def test_api_key(
+        self, provider: str, api_key: str, base_url: Optional[str] = None
+    ) -> bool:
         """Test if an API key works by making a simple completion request"""
         provider_info = self.PROVIDERS[provider]
         test_model = provider_info["test_model"]
@@ -97,7 +99,9 @@ class APIKeySetup:
             if provider == "ollama":
                 os.environ["OLLAMA_API_BASE"] = api_key
                 if provider_info.get("env_var_key"):
-                    ollama_key = input("Enter Ollama API key (optional, press Enter to skip): ").strip()
+                    ollama_key = input(
+                        "Enter Ollama API key (optional, press Enter to skip): "
+                    ).strip()
                     if ollama_key:
                         os.environ[provider_info["env_var_key"]] = ollama_key
             elif provider == "custom":
@@ -149,7 +153,13 @@ class APIKeySetup:
                 print(f"❌ Error testing {provider_info['name']}: {error_msg}")
             return False
 
-    def save_api_key(self, provider: str, api_key: str, base_url: Optional[str] = None, ollama_key: Optional[str] = None):
+    def save_api_key(
+        self,
+        provider: str,
+        api_key: str,
+        base_url: Optional[str] = None,
+        ollama_key: Optional[str] = None,
+    ):
         """Save API key to .env file"""
         provider_info = self.PROVIDERS[provider]
         env_var = provider_info["env_var"]
@@ -264,9 +274,13 @@ class APIKeySetup:
             api_value = input(f"Enter Ollama API URL (default: {default}): ").strip()
             if not api_value:
                 api_value = default
-            ollama_key = input("Enter Ollama API key (optional, press Enter to skip): ").strip()
+            ollama_key = input(
+                "Enter Ollama API key (optional, press Enter to skip): "
+            ).strip()
         elif provider == "custom":
-            base_url = input("Enter the base URL for your OpenAI-compatible endpoint: ").strip()
+            base_url = input(
+                "Enter the base URL for your OpenAI-compatible endpoint: "
+            ).strip()
             if not base_url:
                 print("❌ Base URL is required for custom providers. Skipping.")
                 return

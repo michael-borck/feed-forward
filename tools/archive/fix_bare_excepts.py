@@ -16,8 +16,8 @@ def fix_bare_excepts(file_path: Path) -> bool:
 
         # Pattern to match bare except clauses
         # This regex looks for 'except:' with optional whitespace
-        pattern = r'^(\s*)except\s*:\s*$'
-        replacement = r'\1except Exception:'
+        pattern = r"^(\s*)except\s*:\s*$"
+        replacement = r"\1except Exception:"
 
         # Replace bare excepts
         content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
@@ -41,9 +41,10 @@ def main():
     python_files = list(root.glob("**/*.py"))
 
     # Exclude venv and other directories
-    excluded_dirs = {'.venv', '__pycache__', '.git', 'node_modules'}
+    excluded_dirs = {".venv", "__pycache__", ".git", "node_modules"}
     python_files = [
-        f for f in python_files
+        f
+        for f in python_files
         if not any(excluded in f.parts for excluded in excluded_dirs)
     ]
 
@@ -60,9 +61,9 @@ def main():
 
     # Files that need more specific exception handling
     files_needing_specific_exceptions = [
-        'app/services/feedback_generator.py',
-        'tools/test_tos_privacy.py',
-        'tools/test_instructor_feedback_ui.py',
+        "app/services/feedback_generator.py",
+        "tools/test_tos_privacy.py",
+        "tools/test_instructor_feedback_ui.py",
     ]
 
     for file_name in files_needing_specific_exceptions:
@@ -72,10 +73,10 @@ def main():
                 content = file_path.read_text()
                 # Add TECH-DEBT comment after Exception
                 content = re.sub(
-                    r'^(\s*)except Exception:(\s*)$',
-                    r'\1except Exception:  # TECH-DEBT: Use specific exception types\2',
+                    r"^(\s*)except Exception:(\s*)$",
+                    r"\1except Exception:  # TECH-DEBT: Use specific exception types\2",
                     content,
-                    flags=re.MULTILINE
+                    flags=re.MULTILINE,
                 )
                 file_path.write_text(content)
                 print(f"Added TECH-DEBT comment to: {file_name}")
@@ -83,5 +84,5 @@ def main():
                 print(f"Error adding TECH-DEBT to {file_name}: {e}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

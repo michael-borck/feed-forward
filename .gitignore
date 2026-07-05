@@ -64,3 +64,4 @@ local_settings.py
 
 _notes
 .opencode
+.pytest_cache/

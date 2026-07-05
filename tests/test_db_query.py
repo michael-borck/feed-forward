@@ -5,14 +5,21 @@ from app.utils.db_query import by_id, count, first, where
 
 
 def _insert(draft_id=1, name="x", value=0.0, source="document-analyser"):
-    row = signals.insert(Signal(
-        draft_id=draft_id, source=source, name=name,
-        value=value, raw="", created_at="t",
-    ))
+    row = signals.insert(
+        Signal(
+            draft_id=draft_id,
+            source=source,
+            name=name,
+            value=value,
+            raw="",
+            created_at="t",
+        )
+    )
     return row.id if hasattr(row, "id") else row
 
 
 # ---- by_id ----
+
 
 def test_by_id_returns_row():
     rid = _insert(draft_id=1, name="flesch_score", value=50.0)
@@ -26,6 +33,7 @@ def test_by_id_missing_returns_none():
 
 
 # ---- where ----
+
 
 def test_where_filters_by_equality():
     _insert(draft_id=1, name="flesch_score")
@@ -49,6 +57,7 @@ def test_where_no_match_returns_empty():
 
 # ---- first ----
 
+
 def test_first_returns_first_match():
     rid1 = _insert(draft_id=1, name="a")
     _insert(draft_id=1, name="b")
@@ -62,6 +71,7 @@ def test_first_no_match_returns_none():
 
 
 # ---- count ----
+
 
 def test_count_matches():
     _insert(draft_id=1, name="a")

@@ -98,13 +98,16 @@ parallel — they don't depend on the generator refactor.
   `smog_index` / `automated_readability_index` — none exist on `DocumentAnalysis`; it has
   `flesch_score` + `flesch_kincaid_grade`). `/text` sidesteps this and fits FeedForward,
   which already extracts text in `file_handlers.py`.
-- ⚠ The **`/semantic/*` tier (sentiment, embeddings) crashes the server on macOS**
-  (SIGBUS, `loky` semaphore leak — the documented torch/sentence-transformers
-  brittleness). **Sentiment/coherence signals are deferred** until that lens-side
-  instability is fixed; S1 uses `/text` signals only.
+- ✅ **`/semantic/sentiment` macOS crash FIXED** (lens-side, 2026-05-24: mmap'd
+  safetensors weights cloned onto the heap in `GranularSentimentAnalyzer.__init__`;
+  see document-analyser `INTEGRATION-NOTES.md`). Re-verified live 2026-06-12:
+  sentiment request returns sentence/paragraph/document-level results and the
+  server stays up; FeedForward end-to-end extraction stores 18 signals including
+  `sentiment_{positive,negative,neutral,compound}`, and the "Tone" auto-match
+  consumes them.
 
-Two optional lens-side fixes (separate repo, Michael owns it): one-spot `/analyse`
-attribute fix; investigate the macOS semantic-tier crash. Neither blocks S1.
+One optional lens-side fix remains (separate repo, Michael owns it): the one-spot
+`/analyse` attribute fix. It doesn't block anything — integration uses `/text`.
 
 ---
 
@@ -113,7 +116,7 @@ attribute fix; investigate the macOS semantic-tier crash. Neither blocks S1.
 | Signal source | Example signals | Maps naturally to |
 |---|---|---|
 | document-analyser (core) | flesch_score, flesch_kincaid_grade, paragraph_count, avg_words_per_sentence, sentence_variety, vocabulary_richness | Clarity, Structure/Organisation, Vocabulary |
-| document-analyser `[nlp]` | sentiment compound, granular sentiment, NER, `overall_coherence_score`, sentence-dislocation | Coherence, Tone, Topic focus — ⚠ semantic/sentiment tier **crashes on macOS** (deferred); NER works via `/text` |
+| document-analyser `[nlp]` | sentiment compound, granular sentiment, NER, `overall_coherence_score`, sentence-dislocation | Coherence, Tone, Topic focus — sentiment live via `/semantic/sentiment` (macOS crash fixed 2026-05-24); NER works via `/text` |
 | document-analyser (WritingQuality) | passive_voice_percentage, transition_words, hedging_language, academic_tone | Academic writing, Style |
 | cite-sight | integrity_score, missing_in_text, orphaned_in_text, broken_urls, unresolved_dois | Referencing / Academic integrity |
 | code-analyser | cyclomatic complexity, lint violations, docstring/type coverage | Code quality, Documentation, Style |
@@ -232,6 +235,53 @@ change needed there.)
 - code → `code-analyser` (`:8004`); citations → `cite-sight` (HTTP); route everything
   through `auto-analyser`; per-type rule defaults.
 - **Exit:** code and essay assignments both produce signals via the same pipeline.
+- **✅ code half landed 2026-06-12:** `analyser_client.analyse_code` (multipart to
+  `:8004`, `CODE_ANALYSER_URL` override); `signal_service` routes by assessment type
+  (`registry.type_code_for_assignment`, used by the generator too — it previously
+  hardcoded `DEFAULT_HANDLER`); code response flattened to 18 signals (incl.
+  `syntax_valid`/`has_main_guard` as 0/1); filename for language detection from
+  `submission_files.original_filename`, content-sniffed fallback for text-only
+  submissions; auto-match suggestions are now **per assessment type** (a code
+  "Style" category maps to lint warnings, not passive voice) and
+  `signal_rules_service` persists the right `signal_source`; code extensions +
+  `.md` now extract as plain text in `file_handlers` (previously rejected, so code
+  uploads couldn't submit at all). 146 tests green (19 new in
+  `tests/test_code_signals.py`); verified live end-to-end against code-analyser
+  0.6.0. **Remaining for S4:** cite-sight, auto-analyser routing.
+- **✅ cite-sight half landed 2026-06-12:** `analyser_client.analyse_citations`
+  (multipart to `:3001` `/analyse`, `CITE_SIGHT_URL`/`CITE_SIGHT_TIMEOUT`
+  overrides; `CITE_SIGHT_VERIFY=false` disables the Crossref/OpenAlex + URL
+  network tier, local cross-referencing always on). `signal_service` refactored
+  to **multiple sources per assessment type** (essay → document-analyser +
+  cite-sight), each idempotent and independently degrading — a re-run backfills
+  a source that was down without duplicating the others. Citation flattening
+  guards verification-dependent signals (a `format_only` run emits no
+  verified-counts, so "verification off" can't read as "all citations bogus").
+  Referencing/citation categories auto-match to `citation_integrity_pct`,
+  orphaned-reference and format-issue bands (suggestion tuples can now carry a
+  per-signal source). Verified live: fabricated reference → not_found, uncited
+  bibliography entry → orphan, Referencing estimate 48.3/100. 11 new tests.
+- **⊘ auto-analyser routing — deliberately NOT adopted (decided 2026-06-13).**
+  The plan originally said "route everything through `auto-analyser`". On
+  review that adds cost without benefit *for FeedForward's architecture*:
+  - auto-analyser's value is **format auto-detection** — routing an unknown
+    file to the right analyser. FeedForward always knows the assessment type
+    (the instructor declares it per assignment), so `signal_service._sources_for_type`
+    already routes precisely, by type, with no detection needed.
+    `type_code_for_assignment` is more accurate than content-sniffing (an essay
+    that quotes code wouldn't be misrouted).
+  - auto-analyser only does **routing**. FeedForward still needs its own
+    per-analyser flatteners (`_flatten_text/code/citation_response`) and
+    per-type category mappings — that's the real work, and auto-analyser
+    can't collapse it. So adopting it removes a two-line dict lookup and adds
+    a fourth always-on sidecar (`:8010`) to keep healthy.
+  - It also can't express "essay → **two** sources (document + cite-sight)";
+    that fan-out lives correctly in `_sources_for_type`.
+
+  Revisit only if FeedForward grows a genuine "mixed/unknown submission" type
+  (e.g. a zip of arbitrary files), where bundle-/auto-analyser would earn their
+  keep. Until then, S4 is **complete**: code and essay assignments both produce
+  signals via the same pipeline (the S4 exit criterion), routed explicitly.
 
 ### S5 — Hardening
 - **Tests first for all new code** (the repo currently has no active suite — start the
@@ -245,6 +295,10 @@ change needed there.)
 
 ## Open questions for calibration (defer past S1)
 - Default signal→score bands per assessment type (needs a few real submissions to tune).
+  **Tooling landed 2026-06-13:** `/instructor/assignments/{id}/signal-calibration`
+  (`signal_calibration.calibration_for_assignment`) compares signal estimates
+  against instructor-released scores per category and surfaces systematic bias —
+  the evidence loop for retuning rules as real submissions accumulate.
 - How to weight the signal run vs LLM runs in aggregation (start: equal; expose later).
 - Whether to surface signal *contributions* to students or only the blended score.
 

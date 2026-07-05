@@ -4,15 +4,27 @@ from app.utils import design
 
 # ---- tokens have the expected keys ----
 
+
 def test_colour_has_primary_accent_and_wordmark_tokens():
     required = {
-        "primary", "primary_hover", "primary_subtle",
-        "accent", "accent_hover", "accent_subtle",
-        "surface", "surface_alt",
-        "text_strong", "text_body", "text_muted",
-        "border", "danger", "danger_hover",
-        "wordmark_first", "wordmark_second",
-        "wordmark_first_dark", "wordmark_second_dark",
+        "primary",
+        "primary_hover",
+        "primary_subtle",
+        "accent",
+        "accent_hover",
+        "accent_subtle",
+        "surface",
+        "surface_alt",
+        "text_strong",
+        "text_body",
+        "text_muted",
+        "border",
+        "danger",
+        "danger_hover",
+        "wordmark_first",
+        "wordmark_second",
+        "wordmark_first_dark",
+        "wordmark_second_dark",
     }
     assert required <= set(design.COLOR)
 
@@ -42,6 +54,7 @@ def test_single_radius_value():
 
 
 # ---- button_classes composition ----
+
 
 def test_button_classes_primary_default():
     out = design.button_classes()

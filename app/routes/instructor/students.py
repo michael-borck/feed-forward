@@ -179,7 +179,9 @@ def instructor_manage_students(session, request):
     # Sidebar content
     sidebar_content = fh.Div(
         fh.Div(
-            fh.H3("Student Management", cls="text-xl font-semibold text-indigo-900 mb-4"),
+            fh.H3(
+                "Student Management", cls="text-xl font-semibold text-indigo-900 mb-4"
+            ),
             fh.Div(
                 action_button(
                     "Dashboard", color="gray", href="/instructor/dashboard", icon="←"
@@ -532,7 +534,7 @@ def instructor_remove_student(session, request, email: str, course_id: int):
         )
 
 
-@rt("/instructor/invite-students")
+@rt("/instructor/invite-students", methods=["get"])
 @instructor_required
 def instructor_invite_students_form(session, request):
     """Show the invite students form"""
@@ -633,7 +635,9 @@ def instructor_invite_students_form(session, request):
     sidebar_content = fh.Div(
         fh.Div(
             fh.H3("Invitation Tips", cls="text-xl font-semibold text-indigo-900 mb-4"),
-            fh.P("• Students will receive an email invitation", cls="text-gray-600 mb-2"),
+            fh.P(
+                "• Students will receive an email invitation", cls="text-gray-600 mb-2"
+            ),
             fh.P("• They must verify their email to enroll", cls="text-gray-600 mb-2"),
             fh.P("• You can resend invitations if needed", cls="text-gray-600 mb-2"),
             fh.P("• Students can submit drafts once enrolled", cls="text-gray-600"),
@@ -650,7 +654,7 @@ def instructor_invite_students_form(session, request):
     )
 
 
-@rt("/instructor/invite-students")
+@rt("/instructor/invite-students", methods=["post"])
 @instructor_required
 def instructor_invite_students_process(session, course_id: int, emails: str):
     """Process student invitations"""

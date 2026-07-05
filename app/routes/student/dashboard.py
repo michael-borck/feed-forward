@@ -184,7 +184,9 @@ def student_dashboard(session, request):
 
     # Create each part of the sidebar separately
     welcome_card = fh.Div(
-        fh.H3("Welcome, " + user.name, cls="text-xl font-semibold text-indigo-900 mb-2"),
+        fh.H3(
+            "Welcome, " + user.name, cls="text-xl font-semibold text-indigo-900 mb-2"
+        ),
         fh.P("Student Account", cls="text-gray-600 mb-4"),
         fh.Div(
             # Active assignments summary
@@ -345,7 +347,9 @@ def student_dashboard(session, request):
         ),
         # Upcoming assignments section
         fh.Div(
-            fh.H2("Upcoming Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"),
+            fh.H2(
+                "Upcoming Assignments", cls="text-2xl font-bold text-indigo-900 mb-6"
+            ),
             fh.Div(
                 *(
                     fh.Div(

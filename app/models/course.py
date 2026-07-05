@@ -14,6 +14,7 @@ if courses not in db.t:
             "title": str,
             "term": str,
             "department": str,
+            "description": str,
             "instructor_email": str,
             "status": str,  # 'active', 'closed', 'archived', 'deleted'
             "created_at": str,  # ISO format timestamp
@@ -21,6 +22,10 @@ if courses not in db.t:
         },
         pk="id",
     )
+elif "description" not in {c.name for c in courses.columns}:
+    # Migration: the course forms always offered a Description field, but the
+    # column was never created, so the create/update handlers crashed.
+    courses.add_column("description", str)
 Course = courses.dataclass()
 
 # Define enrollments table if it doesn't exist

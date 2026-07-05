@@ -451,7 +451,9 @@ def export_submissions_csv(session, assignment_id: int):
     for draft in drafts_for_assignment:
         agg_for_draft = [af for af in all_agg if af.draft_id == draft.id]
         if agg_for_draft:
-            overall = sum(af.aggregated_score for af in agg_for_draft) / len(agg_for_draft)
+            overall = sum(af.aggregated_score for af in agg_for_draft) / len(
+                agg_for_draft
+            )
         else:
             overall = None
         rows.append((draft, overall))
@@ -489,7 +491,11 @@ def export_feedback_markdown_for_draft(session, draft_id: int):
     category_name_by_id = {c.id: c.name for c in rubric_categories()}
 
     md = build_feedback_markdown(
-        draft, assignment, course.title, agg_rows, category_name_by_id,
+        draft,
+        assignment,
+        course.title,
+        agg_rows,
+        category_name_by_id,
     )
 
     # Use the local part of the email as a friendly filename hint; fall back
@@ -564,7 +570,9 @@ def instructor_submission_detail(session, draft_id: int):
             card(
                 fh.Div(
                     fh.Div(
-                        fh.H4(_run_name(run.model_id), cls="font-semibold text-gray-900"),
+                        fh.H4(
+                            _run_name(run.model_id), cls="font-semibold text-gray-900"
+                        ),
                         fh.Span(
                             run.status,
                             cls=f"text-xs px-2 py-1 rounded-full bg-{status_color}-100 text-{status_color}-800",
@@ -608,7 +616,9 @@ def instructor_submission_detail(session, draft_id: int):
         ),
         # Student info
         fh.Div(
-            fh.H3("Student Information", cls="text-lg font-semibold text-gray-900 mb-3"),
+            fh.H3(
+                "Student Information", cls="text-lg font-semibold text-gray-900 mb-3"
+            ),
             fh.Div(
                 fh.P(f"Email: {draft.student_email}", cls="text-gray-700"),
                 fh.P(f"Version: {draft.version}", cls="text-gray-700"),
@@ -623,7 +633,9 @@ def instructor_submission_detail(session, draft_id: int):
         ),
         # AI Model Results
         fh.Div(
-            fh.H3("AI Model Evaluations", cls="text-lg font-semibold text-gray-900 mb-3"),
+            fh.H3(
+                "AI Model Evaluations", cls="text-lg font-semibold text-gray-900 mb-3"
+            ),
             fh.Div(*model_cards, cls="grid grid-cols-1 md:grid-cols-3 gap-4")
             if model_cards
             else fh.P("No AI evaluations available.", cls="text-gray-500"),
@@ -631,7 +643,9 @@ def instructor_submission_detail(session, draft_id: int):
         ),
         # Aggregated Feedback
         fh.Div(
-            fh.H3("Aggregated Feedback", cls="text-lg font-semibold text-gray-900 mb-3"),
+            fh.H3(
+                "Aggregated Feedback", cls="text-lg font-semibold text-gray-900 mb-3"
+            ),
             (
                 fh.Div(
                     fh.Div(
@@ -647,7 +661,9 @@ def instructor_submission_detail(session, draft_id: int):
                             fh.Div(
                                 fh.Div(
                                     fh.Span(
-                                        cat_name_by_id.get(a.category_id, f"Category {a.category_id}"),
+                                        cat_name_by_id.get(
+                                            a.category_id, f"Category {a.category_id}"
+                                        ),
                                         cls="text-sm font-medium text-gray-800",
                                     ),
                                     fh.Span(
@@ -739,6 +755,35 @@ _SIGNAL_LABELS = {
     "sentiment_negative": "Negative sentiment",
     "sentiment_neutral": "Neutral sentiment",
     "sentiment_compound": "Sentiment (compound)",
+    # code-analyser
+    "syntax_valid": "Syntax valid (1 = yes)",
+    "lint_error_count": "Lint errors",
+    "lint_warning_count": "Lint warnings",
+    "cyclomatic_complexity": "Cyclomatic complexity (avg)",
+    "max_nesting_depth": "Max nesting depth",
+    "loc": "Lines of code",
+    "comment_lines": "Comment lines",
+    "blank_lines": "Blank lines",
+    "function_count": "Functions",
+    "class_count": "Classes",
+    "docstring_coverage": "Docstring coverage (0-1)",
+    "type_annotation_coverage": "Type annotation coverage (0-1)",
+    "todo_count": "TODO markers",
+    "print_count": "Print statements",
+    "has_main_guard": "Main guard (1 = yes)",
+    "bare_except_count": "Bare excepts",
+    "comprehension_count": "Comprehensions",
+    "file_count": "Files analysed",
+    # cite-sight
+    "total_references": "References found",
+    "verified_reference_count": "Verified references",
+    "suspicious_reference_count": "Suspicious references",
+    "not_found_reference_count": "References not found",
+    "broken_url_count": "Broken URLs",
+    "orphaned_reference_count": "Uncited bibliography entries",
+    "uncited_reference_count": "In-text citations missing from bibliography",
+    "citation_format_issue_count": "Citation format issues",
+    "citation_integrity_pct": "Citation integrity %",
 }
 
 
@@ -783,7 +828,9 @@ def instructor_submission_signals(session, draft_id: int):
 
     rubric = first(rubrics, assignment_id=draft.assignment_id)
     categories = where(rubric_categories, rubric_id=rubric.id) if rubric else []
-    estimates = signal_scorer.category_estimates(draft_id, categories) if categories else {}
+    estimates = (
+        signal_scorer.category_estimates(draft_id, categories) if categories else {}
+    )
 
     if categories and estimates:
         est_rows = []
@@ -845,7 +892,8 @@ def instructor_submission_signals(session, draft_id: int):
         body = fh.Div(
             fh.P(
                 "No signals extracted yet. Signals are computed from the submission "
-                "via the document-analyser service while the draft content is still "
+                "via the lens analyser services (document-analyser for prose, "
+                "code-analyser for code) while the draft content is still "
                 "available. If the service was offline at submission time, use the "
                 "button below to retry (only works while the draft content remains).",
                 cls="text-gray-600",
@@ -951,7 +999,9 @@ def instructor_feedback_review(session, draft_id: int):
     from app.services import signal_scorer
 
     cat_names = {c.id: c.name for c in _rcats()}
-    cats_for_draft = [c for c in _rcats() if any(a.category_id == c.id for a in agg_feedback)]
+    cats_for_draft = [
+        c for c in _rcats() if any(a.category_id == c.id for a in agg_feedback)
+    ]
     estimates = signal_scorer.category_estimates(draft_id, cats_for_draft)
 
     category_cards = []
@@ -970,9 +1020,7 @@ def instructor_feedback_review(session, draft_id: int):
                         cat_names.get(af.category_id, f"Category {af.category_id}"),
                         cls="font-semibold text-gray-900",
                     ),
-                    fh.Span(
-                        f"{status_note} · {est_note}", cls="text-xs text-gray-400"
-                    ),
+                    fh.Span(f"{status_note} · {est_note}", cls="text-xs text-gray-400"),
                     cls="flex items-center justify-between mb-2",
                 ),
                 fh.Div(
@@ -1077,7 +1125,9 @@ def instructor_feedback_review(session, draft_id: int):
 
 @rt("/instructor/submissions/{draft_id}/review/save")
 @instructor_required
-async def instructor_feedback_save(session, request, draft_id: int, action: str = "save"):
+async def instructor_feedback_save(
+    session, request, draft_id: int, action: str = "save"
+):
     """Save per-category reviewed feedback; 'approve' releases it to the student."""
     user = users[session["auth"]]
 
@@ -1111,6 +1161,7 @@ async def instructor_feedback_save(session, request, draft_id: int, action: str 
 # Signal rules editor (ADR 012, S2) — confirm/override the signal -> rubric mapping.
 # ----------------------------------------------------------------------
 
+
 def _verify_assignment_ownership(session, assignment_id: int):
     """Return the assignment if the current instructor owns its course, else None."""
     user = users[session["auth"]]
@@ -1128,14 +1179,20 @@ def _transform_summary(transform_json) -> str:
     import json as _json
 
     try:
-        t = _json.loads(transform_json) if isinstance(transform_json, str) else (transform_json or {})
+        t = (
+            _json.loads(transform_json)
+            if isinstance(transform_json, str)
+            else (transform_json or {})
+        )
     except (ValueError, TypeError):
         return ""
     if t.get("type") == "band":
         return "banded thresholds"
     if t.get("type") == "linear":
         out = t.get("out", [0, 100])
-        direction = "higher is better" if out and out[0] <= out[-1] else "lower is better"
+        direction = (
+            "higher is better" if out and out[0] <= out[-1] else "lower is better"
+        )
         return f"linear ({direction})"
     return ""
 
@@ -1246,6 +1303,11 @@ def instructor_signal_rules(session, assignment_id: int):
             "scores instructors review (ADR 012).",
             cls="text-sm text-gray-500 mb-4",
         ),
+        fh.A(
+            "How well calibrated are these rules? →",
+            href=f"/instructor/assignments/{assignment_id}/signal-calibration",
+            cls="text-sm text-indigo-600 hover:text-indigo-800 inline-block mb-4",
+        ),
         form,
         cls="max-w-3xl mx-auto px-4 py-6",
     )
@@ -1255,6 +1317,97 @@ def instructor_signal_rules(session, assignment_id: int):
         main_content,
         user_role=Role.INSTRUCTOR,
         current_path=f"/instructor/assignments/{assignment_id}/signal-rules",
+    )
+
+
+@rt("/instructor/assignments/{assignment_id}/signal-calibration")
+@instructor_required
+def instructor_signal_calibration(session, assignment_id: int):
+    """Signal estimates vs released scores, per category (rule-tuning evidence)."""
+    from app.services import signal_calibration
+
+    assignment = _verify_assignment_ownership(session, assignment_id)
+    if assignment is None:
+        return fh.RedirectResponse("/instructor/dashboard", status_code=303)
+
+    report = signal_calibration.calibration_for_assignment(assignment_id)
+
+    if report:
+        header = fh.Div(
+            *[
+                fh.Span(label, cls="text-xs font-semibold text-gray-500 uppercase")
+                for label in (
+                    "Category",
+                    "Drafts",
+                    "Signal avg",
+                    "Released avg",
+                    "Bias",
+                    "Verdict",
+                )
+            ],
+            cls="grid grid-cols-6 gap-2 pb-2 border-b border-gray-200",
+        )
+        rows = [
+            fh.Div(
+                fh.Span(row["category_name"], cls="text-sm text-gray-900"),
+                fh.Span(str(row["n"]), cls="text-sm text-gray-600"),
+                fh.Span(f"{row['mean_estimate']:.1f}", cls="text-sm text-gray-600"),
+                fh.Span(f"{row['mean_released']:.1f}", cls="text-sm text-gray-600"),
+                fh.Span(
+                    f"{row['bias']:+.1f}",
+                    cls="text-sm "
+                    + (
+                        "text-gray-600"
+                        if abs(row["bias"]) < signal_calibration.WELL_CALIBRATED_BAND
+                        else "text-amber-600 font-semibold"
+                    ),
+                ),
+                fh.Span(row["verdict"], cls="text-sm text-gray-600"),
+                cls="grid grid-cols-6 gap-2 py-2 border-b border-gray-100 last:border-0",
+            )
+            for row in report
+        ]
+        body = fh.Div(header, *rows, cls="bg-white p-6 rounded-lg shadow mb-6")
+    else:
+        body = fh.Div(
+            fh.P(
+                "No calibration data yet. This report needs drafts that have both "
+                "extracted signals and instructor-released feedback — it fills in "
+                "as you review and release.",
+                cls="text-gray-600",
+            ),
+            cls="bg-white p-6 rounded-lg shadow mb-6",
+        )
+
+    main_content = fh.Div(
+        fh.Div(
+            fh.Div(
+                fh.H1("Signal Calibration", cls="text-2xl font-bold text-gray-900"),
+                fh.P(assignment.title, cls="text-gray-600"),
+                cls="flex-1",
+            ),
+            fh.A(
+                "← Back to Signal Rules",
+                href=f"/instructor/assignments/{assignment_id}/signal-rules",
+                cls="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors",
+            ),
+            cls="flex items-center justify-between mb-6",
+        ),
+        fh.P(
+            "Signal estimates compared against the scores you actually released, per "
+            "category. Positive bias = the signals flatter the work; consistent bias "
+            "means that category's transforms need retuning on the Signal Rules page.",
+            cls="text-sm text-gray-500 mb-4",
+        ),
+        body,
+        cls="max-w-3xl mx-auto px-4 py-6",
+    )
+    return dashboard_layout(
+        "Signal Calibration | FeedForward",
+        fh.Div(),
+        main_content,
+        user_role=Role.INSTRUCTOR,
+        current_path=f"/instructor/assignments/{assignment_id}/signal-calibration",
     )
 
 

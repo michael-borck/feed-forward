@@ -83,7 +83,11 @@ def test_signal_source_propagates_run_id(monkeypatch):
     monkeypatch.setattr(signal_evidence, "produce_signal_run", lambda _did: 42)
 
     result = asyncio.run(SignalEvidenceSource().produce(_draft(), None, None))
-    assert result.success is True and result.model_run_id == 42 and result.kind == "signals"
+    assert (
+        result.success is True
+        and result.model_run_id == 42
+        and result.kind == "signals"
+    )
 
 
 def test_signal_source_swallows_exceptions(monkeypatch):
@@ -117,9 +121,7 @@ class _FakeRunner:
         from app.services.feedback_generator import FeedbackGenerationResult
 
         rid, ok, err = self._next
-        return FeedbackGenerationResult(
-            model_run_id=rid, success=ok, error_message=err
-        )
+        return FeedbackGenerationResult(model_run_id=rid, success=ok, error_message=err)
 
 
 def test_llm_source_propagates_run_and_kind():

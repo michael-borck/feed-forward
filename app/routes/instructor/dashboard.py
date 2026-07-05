@@ -73,7 +73,9 @@ def instructor_dashboard(session, request):
         # Quick stats
         fh.Div(
             fh.H3("Quick Stats", cls="font-semibold text-indigo-900 mb-4"),
-            fh.P(f"Active Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"),
+            fh.P(
+                f"Active Courses: {len(instructor_courses)}", cls="text-gray-600 mb-2"
+            ),
             fh.P(
                 f"Total Students: {sum(course_enrollments.values())}",
                 cls="text-gray-600 mb-2",
@@ -139,7 +141,9 @@ def instructor_dashboard(session, request):
             fh.Div(
                 *(
                     fh.Div(
-                        fh.H3(course.title, cls="text-xl font-bold text-indigo-800 mb-1"),
+                        fh.H3(
+                            course.title, cls="text-xl font-bold text-indigo-800 mb-1"
+                        ),
                         fh.P(f"Code: {course.code}", cls="text-gray-600 mb-1"),
                         fh.Div(
                             fh.Span(

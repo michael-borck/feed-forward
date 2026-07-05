@@ -6,13 +6,8 @@ from fasthtml.common import (
     H2,
     H3,
     A,
-    Button,
     Div,
-    Form,
-    Input,
-    Label,
     P,
-    Script,
     Span,
     serve,
 )
@@ -27,10 +22,8 @@ from app.routes import register_routes
 register_routes()
 
 # Import app models
-from app.models.user import users
 
 # Import utils and services
-from app.utils.auth import get_password_hash, verify_password
 
 # Load environment variables
 load_dotenv()
@@ -39,60 +32,53 @@ APP_DOMAIN = os.environ.get("APP_DOMAIN", "http://localhost:5001")
 # Import authentication decorators
 from typing import Optional
 
-from app import (
-    basic_auth,
-)
+# --- Legacy style dicts ---
+# Still referenced by the 404/403 error pages below. Values now point at the
+# Editorial vocabulary (see app/utils/design.py) so those pages match the
+# 2026-07 direction; migrating the call sites to design.py tokens directly is
+# a follow-up cleanup.
+from app.utils.design import TEXT as _TEXT
+from app.utils.design import button_classes as _button_classes
 
 # Import UI components
 from app.utils.ui import dynamic_header, page_footer
 
-# --- Brand Colors ---
-# Primary: Navy/indigo
-# Secondary: Light blue
-# Accent: Teal
-# Gray shades for neutrals
-
-
-# --- Professional Design System ---
 BRAND_COLORS = {
-    "primary": "blue-600",        # Softer than indigo
-    "primary-dark": "blue-700",
-    "primary-light": "blue-500",
-    "secondary": "teal-500",
-    "secondary-dark": "teal-600",
-    "secondary-light": "teal-400",
-    "accent": "blue-100",
-    "accent-light": "blue-50",
-    "text-primary": "slate-800",   # Much softer than indigo-900
-    "text-secondary": "gray-600",
-    "text-muted": "gray-500",
-    "success": "green-500",
-    "warning": "amber-500",        # Warmer than yellow
-    "error": "red-500",
-    "border": "gray-200",
-    "border-hover": "blue-300"
+    "primary": "[#1a2e44]",
+    "primary-dark": "[#0f1e30]",
+    "primary-light": "slate-600",
+    "secondary": "teal-600",
+    "secondary-dark": "teal-700",
+    "secondary-light": "teal-500",
+    "accent": "[#edeae1]",
+    "accent-light": "[#faf8f2]",
+    "text-primary": "[#1a2e44]",
+    "text-secondary": "slate-700",
+    "text-muted": "slate-500",
+    "success": "teal-600",
+    "warning": "amber-700",
+    "error": "red-700",
+    "border": "slate-300",
+    "border-hover": "slate-400",
 }
 
-# Tightened in the 2026-05 design refresh (see docs/design-audit-2026-05.md).
-# These mirror app/utils/design.py TEXT/button_classes scales; this slice
-# leaves them in-file rather than migrating every reference — that's a
-# follow-up cleanup.
 TYPOGRAPHY = {
-    "hero": "text-3xl md:text-5xl font-bold leading-tight",
-    "h1": "text-2xl md:text-3xl font-semibold leading-tight",
-    "h2": "text-xl md:text-2xl font-semibold leading-snug",
-    "h3": "text-base md:text-lg font-semibold leading-snug",
-    "body-lg": "text-base leading-normal",
-    "body": "text-base leading-normal",
-    "body-sm": "text-sm leading-normal",
-    "caption": "text-xs leading-normal",
+    "hero": _TEXT["hero"],
+    "h1": _TEXT["h1"],
+    "h2": _TEXT["h2"],
+    "h3": _TEXT["h3"],
+    "body-lg": _TEXT["body"],
+    "body": _TEXT["body"],
+    "body-sm": _TEXT["body_sm"],
+    "caption": _TEXT["meta"],
 }
 
 BUTTON_STYLES = {
-    "primary": f"bg-{BRAND_COLORS['primary']} hover:bg-{BRAND_COLORS['primary-dark']} text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm hover:shadow",
-    "secondary": f"bg-white hover:bg-{BRAND_COLORS['accent-light']} text-{BRAND_COLORS['primary']} border border-{BRAND_COLORS['primary']} px-5 py-2.5 rounded-lg font-medium transition-colors",
-    "ghost": f"text-{BRAND_COLORS['primary']} hover:bg-{BRAND_COLORS['accent-light']} px-4 py-2 rounded-lg transition-colors font-medium",
+    "primary": _button_classes("primary", "md"),
+    "secondary": _button_classes("secondary", "md"),
+    "ghost": _button_classes("ghost", "md"),
 }
+
 
 # --- Root Route with Smart Redirection ---
 @rt("/")
@@ -124,260 +110,93 @@ def root_redirect(session=None):
 @rt("/landing")
 def landing_page(session=None):
     """Landing page for FeedForward with dynamic header based on auth status"""
-    # Create the main content for the landing page
+    from app.utils.design import COLOR, TEXT, button_classes
+
+    steps = (
+        (
+            "01",
+            "Submit a draft",
+            "Upload your work or paste it in — essays, code, and more.",
+        ),
+        (
+            "02",
+            "Get rubric-aligned feedback",
+            "AI feedback against your instructor's rubric, reviewed by them "
+            "before you see it.",
+        ),
+        (
+            "03",
+            "Revise and resubmit",
+            "Watch your aim improve with each draft — every revision lands "
+            "closer to the bullseye.",
+        ),
+    )
+    # Journal-style contents list: numbered entries over hairline rules.
+    step_rows = [
+        Div(
+            Div(
+                num,
+                cls=f"font-serif text-lg text-{COLOR['text_muted']} w-10 shrink-0",
+            ),
+            Div(
+                H3(title, cls=f"{TEXT['h3']} text-{COLOR['text_strong']}"),
+                P(desc, cls=f"{TEXT['body_sm']} text-{COLOR['text_body']} mt-0.5"),
+            ),
+            cls=f"flex gap-3 py-4 border-t border-{COLOR['border']}",
+        )
+        for num, title, desc in steps
+    ]
+
     landing_content = Div(
-        # Hero Section with gradient background
+        # Editorial hero — asymmetric: serif headline left, ruled
+        # journal-style contents right. Hairlines, no shadows, no gradients.
         Div(
             Div(
                 Div(
-                    # Logo/Wordmark
-                    Div(
-                        Span("Feed", cls=f"text-{BRAND_COLORS['primary']} font-bold"),
-                        Span("Forward", cls=f"text-{BRAND_COLORS['secondary']} font-bold"),
-                        cls="text-3xl md:text-5xl mb-3",
-                    ),
-                    H1(
-                        "Elevate Your Learning",
-                        cls=f"{TYPOGRAPHY['hero']} bg-gradient-to-r from-{BRAND_COLORS['primary']} to-{BRAND_COLORS['secondary']} bg-clip-text text-transparent mb-6",
-                    ),
-                    P(
-                        "Transforming feedback into a path to success.",
-                        cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 max-w-2xl mx-auto",
-                    ),
-                    Div(
-                        A(
-                            "Sign up",
-                            href="/register",
-                            cls=f"{BUTTON_STYLES['primary']} mr-6 cursor-pointer relative z-20",
-                        ),
-                        A(
-                            "Learn More",
-                            href="#features",
-                            cls=f"{BUTTON_STYLES['secondary']} cursor-pointer relative z-20",
-                        ),
-                        cls="flex flex-col sm:flex-row items-center justify-center relative z-20 gap-4",
-                    ),
-                    cls="max-w-2xl mx-auto text-center",
+                    "Curtin University · Formative assessment",
+                    cls=f"{TEXT['label']} text-{COLOR['text_muted']} mb-5",
                 ),
-                # Abstract background shapes
+                H1(
+                    "Better drafts, one revision at a time.",
+                    cls=f"{TEXT['hero']} text-{COLOR['text_strong']}",
+                ),
+                P(
+                    "Formative feedback on student drafts — AI-assisted, "
+                    "rubric-aligned, instructor-reviewed.",
+                    cls=f"text-lg text-{COLOR['text_body']} mt-6 max-w-md "
+                    "leading-relaxed",
+                ),
                 Div(
-                    Div(
-                        cls="absolute top-20 right-20 w-20 h-20 rounded-full bg-blue-200 opacity-40"
+                    A("Sign in", href="/login", cls=button_classes("primary", "lg")),
+                    A(
+                        "Create account →",
+                        href="/register",
+                        cls=(
+                            f"{TEXT['label']} text-{COLOR['accent']} underline "
+                            "underline-offset-8 decoration-2 px-2 py-3"
+                        ),
                     ),
-                    Div(
-                        cls="absolute bottom-10 left-20 w-32 h-32 rounded-full bg-teal-200 opacity-40"
-                    ),
-                    Div(
-                        cls="absolute top-40 left-40 w-16 h-16 rounded-full bg-cyan-200 opacity-30"
-                    ),
-                    cls="absolute inset-0 overflow-hidden pointer-events-none",
+                    cls="flex flex-wrap items-center gap-5 mt-8",
                 ),
-                cls="bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 p-8 rounded-lg shadow relative",
+                cls="md:col-span-7",
             ),
-            cls="container mx-auto px-4 py-6 flex justify-center",
-        ),
-        # Features Section with enhanced styling
-        Div(
             Div(
                 Div(
-                    H2(
-                        "How FeedForward Works",
-                        cls=f"{TYPOGRAPHY['h1']} text-center text-{BRAND_COLORS['text-primary']} mb-6",
-                    ),
-                    P(
-                        "Our platform makes iterative learning simple and effective.",
-                        cls=f"{TYPOGRAPHY['body-lg']} text-center text-{BRAND_COLORS['text-secondary']} mb-6 max-w-3xl mx-auto",
-                    ),
-                    Div(
-                        # Feature 1
-                        Div(
-                            Div(
-                                Div(
-                                    "1",
-                                    cls=f"bg-{BRAND_COLORS['primary']} text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl shadow-lg",
-                                ),
-                                cls="mb-6 flex justify-center",
-                            ),
-                            H3(
-                                "Submit Your Work",
-                                cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-primary']} mb-4 text-center",
-                            ),
-                            Div(
-                                P(
-                                    "• Upload assignments effortlessly",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
-                                ),
-                                P(
-                                    "• Support for multiple file formats",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
-                                ),
-                                P(
-                                    "• Simple drag-and-drop interface",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']}",
-                                ),
-                                cls="text-left space-y-2",
-                            ),
-                            cls=f"bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']}",
-                        ),
-                        # Feature 2
-                        Div(
-                            Div(
-                                Div(
-                                    "2",
-                                    cls=f"bg-{BRAND_COLORS['secondary']} text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl shadow-lg",
-                                ),
-                                cls="mb-6 flex justify-center",
-                            ),
-                            H3(
-                                "Receive Smart Feedback",
-                                cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-primary']} mb-4 text-center",
-                            ),
-                            Div(
-                                P(
-                                    "• Detailed, constructive feedback",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
-                                ),
-                                P(
-                                    "• Tailored to assignment criteria",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
-                                ),
-                                P(
-                                    "• Clear action items for improvement",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']}",
-                                ),
-                                cls="text-left space-y-2",
-                            ),
-                            cls=f"bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-{BRAND_COLORS['secondary']} hover:border-{BRAND_COLORS['secondary-dark']}",
-                        ),
-                        # Feature 3
-                        Div(
-                            Div(
-                                Div(
-                                    "3",
-                                    cls=f"bg-{BRAND_COLORS['primary']} text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl shadow-lg",
-                                ),
-                                cls="mb-6 flex justify-center",
-                            ),
-                            H3(
-                                "Iterative Improvement",
-                                cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-primary']} mb-4 text-center",
-                            ),
-                            Div(
-                                P(
-                                    "• Track progress across drafts",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
-                                ),
-                                P(
-                                    "• Visualize your improvement",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']} mb-2",
-                                ),
-                                P(
-                                    "• Build on feedback systematically",
-                                    cls=f"{TYPOGRAPHY['body']} text-{BRAND_COLORS['text-secondary']}",
-                                ),
-                                cls="text-left space-y-2",
-                            ),
-                            cls=f"bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']}",
-                        ),
-                        cls="grid md:grid-cols-3 gap-8",
-                    ),
-                    cls="p-4",
+                    "How it works",
+                    cls=f"{TEXT['label']} text-{COLOR['text_muted']} pb-3",
                 ),
-                cls="container mx-auto px-4 py-8",
+                *step_rows,
+                cls=(f"md:col-span-5 md:pl-10 md:border-l border-{COLOR['border']}"),
             ),
-            id="features",
-            cls="bg-gradient-to-b from-gray-50 to-gray-100",
-        ),
-        # Testimonials Section (optional)
-        Div(
-            Div(
-                H2(
-                    "What Our Users Say",
-                    cls=f"{TYPOGRAPHY['h1']} text-center text-{BRAND_COLORS['text-primary']} mb-6",
-                ),
-                Div(
-                    # Testimonial 1
-                    Div(
-                        Div(
-                            Div(
-                                P("🔧 Development Placeholder", cls=f"{TYPOGRAPHY['caption']} text-orange-600 bg-orange-50 px-2 py-1 rounded-full inline-block mb-3 font-medium border border-orange-200"),
-                                cls="mb-4",
-                            ),
-                            P(
-                                '"FeedForward helped me improve my writing style significantly. The feedback was actionable and specific."',
-                                cls=f"{TYPOGRAPHY['body-lg']} italic text-{BRAND_COLORS['text-secondary']} mb-6 leading-relaxed",
-                            ),
-                            Div(
-                                P("Sarah J.", cls=f"font-semibold text-{BRAND_COLORS['text-primary']} text-lg"),
-                                P("Literature Student", cls=f"{TYPOGRAPHY['body-sm']} text-{BRAND_COLORS['text-muted']}"),
-                                cls="flex flex-col",
-                            ),
-                            cls="p-8",
-                        ),
-                        cls=f"bg-white p-2 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 border-{BRAND_COLORS['primary']} hover:border-{BRAND_COLORS['primary-dark']}",
-                    ),
-                    # Testimonial 2
-                    Div(
-                        Div(
-                            Div(
-                                P("🔧 Development Placeholder", cls=f"{TYPOGRAPHY['caption']} text-orange-600 bg-orange-50 px-2 py-1 rounded-full inline-block mb-3 font-medium border border-orange-200"),
-                                cls="mb-4",
-                            ),
-                            P(
-                                '"As an instructor, I can now provide consistent, high-quality feedback to all students, even in large classes."',
-                                cls=f"{TYPOGRAPHY['body-lg']} italic text-{BRAND_COLORS['text-secondary']} mb-6 leading-relaxed",
-                            ),
-                            Div(
-                                P("Dr. Thomas R.", cls=f"font-semibold text-{BRAND_COLORS['text-primary']} text-lg"),
-                                P(
-                                    "Computer Science Professor",
-                                    cls=f"{TYPOGRAPHY['body-sm']} text-{BRAND_COLORS['text-muted']}",
-                                ),
-                                cls="flex flex-col",
-                            ),
-                            cls="p-8",
-                        ),
-                        cls=f"bg-white p-2 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 border-{BRAND_COLORS['secondary']} hover:border-{BRAND_COLORS['secondary-dark']}",
-                    ),
-                    cls="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto",
-                ),
-                cls="container mx-auto px-4 py-8",
-            ),
-            cls=f"bg-gradient-to-br from-{BRAND_COLORS['accent-light']} to-{BRAND_COLORS['accent']}",
+            cls="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-12 gap-10",
         ),
     )
 
-    # Add smooth scrolling JavaScript
-    scroll_script = Script("""
-    document.addEventListener('DOMContentLoaded', function() {
-        // Find anchor links that point to IDs on this page
-        const anchorLinks = document.querySelectorAll('a[href^="#"]');
-
-        anchorLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const targetId = this.getAttribute('href').substring(1);
-                const targetElement = document.getElementById(targetId);
-
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    });
-    """)
-
-    # Return the complete page with dynamic header based on auth status
     return Div(
-        dynamic_header(session),  # Dynamic header based on auth status
+        dynamic_header(session),
         Div(landing_content, cls="flex-grow"),
         page_footer(),
-        scroll_script,
-        cls="min-h-screen flex flex-col",
+        cls=f"min-h-screen flex flex-col bg-{COLOR['surface_alt']}",
     )
 
 
@@ -506,9 +325,7 @@ def terms_page(session=None):
             "FeedForward Terms of Service",
             cls="text-3xl font-bold text-slate-800 mb-6",
         ),
-        H2(
-            "1. Acceptance of Terms", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"
-        ),
+        H2("1. Acceptance of Terms", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         P(
             "By accessing or using the FeedForward platform, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this service.",
             cls="mb-4 text-gray-700",
@@ -568,9 +385,7 @@ def terms_page(session=None):
             ),
             cls="mb-6",
         ),
-        H2(
-            "6. Service Limitations", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"
-        ),
+        H2("6. Service Limitations", cls="text-2xl font-bold text-slate-700 mt-8 mb-4"),
         Div(
             Div(
                 "• FeedForward provides automated feedback as an educational tool, not as definitive assessment",
@@ -705,8 +520,14 @@ def error_404_page(session=None, message: Optional[str] = None):
                 Div(
                     # Error code and type
                     Div(
-                        Span("404", cls=f"text-7xl font-bold text-{BRAND_COLORS['primary']} opacity-80"),
-                        Span("Not Found", cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-secondary']} ml-6"),
+                        Span(
+                            "404",
+                            cls=f"text-7xl font-bold text-{BRAND_COLORS['primary']} opacity-80",
+                        ),
+                        Span(
+                            "Not Found",
+                            cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-secondary']} ml-6",
+                        ),
                         cls="flex items-center justify-center mb-8",
                     ),
                     # Error title
@@ -715,7 +536,10 @@ def error_404_page(session=None, message: Optional[str] = None):
                         cls=f"{TYPOGRAPHY['h1']} text-{BRAND_COLORS['text-primary']} mb-6 text-center",
                     ),
                     # Error message
-                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 text-center max-w-md"),
+                    P(
+                        error_message,
+                        cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 text-center max-w-md",
+                    ),
                     # Action buttons
                     Div(
                         A(
@@ -726,7 +550,7 @@ def error_404_page(session=None, message: Optional[str] = None):
                         A(
                             "Sign Out",
                             href="/logout",
-                            cls=BUTTON_STYLES['secondary'],
+                            cls=BUTTON_STYLES["secondary"],
                         ),
                         cls="flex flex-col sm:flex-row justify-center gap-4",
                     ),
@@ -758,8 +582,14 @@ def error_403_page(session=None, message: Optional[str] = None):
                 Div(
                     # Error code and type
                     Div(
-                        Span("403", cls=f"text-7xl font-bold text-{BRAND_COLORS['error']} opacity-80"),
-                        Span("Forbidden", cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-secondary']} ml-6"),
+                        Span(
+                            "403",
+                            cls=f"text-7xl font-bold text-{BRAND_COLORS['error']} opacity-80",
+                        ),
+                        Span(
+                            "Forbidden",
+                            cls=f"{TYPOGRAPHY['h3']} text-{BRAND_COLORS['text-secondary']} ml-6",
+                        ),
                         cls="flex items-center justify-center mb-8",
                     ),
                     # Error title
@@ -768,7 +598,10 @@ def error_403_page(session=None, message: Optional[str] = None):
                         cls=f"{TYPOGRAPHY['h1']} text-{BRAND_COLORS['text-primary']} mb-6 text-center",
                     ),
                     # Error message
-                    P(error_message, cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 text-center max-w-md"),
+                    P(
+                        error_message,
+                        cls=f"{TYPOGRAPHY['body-lg']} text-{BRAND_COLORS['text-secondary']} mb-6 text-center max-w-md",
+                    ),
                     # Action buttons
                     Div(
                         A(
@@ -779,7 +612,7 @@ def error_403_page(session=None, message: Optional[str] = None):
                         A(
                             "Sign Out",
                             href="/logout",
-                            cls=BUTTON_STYLES['secondary'],
+                            cls=BUTTON_STYLES["secondary"],
                         ),
                         cls="flex flex-col sm:flex-row justify-center gap-4",
                     ),
@@ -806,671 +639,6 @@ def catch_all_404(path: str, session=None):
     # Check if the path exists in the routing table
     # If not, redirect to the 404 error page
     return RedirectResponse("/error/404", status_code=303)
-
-
-# --- User Profile ---
-@rt("/profile")
-@basic_auth
-def profile_page(session: dict):
-    """User profile page for viewing and editing account settings"""
-
-    # Get current user
-    user = users[session["auth"]]
-
-    # Create profile content with user information
-    profile_content = Div(
-        Div(
-            # Profile header with user avatar
-            Div(
-                Div(
-                    # User avatar with initial
-                    Div(
-                        user.email[0].upper() if user.email else "U",
-                        cls="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center text-4xl font-bold",
-                    ),
-                    # User name and role
-                    Div(
-                        H1(
-                            user.name or user.email,
-                            cls="text-2xl font-bold text-slate-800 mb-1",
-                        ),
-                        Div(
-                            Div(
-                                user.role.capitalize(),
-                                cls="bg-indigo-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium",
-                            ),
-                            cls="flex items-center",
-                        ),
-                        cls="mt-4",
-                    ),
-                    cls="flex flex-col items-center text-center mb-8",
-                ),
-                cls="mb-8",
-            ),
-            # Profile forms
-            Div(
-                # Personal information form
-                Div(
-                    H2(
-                        "Personal Information",
-                        cls="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-gray-200",
-                    ),
-                    Form(
-                        # Hidden input for form identification
-                        Input(type="hidden", name="form_type", value="personal_info"),
-                        # Display email (readonly)
-                        Div(
-                            Label(
-                                "Email Address",
-                                for_="email",
-                                cls="block text-sm font-medium text-gray-700 mb-1",
-                            ),
-                            Input(
-                                type="email",
-                                id="email",
-                                name="email",
-                                value=user.email,
-                                readonly=True,
-                                cls="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 focus:outline-none",
-                            ),
-                            P(
-                                "Email addresses cannot be changed.",
-                                cls="text-sm text-gray-500 mt-1",
-                            ),
-                            cls="mb-4",
-                        ),
-                        # Edit name
-                        Div(
-                            Label(
-                                "Full Name",
-                                for_="name",
-                                cls="block text-sm font-medium text-gray-700 mb-1",
-                            ),
-                            Input(
-                                type="text",
-                                id="name",
-                                name="name",
-                                value=user.name or "",
-                                placeholder="Enter your full name",
-                                cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                            ),
-                            cls="mb-4",
-                        ),
-                        # Edit department
-                        Div(
-                            Label(
-                                "Department",
-                                for_="department",
-                                cls="block text-sm font-medium text-gray-700 mb-1",
-                            ),
-                            Input(
-                                type="text",
-                                id="department",
-                                name="department",
-                                value=user.department or "",
-                                placeholder="Enter your department",
-                                cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                            ),
-                            cls="mb-4",
-                        ),
-                        # Submit button
-                        Div(
-                            Button(
-                                "Update Personal Information",
-                                type="submit",
-                                cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
-                            ),
-                            cls="mt-6",
-                        ),
-                        hx_post="/api/update-profile",
-                        hx_swap="outerHTML",
-                        cls="bg-white p-6 rounded-xl shadow-md mb-8",
-                    ),
-                    # Password change form
-                    Div(
-                        H2(
-                            "Change Password",
-                            cls="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-gray-200",
-                        ),
-                        Form(
-                            # Hidden input for form identification
-                            Input(
-                                type="hidden", name="form_type", value="change_password"
-                            ),
-                            # Current password
-                            Div(
-                                Label(
-                                    "Current Password",
-                                    for_="current_password",
-                                    cls="block text-sm font-medium text-gray-700 mb-1",
-                                ),
-                                Input(
-                                    type="password",
-                                    id="current_password",
-                                    name="current_password",
-                                    placeholder="Enter your current password",
-                                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                                ),
-                                cls="mb-4",
-                            ),
-                            # New password
-                            Div(
-                                Label(
-                                    "New Password",
-                                    for_="new_password",
-                                    cls="block text-sm font-medium text-gray-700 mb-1",
-                                ),
-                                Input(
-                                    type="password",
-                                    id="new_password",
-                                    name="new_password",
-                                    placeholder="Enter your new password",
-                                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                                ),
-                                P(
-                                    "Password must be at least 8 characters and include a mix of letters, numbers, and symbols.",
-                                    cls="text-sm text-gray-500 mt-1",
-                                ),
-                                cls="mb-4",
-                            ),
-                            # Confirm new password
-                            Div(
-                                Label(
-                                    "Confirm New Password",
-                                    for_="confirm_password",
-                                    cls="block text-sm font-medium text-gray-700 mb-1",
-                                ),
-                                Input(
-                                    type="password",
-                                    id="confirm_password",
-                                    name="confirm_password",
-                                    placeholder="Confirm your new password",
-                                    cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                                ),
-                                cls="mb-4",
-                            ),
-                            # Submit button
-                            Div(
-                                Button(
-                                    "Change Password",
-                                    type="submit",
-                                    cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
-                                ),
-                                cls="mt-6",
-                            ),
-                            hx_post="/api/change-password",
-                            hx_swap="outerHTML",
-                            cls="bg-white p-6 rounded-xl shadow-md",
-                        ),
-                    ),
-                    # Account preferences form for future expansion
-                    Div(
-                        H2(
-                            "Account Preferences",
-                            cls="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-gray-200",
-                        ),
-                        Div(
-                            P("Account preferences coming soon.", cls="text-gray-600"),
-                            cls="p-6",
-                        ),
-                        cls="bg-white rounded-xl shadow-md mt-8",
-                    ),
-                    cls="w-full max-w-2xl mx-auto",
-                ),
-            ),
-            cls="container mx-auto px-4 py-8",
-        ),
-        cls="bg-gray-50",
-    )
-
-    # Create the complete profile page with dynamic header
-    return Div(
-        dynamic_header(session),
-        Div(profile_content, cls="flex-grow"),
-        page_footer(),
-        cls="min-h-screen flex flex-col",
-    )
-
-
-# --- API Routes for Profile Updates ---
-@rt("/api/update-profile", "POST")
-@basic_auth
-def update_profile(session: dict, form_type: str, name: Optional[str] = None, department: Optional[str] = None):
-    """Handle profile update form submission"""
-
-    if form_type != "personal_info":
-        return "Invalid form type"
-
-    # Get current user
-    user = users[session["auth"]]
-
-    # Update user information
-    user.name = name if name else user.name
-    user.department = department if department else user.department
-    users[user.email] = user
-
-    # Return success message
-    return Div(
-        Div(
-            Div(
-                "Profile updated successfully!",
-                cls="bg-green-100 text-green-700 p-3 rounded-lg mb-4",
-            ),
-            # Re-render the form
-            Form(
-                # Hidden input for form identification
-                Input(type="hidden", name="form_type", value="personal_info"),
-                # Display email (readonly)
-                Div(
-                    Label(
-                        "Email Address",
-                        for_="email",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="email",
-                        id="email",
-                        name="email",
-                        value=user.email,
-                        readonly=True,
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 focus:outline-none",
-                    ),
-                    P(
-                        "Email addresses cannot be changed.",
-                        cls="text-sm text-gray-500 mt-1",
-                    ),
-                    cls="mb-4",
-                ),
-                # Edit name
-                Div(
-                    Label(
-                        "Full Name",
-                        for_="name",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="text",
-                        id="name",
-                        name="name",
-                        value=user.name or "",
-                        placeholder="Enter your full name",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # Edit department
-                Div(
-                    Label(
-                        "Department",
-                        for_="department",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="text",
-                        id="department",
-                        name="department",
-                        value=user.department or "",
-                        placeholder="Enter your department",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # Submit button
-                Div(
-                    Button(
-                        "Update Personal Information",
-                        type="submit",
-                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
-                    ),
-                    cls="mt-6",
-                ),
-                hx_post="/api/update-profile",
-                hx_swap="outerHTML",
-                cls="bg-white p-6 rounded-xl shadow-md mb-8",
-            ),
-        )
-    )
-
-
-@rt("/api/change-password", "POST")
-@basic_auth
-def change_password(
-    session: dict,
-    form_type: str,
-    current_password: Optional[str] = None,
-    new_password: Optional[str] = None,
-    confirm_password: Optional[str] = None,
-):
-    """Handle password change form submission"""
-
-    if form_type != "change_password":
-        return "Invalid form type"
-
-    # Get current user
-    user = users[session["auth"]]
-
-    # Validate current password
-    if not verify_password(current_password, user.password):
-        return Div(
-            Div(
-                "Current password is incorrect.",
-                cls="bg-red-100 text-red-700 p-3 rounded-lg mb-4",
-            ),
-            # Re-render the form
-            Form(
-                # Hidden input for form identification
-                Input(type="hidden", name="form_type", value="change_password"),
-                # Current password
-                Div(
-                    Label(
-                        "Current Password",
-                        for_="current_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="current_password",
-                        name="current_password",
-                        placeholder="Enter your current password",
-                        cls="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500",
-                    ),
-                    P(
-                        "Current password is incorrect.",
-                        cls="text-sm text-red-500 mt-1",
-                    ),
-                    cls="mb-4",
-                ),
-                # New password
-                Div(
-                    Label(
-                        "New Password",
-                        for_="new_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="new_password",
-                        name="new_password",
-                        placeholder="Enter your new password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    P(
-                        "Password must be at least 8 characters and include a mix of letters, numbers, and symbols.",
-                        cls="text-sm text-gray-500 mt-1",
-                    ),
-                    cls="mb-4",
-                ),
-                # Confirm new password
-                Div(
-                    Label(
-                        "Confirm New Password",
-                        for_="confirm_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="confirm_password",
-                        name="confirm_password",
-                        placeholder="Confirm your new password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # Submit button
-                Div(
-                    Button(
-                        "Change Password",
-                        type="submit",
-                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
-                    ),
-                    cls="mt-6",
-                ),
-                hx_post="/api/change-password",
-                hx_swap="outerHTML",
-                cls="bg-white p-6 rounded-xl shadow-md",
-            ),
-        )
-
-    # Validate new password
-    if not new_password or len(new_password) < 8:
-        return Div(
-            Div(
-                "New password must be at least 8 characters.",
-                cls="bg-red-100 text-red-700 p-3 rounded-lg mb-4",
-            ),
-            # Re-render the form with error message
-            Form(
-                # Form content with validation error for new password
-                # (Similar to above form but with error highlighting for the new password field)
-                Input(type="hidden", name="form_type", value="change_password"),
-                # Current password
-                Div(
-                    Label(
-                        "Current Password",
-                        for_="current_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="current_password",
-                        name="current_password",
-                        placeholder="Enter your current password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # New password (with error)
-                Div(
-                    Label(
-                        "New Password",
-                        for_="new_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="new_password",
-                        name="new_password",
-                        placeholder="Enter your new password",
-                        cls="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500",
-                    ),
-                    P(
-                        "Password must be at least 8 characters and include a mix of letters, numbers, and symbols.",
-                        cls="text-sm text-red-500 mt-1",
-                    ),
-                    cls="mb-4",
-                ),
-                # Confirm new password
-                Div(
-                    Label(
-                        "Confirm New Password",
-                        for_="confirm_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="confirm_password",
-                        name="confirm_password",
-                        placeholder="Confirm your new password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # Submit button
-                Div(
-                    Button(
-                        "Change Password",
-                        type="submit",
-                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
-                    ),
-                    cls="mt-6",
-                ),
-                hx_post="/api/change-password",
-                hx_swap="outerHTML",
-                cls="bg-white p-6 rounded-xl shadow-md",
-            ),
-        )
-
-    # Check if passwords match
-    if new_password != confirm_password:
-        return Div(
-            Div(
-                "Passwords do not match.",
-                cls="bg-red-100 text-red-700 p-3 rounded-lg mb-4",
-            ),
-            # Re-render the form with error message
-            Form(
-                # Form content with validation error for confirmation field
-                Input(type="hidden", name="form_type", value="change_password"),
-                # Current password
-                Div(
-                    Label(
-                        "Current Password",
-                        for_="current_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="current_password",
-                        name="current_password",
-                        placeholder="Enter your current password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # New password
-                Div(
-                    Label(
-                        "New Password",
-                        for_="new_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="new_password",
-                        name="new_password",
-                        placeholder="Enter your new password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    P(
-                        "Password must be at least 8 characters and include a mix of letters, numbers, and symbols.",
-                        cls="text-sm text-gray-500 mt-1",
-                    ),
-                    cls="mb-4",
-                ),
-                # Confirm new password (with error)
-                Div(
-                    Label(
-                        "Confirm New Password",
-                        for_="confirm_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="confirm_password",
-                        name="confirm_password",
-                        placeholder="Confirm your new password",
-                        cls="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500",
-                    ),
-                    P("Passwords do not match.", cls="text-sm text-red-500 mt-1"),
-                    cls="mb-4",
-                ),
-                # Submit button
-                Div(
-                    Button(
-                        "Change Password",
-                        type="submit",
-                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
-                    ),
-                    cls="mt-6",
-                ),
-                hx_post="/api/change-password",
-                hx_swap="outerHTML",
-                cls="bg-white p-6 rounded-xl shadow-md",
-            ),
-        )
-
-    # Update password
-    user.password = get_password_hash(new_password)
-    users[user.email] = user
-
-    # Return success message
-    return Div(
-        Div(
-            Div(
-                "Password changed successfully!",
-                cls="bg-green-100 text-green-700 p-3 rounded-lg mb-4",
-            ),
-            # Re-render the form
-            Form(
-                # Hidden input for form identification
-                Input(type="hidden", name="form_type", value="change_password"),
-                # Current password
-                Div(
-                    Label(
-                        "Current Password",
-                        for_="current_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="current_password",
-                        name="current_password",
-                        placeholder="Enter your current password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # New password
-                Div(
-                    Label(
-                        "New Password",
-                        for_="new_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="new_password",
-                        name="new_password",
-                        placeholder="Enter your new password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    P(
-                        "Password must be at least 8 characters and include a mix of letters, numbers, and symbols.",
-                        cls="text-sm text-gray-500 mt-1",
-                    ),
-                    cls="mb-4",
-                ),
-                # Confirm new password
-                Div(
-                    Label(
-                        "Confirm New Password",
-                        for_="confirm_password",
-                        cls="block text-sm font-medium text-gray-700 mb-1",
-                    ),
-                    Input(
-                        type="password",
-                        id="confirm_password",
-                        name="confirm_password",
-                        placeholder="Confirm your new password",
-                        cls="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                    ),
-                    cls="mb-4",
-                ),
-                # Submit button
-                Div(
-                    Button(
-                        "Change Password",
-                        type="submit",
-                        cls="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors",
-                    ),
-                    cls="mt-6",
-                ),
-                hx_post="/api/change-password",
-                hx_swap="outerHTML",
-                cls="bg-white p-6 rounded-xl shadow-md",
-            ),
-        )
-    )
 
 
 # --- Start the Server ---
