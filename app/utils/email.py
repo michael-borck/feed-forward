@@ -14,20 +14,24 @@ from dotenv import load_dotenv
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Load environment variables from project root
+# Load environment variables from project root. A missing .env must not
+# crash the import (CI, fresh clones, tests) — email sending fails with a
+# clear error at send time instead.
 project_root = pathlib.Path(__file__).parent.parent.parent
 env_path = project_root / ".env"
 load_dotenv(dotenv_path=env_path)
 
+env_file_content = ""
+if env_path.exists():
+    env_file_content = env_path.read_text()
+
 # Check .env file vs environment variables
 env_smtp_server = os.getenv("SMTP_SERVER", "")
-with open(env_path) as f:
-    env_file_content = f.read()
-    env_file_smtp_server = ""
-    for line in env_file_content.splitlines():
-        if line.strip().startswith("SMTP_SERVER"):
-            env_file_smtp_server = line.split("=")[1].strip()
-            break
+env_file_smtp_server = ""
+for line in env_file_content.splitlines():
+    if line.strip().startswith("SMTP_SERVER"):
+        env_file_smtp_server = line.split("=")[1].strip()
+        break
 
 if env_smtp_server and env_file_smtp_server and env_smtp_server != env_file_smtp_server:
     logger.warning(
@@ -35,12 +39,13 @@ if env_smtp_server and env_file_smtp_server and env_smtp_server != env_file_smtp
         f"is overriding .env file setting ({env_file_smtp_server})"
     )
 
-# SMTP settings from environment variables (.env file only, no defaults)
-SMTP_SERVER = os.environ["SMTP_SERVER"]
-SMTP_PORT = int(os.environ["SMTP_PORT"])
-SMTP_USER = os.environ["SMTP_USER"]
-SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
-SMTP_FROM = os.environ["SMTP_FROM"]
+# SMTP settings from environment variables. Empty when unconfigured;
+# send_with_smtp refuses to send in that case.
+SMTP_SERVER = os.environ.get("SMTP_SERVER", "")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+SMTP_FROM = os.environ.get("SMTP_FROM", "")
 
 # Use these settings for local SMTP if AWS SES isn't working yet
 # SMTP_SERVER   = "mail.borck.me"
@@ -120,6 +125,10 @@ def send_with_smtp(to_email: str, subject: str, content: str) -> tuple[bool, str
     Returns:
         tuple: (success, message)
     """
+    if not SMTP_SERVER:
+        logger.error("SMTP is not configured (SMTP_SERVER unset) — cannot send email")
+        return False, "Email is not configured on this server"
+
     error_msg = ""
     try:
         # Log debugging information
