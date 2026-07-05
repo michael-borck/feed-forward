@@ -25,9 +25,9 @@ Welcome to FeedForward! This platform helps you improve your writing through AI-
 
 ### Your Journey in FeedForward
 
-1. **Receive Invitation** - Your instructor invites you via email
-2. **Create Account** - Set up your profile with secure login
-3. **Join Course** - Automatically enrolled when you accept
+1. **Receive Your Join Link** - Your instructor shares a personal join link with you (via your LMS or unit email)
+2. **Activate Your Account** - Open the link, set a password, and you're in
+3. **Join Course** - You're enrolled automatically when you activate
 4. **Submit Drafts** - Upload your assignment drafts
 5. **Receive Feedback** - Get AI-generated, instructor-reviewed feedback
 6. **Revise & Improve** - Submit new drafts based on feedback
@@ -35,15 +35,14 @@ Welcome to FeedForward! This platform helps you improve your writing through AI-
 
 ### First-Time Setup
 
-When you receive your invitation email:
+When your instructor shares your join link:
 
-1. **Click the invitation link** in the email
-2. **Create your account:**
-   - Enter your name
+1. **Open your join link** (your instructor will post it in the LMS or send it through the unit email)
+2. **Activate your account:**
+   - Confirm your name
    - Create a strong password
    - Accept terms of service
-3. **Verify your email** if required
-4. **Log in** to see your courses
+3. **Log in** to see your courses
 
 {: .tip }
 > Save your login credentials in a password manager to avoid lockouts during important submission deadlines.
@@ -82,15 +81,15 @@ Your Submission Journey:
 - Maintains human connection
 
 #### 📊 Progress Tracking
-- See scores improve across drafts
+- Watch your dart move toward the bullseye across drafts
 - Identify patterns in your writing
 - Celebrate strengths
 - Focus on growth areas
 
 #### 🔒 Privacy Protected
-- Your drafts are temporarily stored
-- Automatically deleted after feedback
-- Only you and instructor see your work
+- Your drafts are kept so you can track progress across versions
+- You can hide individual drafts from your own view
+- Only you and your instructor see your work
 - Secure, educational environment
 
 ## Your Dashboard
@@ -110,14 +109,14 @@ Student Dashboard
     └── 1 active assignment
 
 📋 Recent Activity
-• Feedback received: Essay 1 Draft 2
+• Feedback released: Essay 1 Draft 2
 • Due soon: Research Paper (3 days)
 • New assignment: Final Project
 
 📈 Your Progress
-• Average improvement: +15%
+• Essay 1:  ○ → ◎   Closing in
 • Drafts submitted: 8/12
-• Current average: B+ (85%)
+• Overall trend: improving
 
 [View All Courses] [Submit Draft] [View Feedback]
 ```
@@ -126,12 +125,12 @@ Student Dashboard
 
 Assignment statuses help you stay organized:
 
-- 🟢 **Available** - Ready for submission
-- 🟡 **In Progress** - You've started drafting
-- 🔵 **Processing** - AI generating feedback
-- ✅ **Feedback Ready** - Review available
-- 🔴 **Overdue** - Past due date
-- ⏸️ **Max Drafts Reached** - No more submissions
+- **Available** - Ready for submission
+- **In Progress** - You've started drafting
+- **Processing** - AI generating feedback
+- **Feedback Ready** - Review available
+- **Overdue** - Past due date
+- **Max Drafts Reached** - No more submissions
 
 ## Submitting Assignments
 
@@ -179,7 +178,7 @@ Step-by-step submission:
    - Review file name
    - Check word count
    - Click "Submit"
-   - Save confirmation
+   - Note your confirmation number
 
 ### After Submission
 
@@ -187,12 +186,15 @@ What happens next:
 
 ```
 Timeline:
-Immediate: Confirmation email sent
-5-10 min: AI begins processing
+Immediate: On-screen confirmation with reference number
+5-10 min: AI begins processing (status shows "Processing")
 30-60 min: AI feedback generated
-2-48 hrs: Instructor reviews
-When ready: You're notified
+2-48 hrs: Instructor reviews and releases
+When ready: Feedback appears on the assignment page
 ```
+
+{: .note }
+> FeedForward doesn't send emails. To see whether feedback is ready, open the assignment page — the status shows "Processing" until your instructor releases the feedback.
 
 ## Understanding Your Feedback
 
@@ -202,29 +204,31 @@ Your feedback includes several components:
 
 ```yaml
 Overall Assessment:
-  Grade: B+ (85%)
+  Overall: ◎ Closing in
   Summary: Strong thesis with good evidence integration
-  Key Strengths: 
-    - Clear argumentation
-    - Excellent introduction
-  Areas for Improvement:
-    - Conclusion needs strengthening
-    - Some grammatical errors
+
+Strengths:
+  - Clear argumentation
+  - Excellent introduction
+
+To Improve:
+  - Conclusion needs strengthening
+  - Some grammatical errors
 
 Rubric Breakdown:
-  Thesis Statement: 18/20 (90%)
+  Thesis Statement: ◉ On the bullseye
     "Your thesis is clear and arguable..."
-  
-  Evidence & Support: 22/25 (88%)
+
+  Evidence & Support: ◎ Closing in
     "Good use of sources, but consider..."
-  
-  Organization: 17/20 (85%)
+
+  Organization: ◎ Closing in
     "Logical flow with minor transitions..."
-  
-  Grammar & Style: 13/15 (87%)
+
+  Grammar & Style: ◎ Closing in
     "Generally strong with some errors..."
-  
-  Conclusion: 15/20 (75%)
+
+  Conclusion: ○ On the board
     "Needs more synthesis of ideas..."
 
 Specific Suggestions:
@@ -237,15 +241,18 @@ Instructor Note:
    that conclusion for your final draft."
 ```
 
-### Interpreting Scores
+### Interpreting the Bullseye
 
-Understanding your performance:
+Each rubric category (and your work overall) is shown as a dartboard — the closer the dart lands to the centre, the stronger the work:
 
-- **A (90-100%)** - Exceptional work, minor refinements only
-- **B (80-89%)** - Strong work with some areas to improve  
-- **C (70-79%)** - Satisfactory with significant revision needed
-- **D (60-69%)** - Below expectations, major revision required
-- **F (<60%)** - Does not meet requirements, see instructor
+- **◉ On the bullseye** - Exceptional work, minor refinements only
+- **◎ Closing in** - Strong work with some areas to improve
+- **○ On the board** - Satisfactory with meaningful revision needed
+- **◌ Finding the range** - Below expectations, major revision required
+- **· Take another aim** - Doesn't meet requirements yet, see instructor
+
+{: .note }
+> If your instructor has enabled numeric scores for an assignment, you'll also see numbers out of 100 alongside the bullseye. Most assignments use the bullseye view only.
 
 ### Using Feedback Effectively
 
@@ -324,7 +331,7 @@ Optimal timing:
 
 ## Progress Tracking
 
-### Your Analytics
+### Your Progress View
 
 Monitor your improvement:
 
@@ -332,22 +339,22 @@ Monitor your improvement:
 Your Progress Dashboard:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📈 Overall Trend: ↑ +18% improvement
+Overall trend: improving
 
-Assignment Progress:
-Essay 1:   72% → 81% → 88% (+16%)
-Essay 2:   75% → 84% → 91% (+16%)
-Research:  69% → 78% → [pending]
+Assignment Progress (dart moving toward the centre):
+Essay 1:   ◌ → ○ → ◎   Closing in
+Essay 2:   ○ → ◎ → ◉   On the bullseye
+Research:  ◌ → ○ → [pending]
 
-Strengths Identified:
-• Organization ⭐⭐⭐⭐⭐
-• Introduction ⭐⭐⭐⭐
-• Evidence Use ⭐⭐⭐⭐
+Consistent Strengths:
+• Organization    ◉ On the bullseye
+• Introduction    ◎ Closing in
+• Evidence Use    ◎ Closing in
 
 Growth Areas:
-• Conclusions ⭐⭐⭐
-• Citations ⭐⭐⭐
-• Transitions ⭐⭐
+• Conclusions     ○ On the board
+• Citations       ○ On the board
+• Transitions     ◌ Finding the range
 ```
 
 ### Setting Goals
@@ -389,7 +396,7 @@ Use feedback to set targets:
 - Skip draft opportunities
 - Make only surface changes
 - Plagiarize or use AI to write
-- Give up after low scores
+- Give up when a draft lands wide of the mark
 
 ### Time Management
 
@@ -463,10 +470,10 @@ When you need assistance:
 Check with your instructor. Some allow late submissions with penalties.
 
 **Why is my feedback taking so long?**
-Instructors review all feedback. During busy periods, this may take 24-48 hours.
+Instructors review all feedback before releasing it. During busy periods, this may take 24-48 hours. Check the assignment page — the status will change from "Processing" to "Feedback Ready".
 
 **Can I delete a submission?**
-No, but you can submit an updated draft if attempts remain.
+Submissions can't be deleted, but you can hide any draft from your own view, and you can submit an updated draft if attempts remain.
 
 **Is my work private?**
 Yes, only you and your instructor can see your submissions and feedback.
@@ -480,17 +487,18 @@ Most assignments accept PDF, DOCX, and TXT files under 10MB.
 
 Understanding data handling:
 
-- **Temporary Storage** - Drafts deleted after feedback
+- **Drafts Retained** - Your drafts are kept so you and your instructor can track progress across versions
+- **Hide Drafts** - You can hide individual drafts from your own view at any time
 - **No Training** - Your work isn't used to train AI
 - **Secure Access** - Password protected
-- **Private Feedback** - Only you and instructor see it
+- **Private Feedback** - Only you and your instructor see it
 
 ### Account Security
 
 Protect your account:
 
 1. Use strong, unique password
-2. Don't share login credentials  
+2. Don't share login credentials
 3. Log out on shared computers
 4. Report suspicious activity
 5. Keep email address updated
@@ -502,7 +510,7 @@ Explore detailed guides:
 1. **[Getting Started](./getting-started)** - Account setup and first steps
 2. **[Submitting Work](./submissions)** - Detailed submission guide
 3. **[Understanding Feedback](./viewing-feedback)** - Making sense of AI feedback
-4. **[Tracking Progress](./progress)** - Using analytics to improve
+4. **[Tracking Progress](./progress)** - Using your progress view to improve
 
 ---
 

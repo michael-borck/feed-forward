@@ -10,7 +10,7 @@ FeedForward is an advanced AI-powered feedback system designed specifically for 
 - **Personalized Learning**: Receive structured feedback tailored to assignment requirements
 - **Iterative Improvement**: Submit multiple drafts with tracked progress and improvement metrics
 - **Confidence Building**: Build writing and analytical skills through systematic feedback loops
-- **Privacy Protection**: Temporary storage ensures submissions are not permanently retained
+- **Ownership and Control**: Drafts are retained to power progress tracking, and students control which drafts stay visible in their own view
 
 ### For Instructors
 - **Scalable Feedback**: Manage large class sizes while maintaining feedback quality
@@ -44,7 +44,7 @@ Student Draft → AI Model Pool → Aggregation Engine → Instructor Review →
 - **Iterative workflow**: Up to 5 drafts per assignment
 - **Progress visualization**: Improvement tracking and metrics
 - **Comparison tools**: Side-by-side draft analysis
-- **Privacy-first**: Automatic cleanup of temporary content
+- **Retained history**: Drafts are kept to enable progress tracking, with student-controlled visibility
 
 #### 3. Role-Based Security Architecture
 - **Authentication**: JWT-based secure authentication
@@ -132,7 +132,7 @@ Student Draft → AI Model Pool → Aggregation Engine → Instructor Review →
 ## 🛡️ Security & Privacy
 
 ### Data Protection
-- **Temporary Storage**: Student submissions are not permanently stored
+- **Retained Submissions**: Drafts are stored to support progress tracking; students control the visibility of their own drafts
 - **Encryption**: Data encrypted at rest and in transit
 - **Access Control**: Role-based permissions and authentication
 - **Compliance**: Designed to meet educational privacy standards

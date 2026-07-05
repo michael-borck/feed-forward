@@ -68,7 +68,7 @@ As an instructor, you:
 - Set feedback parameters
 
 ### 👥 Student Management
-- Invite students via email
+- Invite students with personal join links
 - Bulk import from CSV files
 - Track student participation
 - Monitor submission status
@@ -133,10 +133,11 @@ When you log in, you'll see your personalized dashboard with:
 1. Go to course management
 2. Choose **"Invite Students"**
 3. Select method:
-   - Individual email invites
+   - Individual invitations
    - CSV bulk upload
-   - Share invitation link
-4. Monitor acceptance status
+4. Copy each student's personal join link (or copy all)
+5. Distribute the links via your LMS or own email
+6. Monitor activation status
 
 ### Reviewing AI Feedback
 

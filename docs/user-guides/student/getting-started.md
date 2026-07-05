@@ -19,71 +19,61 @@ nav_order: 1
 
 ## Overview
 
-This guide walks you through your first steps in FeedForward: accepting your course invitation, creating your account, and navigating the platform. By the end, you'll be ready to submit your first assignment draft.
+This guide walks you through your first steps in FeedForward: using your join link, activating your account, and navigating the platform. By the end, you'll be ready to submit your first assignment draft.
 
-## Receiving Your Invitation
+## Receiving Your Join Link
 
-### The Invitation Email
+### How You Get Access
 
-Your instructor will send you an invitation email that looks like this:
+FeedForward doesn't send emails — your instructor shares a personal join link with you directly, usually through:
+
+- **An LMS announcement** (Blackboard, Canvas, etc.)
+- **A unit email from your instructor**
+- **A message posted in your course's usual channel**
+
+The link looks something like:
 
 ```
-From: FeedForward <noreply@feedforward.edu>
-Subject: Invitation to join Introduction to Academic Writing
-
-Dear Sarah,
-
-You have been invited to join the following course on FeedForward:
+https://feedforward.university.edu/join/a7f3-9k2m-x81q
 
 Course: Introduction to Academic Writing (ENGL101)
 Instructor: Dr. Jane Smith
-Term: Fall 2024
-
-Click here to accept this invitation:
-[ACCEPT INVITATION - Button]
-
-This invitation will expire in 14 days.
-
-If you already have a FeedForward account, you'll be 
-added to the course immediately. Otherwise, you'll be 
-prompted to create an account first.
-
-Questions? Contact your instructor at jsmith@university.edu
-
-Best regards,
-The FeedForward Team
 ```
+
+Opening the link takes you to a page where you set a password and activate your account — that's it.
 
 ### Important Notes
 
 {: .warning }
-> Check your spam/junk folder if you don't see the invitation within 24 hours of your instructor sending it.
+> If you haven't received a join link, check your LMS announcements and unit email first, then ask your instructor. The link comes from them, not from FeedForward.
 
-- **Time Limit**: Invitations typically expire after 14 days
-- **One-Time Use**: Each invitation link works only once
-- **Secure**: Links are unique and can't be shared
+- **Time Limit**: Join links typically expire after 14 days
+- **Personal**: Your link is tied to you — don't share it with classmates
+- **One Account**: If you already have a FeedForward account, the link simply adds the new course
 
-## Creating Your Account
+## Activating Your Account
 
 ### First-Time Users
 
 If you don't have a FeedForward account:
 
-1. **Click the invitation link** in your email
-2. **You'll see the registration page:**
+1. **Open your join link**
+2. **You'll see the activation page:**
 
 ```
-Create Your FeedForward Account
+Activate Your FeedForward Account
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Personal Information:
+Joining: Introduction to Academic Writing (ENGL101)
+Instructor: Dr. Jane Smith
+
+Your Details:
 ┌─────────────────────────────────┐
-│ First Name: Sarah               │
-│ Last Name: Johnson              │
+│ Name: Sarah Johnson             │
 │ Email: sjohnson@university.edu  │
 └─────────────────────────────────┘
 
-Create Password:
+Set Your Password:
 ┌─────────────────────────────────┐
 │ Password: ••••••••••            │
 │ Confirm: ••••••••••             │
@@ -92,7 +82,7 @@ Create Password:
 ☑ I accept the Terms of Service
 ☑ I accept the Privacy Policy
 
-[Create Account & Join Course]
+[Activate Account & Join Course]
 ```
 
 ### Password Requirements
@@ -109,7 +99,7 @@ Create a strong password that meets these criteria:
 
 {: .tip }
 > **Good Password Example**: `Autumn2024!Learn&Grow`
-> 
+>
 > **Password Tips**:
 > - Use a passphrase with multiple words
 > - Include numbers and symbols
@@ -118,7 +108,7 @@ Create a strong password that meets these criteria:
 
 ### Terms and Privacy
 
-Before creating your account, you must accept:
+Before activating your account, you must accept:
 
 1. **Terms of Service**
    - Rules for using the platform
@@ -131,13 +121,13 @@ Before creating your account, you must accept:
    - Data retention policies
 
 {: .note }
-> Your submitted work is temporarily stored only for feedback generation and is automatically deleted afterward. See the full [Privacy Policy](/legal/privacy-policy) for details.
+> Your submitted drafts are retained so you and your instructor can track your progress across versions. You can hide any draft from your own view. See the full [Privacy Policy](/legal/privacy-policy) for details.
 
 ## Joining Your Course
 
 ### Automatic Enrollment
 
-After creating your account:
+After activating your account:
 
 1. **Automatic Course Addition**
    - You're immediately enrolled
@@ -146,10 +136,10 @@ After creating your account:
 
 2. **Confirmation Screen:**
 ```
-Success! 
+Success!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ Account created successfully
+✅ Account activated successfully
 ✅ Joined: Introduction to Academic Writing
 ✅ Instructor: Dr. Jane Smith
 
@@ -160,7 +150,7 @@ Success!
 
 If you already have an account:
 
-1. **Click invitation link**
+1. **Open your join link**
 2. **Log in with existing credentials**
 3. **Automatically joined to new course**
 4. **See course in your dashboard**
@@ -169,11 +159,11 @@ If you already have an account:
 
 ### Accessing FeedForward
 
-After account creation:
+After account activation:
 
 1. **Bookmark the URL**: `https://feedforward.university.edu`
 2. **Log in with**:
-   - Email address used for registration
+   - Your university email address
    - Password you created
 
 ### Login Troubleshooting
@@ -183,7 +173,7 @@ Common issues and solutions:
 **Forgot Password?**
 1. Click "Forgot Password" link
 2. Enter your email address
-3. Check email for reset link
+3. Follow the reset instructions
 4. Create new password
 
 **Account Locked?**
@@ -194,7 +184,7 @@ Common issues and solutions:
 **Email Not Recognized?**
 - Verify correct email address
 - Check if you used alternate email
-- Contact instructor for new invitation
+- Ask your instructor for a new join link
 
 ## Navigating the Platform
 
@@ -203,7 +193,7 @@ Common issues and solutions:
 Your home screen after login:
 
 ```
-Welcome, Sarah! 
+Welcome, Sarah!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📚 My Courses (1)
@@ -220,10 +210,6 @@ Welcome, Sarah!
 • Assignments Due: 1 (in 5 days)
 • Drafts Submitted: 0
 • Feedback Available: 0
-
-🔔 Notifications
-• Welcome to FeedForward!
-• New assignment posted in ENGL101
 ```
 
 ### Main Navigation
@@ -235,14 +221,13 @@ Top Navigation Bar:
 ┌────────────────────────────────────────┐
 │ 🏠 Dashboard  📚 Courses  👤 Profile  │
 │                                        │
-│                    🔔 ❓ Logout       │
+│                       ❓ Logout       │
 └────────────────────────────────────────┘
 ```
 
 - **Dashboard** - Your home page
 - **Courses** - All enrolled courses
 - **Profile** - Account settings
-- **Bell (🔔)** - Notifications
 - **Question (❓)** - Help/Support
 - **Logout** - Sign out securely
 
@@ -257,18 +242,17 @@ ENGL101 - Introduction to Academic Writing
 📋 Assignments        📊 My Progress
 ┌─────────────────┐  ┌─────────────────┐
 │ • Essay 1       │  │ Submissions: 0  │
-│   Due: Oct 15   │  │ Average: --     │
-│   Status: Open  │  │ Improvement: -- │
-│                 │  │                 │
-│ • Essay 2       │  │ [View Details]  │
-│   Due: Nov 1    │  └─────────────────┘
-│   Status: Open  │
-│                 │  📢 Announcements
-│ • Research Paper│  ┌─────────────────┐
-│   Due: Dec 1    │  │ Welcome to      │
-│   Status: Locked│  │ ENGL101!        │
-└─────────────────┘  │                 │
-                     │ Posted: Sept 1   │
+│   Due: Oct 15   │  │ Progress: --    │
+│   Status: Open  │  │                 │
+│                 │  │ [View Details]  │
+│ • Essay 2       │  └─────────────────┘
+│   Due: Nov 1    │
+│   Status: Open  │  📢 Announcements
+│                 │  ┌─────────────────┐
+│ • Research Paper│  │ Welcome to      │
+│   Due: Dec 1    │  │ ENGL101!        │
+│   Status: Locked│  │                 │
+└─────────────────┘  │ Posted: Sept 1   │
                      └─────────────────┘
 ```
 
@@ -283,23 +267,18 @@ Navigate to Profile to add information:
    - Preferred name
    - Student ID (if required)
    - Time zone
-   - Notification preferences
 
-### Notification Settings
+### Staying Up to Date
 
-Configure how you're notified:
+FeedForward doesn't send emails, so build a quick habit instead:
 
-```yaml
-Email Notifications:
-  ✅ Assignment Posted
-  ✅ Feedback Available
-  ✅ Due Date Reminders (24hr before)
-  ✅ Instructor Announcements
-  ☐ Weekly Progress Summary
-
-Platform Notifications:
-  ✅ All of the above
-  ✅ Real-time alerts when logged in
+```
+Your Check-In Routine:
+  ✓ Open your dashboard a couple of times a week
+  ✓ After submitting, check the assignment page —
+    status shows "Processing" until feedback is released
+  ✓ Skim course announcements for new assignments
+  ✓ Note due dates in your own calendar
 ```
 
 ### Accessibility Options
@@ -348,7 +327,7 @@ What you'll see for each assignment:
 1. **Instructions Section**
    - Full assignment description
    - Requirements and guidelines
-   - Grading rubric preview
+   - Rubric preview
    - Resources and links
 
 2. **Submission Status**
@@ -420,7 +399,7 @@ A: Chrome, Firefox, Safari, and Edge (latest versions).
 A: Yes, FeedForward is mobile-responsive.
 
 **Q: How do I know when feedback is ready?**
-A: You'll receive an email notification.
+A: Check the assignment page. The status shows "Processing" while feedback is being prepared, and your feedback appears there as soon as your instructor releases it. FeedForward doesn't send email notifications.
 
 ## Tips for Success
 
@@ -428,7 +407,7 @@ A: You'll receive an email notification.
 
 1. **Check Regularly**
    - Log in at least twice per week
-   - Check for new assignments
+   - Check assignment pages after submitting
    - Monitor due dates
    - Read announcements
 
@@ -448,7 +427,7 @@ A: You'll receive an email notification.
 
 Keep your account secure:
 
-- 🔒 Never share your password
+- 🔒 Never share your password or join link
 - 🔒 Log out on shared computers
 - 🔒 Use unique password for FeedForward
 - 🔒 Report suspicious activity
@@ -473,7 +452,7 @@ Now that you're set up:
 ---
 
 {: .tip }
-> Set up email notifications to never miss important updates about assignments or feedback.
+> Make checking the assignment page part of your routine — that's where you'll see the status change and your feedback appear.
 
 {: .note }
 > Remember: Everyone starts somewhere. Your first draft doesn't need to be perfect—that's what the feedback and revision process is for!

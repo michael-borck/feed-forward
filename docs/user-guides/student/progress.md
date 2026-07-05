@@ -19,13 +19,13 @@ nav_order: 4
 
 ## Overview
 
-FeedForward helps you track your improvement over time through detailed analytics and progress visualizations. This guide shows you how to access your progress data, interpret improvement metrics, identify patterns in your writing, and use insights to continue growing as a writer.
+FeedForward helps you see your improvement over time. For each assignment, your drafts appear as a row of dartboards — the dart lands closer to the bullseye as your work improves. This guide shows you how to read your progress view, spot patterns in your writing, and use those insights to keep growing as a writer.
 
 ## Accessing Your Progress
 
-### Progress Dashboard
+### Progress View
 
-Find your progress tracking tools:
+Find your progress tools:
 
 1. **From Main Dashboard**
    ```
@@ -34,12 +34,12 @@ Find your progress tracking tools:
 
 2. **From Course Page**
    ```
-   Course → Analytics Tab → My Progress
+   Course → My Progress
    ```
 
 3. **From Assignment**
    ```
-   Assignment → View Progress → Detailed Analytics
+   Assignment → View Progress
    ```
 
 ### Progress Overview
@@ -50,208 +50,184 @@ Your main progress screen shows:
 My Progress - ENGL101
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📈 Overall Performance
-Current Average: 84% (B)
-Starting Average: 72% (C-)
-Total Improvement: +12% ↑
+Overall trend: improving
 
-📊 Assignments Completed
-┌─────────────┬────────┬────────┬────────┬─────────┐
-│ Assignment  │ Draft1 │ Draft2 │ Draft3 │ Change  │
-├─────────────┼────────┼────────┼────────┼─────────┤
-│ Essay 1     │  72%   │  79%   │  85%   │ +13% ↑  │
-│ Essay 2     │  75%   │  83%   │  88%   │ +13% ↑  │
-│ Research    │  74%   │  82%   │  87%   │ +13% ↑  │
-│ Essay 3     │  78%   │  85%   │   -    │ +7% ↑   │
-└─────────────┴────────┴────────┴────────┴─────────┘
+Assignment Progress (dart moving toward the centre):
+┌─────────────┬──────────┬──────────┬──────────┬─────────────────┐
+│ Assignment  │ Draft 1  │ Draft 2  │ Draft 3  │ Now             │
+├─────────────┼──────────┼──────────┼──────────┼─────────────────┤
+│ Essay 1     │    ◌     │    ○     │    ◎     │ Closing in      │
+│ Essay 2     │    ○     │    ◎     │    ◉     │ On the bullseye │
+│ Research    │    ○     │    ◎     │    ◉     │ On the bullseye │
+│ Essay 3     │    ○     │    ◎     │    -     │ Closing in      │
+└─────────────┴──────────┴──────────┴──────────┴─────────────────┘
 
-🎯 Strengths & Growth Areas
 Consistent Strengths:
-✓ Organization (+8 pts above class avg)
-✓ Evidence Integration (+6 pts)
+- Organization
+- Evidence Integration
 
 Most Improved:
-📈 Thesis Development (+18% improvement)
-📈 Grammar & Mechanics (+15% improvement)
+- Thesis Development
+- Grammar & Mechanics
 
 Focus Areas:
-⚠️ Conclusions (-4 pts below target)
-⚠️ Transitions (-3 pts below target)
+- Conclusions
+- Transitions
 ```
 
-## Understanding Your Metrics
+## Understanding Your Progress View
 
-### Key Performance Indicators
+### Reading the Dartboard Row
 
-Important numbers to track:
-
-```yaml
-Performance Metrics Explained:
-
-Overall Average:
-  What: Mean score across all assignments
-  Why: Shows general performance level
-  Goal: Steady improvement over term
-
-Improvement Rate:
-  What: Average increase per draft
-  Why: Shows revision effectiveness
-  Goal: 5-10% improvement per draft
-
-Consistency Score:
-  What: How steady your performance is
-  Why: Indicates reliability
-  Goal: Lower variance is better
-
-Engagement Level:
-  What: How well you use the system
-  Why: Correlates with success
-  Goal: Submit all drafts, view all feedback
-```
-
-### Score Calculations
-
-How your scores are computed:
+Each assignment shows one dartboard per draft. Where the dart lands tells you how that draft measured against the rubric:
 
 ```
-Example Calculation:
+Bullseye Levels:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Assignment Scores:
-Essay 1 Final: 85%
-Essay 2 Final: 88%
-Essay 3 Current: 85%
+◉ On the bullseye    Exceptional — minor refinements only
+◎ Closing in         Strong — some areas to improve
+○ On the board       Satisfactory — meaningful revision needed
+◌ Finding the range  Below expectations — major revision required
+· Take another aim   Doesn't meet requirements yet — see instructor
+```
 
-Overall Average: (85 + 88 + 85) ÷ 3 = 86%
+A row like `◌ → ○ → ◎` means each revision moved your dart closer to the centre — exactly what the drafting process is for.
 
-Weighted by Credits:
-Essay 1 (15%): 85 × 0.15 = 12.75
-Essay 2 (20%): 88 × 0.20 = 17.60
-Essay 3 (15%): 85 × 0.15 = 12.75
-Total: 43.1% of final grade earned
+{: .note }
+> If your instructor has enabled numeric scores for an assignment, you'll also see numbers out of 100 next to the dartboards. Most assignments show the bullseye view only.
+
+### What to Look For
+
+Useful signals in your progress view:
+
+```yaml
+Signals Explained:
+
+Overall trend:
+  What: The direction across your recent drafts and assignments
+  Values: improving / steady / needs attention
+  Goal: Improving, or steady near the bullseye
+
+Draft-to-draft movement:
+  What: How far the dart moved after each revision
+  Why: Shows whether your revisions are landing
+  Goal: Movement toward the centre each draft
+
+Focus areas:
+  What: Rubric categories where the dart keeps landing wide
+  Why: Tells you where your next revision effort pays off most
+  Goal: One or two focus areas per draft
 ```
 
 ## Progress Visualizations
 
-### Improvement Graphs
+### Draft Progression
 
-Visual representation of growth:
+Visual representation of growth for one assignment:
 
 ```
-Score Progression Chart
+Essay 2: Argumentative Essay
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Score
-100% ┤
- 90% ┤              ●······●
- 80% ┤         ●···/  ····/
- 70% ┤    ●···/   /  ·/
- 60% ┤ ●·/   /   /  /
- 50% ┤
-     └────┬────┬────┬────┬────┬────
-        E1D1  E1D2  E1D3  E2D1  E2D2
+Draft 1          Draft 2          Draft 3
+   ○                ◎                ◉
+On the board    Closing in     On the bullseye
 
-Legend:
-● = Actual scores
-··· = Trend line
-━━━ = Class average
+Overall trend: improving
 ```
 
 ### Rubric Category Trends
 
-Track specific skill development:
+Track specific skill development across the term:
 
 ```
-Category Performance Over Time
+Category Progress Over Time
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-         Start → Current (Change)
-Thesis:    70% → 88% (+18%) ↑↑↑
-Evidence:  72% → 85% (+13%) ↑↑
-Organize:  75% → 89% (+14%) ↑↑
-Style:     68% → 82% (+14%) ↑↑
-Grammar:   65% → 80% (+15%) ↑↑
+            Start              →  Now
+Thesis:     ○ On the board     →  ◉ On the bullseye
+Evidence:   ○ On the board     →  ◎ Closing in
+Organize:   ○ On the board     →  ◉ On the bullseye
+Style:      ◌ Finding range    →  ◎ Closing in
+Grammar:    ◌ Finding range    →  ◎ Closing in
 
-📊 Strongest Growth: Thesis Development
-📊 Most Consistent: Organization
-📊 Recent Focus: Grammar improvement
+Strongest growth: Thesis Development
+Most consistent: Organization
+Recent focus: Grammar improvement
 ```
 
-### Comparative Progress
+### Focus-Area Recommendations
 
-See how you compare (anonymously):
+Your progress view suggests where to aim next:
 
 ```
-Your Progress vs. Class
+Where to Aim Next
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-         You    Class Avg   Difference
-Start:   72%      74%        -2%
-Current: 86%      80%        +6%
-Growth:  +14%     +6%        +8%
+1. Conclusions — dart keeps landing on the board
+   Recurring feedback: "Add synthesis and implications"
+   Try: [Conclusion Workshop Video]
 
-🏆 Your Improvement Rate: Above Average
-🎯 Class Rank: Top 25%
-📈 Trajectory: Accelerating
+2. Transitions — still finding the range
+   Recurring feedback: "Connect paragraphs explicitly"
+   Try: [Transitions Handout]
 ```
 
-## Assignment-Level Analytics
+## Assignment-Level Detail
 
 ### Detailed Assignment View
 
 Deep dive into each assignment:
 
 ```
-Essay 2: Argumentative Essay - Detailed Analytics
+Essay 2: Argumentative Essay - Draft History
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Draft History:
-┌────────┬──────┬─────────────┬──────────────────┐
-│ Draft  │Score │ Submitted   │ Key Improvements │
-├────────┼──────┼─────────────┼──────────────────┤
-│ 1      │ 75%  │ Oct 15 2:30p│ Initial attempt  │
-│ 2      │ 83%  │ Oct 18 4:15p│ +Thesis clarity  │
-│        │      │             │ +Better evidence │
-│ 3      │ 88%  │ Oct 20 1:00p│ +Strong conclude │
-│        │      │             │ +Fixed grammar   │
-└────────┴──────┴─────────────┴──────────────────┘
+┌────────┬──────────────────┬─────────────┬──────────────────┐
+│ Draft  │ Overall          │ Submitted   │ Key Improvements │
+├────────┼──────────────────┼─────────────┼──────────────────┤
+│ 1      │ ○ On the board   │ Oct 15 2:30p│ Initial attempt  │
+│ 2      │ ◎ Closing in     │ Oct 18 4:15p│ +Thesis clarity  │
+│        │                  │             │ +Better evidence │
+│ 3      │ ◉ On the bullseye│ Oct 20 1:00p│ +Strong conclude │
+│        │                  │             │ +Fixed grammar   │
+└────────┴──────────────────┴─────────────┴──────────────────┘
 
-Rubric Breakdown Progress:
-                D1   D2   D3  Total Change
-Thesis:         14 → 17 → 19  (+5 points)
-Evidence:       17 → 21 → 22  (+5 points)
-Organization:   15 → 17 → 18  (+3 points)
-Style:          14 → 16 → 17  (+3 points)
-Grammar:        15 → 17 → 18  (+3 points)
-
-Time Investment:
-- Days between drafts: 3, 2
-- Total revision time: ~8 hours
-- Feedback view count: 12 times
+Rubric Category Progression:
+                 D1   D2   D3
+Thesis:          ○ →  ◎ →  ◉
+Evidence:        ◌ →  ◎ →  ◎
+Organization:    ○ →  ○ →  ◎
+Style:           ○ →  ◎ →  ◎
+Grammar:         ○ →  ◎ →  ◎
 ```
+
+All your drafts are retained so you can look back at how far you've come. If you'd rather not see an early draft, you can hide it from your own view — it stays available to your instructor for progress tracking.
 
 ### Revision Effectiveness
 
-Measure your revision quality:
+See which revisions moved the dart:
 
 ```
-Revision Analysis:
+Revision Review:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-High-Impact Revisions (Draft 1→2):
-✓ Rewrote thesis statement (+3 pts)
-✓ Added 2 scholarly sources (+4 pts)
-✓ Reorganized body paragraphs (+2 pts)
-Impact Score: 9/10 - Excellent
+Draft 1 → 2:
+Improved:
+- Thesis (rewrote the statement)
+- Evidence (added 2 scholarly sources)
+Worth revisiting:
+- Organization (still On the board)
+Maintained strengths:
+- Introduction
 
-Medium-Impact Revisions (Draft 2→3):
-✓ Strengthened conclusion (+2 pts)
-✓ Fixed grammar errors (+1 pt)
-✓ Improved transitions (+2 pts)
-Impact Score: 6/10 - Good
-
-Revision Efficiency: 87%
-(Most suggested changes implemented)
+Draft 2 → 3:
+Improved:
+- Conclusion (added synthesis)
+- Grammar (fixed comma splices)
+Maintained strengths:
+- Thesis, Evidence
 ```
 
 ## Identifying Patterns
@@ -264,27 +240,27 @@ Consistent areas of excellence:
 Your Writing Strengths Profile
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🌟 Core Strengths (Consistently 85%+):
+Core Strengths (consistently Closing in or better):
 
 1. Organization & Structure
    - Clear paragraph structure
    - Logical flow of ideas
    - Effective transitions
-   Average: 89% across all assignments
+   Typically: ◉ On the bullseye
 
-2. Evidence Integration  
+2. Evidence Integration
    - Relevant source selection
    - Smooth quote integration
    - Proper citations
-   Average: 86% across all assignments
+   Typically: ◎ Closing in
 
 3. Introduction Writing
    - Engaging hooks
    - Clear thesis placement
    - Preview of main points
-   Average: 87% across all assignments
+   Typically: ◎ Closing in
 
-💡 Leverage these in future writing!
+Leverage these in future writing!
 ```
 
 ### Areas for Growth
@@ -295,43 +271,36 @@ Patterns needing attention:
 Growth Opportunities
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📍 Recurring Challenges:
+Recurring Challenges:
 
-1. Conclusion Writing (Avg: 76%)
+1. Conclusion Writing (usually ○ On the board)
    Pattern: Tends to only summarize
    Feedback: "Add synthesis and implications"
    Resources: [Conclusion Workshop Video]
 
-2. Comma Usage (Avg: 78%)
+2. Comma Usage (usually ○ On the board)
    Pattern: Comma splices, missing commas
    Common Error: Run-on sentences
    Resources: [Grammar Practice Tool]
 
-3. Source Variety (Avg: 79%)
+3. Source Variety (usually ○ On the board)
    Pattern: Over-reliance on web sources
    Suggestion: Include scholarly articles
    Resources: [Library Database Guide]
-
-📋 Personalized Improvement Plan Available
 ```
 
-### Learning Style Insights
+### Revision Habits That Work
 
-How you learn best:
+What your history suggests about how you improve best:
 
 ```
-Your Learning Pattern Analysis
+Your Revision Patterns
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Revision Patterns:
-- Best improvements: 48-72 hours after feedback
-- Average drafts needed: 2.8 for target score
-- Optimal revision time: 3-4 hours per draft
 
 Effective Strategies:
 ✓ Major structural changes in Draft 2
 ✓ Polish and refinement in Draft 3
-✓ Viewing feedback multiple times
+✓ Revising 1-3 days after reading feedback
 ✓ Focusing on 2-3 major changes per draft
 
 Less Effective:
@@ -342,9 +311,9 @@ Less Effective:
 
 ## Goal Setting and Tracking
 
-### Setting SMART Goals
+### Setting Goals
 
-Create specific, measurable goals:
+Create specific, achievable goals:
 
 ```
 My Writing Goals
@@ -353,20 +322,17 @@ My Writing Goals
 Current Goal Set (This Month):
 ┌─────────────────────────────────────┐
 │ 1. Conclusion Writing               │
-│    Specific: Score 85%+ on endings  │
-│    Measurable: Track rubric scores  │
-│    Achievable: Currently at 76%     │
-│    Relevant: Major grade component  │
-│    Timeline: Next 2 assignments     │
-│    Progress: [████░░░░] 40%        │
+│    Aim: Land Closing in or better   │
+│    Currently: On the board          │
+│    Plan: Use synthesis template on  │
+│    the next 2 assignments           │
 └─────────────────────────────────────┘
 
 ┌─────────────────────────────────────┐
 │ 2. Grammar Accuracy                 │
-│    Target: Reduce errors by 50%     │
-│    Current: 5 errors per page       │
-│    Goal: 2-3 errors per page        │
-│    Progress: [██████░░] 60%        │
+│    Aim: No comma splices flagged    │
+│    Plan: Read final draft aloud     │
+│    before every submission          │
 └─────────────────────────────────────┘
 ```
 
@@ -375,45 +341,44 @@ Current Goal Set (This Month):
 Celebrate achievements:
 
 ```
-🏆 Milestones Achieved
+Milestones Achieved
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ First B Grade - Essay 1 Draft 3
-✅ 10% Improvement - Essay 2 
-✅ Consistency Streak - 3 assignments above 80%
-✅ Grammar Goal Met - Under 3 errors/page
-✅ Perfect Organization Score - Research Paper
+✓ First "Closing in" overall - Essay 1 Draft 3
+✓ Dart moved centre-ward on every Essay 2 draft
+✓ Three assignments in a row trending upward
+✓ Grammar no longer a focus area
+✓ Organization On the bullseye - Research Paper
 
-🎯 Upcoming Milestones:
-○ First A Grade (90%+)
-○ All rubric categories above 80%
-○ Class top 20% ranking
-○ Zero grammar errors submission
+Upcoming Milestones:
+○ First "On the bullseye" overall
+○ Every rubric category at Closing in or better
+○ A Draft 1 that starts Closing in
 ```
 
 ## Using Progress Data
 
 ### Informing Your Strategy
 
-Data-driven improvement:
+Turn what you see into a plan:
 
 ```
-Strategic Insights from Your Data
+Strategic Insights from Your Progress
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Finding: Big jump Draft 1→2, small 2→3
 Strategy: Put more effort into Draft 1
-Result: Start stronger, need fewer drafts
+Result: Start closer to the centre, need fewer drafts
 
 Finding: Grammar improves slowly
 Strategy: Proofread before submission
 Result: Start with fewer errors
 
-Finding: Best scores after 3-day gaps
+Finding: Best drafts follow a few days of revision
 Strategy: Build in revision time
-Result: Better planning = better scores
+Result: Better planning = better drafts
 
-Finding: Thesis scores predict overall
+Finding: A strong thesis pulls everything centre-ward
 Strategy: Spend extra time on thesis
 Result: Strong thesis = strong essay
 ```
@@ -426,9 +391,9 @@ Use patterns for success:
 Assignment Success Formula
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Based on your data:
+Based on your history:
 
-📅 Optimal Timeline:
+Optimal Timeline:
 Day 1-2: Research and outline
 Day 3-4: Write Draft 1
 Day 5: Submit Draft 1
@@ -439,168 +404,16 @@ Day 11: Review feedback
 Day 12-13: Final polish
 Day 14: Submit Draft 3
 
-🎯 Focus Areas by Draft:
+Focus Areas by Draft:
 Draft 1: Structure and thesis
 Draft 2: Evidence and analysis
 Draft 3: Style and mechanics
 
-✨ Your Success Factors:
+Your Success Factors:
 - Start 2 weeks before due date
 - Use all available drafts
 - Focus on 2-3 changes per draft
-- Review feedback multiple times
-```
-
-## Sharing Your Progress
-
-### Progress Reports
-
-Generate reports for:
-
-1. **Personal Use**
-   - PDF summary
-   - Detailed analytics
-   - Goal tracking
-
-2. **Advisor Meetings**
-   - Semester overview
-   - Improvement trends
-   - Skill development
-
-3. **Portfolio/Applications**
-   - Growth narrative
-   - Skill evidence
-   - Achievement list
-
-### Export Options
-
-Available formats:
-
-```
-Export Your Progress Data
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Format Options:
-📄 PDF Report - Formatted summary
-📊 Excel/CSV - Raw data for analysis
-📱 Image - Shareable graphics
-🔗 Link - View-only web version
-
-Content Options:
-□ Overall statistics
-□ Assignment details
-□ Rubric breakdowns
-□ Improvement graphs
-□ Comparative data (anonymous)
-□ Goal tracking
-□ Milestone achievements
-
-Privacy Settings:
-○ Include identifying info
-● Anonymize data
-○ Instructor comments only
-```
-
-## Advanced Analytics
-
-### Predictive Insights
-
-AI-powered predictions:
-
-```
-Predictive Analytics
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Based on current patterns:
-
-Final Course Grade Projection:
-Current trajectory: 87% (B+)
-If maintain effort: 89% (B+)
-If increase effort: 92% (A-)
-Confidence: 82%
-
-Next Assignment Prediction:
-Expected Draft 1: 77-80%
-Expected Final: 86-89%
-Key Factor: Conclusion writing
-
-Skills Trajectory:
-- Grammar: On track for A by finals
-- Analysis: Steady at B+ level
-- Organization: Maintaining A level
-```
-
-### Comparative Analytics
-
-Anonymous comparisons:
-
-```
-Peer Comparison (Anonymous)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Your Position in Class:
-Overall: Top 25% (12th of 48)
-Improvement Rate: Top 15% 
-Engagement: Top 20%
-
-Compared to Similar Students:
-(Started with similar scores)
-Your growth: +14%
-Peer average: +8%
-Difference: +6% better
-
-Success Factors You Share:
-- Submit all drafts
-- Quick feedback viewing
-- Major structural revisions
-- Consistent submission timing
-```
-
-## Making Progress Visible
-
-### Personal Dashboard
-
-Customize your view:
-
-```
-Dashboard Widgets:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Choose 4 to display:
-☑ Current average
-☑ Improvement rate
-☑ Next assignment due
-☑ Recent feedback
-☐ Class comparison
-☐ Goal progress
-☐ Milestone tracker
-☐ Time investment
-
-Update frequency:
-○ Real-time
-● Daily summary
-○ Weekly digest
-```
-
-### Progress Celebrations
-
-System recognitions:
-
-```
-🎉 Recent Achievements
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🌟 New Personal Best!
-Essay 3 scored 88% - your highest yet!
-
-📈 Improvement Streak!
-5 consecutive assignments with growth
-
-💪 Persistence Pays!
-Used all drafts for 10 assignments
-
-🎯 Goal Achieved!
-Grammar scores now consistently 80%+
+- Review feedback thoroughly
 ```
 
 ## Using Progress for Reflection
@@ -610,18 +423,18 @@ Grammar scores now consistently 80%+
 Comprehensive reflection:
 
 ```
-Semester Reflection Report
+Semester Reflection
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Starting Point (September):
-- Average: 72%
-- Weakest: Grammar (65%)
-- Strongest: Organization (75%)
+- Overall: ○ On the board
+- Furthest out: Grammar (Finding the range)
+- Closest in: Organization (On the board)
 
 Current Status (December):
-- Average: 86% (+14%)
-- Weakest: Conclusions (80%)
-- Strongest: Organization (89%)
+- Overall: ◎ Closing in
+- Furthest out: Conclusions (On the board)
+- Closest in: Organization (On the bullseye)
 
 Key Learnings:
 1. Multiple drafts essential
@@ -641,8 +454,8 @@ Skills Developed:
 Build your writing portfolio:
 
 1. **Select Best Work**
-   - Highest scores
-   - Most improvement
+   - Drafts that landed on the bullseye
+   - Assignments with the biggest dart movement
    - Diverse genres
 
 2. **Document Growth**
@@ -661,35 +474,35 @@ Build your writing portfolio:
 
 Make it routine:
 
-- **Weekly**: Check current averages
-- **After Feedback**: Note patterns
-- **Before New Assignment**: Review strategies
-- **Monthly**: Comprehensive analysis
+- **Weekly**: Glance at your dartboard rows
+- **After Feedback**: Note patterns and focus areas
+- **Before New Assignment**: Review what worked last time
+- **End of Term**: Reflect on your overall trajectory
 
 ### Action-Oriented
 
-Turn data into action:
+Turn what you see into action:
 
 ```
-From Data to Action:
+From Progress View to Action:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Data: "Conclusions average 76%"
+See: "Conclusions keep landing On the board"
 ↓
 Insight: "Need synthesis, not summary"
 ↓
 Action: "Use conclusion template"
 ↓
-Result: "Next conclusion: 84%"
+Result: "Next conclusion: Closing in"
 ```
 
 ### Stay Motivated
 
 Use progress for motivation:
 
-- Celebrate small wins
+- Celebrate every step the dart takes toward the centre
 - Focus on growth, not perfection
-- Compare to yourself, not others
+- Compare to your own earlier drafts, not to others
 - Remember everyone improves differently
 
 ## Next Steps
@@ -702,7 +515,7 @@ Use progress for motivation:
 ---
 
 {: .tip }
-> Export your progress report at the end of each term. It's valuable for academic planning, scholarship applications, and personal reflection.
+> Before starting each new assignment, spend five minutes with your progress view. Knowing your one or two focus areas before you write beats discovering them in feedback afterwards.
 
 {: .note }
 > Remember: Progress isn't always linear. Some assignments will be harder than others. Focus on your overall trajectory, not individual setbacks.

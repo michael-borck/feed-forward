@@ -11,9 +11,9 @@ FeedForward is an advanced AI-powered platform for providing formative feedback 
 ### For Students
 - **Multi-draft submissions** with iterative feedback improvement
 - **Progress tracking** across assignment versions with detailed comparisons
-- **Visual feedback display** with emoji indicators and performance tracking
+- **Calm, text-focused feedback** with a bullseye progress glyph and qualitative levels
 - **Real-time feedback** with instructor review workflow
-- **Privacy-focused** design with temporary draft storage
+- **Progress tracking** across retained drafts, with student-controlled draft visibility
 
 ### For Instructors
 - **Custom rubric creation** with weighted categories and detailed criteria
@@ -124,7 +124,7 @@ python tools/create_demo_accounts.py     # Create demo users
 - **Role-Based Security** - Separate interfaces for students, instructors, admins
 
 ### Data Flow
-1. Student submits draft → Temporary storage
+1. Student submits draft → Retained storage (supports cross-draft progress tracking)
 2. Background processing → Multi-model AI evaluation
 3. Score aggregation → Rubric-aligned feedback synthesis
 4. Instructor review → Optional feedback editing
@@ -136,7 +136,7 @@ python tools/create_demo_accounts.py     # Create demo users
 1. **Login** with institutional credentials
 2. **View assignments** on the dashboard
 3. **Submit drafts** with iterative improvements
-4. **Review feedback** with emoji indicators and detailed analysis
+4. **Review feedback** with the bullseye progress glyph, qualitative levels, and detailed analysis
 5. **Track progress** across multiple draft versions
 
 ### For Instructors
@@ -177,4 +177,4 @@ python tools/create_demo_accounts.py     # Create demo users
 
 - Built for educational innovation at Curtin University
 - Powered by state-of-the-art AI language models
-- Designed for scalable, privacy-focused learning environments
+- Designed for scalable, progress-focused learning environments where students control the visibility of their own drafts

@@ -245,7 +245,7 @@ Make sure this is your final version.
 
 ### Step 7: Submission Receipt
 
-Save your confirmation:
+Note your confirmation details:
 
 ```
 Submission Successful! ✅
@@ -258,14 +258,14 @@ Processing: AI feedback generation started
 What Happens Next:
 1. AI analyzes your submission (30-60 min)
 2. Instructor reviews feedback (24-48 hrs)
-3. You receive notification when ready
+3. Assignment status changes to "Feedback Ready"
 4. View feedback and plan revision
 
 [View Submission] [Return to Course]
-
-📧 Confirmation email sent to:
-   sjohnson@university.edu
 ```
+
+{: .note }
+> FeedForward doesn't send confirmation emails. Screenshot or jot down your confirmation number, and check the assignment page to follow your submission's status.
 
 ## Text-Based Submissions
 
@@ -340,13 +340,13 @@ Your Submission History:
 
 Draft 1:
 ├── Submitted: Oct 5, 2:30 PM
-├── Score: 75% (C)
+├── Overall: ○ On the board
 ├── Status: Feedback received
-└── [View Feedback]
+└── [View Feedback] [Hide from my view]
 
 Draft 2:
 ├── Submitted: Oct 10, 2:47 PM
-├── Score: Pending
+├── Overall: Pending
 ├── Status: Processing
 └── [View Submission]
 
@@ -356,17 +356,31 @@ Draft 3:
 └── [Submit Final Draft]
 ```
 
+Your drafts are kept so you can look back at earlier versions and see how far you've come. If you'd rather not see an old draft, you can hide it from your own view at any time.
+
 ### Comparing Drafts
 
-See your improvement:
+See how Draft 2 landed compared to Draft 1:
 
-| Criteria | Draft 1 | Draft 2 | Change |
-|----------|---------|---------|---------|
-| Thesis | 15/20 | 18/20 | +3 ↑ |
-| Evidence | 18/25 | 22/25 | +4 ↑ |
-| Organization | 16/20 | 19/20 | +3 ↑ |
-| Grammar | 12/15 | 14/15 | +2 ↑ |
-| Overall | 75% | 85% | +10% ↑ |
+```
+Draft 1 → Draft 2
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Overall:  ○ On the board  →  ◎ Closing in
+
+Improved:
+- Thesis (dart moved closer to the centre)
+- Evidence (clearer, better-integrated sources)
+- Organization (stronger paragraph flow)
+
+Worth revisiting:
+- Conclusion (still summarizes rather than synthesizes)
+- Comma usage
+
+Maintained strengths:
+- Introduction
+- Voice and tone
+```
 
 ## Submission Timing
 
@@ -380,7 +394,7 @@ Assignment Timeline:
 
 Opens: Oct 1, 12:00 AM EST
 Due: Oct 15, 11:59 PM EST ← Main deadline
-Late Period: Oct 16-22 (-10% per day)
+Late Period: Oct 16-22 (penalties may apply)
 Closes: Oct 22, 11:59 PM EST ← No submissions after
 
 Your Timezone: EST (same as course)
@@ -398,8 +412,7 @@ If you miss the deadline:
    - System allowance for technical issues
 
 2. **Late Penalties**
-   - Typical: -10% per day
-   - Maximum penalty varies
+   - Set by your instructor
    - Some assignments don't accept late work
 
 3. **Extensions**
@@ -468,7 +481,7 @@ For group projects:
 If you need to replace a submission:
 
 {: .warning }
-> You cannot edit or delete submitted drafts. Each submission uses one attempt.
+> You cannot edit a submitted draft, and each submission uses one attempt. You can hide a draft from your own view, but it still counts as a submission.
 
 - Contact instructor immediately
 - Explain the issue
@@ -531,8 +544,8 @@ Clear cache if issues persist:
 - Submit early to avoid technical issues
 - Keep local copies of all drafts
 - Verify upload before confirming
-- Read confirmation carefully
-- Check email for receipt
+- Read the on-screen confirmation carefully
+- Note your confirmation number
 - Use all available drafts
 - Follow naming conventions
 
@@ -542,7 +555,7 @@ Clear cache if issues persist:
 - Exceed file size limits
 - Use unsupported formats
 - Submit incomplete work
-- Ignore confirmation emails
+- Skip the confirmation screen
 - Share confirmation numbers
 
 ### Submission Checklist
@@ -601,16 +614,18 @@ Submission Pipeline:
    - Personal comments added
    - Approval for release
            ↓
-4. Notification 📧 (When ready)
-   - Email sent
-   - Dashboard updated
-   - Feedback available
+4. Feedback Released
+   - Assignment status changes to "Feedback Ready"
+   - Feedback appears on the assignment page
            ↓
 5. View Feedback 📄
    - Read thoroughly
    - Plan improvements
    - Prepare next draft
 ```
+
+{: .note }
+> There are no email notifications — check the assignment page to see when the status changes from "Processing" to "Feedback Ready".
 
 ### While You Wait
 
@@ -626,7 +641,7 @@ Productive activities:
 
 After successful submission:
 
-1. **Wait for notification** of feedback availability
+1. **Check the assignment page** for the status change to "Feedback Ready"
 2. **Read** the [Understanding Feedback](./viewing-feedback) guide
 3. **Plan** your revision strategy
 4. **Track** your progress

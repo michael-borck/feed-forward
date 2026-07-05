@@ -87,16 +87,17 @@ Log Retention Days: 90
 2. Set privacy options:
 
 ```
-Draft Retention: 24 hours
-Auto-Delete Submissions: Yes
 Anonymize Analytics: Yes
 Data Export Format: JSON
 GDPR Compliance Mode: Yes
 ```
 
+{: .note }
+> Draft content is retained by design so students can track progress across drafts. Students can hide drafts from their own view at any time.
+
 ## Step 3: Email Configuration
 
-Email is essential for sending course invitations to students.
+Email is used only for instructor account emails — registration verification and password resets. Students are never emailed by the system; instructors distribute personal join links through their own channels.
 
 ### SMTP Setup
 
@@ -127,10 +128,8 @@ From Name: FeedForward System
 
 1. Go to **Settings** → **Email Templates**
 2. Customize templates for:
-   - Student Invitations
+   - Instructor Registration Verification
    - Password Resets
-   - Assignment Notifications
-   - Feedback Ready Alerts
 
 ## Step 4: AI Provider Configuration
 

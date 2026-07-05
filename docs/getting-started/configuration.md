@@ -57,7 +57,7 @@ DATABASE_PATH=data/feedforward.db
 
 ### Email Configuration
 
-Email settings are required for sending course invitations to students:
+Email settings are required for instructor account emails — registration verification and password resets. (The system never emails students; instructors distribute personal join links themselves.)
 
 ```env
 # SMTP Server Configuration
@@ -125,17 +125,6 @@ REPLICATE_API_KEY=your-replicate-key
 ```
 
 ## Advanced Configuration
-
-### Privacy Settings
-
-```env
-# Draft content retention (hours before cleanup, 0 = immediate)
-DRAFT_RETENTION_HOURS=24
-
-# Enable automatic cleanup scheduler
-ENABLE_AUTO_CLEANUP=true
-CLEANUP_SCHEDULE="0 2 * * *"  # Cron format: 2 AM daily
-```
 
 ### Performance Tuning
 

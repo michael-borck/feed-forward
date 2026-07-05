@@ -197,7 +197,7 @@ AI Configuration:
 Feedback Settings:
   Require Review: Yes
   Auto-Release: No
-  Show Scores: After approval
+  Mark Display: Bullseye icon (default)  # Numeric scores are opt-in per assignment
 ```
 
 ## Course Organization
@@ -250,9 +250,9 @@ Communicate with all students:
      Please review and begin your revisions.
    
    Options:
-     Email Students: Yes
      Pin to Top: No
      Schedule: Immediate
+     Tip: Share announcements via your LMS as well
    ```
 
 2. **Announcement Types**
@@ -482,8 +482,7 @@ Connect with other systems:
 **Students Can't Access Course**
 - Check enrollment status
 - Verify course is active
-- Resend invitations
-- Check spam folders
+- Re-send join links via "Get link" on the Students page
 
 **Assignment Not Visible**
 - Verify publication status

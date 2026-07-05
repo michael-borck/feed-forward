@@ -19,7 +19,7 @@ nav_order: 4
 
 ## Overview
 
-FeedForward uses an invitation-based system for student enrollment, ensuring only authorized students join your courses. This guide covers individual invitations, bulk CSV uploads, managing invitations, and troubleshooting common enrollment issues.
+FeedForward uses an invitation-based system for student enrollment, ensuring only authorized students join your courses. When you invite students, the system creates a personal **join link** for each student, which you distribute through your own channel — an LMS announcement, a cohort email, or in class. This guide covers individual invitations, bulk CSV uploads, distributing join links, and troubleshooting common enrollment issues.
 
 ## Understanding the Invitation System
 
@@ -28,28 +28,34 @@ FeedForward uses an invitation-based system for student enrollment, ensuring onl
 1. **Security** - Only authorized students can join
 2. **Privacy** - No public course listings
 3. **Control** - Instructors manage enrollment
-4. **Verification** - Email verification required
+4. **Simplicity** - Students activate with one personal link
 5. **Tracking** - Monitor who has joined
 
 ### Invitation Workflow
 
 ```
-1. Instructor sends invitation
+1. Instructor enters student emails (paste or CSV)
    ↓
-2. Student receives email
+2. System creates an account and a personal join link
+   for each student
    ↓
-3. Student clicks invitation link
+3. Join links appear on-screen for the instructor
+   (with a copy-all option)
    ↓
-4. Student creates account (if needed)
+4. Instructor distributes the links via their own
+   channel (LMS announcement, cohort email)
    ↓
-5. Student joins course automatically
+5. Student opens their link and activates their account
    ↓
-6. Student can access assignments
+6. Student joins the course and can access assignments
 ```
+
+{: .important }
+> FeedForward never emails students. You are always the one who delivers each student's join link, through whatever channel your institution already uses.
 
 ## Individual Invitations
 
-### Sending Single Invitations
+### Inviting a Single Student
 
 1. **Navigate to Your Course**
 2. Click **"Students"** → **"Invite Students"**
@@ -58,51 +64,26 @@ FeedForward uses an invitation-based system for student enrollment, ensuring onl
 ```yaml
 Invitation Form:
   Student Email: student@university.edu
-  
+
   Optional Fields:
     First Name: Jane
     Last Name: Smith
     Student ID: 12345678
-  
-  Message Customization:
-    Use Default: Yes
-    Or Custom Message: |
-      Welcome to ENGL101! I'm looking forward
-      to working with you this semester.
-  
-  Options:
-    Send Copy to Self: Yes
-    Expiration: 14 days
 ```
 
-### Invitation Email Template
+4. Click **"Create Invitation"**
 
-Students receive:
+The system creates the student's account and displays their personal join link on-screen. Copy the link and send it to the student yourself — for example, in a direct message or email from your own account.
 
-```
-Subject: Invitation to join Introduction to Academic Writing
+### What the Student Sees
 
-Dear [Student Name],
+When the student opens their join link, they are taken to an activation page where they:
 
-You have been invited to join the following course on FeedForward:
+1. Confirm their name
+2. Set a password
+3. Land directly in your course
 
-Course: Introduction to Academic Writing (ENGL101)
-Instructor: Dr. Jane Smith
-Term: Fall 2024
-
-Click here to accept this invitation: [ACCEPT INVITATION]
-
-This invitation will expire in 14 days.
-
-If you already have a FeedForward account, you'll be added to 
-the course immediately. Otherwise, you'll be prompted to create 
-an account first.
-
-Questions? Contact your instructor at jsmith@university.edu
-
-Best regards,
-The FeedForward Team
-```
+If the student already has a FeedForward account, the link enrolls them in your course immediately.
 
 ## Bulk CSV Upload
 
@@ -149,7 +130,7 @@ cjohnson@university.edu,Carol,Johnson,12345681
    │ 2   │ asmith@univ.edu │ Alice Smith│ ✓ Valid   │
    │ 3   │ invalid-email   │ Bob Wilson │ ✗ Invalid │
    └─────┴──────────────────┴────────────┴───────────┘
-   
+
    Valid: 2 | Invalid: 1 | Duplicates: 0
    ```
 
@@ -158,10 +139,10 @@ cjohnson@university.edu,Carol,Johnson,12345681
    - Fix invalid entries
    - Confirm upload
 
-4. **Process Invitations**
-   - System sends emails
-   - Track progress
-   - View results
+4. **Collect the Join Links**
+   - System creates accounts and generates a personal join link per student
+   - Links appear on-screen next to each student
+   - Use **"Copy All"** to grab the full list at once
 
 ### Handling CSV Errors
 
@@ -191,145 +172,89 @@ Error: Unable to parse CSV file
 Fix: Save as UTF-8 without BOM
 ```
 
-## Managing Invitations
+## Distributing Join Links
 
-### Invitation Dashboard
+### Copying the Links
 
-View all invitations at a glance:
+After inviting students, the join links are shown on-screen:
+
+1. **Copy All**
+   - Click **"Copy All"** to copy every student's email and personal link
+   - Paste into a spreadsheet, mail merge, or LMS message
+
+2. **Copy Individually**
+   - Click the copy icon next to a single student
+   - Useful for late enrollers or one-off invitations
+
+### Recommended Distribution Channels
+
+1. **LMS Announcement or Message**
+   - Post a course announcement explaining FeedForward
+   - Send each student their own link via the LMS message tool
+   - Most students already check the LMS daily
+
+2. **Cohort Email**
+   - Use your institutional email or a mail merge
+   - Include the student's personal link in each message
+   - Add context: what FeedForward is and when to join by
+
+3. **In-Class Handout**
+   - For small classes, walk through activation together
+   - Have links ready before the session
+
+{: .warning }
+> Each join link is personal to one student. Do not post links in a shared location where students could pick up the wrong one.
+
+## Managing Enrollment
+
+### Course Students Page
+
+View all invited and enrolled students at a glance:
 
 ```
-Invitation Status Overview:
+Enrollment Status Overview:
 ┌────────────┬────────┬──────────────┬─────────────┐
 │ Status     │ Count  │ Last Action  │ Actions     │
 ├────────────┼────────┼──────────────┼─────────────┤
-│ Pending    │ 15     │ 2 hours ago  │ Resend All  │
-│ Accepted   │ 45     │ 1 hour ago   │ View        │
-│ Expired    │ 3      │ 3 days ago   │ Reinvite    │
-│ Declined   │ 0      │ -            │ -           │
+│ Invited    │ 15     │ 2 hours ago  │ Get link    │
+│ Active     │ 45     │ 1 hour ago   │ View        │
+│ Removed    │ 2      │ 3 days ago   │ Re-invite   │
 └────────────┴────────┴──────────────┴─────────────┘
 ```
 
-### Invitation Actions
+### Retrieving a Join Link
 
-#### Resending Invitations
+If you need a student's link again — because they lost it or you didn't record it:
 
-For pending invitations:
+1. Go to your course's **Students** page
+2. Find the student in the list
+3. Click **"Get link"**
+4. Copy the link and send it to the student
 
-1. **Individual Resend**
-   - Find student in list
-   - Click "Resend"
-   - Confirm action
+You can retrieve a student's link as many times as needed; it always points to the same personal invitation.
 
-2. **Bulk Resend**
-   - Select multiple students
-   - Click "Resend Selected"
-   - Or "Resend All Pending"
+### Removing Students
 
-#### Canceling Invitations
+Remove students who should no longer have access:
 
-Remove unwanted invitations:
+1. Select the student(s)
+2. Click **"Remove"**
+3. Confirm removal
+4. Their join link no longer grants access to the course
 
-1. Select invitation(s)
-2. Click "Cancel"
-3. Confirm cancellation
-4. Student cannot use link
-
-#### Extending Expiration
-
-For invitations about to expire:
-
-1. **Individual Extension**
-   - Click "Extend"
-   - Add days (max 30)
-   - Save changes
-
-2. **Bulk Extension**
-   - Filter by "Expiring Soon"
-   - Select all
-   - Extend by X days
-
-### Tracking Acceptance
+### Tracking Activation
 
 Monitor who has joined:
 
 ```yaml
-Acceptance Metrics:
+Activation Metrics:
   Total Invited: 50
-  Accepted: 45 (90%)
-  Pending: 3 (6%)
-  Expired: 2 (4%)
-  
-  Average Time to Accept: 4.5 hours
+  Activated: 45 (90%)
+  Not Yet Joined: 5 (10%)
+
+  Average Time to Activate: 4.5 hours
   Fastest: 12 minutes
   Slowest: 3 days
-```
-
-## Advanced Invitation Features
-
-### Custom Invitation Messages
-
-Personalize your invitations:
-
-1. **Create Template**
-   ```
-   Subject: Welcome to [COURSE_NAME]!
-   
-   Dear [STUDENT_NAME],
-   
-   I'm excited to have you in [COURSE_CODE] this semester.
-   
-   Our first assignment will be available on [DATE].
-   Please join the course by [DEADLINE] to ensure
-   you don't miss any important information.
-   
-   Looking forward to working with you!
-   
-   Best,
-   [INSTRUCTOR_NAME]
-   ```
-
-2. **Use Variables**
-   - [STUDENT_NAME]
-   - [COURSE_NAME]
-   - [COURSE_CODE]
-   - [INSTRUCTOR_NAME]
-   - [DEADLINE]
-   - [CUSTOM_FIELD]
-
-### Invitation Groups
-
-Organize large classes:
-
-1. **Create Groups**
-   - Lab Section A
-   - Lab Section B
-   - Tuesday Discussion
-   - Thursday Discussion
-
-2. **Assign to Groups**
-   - During CSV upload
-   - After acceptance
-   - Bulk assignment
-
-3. **Group Features**
-   - Separate announcements
-   - Different due dates
-   - Section-specific content
-
-### Waitlist Management
-
-Handle course capacity:
-
-```yaml
-Waitlist Settings:
-  Enable Waitlist: Yes
-  Waitlist Capacity: 10
-  Auto-Promote: Yes
-  
-  Notification Settings:
-    Notify When Space Opens: Yes
-    Give Response Time: 48 hours
-    Auto-Cancel if No Response: Yes
 ```
 
 ## Integration with External Systems
@@ -346,7 +271,11 @@ Sync with your Learning Management System:
 2. **Import to FeedForward**
    - Use bulk upload
    - Map fields correctly
-   - Process invitations
+   - Copy the generated join links
+
+3. **Distribute via LMS**
+   - Send each student their link through LMS messaging
+   - Or post an announcement directing students to check their messages
 
 ### Student Information System
 
@@ -354,23 +283,19 @@ Connect with institutional systems:
 
 ```yaml
 SIS Integration:
-  Import Method: API/CSV
-  Sync Frequency: Daily
-  
+  Import Method: CSV export from SIS
+  Sync Frequency: Start of term + add/drop period
+
   Field Mapping:
     SIS_Email → email
     SIS_FirstName → first_name
     SIS_LastName → last_name
     SIS_ID → student_id
-  
-  Conflict Resolution:
-    Use SIS Data: Yes
-    Notify on Changes: Yes
 ```
 
 ## Communication Best Practices
 
-### Before Sending Invitations
+### Before Distributing Links
 
 1. **Prepare Students**
    - Announce in class
@@ -383,31 +308,30 @@ SIS Integration:
    - Remove duplicates
    - Confirm enrollment
 
-### Invitation Timing
+### Distribution Timing
 
-Optimal invitation schedule:
+Optimal enrollment schedule:
 
 ```yaml
 Recommended Timeline:
-  Week -1: Send initial invitations
-  Week 1, Day 1: First reminder
-  Week 1, Day 3: Second reminder
-  Week 1, Day 5: Final reminder
-  Week 2: Individual follow-up
+  Week -1: Create invitations and distribute links
+  Week 1, Day 1: First reminder in class / LMS
+  Week 1, Day 3: Follow up with students who haven't joined
+  Week 2: Individual follow-up (re-send links via "Get link")
 ```
 
 ### Follow-Up Strategies
 
-For non-responders:
+For students who haven't activated:
 
-1. **Email Reminders**
-   - Automated resends
-   - Personal messages
-   - CC academic advisor
+1. **Re-Send Their Link**
+   - Use **"Get link"** on the course students page
+   - Send via LMS message or direct email
+   - CC academic advisor if needed
 
 2. **In-Class Reminders**
    - Verbal announcements
-   - Show accept process
+   - Demonstrate the activation process
    - Offer help session
 
 3. **Alternative Contact**
@@ -419,29 +343,31 @@ For non-responders:
 
 ### Common Student Issues
 
-**"I didn't receive the invitation"**
-1. Check spam/junk folders
-2. Verify email address
-3. Resend invitation
-4. Send to alternate email
+**"I lost my join link"**
+1. Go to your course's **Students** page
+2. Find the student and click **"Get link"**
+3. Copy the link and send it to the student again
+
+**"A student opened someone else's link"**
+1. Join links are unique to each student — don't swap them
+2. Ask the student to close the page without activating
+3. Use **"Get link"** to retrieve the correct link for each student
+4. Send each student their own link
 
 **"The link doesn't work"**
-1. Check if expired
-2. Verify student email
-3. Cancel and recreate
-4. Provide direct link
+1. Check the full URL was copied (links can break across line wraps)
+2. Verify the student is still on the course roster
+3. Retrieve a fresh copy via **"Get link"**
 
 **"I can't create an account"**
 1. Check password requirements
-2. Verify email not taken
-3. Clear browser cache
-4. Try different browser
+2. Clear browser cache
+3. Try different browser
 
-**"I accepted but can't see the course"**
-1. Verify acceptance completed
-2. Check course status
+**"I activated but can't see the course"**
+1. Verify activation completed
+2. Check course status is Active
 3. Have student log out/in
-4. Manually add if needed
 
 ### System Issues
 
@@ -451,11 +377,10 @@ For non-responders:
 - Remove special characters
 - Try smaller batches
 
-**Emails not sending**
-- Check system status
-- Verify email configuration
-- Contact administrator
-- Use manual process
+**Join links not appearing**
+- Refresh the course students page
+- Verify the upload completed
+- Contact administrator if links are still missing
 
 ## Privacy and Security
 
@@ -466,15 +391,15 @@ For non-responders:
    - Email required, rest optional
    - No sensitive information
 
-2. **Secure Transmission**
-   - Encrypted invitation links
+2. **Secure Links**
+   - Unique, unguessable tokens per student
    - HTTPS required
-   - Time-limited access
+   - Links tied to a single account
 
 3. **Access Control**
    - Only instructor can invite
-   - Students can't share links
-   - One-time use tokens
+   - Links are personal — one per student
+   - Removed students lose access
 
 ### FERPA Compliance
 
@@ -483,23 +408,23 @@ Maintain educational privacy:
 - Don't share student emails
 - Keep rosters confidential
 - Secure CSV files
-- Delete old invitations
+- Send each link only to its student
 
 ## Best Practices Summary
 
 ### Do's
-✅ Send invitations early in term
+✅ Create invitations early in term
 ✅ Use bulk upload for large classes
-✅ Follow up with non-responders
-✅ Keep invitation lists organized
+✅ Distribute links through your LMS
+✅ Follow up with students who haven't joined
 ✅ Communicate clearly about the process
 
 ### Don'ts
 ❌ Wait until assignments are due
-❌ Share invitation links publicly
+❌ Post join links in shared/public spaces
+❌ Swap links between students
 ❌ Upload sensitive student data
-❌ Ignore failed invitations
-❌ Assume all students received emails
+❌ Assume all students saw your announcement
 
 ## Next Steps
 
@@ -510,7 +435,7 @@ Maintain educational privacy:
 ---
 
 {: .tip }
-> Set up a reminder system for yourself to check invitation status regularly during the first two weeks of class.
+> Set up a reminder for yourself to check activation status on the course students page during the first two weeks of class, and re-send links with "Get link" as needed.
 
 {: .note }
 > Students who join late can still access all previous assignment feedback, making the invitation system flexible for add/drop periods.

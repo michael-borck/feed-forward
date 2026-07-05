@@ -19,54 +19,37 @@ nav_order: 3
 
 ## Overview
 
-This guide helps you understand, interpret, and effectively use the AI-generated feedback you receive on your assignments. Learn how to navigate feedback reports, understand scoring, identify key improvements, and plan your revisions.
+This guide helps you understand, interpret, and effectively use the AI-generated feedback you receive on your assignments. Learn how to navigate feedback reports, read the bullseye indicators, identify key improvements, and plan your revisions.
 
 ## Accessing Your Feedback
 
-### Notification of Feedback
+### Knowing When Feedback Is Ready
 
-You'll know feedback is ready through:
+FeedForward doesn't send email notifications — your feedback appears on the assignment page as soon as your instructor releases it. Check the assignment status:
 
-1. **Email Notification**
-```
-Subject: Feedback Available - Essay 1 Draft 2
-
-Hi Sarah,
-
-Your feedback for Essay 1: Personal Narrative (Draft 2) 
-is now available in FeedForward.
-
-Course: ENGL101 - Introduction to Academic Writing
-Instructor: Dr. Jane Smith
-Submitted: October 10, 2024
-Feedback Ready: October 11, 2024
-
-View Your Feedback: [Click Here]
-
-Best regards,
-The FeedForward Team
-```
-
-2. **Dashboard Alert**
-```
-🔔 New Notification
-Feedback ready for Essay 1 Draft 2
-```
-
-3. **Course Page Indicator**
+1. **While feedback is being prepared**
 ```
 Essay 1: Personal Narrative
-Status: ✅ Feedback Available
+Status: Processing
+Your draft is being analyzed and reviewed.
+```
+
+2. **Once your instructor releases it**
+```
+Essay 1: Personal Narrative
+Status: Feedback Ready
 [View Feedback]
 ```
+
+{: .tip }
+> After submitting, check back on the assignment page later that day or the next. AI analysis takes under an hour, but your instructor reviews everything before release, which can take 24-48 hours.
 
 ### Opening Your Feedback
 
 Navigate to feedback:
 
-1. **From Email**: Click direct link
-2. **From Dashboard**: Click notification
-3. **From Course**: 
+1. **From Dashboard**: Recent activity shows "Feedback released"
+2. **From Course**:
    - Go to assignment
    - Click "View Feedback"
    - Select draft version
@@ -86,51 +69,51 @@ Draft: 2 of 3
 Submitted: October 10, 2024, 2:47 PM
 Reviewed: October 11, 2024, 10:15 AM
 
-Overall Score: 82% (B)
-Improvement: +7% from Draft 1
+Overall:  ◎ Closing in
+Progress: Draft 1 ○ → Draft 2 ◎  (dart moving toward the centre)
 
-📊 Quick Summary:
-Your personal narrative shows significant improvement 
-in organization and evidence use. The thesis is now 
-clearer, and your examples effectively support your 
-main points. Focus on strengthening your conclusion 
-and addressing minor grammatical issues for your 
+Quick Summary:
+Your personal narrative shows significant improvement
+in organization and evidence use. The thesis is now
+clearer, and your examples effectively support your
+main points. Focus on strengthening your conclusion
+and addressing minor grammatical issues for your
 final draft.
 
 Instructor Note:
-"Great progress, Sarah! Your revisions really 
-strengthened the essay's impact. Let's discuss 
+"Great progress, Sarah! Your revisions really
+strengthened the essay's impact. Let's discuss
 your conclusion strategy during office hours."
 ```
 
 ### Rubric Breakdown
 
-Detailed scoring by category:
+Detailed feedback by category:
 
 ```
 Rubric Evaluation
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📝 Thesis Statement (20% of grade)
-Score: 17/20 (85%) ↑ +3 from Draft 1
+Thesis Statement
+◎ Closing in  (was ○ On the board in Draft 1)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Your thesis "Social media has fundamentally altered 
-how my generation forms and maintains friendships" 
-is clear and arguable. It effectively previews your 
+Your thesis "Social media has fundamentally altered
+how my generation forms and maintains friendships"
+is clear and arguable. It effectively previews your
 main points about online vs. offline relationships.
 
 Strengths:
-✓ Clear, specific claim
-✓ Arguable position
-✓ Sets up essay structure
+- Clear, specific claim
+- Arguable position
+- Sets up essay structure
 
-Area for Improvement:
-• Consider adding why this matters to make the 
+To Improve:
+- Consider adding why this matters to make the
   thesis more compelling
 
-💡 Suggestion:
-Add a "so what" element: "...friendships, creating 
-both new opportunities for connection and unexpected 
+Suggestion:
+Add a "so what" element: "...friendships, creating
+both new opportunities for connection and unexpected
 challenges for authentic relationships."
 ```
 
@@ -138,14 +121,14 @@ challenges for authentic relationships."
 
 Each rubric category includes:
 
-1. **Score and Percentage**
-   - Points earned/possible
-   - Letter grade equivalent
-   - Change from previous draft
+1. **Bullseye Indicator**
+   - Where your dart landed for this category
+   - The level word (e.g. "Closing in")
+   - How it compares to your previous draft
 
 2. **Specific Feedback**
-   - What you did well
-   - What needs work
+   - What you did well (Strengths)
+   - What needs work (To Improve)
    - Concrete examples from your text
 
 3. **Improvement Suggestions**
@@ -156,86 +139,71 @@ Each rubric category includes:
 Example continued:
 
 ```
-📚 Evidence & Support (25% of grade)
-Score: 21/25 (84%) ↑ +4 from Draft 1
+Evidence & Support
+◎ Closing in  (was ◌ Finding the range in Draft 1)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Your use of personal anecdotes and research has 
-improved significantly. The example about your 
-online gaming friendship (paragraph 3) effectively 
+Your use of personal anecdotes and research has
+improved significantly. The example about your
+online gaming friendship (paragraph 3) effectively
 illustrates your point about digital connections.
 
 Strengths:
-✓ Mix of personal and researched evidence
-✓ Specific, detailed examples
-✓ Evidence clearly supports claims
+- Mix of personal and researched evidence
+- Specific, detailed examples
+- Evidence clearly supports claims
 
-Areas for Improvement:
-• Second body paragraph needs stronger example
-• One source needs proper citation
+To Improve:
+- Second body paragraph needs stronger example
+- One source needs proper citation
 
-💡 Suggestions:
+Suggestions:
 1. Add specific dialogue or scene to paragraph 2
 2. Fix citation for Smith (2023) - missing page number
 3. Consider adding one more scholarly source
 ```
 
-## Understanding Scores
+## Understanding the Bullseye
 
-### Score Interpretation
+### Reading the Dartboard
 
-What your scores mean:
+Every category — and your work overall — is shown as a dartboard. The closer the dart lands to the centre, the stronger the work. Five levels describe where you are:
 
 ```
-Grade Scale:
+Bullseye Levels:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-A  (93-100%): Exceptional work
-A- (90-92%):  Excellent work
-B+ (87-89%):  Very good work
-B  (83-86%):  Good work
-B- (80-82%):  Above average work
-C+ (77-79%):  Slightly above average
-C  (73-76%):  Average work
-C- (70-72%):  Below average
-D  (60-69%):  Poor work
-F  (0-59%):   Failing work
+◉ On the bullseye    Exceptional — minor refinements only
+◎ Closing in         Strong — some areas to improve
+○ On the board       Satisfactory — meaningful revision needed
+◌ Finding the range  Below expectations — major revision required
+· Take another aim   Doesn't meet requirements yet — see instructor
 ```
 
-### Score Components
+{: .note }
+> If your instructor has enabled numeric scores for an assignment, you'll see numbers out of 100 alongside the bullseye. Most assignments use the bullseye view only.
 
-Understanding the breakdown:
+### What Overall Means
 
-```
-Your Score Calculation:
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Thesis (20%):      17/20 × 0.20 = 3.4
-Evidence (25%):    21/25 × 0.25 = 5.25
-Organization (20%): 18/20 × 0.20 = 3.6
-Style (20%):       16/20 × 0.20 = 3.2
-Grammar (15%):     13/15 × 0.15 = 1.95
-                   ________________
-Total:             82/100 = 82% (B)
-```
+Your overall indicator reflects all rubric categories together, with the categories your instructor weighted most heavily counting for more. A strong thesis can pull your overall dart toward the centre even while your conclusion still needs work — the category breakdown shows you exactly where to aim next.
 
 ### Progress Indicators
 
-Track your improvement:
+Track your improvement as a row of dartboards — one per draft, dart moving toward the centre as your work improves:
 
 ```
 Draft Comparison:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-         Draft 1  Draft 2  Change
-Overall:   75%     82%     +7% ↑
-Thesis:    14      17      +3 ↑
-Evidence:  17      21      +4 ↑
-Org:       15      18      +3 ↑
-Style:     15      16      +1 ↑
-Grammar:   12      13      +1 ↑
+           Draft 1            Draft 2
+Overall:   ○ On the board  →  ◎ Closing in
+Thesis:    ○ On the board  →  ◎ Closing in
+Evidence:  ◌ Finding range →  ◎ Closing in
+Org:       ○ On the board  →  ◎ Closing in
+Style:     ○ On the board  →  ○ On the board
+Grammar:   ○ On the board  →  ○ On the board
 
-🎯 Most Improved: Evidence (+4)
-⚠️ Focus Next: Style & Grammar
+Biggest step forward: Evidence
+Focus next: Style & Grammar
 ```
 
 ## Types of Feedback
@@ -245,19 +213,19 @@ Grammar:   12      13      +1 ↑
 Feedback highlights what you're doing well:
 
 ```
-🌟 Key Strengths Identified:
+Key Strengths Identified:
 
 1. Organization
-   "Your essay follows a clear chronological structure 
-   that effectively guides readers through your 
+   "Your essay follows a clear chronological structure
+   that effectively guides readers through your
    experience with online friendships."
 
 2. Voice and Style
-   "Your personal voice comes through authentically, 
+   "Your personal voice comes through authentically,
    making the narrative engaging and relatable."
 
 3. Introduction
-   "The opening anecdote immediately draws readers 
+   "The opening anecdote immediately draws readers
    in and sets up your thesis naturally."
 ```
 
@@ -266,21 +234,21 @@ Feedback highlights what you're doing well:
 Areas for improvement with specific guidance:
 
 ```
-🔧 Areas for Improvement:
+To Improve:
 
 1. Conclusion (Moderate Priority)
-   Current: "Your conclusion restates the thesis but 
+   Current: "Your conclusion restates the thesis but
    doesn't synthesize your insights or look forward."
-   
-   Suggestion: "Try ending with reflection on how 
-   understanding these changes helps you navigate 
-   both online and offline relationships. What have 
+
+   Suggestion: "Try ending with reflection on how
+   understanding these changes helps you navigate
+   both online and offline relationships. What have
    you learned? How will you apply it?"
-   
-   Example: "Understanding how social media has 
-   changed friendship hasn't made me delete my 
-   accounts—it's helped me use them more intentionally, 
-   balancing digital connection with face-to-face 
+
+   Example: "Understanding how social media has
+   changed friendship hasn't made me delete my
+   accounts—it's helped me use them more intentionally,
+   balancing digital connection with face-to-face
    moments that technology can't replace."
 ```
 
@@ -289,17 +257,17 @@ Areas for improvement with specific guidance:
 Feedback references your actual text:
 
 ```
-📍 Specific Text References:
+Specific Text References:
 
 Paragraph 3, Lines 4-6:
-Your text: "Me and my friend Jake met in a game 
-and we talk every day even though we never met 
+Your text: "Me and my friend Jake met in a game
+and we talk every day even though we never met
 in real life."
 
-Feedback: "This example effectively illustrates 
-your point about online friendships. Consider 
-revising for grammar: 'Jake and I met in a game. 
-We talk every day, even though we've never met 
+Feedback: "This example effectively illustrates
+your point about online friendships. Consider
+revising for grammar: 'Jake and I met in a game.
+We talk every day, even though we've never met
 in person.'"
 
 Why this change?
@@ -464,7 +432,7 @@ AI Analysis Sources:
 This feedback synthesizes insights from:
 • GPT-4 (3 evaluations)
 • Claude-3 (3 evaluations)
-• Aggregate score: Weighted average
+• Combined into a single agreed assessment
 
 Why multiple models?
 - Diverse perspectives
@@ -488,35 +456,12 @@ Remember that AI feedback:
 
 ## Special Feedback Elements
 
-### Comparative Analysis
-
-See how you stack up:
-
-```
-Comparative Performance (Anonymous):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Your Score: 82%
-Class Metrics:
-- Average: 78%
-- Median: 79%
-- Your Rank: Above Average
-
-Rubric Category Comparison:
-           You  Class Avg
-Thesis:    85%    80%    ↑
-Evidence:  84%    75%    ↑
-Org:       90%    82%    ↑
-Style:     80%    78%    ↑
-Grammar:   87%    85%    ↑
-```
-
 ### Resources and Links
 
 Helpful materials provided:
 
 ```
-📚 Recommended Resources:
+Recommended Resources:
 
 For Conclusion Writing:
 - [Writing Center: Effective Conclusions]
@@ -536,21 +481,18 @@ For Citations:
 
 ### Progress Visualization
 
-Visual improvement tracking:
+Visual improvement tracking — a dartboard per draft, dart moving toward the centre:
 
 ```
-Your Progress Graph:
+Your Progress Across Drafts:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Score
-100% ┤
- 90% ┤                    ○ (projected)
- 80% ┤           ●───────/
- 70% ┤    ●─────/  82%
- 60% ┤ 75%
- 50% ┤
-     └─────┬─────┬─────┬─────
-        Draft 1  Draft 2  Draft 3
+Draft 1        Draft 2        Draft 3
+   ○              ◎             (next)
+On the board   Closing in
+
+Overall trend: improving
+Keep this up and Draft 3 could land on the bullseye.
 ```
 
 ## Common Feedback Patterns
@@ -576,23 +518,23 @@ Common feedback on initial submissions:
 
 ### Improvement Trajectories
 
-Typical score progressions:
+Typical draft-to-draft progressions:
 
 ```
 Common Patterns:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Big Jump (65% → 80% → 85%):
+Big Jump (◌ Finding the range → ◎ Closing in):
 - Major structural changes
 - Significant new content
 - Addressed core issues
 
-Steady Climb (72% → 79% → 85%):
+Steady Climb (○ On the board → ◎ Closing in → ◉ On the bullseye):
 - Consistent improvements
 - Building on strengths
 - Incremental refinement
 
-Plateau Pattern (75% → 78% → 79%):
+Plateau Pattern (○ On the board → ○ On the board):
 - Minor changes only
 - Missing key feedback
 - Need bigger revisions
@@ -657,7 +599,7 @@ When you need support:
 
 ## Feedback FAQs
 
-**Q: Why did my score go down from Draft 1?**
+**Q: Why did my dart land further out than on Draft 1?**
 A: Sometimes addressing major issues reveals smaller problems. This is normal and shows deeper engagement.
 
 **Q: Can I discuss feedback with my instructor?**
@@ -668,6 +610,9 @@ A: Discuss with your instructor. AI isn't perfect, and your creative choices mat
 
 **Q: Should I address every single comment?**
 A: Focus on high-impact changes first. Perfect isn't the goal—improvement is.
+
+**Q: Will I ever see numbers instead of the dartboard?**
+A: Only if your instructor has enabled numeric scores for that assignment — then you'll see numbers out of 100 alongside the bullseye view.
 
 ## Tips for Success
 
@@ -685,7 +630,7 @@ A: Focus on high-impact changes first. Perfect isn't the goal—improvement is.
 ❌ Ignore positive comments
 ❌ Rush through revisions
 ❌ Skip instructor notes
-❌ Give up after low scores
+❌ Give up when a draft lands wide of the mark
 
 ## Next Steps
 

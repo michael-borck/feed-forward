@@ -128,17 +128,20 @@ This guide will help you get FeedForward up and running quickly with a minimal s
    **Option A: Quick Test (Single Student)**
    - Click **"Add Single Student"**
    - Email: `student@example.com`
-   - The system will send an invitation
+   - The system creates the account and shows a personal join link
 
    **Option B: CSV Upload**
    - Download the CSV template
    - Add student emails (one per line)
    - Upload the file
+   - Copy the generated join links (use "Copy All")
+
+3. **Distribute the join links** to students through your own channel (LMS announcement, email). For this quick test, just copy the link yourself.
 
 ## Step 10: Submit as Student
 
-1. **Check the invitation email** (if email is configured)
-2. **Register** using the invitation link
+1. **Open the student's join link** (paste it into your browser)
+2. **Activate the account** by setting a name and password
 3. **Log in** as the student
 4. Navigate to **"My Courses"** → **"WRIT101"**
 5. Click on **"Essay Draft 1"**
@@ -199,7 +202,6 @@ Congratulations! You've successfully:
 2. **Configure additional features:**
    - Set up more AI providers
    - Create feedback style templates
-   - Configure automated cleanup
 
 3. **Deploy to production:**
    - Review [Deployment Guide](/deployment/)

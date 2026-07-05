@@ -31,7 +31,7 @@ FeedForward uses a comprehensive backup strategy:
 Backup Components:
   Database: Full SQLite database files
   Configuration: Environment variables and settings
-  Uploads: Temporary student submissions (if retained)
+  Uploads: Student submissions (retained for progress tracking)
   Logs: System and audit logs
   
 Backup Schedule:
@@ -359,14 +359,10 @@ Actions:
 
 Ensure privacy-compliant data management:
 
-1. **Automated cleanup:**
-   ```bash
-   # Remove old submission content
-   python tools/cleanup_drafts.py
-   
-   # Verify cleanup
-   python tools/verify_privacy_compliance.py
-   ```
+1. **Submission data:**
+   - Draft content is retained by design to support progress tracking across drafts
+   - Students control the visibility of their own drafts (they can hide them from their view)
+   - Include submissions in your backup and export planning accordingly
 
 2. **Audit trail maintenance:**
    - Keep audit logs as required
@@ -577,9 +573,6 @@ crontab -e
 
 # Monthly report (1st day, 4 AM)
 0 4 1 * * /path/to/venv/bin/python /path/to/tools/generate_monthly_report.py
-
-# Privacy cleanup (daily 1 AM)
-0 1 * * * /path/to/venv/bin/python /path/to/tools/cleanup_drafts.py
 ```
 
 ### Monitoring Automation
