@@ -7,9 +7,31 @@ This guide walks you through deploying FeedForward on a VPS with Caddy as the re
 - Ubuntu 20.04+ or Debian 11+ VPS
 - Root access to the server
 - A domain name pointing to your VPS
-- Git repository with your FeedForward code
 
-## Quick Start
+## Quick Start (Docker, recommended)
+
+Releases publish a prebuilt image to GHCR (`ghcr.io/michael-borck/feed-forward`).
+No git checkout or local build needed — just this directory's compose file:
+
+```bash
+mkdir -p /opt/feedforward && cd /opt/feedforward
+curl -fLO https://raw.githubusercontent.com/michael-borck/feed-forward/main/deploy/docker-compose.yml
+curl -fLO https://raw.githubusercontent.com/michael-borck/feed-forward/main/deploy/Caddyfile
+nano Caddyfile   # set your domain
+nano .env        # SECRET_KEY, APP_DOMAIN, ADMIN_*, AI provider API keys
+docker compose up -d
+```
+
+Update to the latest release:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+Pin a version with `FEEDFORWARD_VERSION=0.2.0` in `.env`. Caddy handles HTTPS
+automatically via Let's Encrypt.
+
+## Quick Start (bare-metal, systemd)
 
 1. **SSH into your VPS**
    ```bash

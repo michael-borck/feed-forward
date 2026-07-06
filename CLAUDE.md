@@ -36,9 +36,9 @@ pytest                             # Run tests
 pytest --cov                       # With coverage
 
 # Docker
-docker-compose up                  # Standard
+docker-compose up                  # Standard (builds locally)
 docker-compose -f docker-compose.dev.yml up   # Dev
-docker-compose -f docker-compose.prod.yml up  # Prod
+# VPS/prod: deploy/docker-compose.yml pulls ghcr.io/michael-borck/feed-forward
 
 # Database
 python app/init_db.py              # Initialize DB with defaults
