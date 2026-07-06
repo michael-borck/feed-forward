@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/michael-borck/feed-forward/shared/ffrubric.schema.json",
+  "title": "FeedForward rubric export (.ffrubric)",
+  "type": "object",
+  "required": ["formatVersion", "kind", "assignment", "rubric"],
+  "properties": {
+    "formatVersion": { "type": "string", "pattern": "^1\\.[0-9]+$" },
+    "kind": { "const": "ffrubric" },
+    "exportedAt": { "type": "string" },
+    "source": {
+      "type": "object",
+      "properties": {
+        "app": { "type": "string" },
+        "courseCode": { "type": "string" },
+        "courseTitle": { "type": "string" }
+      }
+    },
+    "assignment": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "maxDrafts": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "rubric": {
+      "type": "object",
+      "required": ["categories"],
+      "properties": {
+        "categories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "weight"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "description": { "type": "string" },
+              "weight": { "type": "number", "minimum": 0, "maximum": 100 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

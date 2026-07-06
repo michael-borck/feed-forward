@@ -1,0 +1,15 @@
+{
+  "description": "Score bands shown to students as qualitative levels (dartboard metaphor). min is inclusive; bands are evaluated top-down.",
+  "levels": [
+    { "min": 90, "label": "On the bullseye", "color": "teal" },
+    { "min": 80, "label": "Closing in", "color": "teal" },
+    { "min": 70, "label": "On the board", "color": "amber" },
+    { "min": 60, "label": "Finding the range", "color": "amber" },
+    { "min": 0, "label": "Take another aim", "color": "red" }
+  ],
+  "colorBands": [
+    { "min": 80, "color": "teal" },
+    { "min": 60, "color": "amber" },
+    { "min": 0, "color": "red" }
+  ]
+}

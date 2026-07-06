@@ -31,16 +31,8 @@ feedforward-practice = "feedforward_practice.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/feedforward_practice"]
 
-# Vendor the server↔desktop contracts from the repo's shared/ directory so
-# the published package carries the exact same files the server tests
-# against (single source of truth; see ../shared/README.md).
-[tool.hatch.build.targets.wheel.force-include]
-"../shared/levels.json" = "feedforward_practice/contracts/levels.json"
-"../shared/ffrubric.schema.json" = "feedforward_practice/contracts/ffrubric.schema.json"
-"../shared/feedback-prompt.md" = "feedforward_practice/contracts/feedback-prompt.md"
-
 [tool.hatch.build.targets.sdist]
-include = ["src", "README.md", "../shared"]
+include = ["src", "README.md"]
 
 [tool.ruff]
 line-length = 88

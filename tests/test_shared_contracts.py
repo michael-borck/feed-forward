@@ -75,6 +75,23 @@ def test_schema_rejects_missing_categories(rubric_schema):
         jsonschema.validate(bad, rubric_schema)
 
 
+def test_practice_vendored_contracts_match_shared():
+    """practice/ ships committed copies of the shared contracts (so its
+    sdist/wheel are self-contained). They must stay byte-identical —
+    re-copy from shared/ when this fails."""
+    vendored = (
+        pathlib.Path(__file__).parent.parent
+        / "practice"
+        / "src"
+        / "feedforward_practice"
+        / "contracts"
+    )
+    for name in ("levels.json", "ffrubric.schema.json", "feedback-prompt.md"):
+        assert (vendored / name).read_bytes() == (SHARED / name).read_bytes(), (
+            f"{name} drifted — run: cp shared/{name} {vendored / name}"
+        )
+
+
 def test_prompt_contract_json_keys_match_shared():
     """The JSON response contract in shared/feedback-prompt.md names the keys
     both parsers rely on — make sure the canonical file still contains them."""
