@@ -25,3 +25,7 @@ jobs:
 
       - name: Run tests
         run: uv run --extra dev pytest -q
+
+      - name: Test feedforward-practice package
+        working-directory: practice
+        run: uv run --extra serve --extra dev python -m pytest tests -q

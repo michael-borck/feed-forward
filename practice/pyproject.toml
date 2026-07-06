@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "feedforward-practice"
+version = "0.1.0"
+description = "Private practice feedback on drafts against an instructor rubric (.ffrubric) — the FeedForward Desktop sidecar engine"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Michael Borck", email = "michael.borck@curtin.edu.au" }]
+dependencies = [
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+serve = [
+    "lens-contract>=0.3.1",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1",
+]
+
+[project.scripts]
+feedforward-practice = "feedforward_practice.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/feedforward_practice"]
+
+# Vendor the server↔desktop contracts from the repo's shared/ directory so
+# the published package carries the exact same files the server tests
+# against (single source of truth; see ../shared/README.md).
+[tool.hatch.build.targets.wheel.force-include]
+"../shared/levels.json" = "feedforward_practice/contracts/levels.json"
+"../shared/ffrubric.schema.json" = "feedforward_practice/contracts/ffrubric.schema.json"
+"../shared/feedback-prompt.md" = "feedforward_practice/contracts/feedback-prompt.md"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "README.md", "../shared"]
+
+[tool.ruff]
+line-length = 88
