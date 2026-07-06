@@ -9,7 +9,7 @@ description = "Private practice feedback on drafts against an instructor rubric 
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Michael Borck", email = "michael.borck@curtin.edu.au" }]
+authors = [{ name = "Michael Borck", email = "michael@borck.dev" }]
 dependencies = [
     "httpx>=0.27",
 ]
