@@ -1,26 +1,28 @@
 # FeedForward VPS deployment — pulls the prebuilt image from GHCR.
 # Images are published by the Release workflow when a v* tag is pushed.
 #
-# On the VPS you only need this file, a .env, and the Caddyfile:
+# On the VPS you only need this file and a .env:
 #   mkdir -p /opt/feedforward && cd /opt/feedforward
 #   curl -fLO https://raw.githubusercontent.com/michael-borck/feed-forward/main/deploy/docker-compose.yml
-#   curl -fLO https://raw.githubusercontent.com/michael-borck/feed-forward/main/deploy/Caddyfile
-#   nano .env    # SECRET_KEY, ADMIN_*, API keys, APP_DOMAIN
+#   nano .env    # SECRET_KEY, APP_DOMAIN, ADMIN_*, AI provider API keys
 #   docker compose up -d
 #
 # Update to the latest release:
 #   docker compose pull && docker compose up -d
 #
 # Pin a specific version by setting FEEDFORWARD_VERSION=0.2.0 in .env.
+#
+# The app listens on 127.0.0.1:5001 — put your own reverse proxy (nginx,
+# Caddy, Traefik, ...) in front for HTTPS. Sample configs live in this
+# directory. To expose it directly instead, change the port mapping to
+# "5001:5001".
 
 services:
   feedforward:
     image: ghcr.io/michael-borck/feed-forward:${FEEDFORWARD_VERSION:-latest}
     container_name: feedforward-app
-    networks:
-      - feedforward-net
-    expose:
-      - "5001"  # Only exposed to the internal network; Caddy fronts it
+    ports:
+      - "127.0.0.1:5001:5001"
     volumes:
       - feedforward-data:/app/data
       - feedforward-logs:/app/logs
@@ -29,7 +31,7 @@ services:
       - .env
     environment:
       - FEEDFORWARD_ENV=production
-      - APP_DOMAIN=${APP_DOMAIN:-https://feedforward.serveur.au}
+      - APP_DOMAIN=${APP_DOMAIN:-http://localhost:5001}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/"]
@@ -38,30 +40,13 @@ services:
       retries: 3
       start_period: 40s
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: feedforward-caddy
-    networks:
-      - feedforward-net
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-      - caddy-logs:/var/log/caddy
-    restart: unless-stopped
-    depends_on:
-      - feedforward
-
   # Optional: Ollama for local LLM (docker compose --profile with-ollama up -d)
   ollama:
     image: ollama/ollama:latest
     container_name: feedforward-ollama
     profiles: ["with-ollama"]
-    networks:
-      - feedforward-net
+    ports:
+      - "127.0.0.1:11434:11434"
     volumes:
       - ollama-data:/root/.ollama
     restart: unless-stopped
@@ -72,20 +57,10 @@ services:
       ollama pull llama3.2 &&
       tail -f /dev/null"
 
-networks:
-  feedforward-net:
-    driver: bridge
-
 volumes:
   feedforward-data:
     driver: local
   feedforward-logs:
     driver: local
   ollama-data:
-    driver: local
-  caddy-data:
-    driver: local
-  caddy-config:
-    driver: local
-  caddy-logs:
     driver: local

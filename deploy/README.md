@@ -16,8 +16,6 @@ No git checkout or local build needed — just this directory's compose file:
 ```bash
 mkdir -p /opt/feedforward && cd /opt/feedforward
 curl -fLO https://raw.githubusercontent.com/michael-borck/feed-forward/main/deploy/docker-compose.yml
-curl -fLO https://raw.githubusercontent.com/michael-borck/feed-forward/main/deploy/Caddyfile
-nano Caddyfile   # set your domain
 nano .env        # SECRET_KEY, APP_DOMAIN, ADMIN_*, AI provider API keys
 docker compose up -d
 ```
@@ -28,8 +26,12 @@ Update to the latest release:
 docker compose pull && docker compose up -d
 ```
 
-Pin a version with `FEEDFORWARD_VERSION=0.2.0` in `.env`. Caddy handles HTTPS
-automatically via Let's Encrypt.
+Pin a version with `FEEDFORWARD_VERSION=0.2.0` in `.env`.
+
+The app listens on `127.0.0.1:5001`. HTTPS/reverse-proxying is up to you —
+point nginx, Caddy, Traefik, or your existing proxy at it. Sample configs
+(`nginx.conf`, `Caddyfile.example`, `traefik.yml`, ...) live in this
+directory for reference.
 
 ## Quick Start (bare-metal, systemd)
 
