@@ -16,6 +16,8 @@ Scores still arrive as floats in all modes — they drive glyph closeness and
 level words; the mode only controls whether digits are rendered.
 """
 
+import json
+import pathlib
 from typing import Any, Optional
 
 from fasthtml import common as fh
@@ -30,29 +32,28 @@ DEFAULT_DISPLAY = DISPLAY_ICON
 
 _INK = "#1a2e44"
 
+# Level words and colour bands are a server↔desktop contract — loaded from
+# shared/levels.json so both apps move together (see shared/README.md).
+_LEVELS_PATH = pathlib.Path(__file__).parent.parent.parent / "shared" / "levels.json"
+with open(_LEVELS_PATH) as _f:
+    _LEVELS_SPEC = json.load(_f)
+
 
 def get_score_color(score: float) -> str:
-    """Editorial semantic colour family for a score: teal / amber / red."""
-    if score >= 80:
-        return "teal"
-    elif score >= 60:
-        return "amber"
-    else:
-        return "red"
+    """Semantic colour family for a score, from the shared contract."""
+    for band in _LEVELS_SPEC["colorBands"]:
+        if score >= band["min"]:
+            return band["color"]
+    return _LEVELS_SPEC["colorBands"][-1]["color"]
 
 
 def get_level_text(score: float) -> str:
-    """Qualitative level word — the student-facing vocabulary for a score."""
-    if score >= 90:
-        return "On the bullseye"
-    elif score >= 80:
-        return "Closing in"
-    elif score >= 70:
-        return "On the board"
-    elif score >= 60:
-        return "Finding the range"
-    else:
-        return "Take another aim"
+    """Qualitative level word — the student-facing vocabulary for a score,
+    from the shared contract."""
+    for level in _LEVELS_SPEC["levels"]:
+        if score >= level["min"]:
+            return level["label"]
+    return _LEVELS_SPEC["levels"][-1]["label"]
 
 
 def _level_badge(score: float) -> fh.Span:

@@ -1264,9 +1264,26 @@ def instructor_rubric_view(session, assignment_id: int):
     if rubric:
         # Rubric exists - show edit form
         form_content = fh.Div(
-            fh.H2(
-                f"Manage Rubric for: {assignment.title}",
-                cls="text-2xl font-bold text-[#1a2e44] mb-4",
+            fh.Div(
+                fh.H2(
+                    f"Manage Rubric for: {assignment.title}",
+                    cls="text-2xl font-bold text-[#1a2e44] mb-4",
+                ),
+                fh.A(
+                    "Export rubric (.ffrubric)",
+                    href=f"/instructor/assignments/{assignment_id}/rubric/export",
+                    title=(
+                        "Download this rubric as a file students can open in "
+                        "FeedForward Desktop for private practice feedback"
+                    ),
+                    cls=(
+                        "text-xs uppercase tracking-[0.15em] text-teal-600 "
+                        "border border-teal-600 px-4 py-2 rounded "
+                        "hover:bg-teal-600 hover:text-white transition-colors "
+                        "whitespace-nowrap"
+                    ),
+                ),
+                cls="flex justify-between items-start gap-4",
             ),
             fh.P(
                 "Edit the rubric categories and their weights. The weights should sum to 100%.",
@@ -1664,6 +1681,80 @@ def instructor_rubric_view(session, assignment_id: int):
         sidebar_content,
         form_content,
         user_role=Role.INSTRUCTOR,
+    )
+
+
+@rt("/instructor/assignments/{assignment_id}/rubric/export")
+@instructor_required
+def instructor_rubric_export(session, assignment_id: int):
+    """Download the assignment's rubric as a .ffrubric file.
+
+    The format is the server↔desktop contract defined in
+    shared/ffrubric.schema.json: instructors hand the file to students, who
+    open it in FeedForward Desktop for private practice feedback.
+    """
+    from starlette.responses import JSONResponse
+
+    user = users[session["auth"]]
+    assignment, error = get_instructor_assignment(assignment_id, user.email)
+    if error:
+        return fh.RedirectResponse("/instructor/courses", status_code=303)
+
+    course, _ = get_instructor_course(assignment.course_id, user.email)
+
+    rubric = next((r for r in rubrics() if r.assignment_id == assignment_id), None)
+    categories = (
+        sorted(
+            (c for c in rubric_categories() if c.rubric_id == rubric.id),
+            key=lambda c: c.id,
+        )
+        if rubric
+        else []
+    )
+    if not categories:
+        return fh.RedirectResponse(
+            f"/instructor/assignments/{assignment_id}/rubric", status_code=303
+        )
+
+    payload = {
+        "formatVersion": "1.0",
+        "kind": "ffrubric",
+        "exportedAt": datetime.now().isoformat(timespec="seconds"),
+        "source": {
+            "app": "FeedForward",
+            "courseCode": getattr(course, "code", "") or "",
+            "courseTitle": getattr(course, "title", "") or "",
+        },
+        "assignment": {
+            "title": assignment.title,
+            "description": assignment.description or "",
+            "dueDate": getattr(assignment, "due_date", "") or "",
+            "maxDrafts": getattr(assignment, "max_drafts", 3) or 3,
+        },
+        "rubric": {
+            "categories": [
+                {
+                    "name": c.name,
+                    "description": c.description or "",
+                    "weight": float(c.weight),
+                }
+                for c in categories
+            ]
+        },
+    }
+
+    safe_title = (
+        "".join(ch if ch.isalnum() or ch in "-_ " else "" for ch in assignment.title)
+        .strip()
+        .replace(" ", "-")[:60]
+    )
+    return JSONResponse(
+        payload,
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{safe_title or "rubric"}.ffrubric"'
+            )
+        },
     )
 
 
