@@ -10,7 +10,7 @@ pytest.importorskip("lens_contract")
 from fastapi.testclient import TestClient  # noqa: E402
 
 from feedforward_practice import api as api_mod  # noqa: E402
-from tests.test_engine import RUBRIC, model_json  # noqa: E402
+from tests.test_engine import RUBRIC  # noqa: E402
 
 client = TestClient(api_mod.app)
 
