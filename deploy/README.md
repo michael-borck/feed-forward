@@ -26,7 +26,7 @@ Update to the latest release:
 docker compose pull && docker compose up -d
 ```
 
-Pin a version with `FEEDFORWARD_VERSION=0.2.0` in `.env`.
+Pin a version with `FEEDFORWARD_VERSION=0.2.1` in `.env`.
 
 The app listens on `127.0.0.1:5001`. HTTPS/reverse-proxying is up to you —
 point nginx, Caddy, Traefik, or your existing proxy at it. Sample configs

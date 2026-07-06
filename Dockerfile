@@ -17,13 +17,13 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
 WORKDIR /app
 
 # Copy dependency files
-COPY pyproject.toml .
-COPY README.md .
+COPY pyproject.toml uv.lock README.md ./
 
-# Create virtual environment and install dependencies
+# Install dependencies pinned by uv.lock (unpinned resolution pulled in a
+# python-fasthtml that dropped the `database` re-export)
 RUN uv venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-RUN uv pip install -e .
+ENV PATH="/opt/venv/bin:$PATH" UV_PROJECT_ENVIRONMENT=/opt/venv
+RUN uv sync --frozen --no-install-project --no-dev
 
 # Production stage
 FROM python:3.11-slim
